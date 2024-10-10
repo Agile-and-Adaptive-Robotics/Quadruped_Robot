@@ -1201,16 +1201,16 @@ classdef synapse_manager_class
         function parameters = process_transmission_gs21_parameters( self, synapse_ID, parameters, encoding_scheme, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 5, synapses = self.synapses; end                                                                % [class] Array of Synapse Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, parameters = {  }; end                                                                       % [cell] Parameters Cell.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                                    % If no parameters were provided...
+                if isempty( parameters )                                                                                % If no parameters were provided...
                     
                     % Set the default parameter values.
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.

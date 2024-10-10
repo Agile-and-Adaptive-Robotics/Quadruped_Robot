@@ -2661,93 +2661,36 @@ classdef neuron_manager_class
         %}
         
         
-        %% Method Parameter Processing Functions.
+        %% Parameter Processing Functions.
         
         % ---------- Transmission Subnetwork Functions ----------
 
         % Implement a function to process the transmission subnetwork output activation domain parameters.
-        function parameters = process_transmission_R2_parameters( self, parameters, encoding_scheme, neurons )
+        function transmission_R2_parameters = process_transmission_R2_parameters( self, transmission_R2_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                  	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end           	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                        	% [cell] Parameters Cell.
-            
-            % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                   	% If this operation is using an absolute encoding scheme...
-                
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                	% If no parameters were provided...
-                    
-                    % Retrieve the parameters.
-                    c = self.c_absolute_transmission_DEFAULT;                             	% [-] Absolute Transmission Gain.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );	% [V] Activation Domain.
-                    
-                    % Store the required parameters in a cell.
-                    parameters = { c, R1 };
-                    
-                else                                                                        % Otherwise...
-                    
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        	% If there is anything other than a single parameter entry...
-                        
-                        % Throw an error.
-                        error( 'Invalid parameters detected.' )
-                        
-                    end
-                    
-                end
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                                   % If this operation uses a relative encoding scheme...
-                
-                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                   % If the parameters cell is not empty...
-                    
-                    % Throw an error.
-                    error( 'Invalid parameters detected.' )
-                    
-                end
-                
-            else                                                                            % Otherwise...
-                
-                % Throw an error.
-                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
-                
-            end
-            
-        end
-        
-        
-        % Implement a function to process the transmission subnetwork parameters.
-        function transmission_parameters = process_transmission_parameters( self, neuron_IDs, transmission_parameters, encoding_scheme, neurons, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.  Determines behavior when a neuron of the specified ID can not be found.
-            if nargin < 5, neurons = self.neurons; end                                                              	% [class] Array of Neuron Class Objects.
-            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, transmission_parameters = {  }; end                                                          % [cell] Parameters Cell.  (Absolute: c, R1, Gm1, Gm2, Cm1, Cm2; Relative: R1, R2, Gm1, Gm2, Cm1, Cm2)
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, transmission_R2_parameters = {  }; end                                                       % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( transmission_parameters )                                                                   % If no parameters were provided...
+                if isempty( transmission_R2_parameters )                                                                % If no parameters were provided...
                     
-                    % Set the default parameter values.
-                    c = self.c_transmission_DEFAULT;                                                                    % [-] Subnetwork Gain.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );         	% [V] Maximum Member Voltage.
-                    Gm1 = self.get_neuron_property( neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );        	% [S] Membrane Conductance 1.
-                    Gm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );         	% [S] Membrane Conductance 2.
-                    Cm1 = self.get_neuron_property( neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );         	% [F] Membrane Capacitance 1.
-                    Cm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
-
+                    % Retrieve the parameters.
+                    c = self.c_absolute_transmission_DEFAULT;                                                         	% [-] Absolute Transmission Gain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    
                     % Store the required parameters in a cell.
-                    transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
+                    transmission_R2_parameters = { c, R1 };
                     
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( transmission_parameters ) ~= 6                                                           % If there is anything other than the required number of parameter entries...
+                    if length( transmission_R2_parameters ) ~= 2                                                        % If there is anything other than a single parameter entry...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2759,23 +2702,81 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( transmission_parameters )                                                                   % If no parameters were provided...
+                if ~isempty( transmission_R2_parameters )                                                               % If the parameters cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid parameters detected.' )
+                    
+                end
+                
+            else                                                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the transmission subnetwork parameters.
+        function transmission_parameters = process_transmission_parameters( self, transmission_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                              % [-] Undetected Option.  Determines behavior when a neuron of the specified ID can not be found.
+            if nargin < 4, neurons = self.neurons; end                                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, transmission_parameters = {  }; end                                                                  % [cell] Parameters Cell.  (Absolute: c, R1, Gm1, Gm2, Cm1, Cm2; Relative: R1, R2, Gm1, Gm2, Cm1, Cm2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                           % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( transmission_parameters )                                                                           % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );          	% [V] Maximum Membrane Voltage (Neuron 1).
-                    R2 = self.get_neuron_property( neuron_IDs( 2 ), 'R', true, neurons, undetected_option );           	% [V] Maximum Membrane Voltage (Neuron 2).
-                    Gm1 = self.get_neuron_property( neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );         	% [S] Membrane Conductance (Neuron 1).
-                    Gm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );        	% [S] Membrane Conductance (Neuron 2).
-                    Cm1 = self.get_neuron_property( neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );       	% [F] Membrane Capacitance (Neuron 1).
-                    Cm2 = self.get_neuron_property( neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance (Neuron 2).
+                    c = self.c_transmission_DEFAULT;                                                                            % [-] Transmission Subnetwork Gain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );         	% [V] Maximum Member Voltage.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );        	% [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );         	% [S] Membrane Conductance 2.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );         	% [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+
+                    % Store the required parameters in a cell.
+                    transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
+                    
+                else                                                                                                            % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( transmission_parameters ) ~= 6                                                                   % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                       % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( transmission_parameters )                                                                           % If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );          	% [V] Maximum Membrane Voltage (Neuron 1).
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );           	% [V] Maximum Membrane Voltage (Neuron 2).
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );         	% [S] Membrane Conductance (Neuron 1).
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );        	% [S] Membrane Conductance (Neuron 2).
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );       	% [F] Membrane Capacitance (Neuron 1).
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance (Neuron 2).
             
                     % Store the required parameters in a cell.
                     transmission_parameters = { R1, R2, Gm1, Gm2, Cm1, Cm2 };
                     
-                else                                                                                                    % Otherwise...
+                else                                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( transmission_parameters ) ~= 6                                                           % If there is anything other than the require number of parameter entries...
+                    if length( transmission_parameters ) ~= 6                                                                   % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2784,7 +2785,7 @@ classdef neuron_manager_class
                     
                 end
                 
-            else                                                                                                        % Otherwise...
+            else                                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2797,30 +2798,31 @@ classdef neuron_manager_class
         % ---------- Addition Subnetwork Functions ----------
         
         % Implement a function to process the addition subnetwork output activation domain parameters.
-        function parameters = process_addition_Rn_parameters( self, parameters, encoding_scheme, neurons )
+        function addition_Rn_parameters = process_addition_Rn_parameters( self, addition_Rn_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                       % [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                                          % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, addition_Rn_parameters = {  }; end                                                                               % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                                % If no parameters were provided...
+                if isempty( addition_Rn_parameters )                                                                                        % If no parameters were provided...
                     
                     % Retrieve the parameters.
-                    cs = self.c_absolute_addition_DEFAULT*ones( 1, neurons.num_neurons - 1 );                           % [-] Absolute Addition Gain.
-                    Rs = self.get_neuron_property( neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons );           % [V] Activation Domain.
+                    cs = self.c_absolute_addition_DEFAULT*ones( 1, neurons.num_neurons - 1 );                                               % [-] Absolute Addition Gain.
+                    Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons, undetected_option );      % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { cs, Rs };
+                    addition_Rn_parameters = { cs, Rs_input };
                     
-                else                                                                                                    % Otherwise...
+                else                                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                                                        % If there is anything other than a single parameter entry...
+                    if length( addition_Rn_parameters ) ~= 2                                                                                % If there is anything other than a single parameter entry...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2829,17 +2831,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                                               % If the parameters cell is not empty...
+                if ~isempty( addition_Rn_parameters )                                                                                       % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                                        % Otherwise...
+            else                                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2850,31 +2852,33 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the addition subnetwork parameters.
-        function parameters = process_addition_parameters( self, parameters, encoding_scheme )
+        function addition_parameters = process_addition_parameters( self, addition_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                     	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                                      % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, addition_parameters = {  }; end                                                                              % [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                              	% If no parameters were provided...
+                if isempty( addition_parameters )                                                                                       % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    cs = addition_parameters{ 1 };
-                    Rs_input = addition_parameters{ 2 };
-                    Gms = addition_parameters{ 3 };
-                    Cms = addition_parameters{ 4 };
+                    cs = self.c_addition_DEFAULT*ones( 1, neurons.num_neurons );                                                        % [-] Addition Subnetwork Gain.
+                    Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option );      % [V] Maximum Member Voltages.
+                    Gms = self.get_neuron_property( neurons.neuron_IDs, 'Gm', true, neurons, undetected_option );                       % [S] Membrane Conductances.
+                    Cms = self.get_neuron_property( neurons.neuron_IDs, 'Cm', true, neurons, undetected_option );                       % [F] Membrane Capacitances.
 
                     % Store the required parameters in a cell.
-                    parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
+                    addition_parameters = { cs, Rs_input, Gms, Cms };
                     
-                else                                                                    % Otherwise...
+                else                                                                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                                    	% If there is anything other than the required number of parameter entries...
+                    if length( addition_parameters ) ~= 4                                                                               % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2883,24 +2887,24 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                            	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                              	% If no parameters were provided...
+                if isempty( addition_parameters )                                                                                       % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    cs = addition_parameters{ 1 };
-                    Rs = addition_parameters{ 2 };
-                    Gms = addition_parameters{ 3 };
-                    Cms = addition_parameters{ 4 };
+                    cs = self.c_addition_DEFAULT*ones( 1, neurons.num_neurons );                                                        % [-] Addition Subnetwork Gain.
+                    Rs = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );                         % [V] Maximum Membrane Voltages.
+                    Gms = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );                        % [S] Membrane Conductances.
+                    Cms = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );                        % [F] Membrane Capacitance.
             
                     % Store the required parameters in a cell.
-                    parameters = { R1, R2, Gm1, Gm2, Cm1, Cm2 };
+                    addition_parameters = { cs, Rs, Gms, Cms };
                     
-                else                                                                 	% Otherwise...
+                else                                                                                                                   	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                                      	% If there is anything other than the require number of parameter entries...
+                    if length( addition_parameters ) ~= 4                                                                               % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2909,7 +2913,7 @@ classdef neuron_manager_class
                     
                 end
                 
-            else                                                                    	% Otherwise...
+            else                                                                                                                        % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2919,35 +2923,35 @@ classdef neuron_manager_class
         end
         
         
-        
         % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to process the subtraction subnetwork output activation domain parameters.
-        function parameters = process_subtraction_Rn_parameters( self, parameters, encoding_scheme, neurons )
+        function subtraction_Rn_parameters = process_subtraction_Rn_parameters( self, subtraction_Rn_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                               % [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                                          % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, subtraction_Rn_parameters = {  }; end                                                                            % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                                     	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                        % If no parameters were provided...
+                if isempty( subtraction_Rn_parameters )                                                                                     % If no parameters were provided...
                     
                     % Retrieve the subtraction subnetwork gains.
-                    cs = self.c_absolute_subtraction_DEFAULT*ones( 1, neurons.num_neurons - 1 );                % [-] Absolute Subtraction Gain.
-                    s_ks = self.signature_DEFAULT;                                                              % [-] Subtraction Signature.
-                    Rs = self.get_neuron_property( neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons );           % [V] Activation Domain.
+                    cs = self.c_absolute_subtraction_DEFAULT*ones( 1, neurons.num_neurons - 1 );                                            % [-] Absolute Subtraction Gain.
+                    s_ks = self.signature_DEFAULT;                                                                                          % [-] Subtraction Signature.
+                    Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons, undetected_option );      % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { cs, s_ks, Rs };
+                    subtraction_Rn_parameters = { cs, s_ks, Rs_input };
                     
-                else                                                                                            % Otherwise...
+                else                                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                                % If there is anything other than two parameter entries...
+                    if length( subtraction_Rn_parameters ) ~= 3                                                                             % If there is anything other than two parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2956,17 +2960,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                                       % If the parameters cell is not empty...
+                if ~isempty( subtraction_Rn_parameters )                                                                                    % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                               	% Otherwise...
+            else                                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -2977,34 +2981,105 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the subtraction subnetwork parameters.
+        function subtraction_parameters = process_subtraction_parameters( self, subtraction_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                                      % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, subtraction_parameters = {  }; end                                                                           % [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( subtraction_parameters )                                                                                    % If no parameters were provided...
+                                        
+                    % Set the default parameter values.
+                    cs = self.c_subtraction_DEFAULT;                                                                                    % [-] Subtraction Subnetwork Gain.
+                    ss = self.signature_DEFAULT;                                                                                        % [-] Subtraction Signature.
+                    Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option );      % [V] Maximum Member Voltages.
+                    Gms = self.get_neuron_property( neurons.neuron_IDs, 'Gm', true, neurons, undetected_option );                       % [S] Membrane Conductances.
+                    Cms = self.get_neuron_property( neurons.neuron_IDs, 'Cm', true, neurons, undetected_option );                       % [F] Membrane Capacitances.
+
+                    % Store the required parameters in a cell.
+                    subtraction_parameters = { cs, ss, Rs_input, Gms, Cms };
+                    
+                else                                                                                                                  	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( subtraction_parameters ) ~= 5                                                                          	% If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( subtraction_parameters )                                                                                 	% If no parameters were provided...
+                                        
+                    % Set the default parameter values.
+                    cs = self.c_subtraction_DEFAULT;                                                                                    % [-] Subtraction Gain.
+                    ss = self.signature_DEFAULT;                                                                                        % [-] Subtraction Signature.
+                    Rs = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );                         % [V] Maximum Membrane Voltages.
+                    Gms = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );                        % [S] Membrane Conductances.
+                    Cms = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );                        % [F] Membrane Capacitance.
+            
+                    % Store the required parameters in a cell.
+                    subtraction_parameters = { cs, ss, Rs, Gms, Cms };
+                    
+                else                                                                                                                   	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( subtraction_parameters ) ~= 5                                                                        	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Inversion Subnetwork Functions ----------
                 
         % Implement a function to process the inversion subnetwork output activation domain parameters.
-        function parameters = process_inversion_R2_parameters( self, parameters, encoding_scheme )
+        function inversion_R2_parameters = process_inversion_R2_parameters( self, inversion_R2_parameters, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                       % [cell] Parameters Cell.
+            if nargin < 2, inversion_R2_parameters = {  }; end                          % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                if isempty( inversion_R2_parameters )                                	% If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_absolute_inversion_DEFAULT;                            % [-] Absolute Inversion Gain 1.
                     c3 = self.c3_absolute_inversion_DEFAULT;                            % [-] Absolute Inversion Gain 2.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c3 };
+                    inversion_R2_parameters = { c1, c3 };
                     
                 else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    if length( inversion_R2_parameters ) ~= 2                         	% If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3016,7 +3091,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                               % If the parameters cell is not empty...
+                if ~isempty( inversion_R2_parameters )                                 	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
@@ -3034,34 +3109,111 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the inversion subnetwork parameters.
+        function inversion_parameters = process_inversion_parameters( self, inversion_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, inversion_parameters = {  }; end                                                                  	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( inversion_parameters )                                                                            	% If no parameters were provided...
+                                                          
+                    % Set the default parameter values.
+                    c1 = self.c1_absolute_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 1.
+                    c3 = self.c3_absolute_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 3.
+                    delta = self.delta_absolute_inversion_DEFAULT;                                                              % [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance.
+
+                    % Store the required parameters in a cell.
+                    inversion_parameters = { c1, c3, delta, R1, Gm1, Gm2, Cm1, Cm2 };
+                    
+                else                                                                                                         	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( inversion_parameters ) ~= 8                                                                    	% If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( inversion_parameters )                                                                            	% If no parameters were provided...
+                    
+                    % Set the default parameter values.
+                    c3 = self.c3_relative_inversion_DEFAULT;                                                                    % [-] Subtraction Subnetwork Gain 3.
+                    delta = self.delta_relative_inversion_DEFAULT;                                                              % [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+            
+                    % Store the required parameters in a cell.
+                    inversion_parameters = { c3, delta, R1, R2, Gm1, Gm2, Cm1, Cm2 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( inversion_parameters ) ~= 8                                                                   	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
                 
         % Implement a function to process the reduced inversion subnetwork output activation domain parameters.
-        function parameters = process_reduced_inversion_R2_parameters( self, parameters, encoding_scheme )
+        function reduced_inversion_R2_parameters = process_reduced_inversion_R2_parameters( self, reduced_inversion_R2_parameters, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                       % [cell] Parameters Cell.
+            if nargin < 2, reduced_inversion_R2_parameters = {  }; end                 	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                if isempty( reduced_inversion_R2_parameters )                         	% If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                    % [-] Reduced Absolute Inversion Gain 1.
-                    c2 = self.c2_reduced_absolute_inversion_DEFAULT;                    % [-] Reduced Absolute Inversion Gain 2.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                    % [-] Subnetwork Gain 1.
+                    c2 = self.c2_reduced_absolute_inversion_DEFAULT;                    % [-] Subnetwork Gain 2.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c2 };
+                    reduced_inversion_R2_parameters = { c1, c2 };
                     
                 else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    if length( reduced_inversion_R2_parameters ) ~= 2                 	% If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3073,7 +3225,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                               % If the parameters cell is not empty...
+                if ~isempty( reduced_inversion_R2_parameters )                        	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
@@ -3091,36 +3243,36 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the reduced inversion parameters.
-        
-        
-        % ---------- Division Subnetwork Functions ----------
-        
-        % Implement a function to process the division subnetwork output activation domain parameters.
-        function parameters = process_division_R3_parameters( self, parameters, encoding_scheme, neurons )
+        function reduced_inversion_parameters = process_reduced_inversion_parameters( self, reduced_inversion_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                          	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                    	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                  	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_inversion_parameters = {  }; end                                                          	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                             	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                          	% If no parameters were provided...
-                    
-                    % Set the default input and output voltage offsets.
-                    c1 = self.c1_absolute_division_DEFAULT;                                         % [-] Absolute Division Gain 1.
-                    c3 = self.c3_absolute_division_DEFAULT;                                         % [-] Absolute Division Gain 3.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
+                if isempty( reduced_inversion_parameters )                                                                   	% If no parameters were provided...
+                                                          
+                    % Set the default parameter values.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
+                    delta = self.delta_reduced_absolute_inversion_DEFAULT;                                                     	% [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c3, R1 };
+                    reduced_inversion_parameters = { c1, delta, R1, Gm1, Gm2, Cm1, Cm2 };
                     
-                else                                                                              	% Otherwise...
+                else                                                                                                         	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                	% If there is anything other than four parameter entries...
+                    if length( reduced_inversion_parameters ) ~= 7                                                           	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3129,17 +3281,36 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                          	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                          	% If the parameters cell is not empty...
+                if isempty( reduced_inversion_parameters )                                                                  	% If no parameters were provided...
                     
-                    % Throw an error.
-                    error( 'Invalid parameters detected.' )
+                    % Set the default parameter values.
+                    delta = self.delta_reduced_relative_inversion_DEFAULT;                                                     	% [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    
+                    % Store the required parameters in a cell.
+                    reduced_inversion_parameters = { delta, R1, R2, Gm1, Gm2, Cm1, Cm2 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_inversion_parameters ) ~= 7                                                           	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
                     
                 end
                 
-            else                                                                                   	% Otherwise...
+            else                                                                                                             	% Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3149,39 +3320,35 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to process teh division subnetwork parameters.
+        % ---------- Division Subnetwork Functions ----------
         
-        
-        % ---------- Division After Inversion Subnetwork Functions ----------
-        
-        % Implement a function to process the division after inversion subnetwork output activation domain parameters.
-        function parameters = process_dai_R3_parameters( self, parameters, encoding_scheme, neurons )
+        % Implement a function to process the division subnetwork output activation domain parameters.
+        function division_R3_parameters = process_division_R3_parameters( self, division_R3_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                            	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                    	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                  	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Otion.
+            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, division_R3_parameters = {  }; end                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                              	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                        	% If no parameters were provided...
+                if isempty( division_R3_parameters )                                                                    % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c1 = self.c1_absolute_dai_DEFAULT;                                              % [-] Absolute division After Inversion Gain 1.
-                    c2 = self.c2_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 2.
-                    c3 = self.c3_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 3.
-                    delta1 = self.delta_absolute_inversion_DEFAULT;                                 % [-] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
+                    c1 = self.c1_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 1.
+                    c3 = self.c3_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 3.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c2, c3, delta1, R1 };
+                    division_R3_parameters = { c1, c3, R1 };
                     
-                else                                                                               	% Otherwise...
+                else                                                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 5                                                 	% If there is anything other than four parameter entries...
+                    if length( division_R3_parameters ) ~= 3                                                            % If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3190,17 +3357,162 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                           % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                         	% If the parameters cell is not empty...
+                if ~isempty( division_R3_parameters )                                                                   % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                  	% Otherwise...
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division subnetwork parameters.
+        function division_parameters = process_division_parameters( self, division_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, division_parameters = {  }; end                                                                  	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( division_parameters )                                                                            	% If no parameters were provided...
+                                                         
+                    % Set the default parameter values.
+                    c1 = self.c1_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 1.
+                    c3 = self.c3_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 3.
+                    delta = self.delta_absolute_division_DEFAULT;                                                               % [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+                    % Store the required parameters in a cell.
+                    division_parameters = { c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
+                    
+                else                                                                                                         	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( division_parameters ) ~= 11                                                                    	% If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( division_parameters )                                                                            	% If no parameters were provided...
+                    
+                    % Set the parameter values.
+                    c3 = self.c3_relative_division_DEFAULT;                                                                     % [-] Subnetwork Gain 3.
+                    delta = self.delta_relative_division_DEFAULT;                                                               % [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    
+                    % Store the required parameters in a cell.
+                    division_parameters = { c3, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( division_parameters ) ~= 11                                                                   	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to process the division after inversion subnetwork output activation domain parameters.
+        function dai_R3_parameters = process_dai_R3_parameters( self, dai_R3_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                              % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, dai_R3_parameters = {  }; end                                                       	% [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( dai_R3_parameters )                                                              	% If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    c1 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
+                    c2 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
+                    c3 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
+                    delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    
+                    % Store the required parameters in a cell.
+                    dai_R3_parameters = { c1, c2, c3, delta1, R1 };
+                    
+                else                                                                                            % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( dai_R3_parameters ) ~= 5                                                       	% If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( dai_R3_parameters )                                                             	% If the parameters cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid parameters detected.' )
+                    
+                end
+                
+            else                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3211,37 +3523,41 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the division after inversion subnetwork parameters.
-        
-        
-
-        % ---------- Reduced Division Subnetwork Functions ----------
-        
-        % Implement a function to process the reduced division subnetwork output activation domain parameters.
-        function parameters = process_reduced_division_R3_parameters( self, parameters, encoding_scheme, neurons )
+        function dai_parameters = process_dai_parameters( self, dai_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                            	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                     	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                               	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, dai_parameters = {  }; end                                                                           % [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                            	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                            % If no parameters were provided...
-                    
-                    % Set the default input and output voltage offsets.
-                    c1 = self.c1_reduced_absolute_division_DEFAULT;                                 % [-] Reduced Absolute Division Gain 1.
-                    c2 = self.c2_reduced_absolute_division_DEFAULT;                                 % [-] Reduced Absolute Division Gain 2.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
-                    
+                if isempty( dai_parameters )                                                                                    % If no parameters were provided...
+                         
+                    % Set the default parameters.
+                    c1 = self.c1_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 1.
+                    c3 = self.c3_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 3.
+                    delta1 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 2.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
                     % Store the required parameters in a cell.
-                    parameters = { c1, c2, R1 };
+                    dai_parameters = { c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
                     
-                else                                                                               	% Otherwise...
+                else                                                                                                         	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                  	% If there is anything other than four parameter entries...
+                    if length( dai_parameters ) ~= 12                                                                           % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3250,17 +3566,98 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                        	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                          	% If the parameters cell is not empty...
+                if isempty( dai_parameters )                                                                                    % If no parameters were provided...
+                    
+                    % Set the default parameters.
+                    c3 = self.c3_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 3.
+                    delta1 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 2.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    
+                    % Store the required parameters in a cell.
+                    dai_parameters = { c3, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( dai_parameters ) ~= 11                                                                           % If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to process the reduced division subnetwork output activation domain parameters.
+        function reduced_division_R3_parameters = process_reduced_division_R3_parameters( self, reduced_division_R3_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                              % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_division_R3_parameters = {  }; end                                                               % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_division_R3_parameters )                                                                        % If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    c1 = self.c1_reduced_absolute_division_DEFAULT;                                             % [-] Reduced Absolute Division Gain 1.
+                    c2 = self.c2_reduced_absolute_division_DEFAULT;                                             % [-] Reduced Absolute Division Gain 2.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    
+                    % Store the required parameters in a cell.
+                    reduced_division_R3_parameters = { c1, c2, R1 };
+                    
+                else                                                                                            % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_division_R3_parameters ) ~= 3                                                                % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( reduced_division_R3_parameters )                                                                       % If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                  	% Otherwise...
+            else                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3271,37 +3668,39 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the reduced division subnetwork parameters.
-        
-        
-        % ---------- Division After Inversion Subnetwork Functions ----------
-        
-        % Implement a function to process the reduced division after inversion subnetwork output activation domain parameters.
-        function parameters = process_reduced_dai_R3_parameters( self, parameters, encoding_scheme, neurons )
+        function reduced_division_parameters = process_reduced_division_parameters( self, reduced_division_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                           	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                    	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_division_parameters = {  }; end                                                            	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                            	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                         	% If no parameters were provided...
-                    
-                    % Set the default input and output voltage offsets.
-                    c1 = self.c1_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 1.
-                    c2 = self.c2_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 2.
-                    delta1 = self.delta_absolute_inversion_DEFAULT;                                 % [V] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
+                if isempty( reduced_division_parameters )                                                                     	% If no parameters were provided...
+                              
+                    % Set the default parameter values.
+                    c1 = self.c1_absolute_reduced_division_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
+                    delta = self.delta_absolute_reduced_division_DEFAULT;                                                       % [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c2, delta1, R1 };
+                    reduced_division_parameters = { c1, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
                     
-                else                                                                               	% Otherwise...
+                else                                                                                                         	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                   	% If there is anything other than four parameter entries...
+                    if length( reduced_division_parameters ) ~= 10                                                            	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3310,17 +3709,97 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                         	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                          	% If the parameters cell is not empty...
+                if isempty( reduced_division_parameters )                                                                    	% If no parameters were provided...
+                       
+                    % Set the default parameters.
+                    delta = self.delta_relative_reduced_division_DEFAULT;                                                      	% [V] Bifurcation Parameter.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    
+                    % Store the required parameters in a cell.
+                    reduced_division_parameters = { delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_division_parameters ) ~= 10                                                           	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to process the reduced division after inversion subnetwork output activation domain parameters.
+        function reduced_dai_R3_parameters = process_reduced_dai_R3_parameters( self, reduced_dai_R3_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                              % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_dai_R3_parameters = {  }; end                                                % [cell] Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_dai_R3_parameters )                                                     	% If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    c1 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
+                    c2 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
+                    delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [V] Absolute Inversion Offset.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    
+                    % Store the required parameters in a cell.
+                    reduced_dai_R3_parameters = { c1, c2, delta1, R1 };
+                    
+                else                                                                                            % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_dai_R3_parameters ) ~= 4                                               	% If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( reduced_dai_R3_parameters )                                                      	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                  	% Otherwise...
+            else                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3331,34 +3810,117 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the reduced division after inversion subnetwork parameters.
+        function reduced_dai_parameters = process_reduced_dai_parameters( self, reduced_dai_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_dai_parameters = {  }; end                                                                   % [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_dai_parameters )                                                                        	% If no parameters were provided...
+                     
+                    % Set the default parameters.
+                    c1 = self.c1_reduced_dai_DEFAULT;                                                                           % [-] Subnetwork Gain 1.
+                    delta1 = self.delta_reduced_dai_DEFAULT;                                                                    % [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_reduced_dai_DEFAULT;                                                                    % [V] Bifurcation Parameter 2.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+                    % Store the required parameters in a cell.
+                    reduced_dai_parameters = { c1, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
+                    
+                else                                                                                                         	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_dai_parameters ) ~= 11                                                                   % If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( reduced_dai_parameters )                                                                         	% If no parameters were provided...
+                    
+                    % Set the default parameters.
+                    delta1 = self.delta_reduced_dai_DEFAULT;                                                                  	% [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_reduced_dai_DEFAULT;                                                                  	% [V] Bifurcation Parameter 1.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    
+                    % Store the required parameters in a cell.
+                    reduced_dai_parameters = { delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_dai_parameters ) ~= 11                                                                  	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Multiplication Subnetwork Functions ----------
 
         % Implement a function to process the parameters for computing the activation domain for neuron 3 of a multiplication subnework.
-        function parameters = process_multiplication_R3_parameters( self, parameters, encoding_scheme )
+        function multiplication_R3_parameters = process_multiplication_R3_parameters( self, multiplication_R3_parameters, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                   	% [cell] Parameters Cell.
+            if nargin < 2, multiplication_R3_parameters = {  }; end                                   	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                              	% If no parameters were provided...
+                if isempty( multiplication_R3_parameters )                                              	% If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_absolute_inversion_DEFAULT;                            % [-] Absolute Inversion Gain 1.
                     c3 = self.c3_absolute_inversion_DEFAULT;                            % [-] Absolute Inversion Gain 3.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c3 };
+                    multiplication_R3_parameters = { c1, c3 };
                     
                 else                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                      	% If there is anything other than four parameter entries...
+                    if length( multiplication_R3_parameters ) ~= 2                                      	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3370,7 +3932,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                           	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                           	% If the parameters cell is not empty...
+                if ~isempty( multiplication_R3_parameters )                                           	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
@@ -3388,33 +3950,34 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the parameters for computing the activation domain for neuron 4 of a multiplication subnetwork.
-        function parameters = process_multiplication_R4_parameters( self, parameters, encoding_scheme, neurons )
+        function multiplication_R4_parameters = process_multiplication_R4_parameters( self, multiplication_R4_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                                      % [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                           % [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option; end                                      % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, multiplication_R4_parameters = {  }; end                                             % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                                       % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                                    % If no parameters were provided...
+                if isempty( multiplication_R4_parameters )                                                      % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c4 = self.c1_absolute_dai_DEFAULT;                                                      % [-] Absolute Division After Inversion Gain 1.
-                    c5 = self.c2_absolute_dai_DEFAULT;                                                      % [-] Absolute Division After Inversion Gain 2.
-                    c6 = self.c3_absolute_dai_DEFAULT;                                                      % [-] Absolute Division After Inversion Gain 3.
-                    delta1 = self.delta_absolute_inversion_DEFAULT;                                         % [V] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );                   % [V] Activation Domain.
+                    c4 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
+                    c5 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
+                    c6 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
+                    delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [V] Absolute Inversion Offset.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c4, c5, c6, delta1, R1 };
+                    multiplication_R4_parameters = { c4, c5, c6, delta1, R1 };
                     
-                else                                                                                        % Otherwise...
+                else                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 5                                                            % If there is anything other than four parameter entries...
+                    if length( multiplication_R4_parameters ) ~= 5                                            	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3423,17 +3986,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                   % If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                                   % If the parameters cell is not empty...
+                if ~isempty( multiplication_R4_parameters )                                                   	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                            % Otherwise...
+            else                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3444,35 +4007,36 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the parameters for computing the activation domain for neurons 3 and 4 of a multiplication subnetwork.
-        function parameters = process_multiplication_Rs_parameters( self, parameters, encoding_scheme, neurons )
+        function multiplication_Rs_parameters = process_multiplication_Rs_parameters( self, multiplication_Rs_parameters, encoding_scheme, neurons, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                             	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                     	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option; end                                      % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, multiplication_Rs_parameters = {  }; end                                             % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                             	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                            % If no parameters were provided...
+                if isempty( multiplication_Rs_parameters )                                                      % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c1 = self.c1_absolute_inversion_DEFAULT;                                        % [-] Absolute Inversion Gain 1.
-                    c3 = self.c3_absolute_inversion_DEFAULT;                                        % [-] Absolute Inversion Gain 3.
-                    c4 = self.c1_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 1.
-                    c5 = self.c2_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 2.
-                    c6 = self.c3_absolute_dai_DEFAULT;                                              % [-] Absolute Division After Inversion Gain 3.
-                    delta1 = self.delta_absolute_inversion_DEFAULT;                                 % [-] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
+                    c1 = self.c1_absolute_inversion_DEFAULT;                                                    % [-] Absolute Inversion Gain 1.
+                    c3 = self.c3_absolute_inversion_DEFAULT;                                                    % [-] Absolute Inversion Gain 3.
+                    c4 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
+                    c5 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
+                    c6 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
+                    delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c3, c4, c5, c6, delta1, R1 };
+                    multiplication_Rs_parameters = { c1, c3, c4, c5, c6, delta1, R1 };
                     
-                else                                                                               	% Otherwise...
+                else                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 7                                                  	% If there is anything other than four parameter entries...
+                    if length( multiplication_Rs_parameters ) ~= 7                                            	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3481,17 +4045,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                        	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                       	% If the parameters cell is not empty...
+                if ~isempty( multiplication_Rs_parameters )                                                    	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                 	% Otherwise...
+            else                                                                                               	% Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3502,6 +4066,99 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the multiplication subnetwork parameters.
+        function multiplication_parameters = process_multiplication_parameters( self, multiplication_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, multiplication_parameters = {  }; end                                                             	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( multiplication_parameters )                                                                       	% If no parameters were provided...
+                    
+                    % Set the default parameters.
+                    c1 = self.c1_absolute_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 1.
+                    c3 = self.c3_absolute_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 3.
+                    c4 = self.c1_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 4.
+                    c6 = self.c3_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 6.
+                    delta1 = self.delta_absolute_inversion_DEFAULT;                                                             % [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_absolute_division_DEFAULT;                                                              % [V] Bifurcation Parameter 2.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+
+                    % Store the required parameters in a cell.
+                    multiplication_parameters = { c1, c3, c4, c6, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 };
+                    
+                else                                                                                                         	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( multiplication_parameters ) ~= 16                                                            	% If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( multiplication_parameters )                                                                       	% If no parameters were provided...
+                    
+                    % Set the default parameters.
+                    c3 = self.c3_relative_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 3.
+                    c6 = self.c3_relative_division_DEFAULT;                                                                     % [-] Subnetwork Gain 6.
+                    delta1 = self.delta_relative_inversion_DEFAULT;                                                             % [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_relative_division_DEFAULT;                                                              % [V] Bifurcation Parameter 2.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                    R4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 4.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+                    
+                    % Store the required parameters in a cell.
+                    multiplication_parameters = { c3, c6, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( multiplication_parameters ) ~= 16                                                               	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         %{
@@ -3618,29 +4275,29 @@ classdef neuron_manager_class
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to process the parameters for computing the activation domain for neuron 3 of a reduced multiplication subnework.
-        function parameters = process_reduced_multiplication_R3_parameters( self, parameters, encoding_scheme )
+        function reduced_multiplication_R3_parameters = process_reduced_multiplication_R3_parameters( self, reduced_multiplication_R3_parameters, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                      	% [cell] Parameters Cell.
+            if nargin < 2, reduced_multiplication_R3_parameters = {  }; end            	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                              	% If no parameters were provided...
+                if isempty( reduced_multiplication_R3_parameters )                    	% If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_reduced_absolute_inversion_DEFAULT;                    % [-] Reduced Absolute Inversion Gain 1.           
                     c2 = self.c2_reduced_absolute_inversion_DEFAULT;                    % [-] Reduced Absolute Inversion Gain 2.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c2 };
+                    reduced_multiplication_R3_parameters = { c1, c2 };
                     
                 else                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                     	% If there is anything other than four parameter entries...
+                    if length( reduced_multiplication_R3_parameters ) ~= 2          	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3652,7 +4309,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                            	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                              	% If the parameters cell is not empty...
+                if ~isempty( reduced_multiplication_R3_parameters )                  	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
@@ -3670,32 +4327,33 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the parameters for computing the activation domain for neuron 4 of a reduced multiplication subnetwork.
-        function parameters = process_reduced_multiplication_R4_parameters( self, parameters, encoding_scheme, neurons )
+        function reduced_multiplication_R4_parameters = process_reduced_multiplication_R4_parameters( self, reduced_multiplication_R4_parameters, encoding_scheme, neurons, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                            	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                     	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                 	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                              % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_multiplication_R4_parameters = {  }; end                                     % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                               % If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                         	% If no parameters were provided...
+                if isempty( reduced_multiplication_R4_parameters )                                           	% If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c3 = self.c1_reduced_absolute_dai_DEFAULT;                                      % [-] Reduced Absolute Division After Inversion Gain 1.
-                    c4 = self.c2_reduced_absolute_dai_DEFAULT;                                      % [-] Reduced Absolute Division After Inversion Gain 2.
-                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                         % [V] Reduced Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
+                    c3 = self.c1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 1.
+                    c4 = self.c2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 2.
+                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                     % [V] Reduced Absolute Inversion Offset.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c3, c4, delta1, R1 };
+                    reduced_multiplication_R4_parameters = { c3, c4, delta1, R1 };
                     
-                else                                                                             	% Otherwise...
+                else                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                	% If there is anything other than four parameter entries...
+                    if length( reduced_multiplication_R4_parameters ) ~= 4                                    	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3704,17 +4362,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                         	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                         	% If the parameters cell is not empty...
+                if ~isempty( reduced_multiplication_R4_parameters )                                            	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                  	% Otherwise...
+            else                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3725,34 +4383,35 @@ classdef neuron_manager_class
         
    
         % Implement a function to process the parameters for computing the activation domain for neurons 3 and 4 of a reduced multiplication subnetwork.
-        function parameters = process_reduced_multiplication_Rs_parameters( self, parameters, encoding_scheme, neurons )
+        function reduced_multiplication_Rs_parameters = process_reduced_multiplication_Rs_parameters( self, reduced_multiplication_Rs_parameters, encoding_scheme, neurons, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 4, neurons = self.neurons; end                                            	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                     	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                	% [cell] Parameters Cell.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                              % [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                          % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_multiplication_Rs_parameters = {  }; end                                     % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
-            if strcmpi( encoding_scheme, 'absolute' )                                             	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                           % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                         	% If no parameters were provided...
+                if isempty( reduced_multiplication_Rs_parameters )                                              % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                % [-] Reduced Absolute Inversion Gain 1.
-                    c2 = self.c2_reduced_absolute_inversion_DEFAULT;                                % [-] Reduced Absolute Inversion Gain 2.
-                    c3 = self.c1_reduced_absolute_dai_DEFAULT;                                      % [-] Reduced Absolute Division After Inversion Gain 1.
-                    c4 = self.c2_reduced_absolute_dai_DEFAULT;                                      % [-] Reduced Absolute Division After Inversion Gain 2.
-                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                         % [V] Reduced Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons );           % [V] Activation Domain.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                            % [-] Reduced Absolute Inversion Gain 1.
+                    c2 = self.c2_reduced_absolute_inversion_DEFAULT;                                            % [-] Reduced Absolute Inversion Gain 2.
+                    c3 = self.c1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 1.
+                    c4 = self.c2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 2.
+                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                     % [V] Reduced Absolute Inversion Offset.
+                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c1, c2, c3, c4, delta1, R1 };
+                    reduced_multiplication_Rs_parameters = { c1, c2, c3, c4, delta1, R1 };
                     
-                else                                                                              	% Otherwise...
+                else                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 6                                                  	% If there is anything other than four parameter entries...
+                    if length( reduced_multiplication_Rs_parameters ) ~= 6                                   	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3761,17 +4420,17 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                         	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                       % If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( parameters )                                                         	% If the parameters cell is not empty...
+                if ~isempty( reduced_multiplication_Rs_parameters )                                          	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
                     
                 end
                 
-            else                                                                                 	% Otherwise...
+            else                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -3782,6 +4441,1095 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the reduced multiplication parameters.
+        function reduced_multiplication_parameters = process_reduced_multiplication_parameters( self, reduced_multiplication_parameters, encoding_scheme, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
+            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_multiplication_parameters = {  }; end                                                      	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_multiplication_parameters )                                                               	% If no parameters were provided...
+                    
+                    % Set the default parameters.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                            % [-] Subnetwork Gain 1.
+                    c3 = self.c1_reduced_absolute_division_DEFAULT;                                                             % [-] Subnetwork Gain 3.
+                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                                     % [V] Bifurcation Parameter 1.
+                    delta2 = self.delta_reduced_absolute_division_DEFAULT;                                                      % [V] Bifurcation Parameter 2.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+                    
+                    % Store the required parameters in a cell.
+                    reduced_multiplication_parameters = { c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 };
+                    
+                else                                                                                                         	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_multiplication_parameters ) ~= 16                                                      	% If there is anything other than the required number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
+                
+                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
+                if isempty( reduced_multiplication_parameters )                                                                       	% If no parameters were provided...
+                    
+                    % Set the default parameters.
+                    delta1 = self.delta_reduced_relative_inversion_DEFAULT;
+                    delta2 = self.delta_reduced_relative_division_DEFAULT;
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                    R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                    R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                    R4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 4.
+                    Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                    Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                    Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                    Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                    Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                    Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                    Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+                                        
+                    % Store the required parameters in a cell.
+                    reduced_multiplication_parameters = { delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 };
+                    
+                else                                                                                                          	% Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( reduced_multiplication_parameters ) ~= 16                                                               	% If there is anything other than the require number of parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                    
+                    end
+                    
+                end
+                
+            else                                                                                                            	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        %% Parameter Unpacking Functions.
+        
+       	% ---------- Transmission Subnetwork Functions ----------
+
+        % Implement a function to unpack the parameters for computing R2 of an absolute transmission subnetwork.
+        function [ c, R1 ] = unpack_absolute_transmission_R2_parameters( self, transmission_R2_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
+            if nargin < 2, transmission_R2_parameters = {  }; end                                                   % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( transmission_R2_parameters )                                                                % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c = self.c_absolute_transmission_DEFAULT;
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                
+            elseif length( transmission_R2_parameters ) == 2                                                        % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c = transmission_R2_parameters{ 1 };                                                                % [V] Activation Domain.
+                R1 = transmission_R2_parameters{ 2 };                                                               % [S] Membrane Conductance.
+            
+            else                                                                                                  	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute transmission subnetwork.
+        function [ c, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                    	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              	% [class] Array of Neuron Class Objects.
+            if nargin < 2, transmission_parameters = {  }; end                                                          % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( transmission_parameters )                                                                       % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                c = self.c_absolute_transmission_DEFAULT;
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );        % [V] Activation Domain.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );    	% [S] Membrane Conductance (Neuron 1).
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );    	% [S] Membrane Conductance (Neuron 2).
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );   	% [F] Membrane Capacitance (Neuron 1).
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );      % [F] Membrane Capacitance (Neuron 2).
+                
+            elseif length( transmission_parameters ) == 6                                                               % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c = transmission_parameters{ 1 };                                                                       % [-] Subnetwork Gain.
+                R1 = transmission_parameters{ 2 };                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
+                Gm1 = transmission_parameters{ 3 };                                                                     % [S] Membrane Conductance (Neuron 1).
+                Gm2 = transmission_parameters{ 4 };                                                                     % [S] Membrane Conductance (Neuron 2).
+                Cm1 = transmission_parameters{ 5 };                                                                     % [F] Membrane Capacitance (Neuron 1).
+                Cm2 = transmission_parameters{ 6 };                                                                     % [F] Membrane Capacitance (Neuron 2).
+            
+            else                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a relative transmission subnetwork.
+        function [ R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_relative_transmission_parameters( self, transmission_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                    	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              	% [class] Array of Neuron Class Objects.
+            if nargin < 2, transmission_parameters = {  }; end                                                          % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( transmission_parameters )                                                                       % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );        % [V] Maximum Membrane Voltage (Neuron 1).
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );        % [V] Maximum Membrane Voltage (Neuron 2).
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );    	% [S] Membrane Conductance (Neuron 1).
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );    	% [S] Membrane Conductance (Neuron 2).
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );   	% [F] Membrane Capacitance (Neuron 1).
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );   	% [F] Membrane Capacitance (Neuron 2).
+                
+            elseif length( transmission_parameters ) == 6                                                               % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                R1 = transmission_parameters{ 1 };                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
+                R2 = transmission_parameters{ 2 };                                                                      % [V] Maximum Membrane Voltage (Neuron 2).
+                Gm1 = transmission_parameters{ 3 };                                                                     % [S] Membrane Conductance (Neuron 1).
+                Gm2 = transmission_parameters{ 4 };                                                                     % [S] Membrane Conductance (Neuron 2).
+                Cm1 = transmission_parameters{ 5 };                                                                     % [F] Membrane Capacitance (Neuron 1).
+                Cm2 = transmission_parameters{ 6 };                                                                     % [F] Membrane Capacitance (Neuron 2).
+            
+            else                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing Rs of an absolute addition subnetwork.
+        function [ cs, Rs_input ] = unpack_absolute_addition_Rn_parameters( self, addition_Rn_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                                      % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 2, addition_Rn_parameters = {  }; end                                                                           % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( addition_Rn_parameters )                                                                                        % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                cs = self.c_absolute_addition_DEFAULT*ones( 1, neurons.num_neurons - 1 );                                               % [-] Absolute Addition Gain.
+                Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons, undetected_option );      % [V] Activation Domain.
+                
+            elseif length( addition_Rn_parameters ) == 2                                                                                % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = addition_Rn_parameters{ 1 };                                                                                       % [V] Activation Domain.
+                Rs_input = addition_Rn_parameters{ 2 };                                                                                 % [S] Membrane Conductance.
+            
+            else                                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute addition subnetwork.
+        function [ cs, Rs_input, Gms, Cms ] = unpack_absolute_addition_parameters( self, addition_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                                      % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 2, addition_parameters = {  }; end                                                                              % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( addition_parameters )                                                                                           % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                cs = self.c_absolute_addition_DEFAULT;                                                                                  % [-] Subnetwork Gain.
+                Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons, undetected_option );      % [V] Activation Domain.
+                Gms = self.get_neuron_property( 'all', 'Gm', true, neurons, undetected_option );                                        % [S] Membrane Conductance.
+                Cms = self.get_neuron_property( 'all', 'Cm', true, neurons, undetected_option );                                        % [F] Membrane Capacitance.
+
+            elseif length( addition_parameters ) == 4                                                                                   % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = addition_parameters{ 1 };                                                                                          % [-] Subnetwork Gain.
+                Rs_input = addition_parameters{ 2 };                                                                                    % [V] Maximum Membrane Voltages.
+                Gms = addition_parameters{ 3 };                                                                                         % [S] Membrane Conductances.
+                Cms = addition_parameters{ 4 };                                                                                         % [F] Membrane Capacitances.
+            
+            else                                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a relative addition subnetwork.
+        function [ cs, Rs, Gms, Cms ] = unpack_relative_addition_parameters( self, addition_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                 	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                           	% [class] Array of Neuron Class Objects.
+            if nargin < 2, addition_parameters = {  }; end                                         	% [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( addition_parameters )                                                    	% If the parameters are empty...
+                
+                % Set the parameters to default values.
+                cs = self.c_absolute_addition_DEFAULT;                                            	% [-] Subnetwork Gain.
+                Rs = self.get_neuron_property( 'all', 'R', true, neurons, undetected_option );      % [V] Activation Domain.
+                Gms = self.get_neuron_property( 'all', 'Gm', true, neurons, undetected_option );   	% [S] Membrane Conductance.
+                Cms = self.get_neuron_property( 'all', 'Cm', true, neurons, undetected_option );  	% [F] Membrane Capacitance.
+                
+            elseif length( addition_parameters ) == 4                                              	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = addition_parameters{ 1 };                                                    	% [-] Subnetwork Gain.
+                Rs = addition_parameters{ 2 };                                                    	% [V] Maximum Membrane Voltages.
+                Gms = addition_parameters{ 3 };                                                    	% [S] Membrane Conductances.
+                Cms = addition_parameters{ 4 };                                                  	% [F] Membrane Capacitances.
+            
+            else                                                                                  	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing Rs of an absolute subtraction subnetwork.
+        function [ cs, s_ks, Rs_input ] = unpack_absolute_subtraction_Rn_parameters( self, subtraction_Rn_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                                      % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 2, subtraction_Rn_parameters = {  }; end                                                                      	% [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( subtraction_Rn_parameters )                                                                                   	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                cs = self.c_absolute_subtraction_DEFAULT*ones( 1, neurons.num_neurons - 1 );                                            % [-] Absolute Subtraction Gain.
+                s_ks = self.signature_DEFAULT;                                                                                          % [-] Subtraction Signature.
+                Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neurons, undetected_option );      % [V] Activation Domain.
+
+            elseif length( subtraction_Rn_parameters ) == 2                                                                           	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = subtraction_Rn_parameters{ 1 };                                                                                 	% [-] Subnetwork Gain.
+                s_ks = subtraction_Rn_parameters{ 2 };                                                                                  % [-] Subtraction Signature.
+                Rs_input = subtraction_Rn_parameters{ 3 };                                                                             	% [S] Membrane Conductance.
+            
+            else                                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute subtraction subnetwork.
+        function [ cs, ss, Rs_input, Gms, Cms ] = unpack_absolute_subtraction_parameters( self, subtraction_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                                 	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                          	% [class] Array of Neuron Class Objects.
+            if nargin < 2, subtraction_parameters = {  }; end                                                                     	% [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( subtraction_parameters )                                                                                  	% If the parameters are empty...
+                
+                % Set the parameters to default values.
+                cs = self.c_absolute_subtraction_DEFAULT;                                                                       	% [-] Subtraction Subnetwork Gain.
+                ss = self.signature_DEFAULT;                                                                                        % [-] Subtraction Signature.
+                Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option );      % [V] Maximum Member Voltages.
+                Gms = self.get_neuron_property( neurons.neuron_IDs, 'Gm', true, neurons, undetected_option );                       % [S] Membrane Conductances.
+                Cms = self.get_neuron_property( neurons.neuron_IDs, 'Cm', true, neurons, undetected_option );                       % [F] Membrane Capacitances.
+                
+            elseif length( subtraction_parameters ) == 5                                                                         	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = subtraction_parameters{ 1 };                                                                                  	% [-] Subnetwork Gain.
+                ss = subtraction_parameters{ 2 };
+                Rs_input = subtraction_parameters{ 3 };                                                                          	% [V] Maximum Membrane Voltages.
+                Gms = subtraction_parameters{ 4 };                                                                                	% [S] Membrane Conductances.
+                Cms = subtraction_parameters{ 5 };                                                                                	% [F] Membrane Capacitances.
+            
+            else                                                                                                                	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a relative subtraction subnetwork.
+        function [ cs, ss, Rs, Gms, Cms ] = unpack_relative_subtraction_parameters( self, subtraction_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                               	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                            	% [class] Array of Neuron Class Objects.
+            if nargin < 2, subtraction_parameters = {  }; end                                                       % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( subtraction_parameters )                                                                	% If the parameters are empty...
+                
+                % Set the parameters to default values.
+                cs = self.c_subtraction_DEFAULT;                                                                  	% [-] Subtraction Gain.
+                ss = self.signature_DEFAULT;                                                                       	% [-] Subtraction Signature.
+                Rs = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );       	% [V] Maximum Membrane Voltages.
+                Gms = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );      	% [S] Membrane Conductances.
+                Cms = self.get_neuron_property( neurons.neuron_IDs, 'R', true, neurons, undetected_option );        % [F] Membrane Capacitance.
+                
+            elseif length( subtraction_parameters ) == 5                                                          	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = subtraction_parameters{ 1 };                                                                	% [-] Subnetwork Gain.
+                ss = subtraction_parameters{ 2 };                                                                   % [-] Subtraction Signature.
+                Rs = subtraction_parameters{ 3 };                                                                 	% [V] Maximum Membrane Voltages.
+                Gms = subtraction_parameters{ 4 };                                                               	% [S] Membrane Conductances.
+                Cms = subtraction_parameters{ 5 };                                                                 	% [F] Membrane Capacitances.
+            
+            else                                                                                                	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R2 of an absolute inversion subnetwork.
+        function [ c1, c3 ] = unpack_absolute_inversion_R2_parameters( self, inversion_R2_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, inversion_R2_parameters = {  }; end          % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( inversion_R2_parameters )                    	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_inversion_DEFAULT;             	% [-] Absolute Inversion Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;              	% [-] Absolute Inversion Gain 2.
+                
+            elseif length( inversion_R2_parameters ) == 2              	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = inversion_R2_parameters{ 1 };                    	% [V] Activation Domain.
+                c3 = inversion_R2_parameters{ 2 };                     	% [S] Membrane Conductance.
+            
+            else                                                      	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+
+        % Implement a function to unpack the parameters for designing an absolute inversion subnetwork.
+        function [ c1, c3, delta, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_inversion_parameters( self, inversion_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 2, inversion_parameters = {  }; end                                                             % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( inversion_parameters )                                                                          % If the parameters are empty...
+            
+                % Set the parameters to default values.                
+                c1 = self.c1_absolute_inversion_DEFAULT;                                                               	% [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;                                                              	% [-] Subnetwork Gain 3.
+                delta = self.delta_absolute_inversion_DEFAULT;                                                         	% [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );      	% [V] Maximum Membrane Voltage 1.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );     	% [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );    	% [S] Membrane Conductance 2.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );    	% [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );      % [F] Membrane Capacitance 2.
+                
+            elseif length( inversion_parameters ) == 8                                                                  % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = inversion_parameters{ 1 };                                                                         % [-] Subnetwork Gain 1.
+                c3 = inversion_parameters{ 2 };                                                                         % [-] Subnetwork Gain 3.
+                delta = inversion_parameters{ 3 };                                                                      % [V] Bifurcation Parameter.
+                R1 = inversion_parameters{ 4 };                                                                         % [V] Maximum Membrane Voltage 1.
+                Gm1 = inversion_parameters{ 5 };                                                                        % [S] Membrane Conductance 1.
+                Gm2 = inversion_parameters{ 6 };                                                                        % [S] Membrane Conductance 2.
+                Cm1 = inversion_parameters{ 7 };                                                                        % [F] Membrane Capacitance 1.
+                Cm2 = inversion_parameters{ 8 };                                                                        % [F] Membrane Capacitance 2.
+            
+            else                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a relative inversion subnetwork.
+        function [ c3, delta, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_relative_inversion_parameters( self, inversion_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, inversion_parameters = {  }; end                                                                 % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( inversion_parameters )                                                                              % If the parameters are empty...
+            
+                % Set the parameters to default values.                
+                c3 = self.c3_relative_inversion_DEFAULT;                                                                    % [-] Subtraction Subnetwork Gain 3.
+                delta = self.delta_relative_inversion_DEFAULT;                                                              % [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+
+            elseif length( inversion_parameters ) == 8                                                                      % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c3 = inversion_parameters{ 1 };                                                                             % [-] Inversion Subnetwork Gain 3.
+                delta = inversion_parameters{ 2 };                                                                          % [V] Bifurcation Parameter.
+                R1 = inversion_parameters{ 3 };                                                                             % [V] Maximum Membrane Voltage 1.
+                R2 = inversion_parameters{ 4 };                                                                             % [V] Maximum Membrane Voltage 2.
+                Gm1 = inversion_parameters{ 5 };                                                                            % [S] Membrane Conductance 1.
+                Gm2 = inversion_parameters{ 6 };                                                                            % [S] Membrane Conductance 2.
+                Cm1 = inversion_parameters{ 7 };                                                                            % [F] Membrane Capacitance 1.
+                Cm2 = inversion_parameters{ 8 };                                                                            % [F] Membrane Capacitance 2.
+                
+            
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R2 of a reduced absolute inversion subnetwork.
+        function [ c1, c2 ] = unpack_reduced_absolute_inversion_R2_parameters( self, inversion_R2_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, inversion_R2_parameters = {  }; end          % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( inversion_R2_parameters )                    	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;        % [-] Subnetwork Gain 1.
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;       	% [-] Subnetwork Gain 2.
+                
+            elseif length( inversion_R2_parameters ) == 2              	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = inversion_R2_parameters{ 1 };                    	% [-] Subnetwork Gain 1.
+                c2 = inversion_R2_parameters{ 2 };                     	% [-] Subnetwork Gain 2.
+            
+            else                                                      	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute inversion subnetwork.
+        function [ c1, delta, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_reduced_absolute_inversion_parameters( self, inversion_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, inversion_parameters = {  }; end                                                                 % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( inversion_parameters )                                                                              % If the parameters are empty...
+            
+                % Set the parameters to default values.                
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
+                delta = self.delta_reduced_absolute_inversion_DEFAULT;                                                     	% [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                
+            elseif length( inversion_parameters ) == 7                                                                      % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = inversion_parameters{ 1 };                                                                             % [-] Subnetwork Gain.
+                delta = inversion_parameters{ 2 };                                                                          % [V] Bifurcation Parameter.
+                R1 = inversion_parameters{ 3 };                                                                             % [V] Maximum Membrane Voltage 1.
+                Gm1 = inversion_parameters{ 4 };                                                                            % [S] Membrane Conductance 1.
+                Gm2 = inversion_parameters{ 5 };                                                                            % [S] Membrane Conductance 2.
+                Cm1 = inversion_parameters{ 6 };                                                                            % [F] Membrane Capacitance 1.
+                Cm2 = inversion_parameters{ 7 };                                                                            % [F] Membrane Capacitance 2.
+            
+            else                                                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced relative inversion subnetwork.
+        function [ delta, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_reduced_relative_inversion_parameters( self, inversion_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, inversion_parameters = {  }; end                                                                 % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( inversion_parameters )                                                                              % If the parameters are empty...
+            
+                % Set the parameters to default values.                
+                delta = self.delta_reduced_relative_inversion_DEFAULT;                                                     	% [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                
+            elseif length( inversion_parameters ) == 7                                                                      % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                delta = inversion_parameters{ 1 };                                                                          % [V] Bifurcation Parameter.
+                R1 = inversion_parameters{ 1 };                                                                             % [V] Maximum Membrane Voltage 1.
+                R2 = inversion_parameters{ 1 };                                                                             % [V] Maximum Membrane Voltage 2.
+                Gm1 = inversion_parameters{ 1 };                                                                            % [S] Membrane Conductance 1.
+                Gm2 = inversion_parameters{ 1 };                                                                            % [S] Membrane Conductance 2.
+                Cm1 = inversion_parameters{ 1 };                                                                            % [F] Membrane Capacitance 1.
+                Cm2 = inversion_parameters{ 1 };                                                                            % [F] Membrane Capacitance 2.
+                
+            else                                                                                                            % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R3 of an absolute division subnetwork.
+        function [ c1, c3, R1 ] = unpack_absolute_division_R3_parameters( self, division_R3_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
+            if nargin < 2, division_R3_parameters = {  }; end                                                       % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_R3_parameters )                                                                    % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 1.
+                c3 = self.c3_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 3.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                
+            elseif length( division_R3_parameters ) == 3                                                            % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = division_R3_parameters{ 1 };                                                                   % [V] Activation Domain.
+                c3 = division_R3_parameters{ 2 };                                                                   % [S] Membrane Conductance.
+                R1 = division_R3_parameters{ 3 };                                                                   % [S] Membrane Conductance.
+
+            else                                                                                                    % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+       	% Implement a function to unpack the parameters for designing an absolute division subnetwork.
+        function [ c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_absolute_division_parameters( self, division_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                c1 = self.c1_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 3.
+                delta = self.delta_absolute_division_DEFAULT;                                                               % [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( division_parameters ) == 11                                                                      % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = division_parameters{ 1 };                                                                              % [-] Subnetwork Gain 1.
+                c3 = division_parameters{ 2 };                                                                              % [-] Subnetwork Gain 3.
+                delta = division_parameters{ 3 };                                                                           % [V] Bifurcation Parameter.
+                R1 = division_parameters{ 4 };                                                                              % [V] Maximum Membrane Voltage 1.
+                R2 = division_parameters{ 5 };                                                                              % [V] Maximum Membrane Voltage 2.
+                Gm1 = division_parameters{ 6 };                                                                             % [S] Membrane Conductance 1.
+                Gm2 = division_parameters{ 7 };                                                                             % [S] Membrane Conductance 2.
+                Gm3 = division_parameters{ 8 };                                                                             % [S] Membrane Conductance 3.
+                Cm1 = division_parameters{ 9 };                                                                             % [F] Membrane Capacitance 1.
+                Cm2 = division_parameters{ 10 };                                                                            % [F] Membrane Capacitance 2.
+                Cm3 = division_parameters{ 11 };                                                                            % [F] Membrane Capacitance 3.
+
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a relative division subnetwork.
+        function [ c3, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_relative_division_parameters( self, division_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                c3 = self.c3_relative_division_DEFAULT;                                                                     % [-] Subnetwork Gain 3.
+                delta = self.delta_relative_division_DEFAULT;                                                               % [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( division_parameters ) == 11                                                                      % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c3 = division_parameters{ 1 };                                                                              % [-] Subnetwork Gain 3.
+                delta = division_parameters{ 2 };                                                                           % [V] Bifurcation Parameter.
+                R1 = division_parameters{ 3 };                                                                              % [V] Maximum Membrane Voltage 1.
+                R2 = division_parameters{ 4 };                                                                              % [V] Maximum Membrane Voltage 2.
+                R3 = division_parameters{ 5 };                                                                              % [V] Maximum Membrane Voltage 3.
+                Gm1 = division_parameters{ 6 };                                                                             % [S] Membrane Conductance 1.
+                Gm2 = division_parameters{ 7 };                                                                             % [S] Membrane Conductance 2.
+                Gm3 = division_parameters{ 8 };                                                                             % [S] Membrane Conductance 3.
+                Cm1 = division_parameters{ 9 };                                                                             % [F] Membrane Capacitance 1.
+                Cm2 = division_parameters{ 10 };                                                                            % [F] Membrane Capacitance 2.
+                Cm3 = division_parameters{ 11 };                                                                            % [F] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R3 of a reduced absolute division subnetwork.
+        function [ c1, c2, R1 ] = unpack_reduced_absolute_division_R3_parameters( self, division_R3_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
+            if nargin < 2, division_R3_parameters = {  }; end                                                       % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( division_R3_parameters )                                                                    % If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 1.
+                c2 = self.c2_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 2.
+                R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Activation Domain.
+
+            elseif length( division_R3_parameters ) == 3                                                            % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = division_R3_parameters{ 1 };                                                                   % [-] Subnetwork Gain 1.
+                c2 = division_R3_parameters{ 2 };                                                                   % [-] Subnetwork Gain 2.
+                R1 = division_R3_parameters{ 3 };                                                                   % [V] Maximum Membrane Voltage 1.
+
+            else                                                                                                    % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute division subnetwork.
+        function [ c1, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_absolute_division_parameters( self, division_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                c1 = self.c1_absolute_reduced_division_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
+                delta = self.delta_absolute_reduced_division_DEFAULT;                                                       % [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( division_parameters ) == 10                                                                      % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = division_parameters{ 1 };                                                                              % [-] Subnetwork Gain 1.
+                delta = division_parameters{ 2 };                                                                           % [V] Bifurcation Parameter.
+                R1 = division_parameters{ 3 };                                                                              % [V] Maximum Membrane Voltage 1.
+                R2 = division_parameters{ 4 };                                                                              % [V] Maximum Membrane Voltage 2.
+                Gm1 = division_parameters{ 5 };                                                                             % [S] Membrane Conductance 1.
+                Gm2 = division_parameters{ 6 };                                                                             % [S] Membrane Conductance 2.
+                Gm3 = division_parameters{ 7 };                                                                             % [S] Membrane Conductance 3.
+                Cm1 = division_parameters{ 8 };                                                                             % [S] Membrane Capacitance 1.
+                Cm2 = division_parameters{ 9 };                                                                             % [S] Membrane Capacitance 2.
+                Cm3 = division_parameters{ 10 };                                                                            % [S] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced relative division subnetwork.
+        function [ delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_relative_division_parameters( self, division_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( division_parameters )                                                                               % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                delta = self.delta_relative_reduced_division_DEFAULT;                                                      	% [V] Bifurcation Parameter.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( division_parameters ) == 10                                                                      % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                delta = division_parameters{ 1 };                                                                           % [V] Bifurcation Parameter.
+                R1 = division_parameters{ 2 };                                                                              % [V] Maximum Membrane Voltage 1.
+                R2 = division_parameters{ 3 };                                                                              % [V] Maximum Membrane Voltage 2.
+                R3 = division_parameters{ 4 };                                                                              % [V] Maximum Membrane Voltage 3.
+                Gm1 = division_parameters{ 5 };                                                                             % [S] Membrane Conductance 1.
+                Gm2 = division_parameters{ 6 };                                                                             % [S] Membrane Conductance 2.
+                Gm3 = division_parameters{ 7 };                                                                             % [S] Membrane Conductance 3.
+                Cm1 = division_parameters{ 8 };                                                                             % [F] Membrane Capacitance 1.
+                Cm2 = division_parameters{ 9 };                                                                             % [F] Membrane Capacitance 2.
+                Cm3 = division_parameters{ 10 };                                                                            % [F] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R3 of an absolute division after inversion subnetwork.
+        function [ c1, c2, c3, delta1, R1 ] = unpack_absolute_dai_R3_parameters( self, dai_R3_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                        	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 2, dai_R3_parameters = {  }; end                                                	% [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( dai_R3_parameters )                                                                	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
+                c2 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
+                c3 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
+                R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                
+            elseif length( dai_R3_parameters ) == 5                                                       	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = dai_R3_parameters{ 1 };                                                                % [-] Subnetwork Gain 1.
+                c2 = dai_R3_parameters{ 2 };                                                                % [-] Subnetwork Gain 2.
+                c3 = dai_R3_parameters{ 3 };                                                                % [-] Subnetwork Gain 3.
+                delta1 = dai_R3_parameters{ 4 };                                                            % [V] Bifurcation Parameter.
+                R1 = dai_R3_parameters{ 5 };                                                                % [V] Maximum Membrane Voltage 1.
+
+            else                                                                                           	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for designing an absolute division after inversion subnetwork.
+       
+        
+        % Implement a function to unpack the parameters for designing a relative division after inversion subnetwork.
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R3 of a reduced absolute division after inversion subnetwork.
+        
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute division after inversion subnetwork.
+       
+        
+        % Implement a function to unpack the parameters for designing a reduced relative division after inversion subnetwork.
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R3 of an absolute multiplication subnetwork.
+        
+        
+        % Implement a function to unpack the parameters for computing R4 of an absolute multiplication subnetwork.
+
+        
+        % Implement a function to unpack the parameters for computing Rs of an absolute multiplication subnetwork.
+
+        
+        % Implement a function to unpack the parameters for designing an absolute multiplication subnetwork.
+       
+        
+        % Implement a function to unpack the parameters for designing a relative multiplication subnetwork.
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for computing R3 of a reduced absolute multiplication subnetwork.
+        
+        
+        % Implement a function to unpack the parameters for computing R4 of a reduced absolute multiplication subnetwork.
+
+        
+        % Implement a function to unpack the parameters for computing Rs of a reduced absolute multiplication subnetwork.
+
+        
+        % Implement a function to unpack the parameters for designing a reduced absolute multiplication subnetwork.
+       
+        
+        % Implement a function to unpack the parameters for designing a reduced relative multiplication subnetwork.
+        
+        
+        %% Maximum Membrane Voltage Parameter Conversion Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+
+        % Implement a function to convert transmission parameters to transmission R2 design parameters.
+        function transmission_R2_parameters = convert_transmission_parameters2R2_parameters( self, synapse_ID, transmission_parameters, dEs21, encoding_scheme, synapses, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, synapses = self.synapses; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
+            if nargin < 3, transmission_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute transmission parameters.
+                [ R2, Gm2, Ia2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters );
+                
+                % Pack the absolute transmission gs parameters.
+                transmission_R2_parameters = self.pack_absolute_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Unpack the relative transmission parameters.
+                [ R2, Gm2, Ia2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
+                
+                % Pack the relative transmission gs parameters.
+                transmission_R2_parameters = self.pack_relative_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+
+        % Implement a function to convert addition parameters to addition Rs design parameters.
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        % Implement a function to convert subtraction parameters to subtraction Rs design parameters.
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert inversion parameters to inversion R2 design parameters.
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced inversion parameters to reduced inversion R2 design parameters.
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to convert division parameters to division R3 design parameters.
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced division parameters to reduced division R3 design parameters.
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert division after inversion parameters to division after inversion R3 design parameters.
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced division after inversion parameters to reduced division after inversion R3 design parameters.
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to convert multiplication parameters to multiplication Rs design parameters.
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+
+        % Implement a function to convert reduced multiplication parameters to reduced multiplication Rs design parameters.
+        
         
         
         %% Activation Domain Compute Functions.
