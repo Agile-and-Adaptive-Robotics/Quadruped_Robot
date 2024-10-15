@@ -3340,7 +3340,7 @@ classdef neuron_manager_class
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 1.
                     c3 = self.c3_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 3.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     division_R3_parameters = { c1, c3, R1 };
@@ -3485,7 +3485,7 @@ classdef neuron_manager_class
                     c2 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
                     c3 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
                     delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     dai_R3_parameters = { c1, c2, c3, delta1, R1 };
@@ -3630,7 +3630,7 @@ classdef neuron_manager_class
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_reduced_absolute_division_DEFAULT;                                             % [-] Reduced Absolute Division Gain 1.
                     c2 = self.c2_reduced_absolute_division_DEFAULT;                                             % [-] Reduced Absolute Division Gain 2.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     reduced_division_R3_parameters = { c1, c2, R1 };
@@ -3772,7 +3772,7 @@ classdef neuron_manager_class
                     c1 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
                     c2 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
                     delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [V] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     reduced_dai_R3_parameters = { c1, c2, delta1, R1 };
@@ -3902,13 +3902,13 @@ classdef neuron_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, multiplication_R3_parameters = {  }; end                                   	% [cell] Parameters Cell.
+            if nargin < 2, multiplication_R3_parameters = {  }; end                  	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( multiplication_R3_parameters )                                              	% If no parameters were provided...
+                if isempty( multiplication_R3_parameters )                            	% If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_absolute_inversion_DEFAULT;                            % [-] Absolute Inversion Gain 1.
@@ -3920,7 +3920,7 @@ classdef neuron_manager_class
                 else                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( multiplication_R3_parameters ) ~= 2                                      	% If there is anything other than four parameter entries...
+                    if length( multiplication_R3_parameters ) ~= 2                    	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3932,7 +3932,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                           	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( multiplication_R3_parameters )                                           	% If the parameters cell is not empty...
+                if ~isempty( multiplication_R3_parameters )                           	% If the parameters cell is not empty...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
@@ -3969,7 +3969,7 @@ classdef neuron_manager_class
                     c5 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
                     c6 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
                     delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [V] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     multiplication_R4_parameters = { c4, c5, c6, delta1, R1 };
@@ -4028,7 +4028,7 @@ classdef neuron_manager_class
                     c5 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
                     c6 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
                     delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     multiplication_Rs_parameters = { c1, c3, c4, c5, c6, delta1, R1 };
@@ -4345,7 +4345,7 @@ classdef neuron_manager_class
                     c3 = self.c1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 1.
                     c4 = self.c2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 2.
                     delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                     % [V] Reduced Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     reduced_multiplication_R4_parameters = { c3, c4, delta1, R1 };
@@ -4403,7 +4403,7 @@ classdef neuron_manager_class
                     c3 = self.c1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 1.
                     c4 = self.c2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 2.
                     delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                     % [V] Reduced Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
                     reduced_multiplication_Rs_parameters = { c1, c2, c3, c4, delta1, R1 };
@@ -5237,7 +5237,7 @@ classdef neuron_manager_class
                 % Set the parameters to default values.
                 c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 1.
                 c2 = self.c2_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 2.
-                R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Activation Domain.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Activation Domain.
 
             elseif length( division_R3_parameters ) == 3                                                            % If there are a specific number of parameters...
                 
@@ -5368,7 +5368,7 @@ classdef neuron_manager_class
                 c2 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
                 c3 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
                 delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
-                R1 = self.get_neuron_property( neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                 
             elseif length( dai_R3_parameters ) == 5                                                       	% If there are a specific number of parameters...
                 
@@ -5390,54 +5390,1768 @@ classdef neuron_manager_class
         
         
         % Implement a function to unpack the parameters for designing an absolute division after inversion subnetwork.
-       
+        function [ c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_absolute_dai_parameters( self, dai_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, dai_parameters = {  }; end                                                                       % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( dai_parameters )                                                                                    % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                c1 = self.c1_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 1.
+                c3 = self.c3_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 3.
+                delta1 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( dai_parameters ) == 12                                                                           % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = dai_parameters{ 1 };                                                                                   % [-] Subnetwork Gain 1.
+                c3 = dai_parameters{ 2 };                                                                                   % [-] Subnetwork Gain 3.
+                delta1 = dai_parameters{ 3 };                                                                               % [V] Bifurcation Parameter 1.
+                delta2 = dai_parameters{ 4 };                                                                               % [V] Bifurcation Parameter 2.
+                R1 = dai_parameters{ 5 };                                                                                   % [V] Maximum Membrane Voltage 1.
+                R2 = dai_parameters{ 6 };                                                                                   % [V] Maximum Membrane Voltage 2.
+                Gm1 = dai_parameters{ 7 };                                                                                  % [S] Membrane Conductance 1.
+                Gm2 = dai_parameters{ 8 };                                                                                  % [S] Membrane Conductance 2.
+                Gm3 = dai_parameters{ 9 };                                                                                  % [S] Membrane Conductance 3.
+                Cm1 = dai_parameters{ 10 };                                                                                 % [F] Membrane Capacitance 1.
+                Cm2 = dai_parameters{ 11 };                                                                                 % [F] Membrane Capacitance 2.
+                Cm3 = dai_parameters{ 12 };                                                                                 % [F] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % Implement a function to unpack the parameters for designing a relative division after inversion subnetwork.
-        
+        function [ c3, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_relative_dai_parameters( self, dai_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, dai_parameters = {  }; end                                                                       % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( dai_parameters )                                                                                    % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                c3 = self.c3_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 3.
+                delta1 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( dai_parameters ) == 12                                                                           % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c3 = dai_parameters{ 1 };                                                                                   % [-] Subnetwork Gain 3.
+                delta1 = dai_parameters{ 2 };                                                                               % [V] Bifurcation Parameter 1.
+                delta2 = dai_parameters{ 3 };                                                                               % [V] Bifurcation Parameter 2.
+                R1 = dai_parameters{ 4 };                                                                                   % [V] Maximum Membrane Voltage 1.
+                R2 = dai_parameters{ 5 };                                                                                   % [V] Maximum Membrane Voltage 2.
+                R3 = dai_parameters{ 6 };                                                                                   % [V] Maximum Membrane Voltage 3.
+                Gm1 = dai_parameters{ 7 };                                                                                  % [S] Membrane Conductance 1.
+                Gm2 = dai_parameters{ 8 };                                                                                  % [S] Membrane Conductance 2.
+                Gm3 = dai_parameters{ 9 };                                                                                  % [S] Membrane Conductance 3.
+                Cm1 = dai_parameters{ 10 };                                                                                 % [F] Membrane Capacitance 1.
+                Cm2 = dai_parameters{ 11 };                                                                                 % [F] Membrane Capacitance 2.
+                Cm3 = dai_parameters{ 12 };                                                                                 % [F] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters for computing R3 of a reduced absolute division after inversion subnetwork.
+        function [ c1, c2, R1 ] = unpack_reduced_absolute_dai_R3_parameters( self, dai_R3_parameters, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                        	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 2, dai_R3_parameters = {  }; end                                                	% [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( dai_R3_parameters )                                                                	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division Gain 1.
+                c2 = self.c2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division Gain 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                
+            elseif length( dai_R3_parameters ) == 3                                                       	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = dai_R3_parameters{ 1 };                                                                % [-] Subnetwork Gain 1.
+                c2 = dai_R3_parameters{ 2 };                                                                % [-] Subnetwork Gain 2.
+                R1 = dai_R3_parameters{ 3 };                                                                % [V] Maxmimum Membrane Voltage 1.
+
+            else                                                                                           	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
         
         
         % Implement a function to unpack the parameters for designing a reduced absolute division after inversion subnetwork.
-       
+        function [ c1, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_absolute_dai_parameters( self, dai_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, dai_parameters = {  }; end                                                                       % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( dai_parameters )                                                                                    % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                c1 = self.c1_reduced_dai_DEFAULT;                                                                           % [-] Subnetwork Gain 1.
+                delta1 = self.delta_reduced_dai_DEFAULT;                                                                    % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_reduced_dai_DEFAULT;                                                                    % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+
+            elseif length( dai_parameters ) == 11                                                                           % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = dai_parameters{ 1 };                                                                                   % [-] Subnetwork Gain.
+                delta1 = dai_parameters{ 2 };                                                                               % [V] Bifurcation Parameter 1.
+                delta2 = dai_parameters{ 3 };                                                                               % [V] Bifurcation Parameter 2.
+                R1 = dai_parameters{ 4 };                                                                                   % [V] Maximum Member Voltage 1.
+                R2 = dai_parameters{ 5 };                                                                                   % [V] Maximum Member Voltage 2.
+                Gm1 = dai_parameters{ 6 };                                                                                  % [S] Membrane Conductance 1.
+                Gm2 = dai_parameters{ 7 };                                                                                  % [S] Membrane Conductance 2.
+                Gm3 = dai_parameters{ 8 };                                                                                  % [S] Membrane Conductance 3.
+                Cm1 = dai_parameters{ 9 };                                                                                  % [F] Membrane Capacitance 1.
+                Cm2 = dai_parameters{ 10 };                                                                                 % [F] Membrane Capacitance 2.
+                Cm3 = dai_parameters{ 11 };                                                                                 % [F] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % Implement a function to unpack the parameters for designing a reduced relative division after inversion subnetwork.
-        
+        function [ delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_reduced_relative_dai_parameters( self, dai_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
+            if nargin < 2, dai_parameters = {  }; end                                                                       % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( dai_parameters )                                                                                    % If the parameters are empty...
+
+                % Set the parameters to default values.                
+                delta1 = self.delta_reduced_dai_DEFAULT;                                                                  	% [V] Bifurcation Parameter 1.
+                delta2 = self.delta_reduced_dai_DEFAULT;                                                                  	% [V] Bifurcation Parameter 1.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                    
+            elseif length( dai_parameters ) == 11                                                                           % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                delta1 = dai_parameters{ 1 };                                                                               % [V] Bifurcation Parameter 1.
+                delta2 = dai_parameters{ 2 };                                                                               % [V] Bifurcation Parameter 2.
+                R1 = dai_parameters{ 3 };                                                                                   % [V] Maximum Membrane Voltage 1.
+                R2 = dai_parameters{ 4 };                                                                                   % [V] Maximum Membrane Voltage 2.
+                R3 = dai_parameters{ 5 };                                                                                   % [V] Maximum Membrane Voltage 3.
+                Gm1 = dai_parameters{ 6 };                                                                                  % [S] Membrane Conductance 1.
+                Gm2 = dai_parameters{ 7 };                                                                                  % [S] Membrane Conductance 2.
+                Gm3 = dai_parameters{ 8 };                                                                                  % [S] Membrane Conductance 3.
+                Cm1 = dai_parameters{ 9 };                                                                                  % [F] Membrane Capacitance 1.
+                Cm2 = dai_parameters{ 10 };                                                                                 % [F] Membrane Capacitance 2.
+                Cm3 = dai_parameters{ 11 };                                                                                 % [F] Membrane Capacitance 3.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters for computing R3 of an absolute multiplication subnetwork.
+        function [ c1, c3 ] = unpack_absolute_multiplication_R3_parameters( self, multiplication_R3_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, multiplication_R3_parameters = {  }; end             % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( multiplication_R3_parameters )                       	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_inversion_DEFAULT;                     	% [-] Absolute Inversion Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;                     	% [-] Absolute Inversion Gain 3.
+                    
+            elseif length( multiplication_R3_parameters ) == 2                	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = multiplication_R3_parameters{ 1 };                       	% [-] Subnetwork Gain 1.
+                c3 = multiplication_R3_parameters{ 2 };                        	% [-] Subnetwork Gain 2.
+
+            else                                                               	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
         
         
         % Implement a function to unpack the parameters for computing R4 of an absolute multiplication subnetwork.
+        function [ c4, c5, c6, delta1, R1 ] = unpack_absolute_multiplication_R4_parameters( self, multiplication_R4_parameters, neurons, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_R4_parameters = {  }; end                                                 % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_R4_parameters )                                                              % If the parameters are empty...
+
+                % Set the parameters to default values.
+                c4 = self.c1_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 1.
+                c5 = self.c2_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 2.
+                c6 = self.c3_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                                                     % [V] Absolute Inversion Offset.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+
+            elseif length( multiplication_R4_parameters ) == 5                                                      % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c4 = multiplication_R4_parameters{ 1 };                                                             % [-] Subnetwork Gain 4.
+                c5 = multiplication_R4_parameters{ 2 };                                                             % [-] Subnetwork Gain 5.
+                c6 = multiplication_R4_parameters{ 3 };                                                             % [-] Subnetwork Gain 6.
+                delta1 = multiplication_R4_parameters{ 4 };                                                         % [V] Bifurcation Parameter 1.
+                R1 = multiplication_R4_parameters{ 5 };                                                             % [V] Maximum Membrane Voltage 1.
+
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
         
         % Implement a function to unpack the parameters for computing Rs of an absolute multiplication subnetwork.
+        function [ c1, c3, c4, c5, c6, delta1, R1 ] = unpack_absolute_multiplication_Rs_parameters( self, multiplication_Rs_parameters, neurons, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                 	% [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                     	% [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_Rs_parameters = {  }; end                                       	% [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_Rs_parameters )                                                  	% If the parameters are empty...
+
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_inversion_DEFAULT;                                                    % [-] Absolute Inversion Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;                                                    % [-] Absolute Inversion Gain 3.
+                c4 = self.c1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 1.
+                c5 = self.c2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 2.
+                c6 = self.c3_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Gain 3.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                                             % [-] Absolute Inversion Offset.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                
+            elseif length( multiplication_Rs_parameters ) == 7                                             	% If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = multiplication_Rs_parameters{ 1 };                                                     % [-] Subnetwork Gain 1.
+                c3 = multiplication_Rs_parameters{ 2 };                                                     % [-] Subnetwork Gain 3.
+                c4 = multiplication_Rs_parameters{ 3 };                                                     % [-] Subnetwork Gain 4.
+                c5 = multiplication_Rs_parameters{ 4 };                                                     % [-] Subnetwork Gain 5.
+                c6 = multiplication_Rs_parameters{ 5 };                                                     % [-] Subnetwork Gain 6.
+                delta1 = multiplication_Rs_parameters{ 6 };                                                 % [V] Bifurcation Parameter 1.
+                R1 = multiplication_Rs_parameters{ 7 };                                                     % [V] Maximum Membrane Voltage 1.
+
+            else                                                                                         	% Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
         
         % Implement a function to unpack the parameters for designing an absolute multiplication subnetwork.
-       
+        function [ c1, c3, c4, c6, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_absolute_multiplication_parameters( self, multiplication_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                         % If the parameters are empty...
+
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 3.
+                c4 = self.c1_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 4.
+                c6 = self.c3_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 6.
+                delta1 = self.delta_absolute_inversion_DEFAULT;                                                             % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_absolute_division_DEFAULT;                                                              % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+
+            elseif length( multiplication_parameters ) == 16                                                                % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = multiplication_parameters{ 1 };                                                                        % [-] Subnetwork Gain 1.
+                c3 = multiplication_parameters{ 2 };                                                                        % [-] Subnetwork Gain 3.
+                c4 = multiplication_parameters{ 3 };                                                                        % [-] Subnetwork Gain 4.
+                c6 = multiplication_parameters{ 4 };                                                                        % [-] Subnetwork Gain 6.
+                delta1 = multiplication_parameters{ 5 };                                                                    % [V] Bifurcation Parameter 1.
+                delta2 = multiplication_parameters{ 6 };                                                                    % [V] Bifurcation Parameter 2.
+                R1 = multiplication_parameters{ 7 };                                                                        % [V] Maximum Membrane Voltage 1.
+                R2 = multiplication_parameters{ 8 };                                                                        % [V] Maximum Membrane Voltage 2.
+                Gm1 = multiplication_parameters{ 9 };                                                                       % [S] Membrane Conductance 1.
+                Gm2 = multiplication_parameters{ 10 };                                                                      % [S] Membrane Conductance 2.
+                Gm3 = multiplication_parameters{ 11 };                                                                      % [S] Membrane Conductance 3.
+                Gm4 = multiplication_parameters{ 12 };                                                                      % [S] Membrane Conductance 4.
+                Cm1 = multiplication_parameters{ 13 };                                                                      % [F] Membrane Capacitance 1.
+                Cm2 = multiplication_parameters{ 14 };                                                                      % [F] Membrane Capacitance 2.
+                Cm3 = multiplication_parameters{ 15 };                                                                      % [F] Membrane Capacitance 3.
+                Cm4 = multiplication_parameters{ 16 };                                                                      % [F] Membrane Capacitance 4.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % Implement a function to unpack the parameters for designing a relative multiplication subnetwork.
-        
+        function [ c3, c6, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_relative_multiplication_parameters( self, multiplication_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                         % If the parameters are empty...
+
+                % Set the parameters to default values.
+                c3 = self.c3_relative_inversion_DEFAULT;                                                                    % [-] Subnetwork Gain 3.
+                c6 = self.c3_relative_division_DEFAULT;                                                                     % [-] Subnetwork Gain 6.
+                delta1 = self.delta_relative_inversion_DEFAULT;                                                             % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_relative_division_DEFAULT;                                                              % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                R4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 4.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+                    
+            elseif length( multiplication_parameters ) == 16                                                                % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c3 = multiplication_parameters{ 1 };                                                                        % [-] Subnetwork Gain 3.
+                c6 = multiplication_parameters{ 2 };                                                                        % [-] Subnetwork Gain 6.
+                delta1 = multiplication_parameters{ 3 };                                                                    % [V] Bifurcation Parameter 1.
+                delta2 = multiplication_parameters{ 4 };                                                                    % [V] Bifurcation Parameter 2.
+                R1 = multiplication_parameters{ 5 };                                                                        % [V] Maximum Membrane Voltage 1.
+                R2 = multiplication_parameters{ 6 };                                                                        % [V] Maximum Membrane Voltage 2.
+                R3 = multiplication_parameters{ 7 };                                                                        % [V] Maximum Membrane Voltage 3.
+                R4 = multiplication_parameters{ 8 };                                                                        % [V] Maximum Membrane Voltage 4.
+                Gm1 = multiplication_parameters{ 9 };                                                                       % [S] Membrane Conductance 1.
+                Gm2 = multiplication_parameters{ 10 };                                                                      % [S] Membrane Conductance 2.
+                Gm3 = multiplication_parameters{ 11 };                                                                      % [S] Membrane Conductance 3.
+                Gm4 = multiplication_parameters{ 12 };                                                                      % [S] Membrane Conductance 4.
+                Cm1 = multiplication_parameters{ 13 };                                                                      % [F] Membrane Capacitance 1.
+                Cm2 = multiplication_parameters{ 14 };                                                                      % [F] Membrane Capacitance 2.
+                Cm3 = multiplication_parameters{ 15 };                                                                      % [F] Membrane Capacitance 3.
+                Cm4 = multiplication_parameters{ 16 };                                                                      % [F] Membrane Capacitance 4.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters for computing R3 of a reduced absolute multiplication subnetwork.
+        function [ c1, c2 ] = unpack_reduced_absolute_multiplication_R3_parameters( self, multiplication_R3_parameters )
+            
+            % Set the default input arguments.
+            if nargin < 2, multiplication_R3_parameters = {  }; end             % [-] Input Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( multiplication_R3_parameters )                       	% If the parameters are empty...
+            
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;              	% [-] Reduced Absolute Inversion Gain 1.           
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;              	% [-] Reduced Absolute Inversion Gain 2.
+                    
+            elseif length( multiplication_R3_parameters ) == 2                	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = multiplication_R3_parameters{ 1 };                       	% [-] Subnetwork Gain 1.
+                c2 = multiplication_R3_parameters{ 2 };                        	% [-] Subnetwork Gain 2.
+
+            else                                                               	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end 
+            
+        end
         
         
         % Implement a function to unpack the parameters for computing R4 of a reduced absolute multiplication subnetwork.
+        function [ c3, c4, delta1, R1 ] = unpack_reduced_absolute_multiplication_R4_parameters( self, multiplication_R4_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                      % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_R4_parameters = {  }; end                                         % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_R4_parameters )                                                      % If the parameters are empty...
+
+                % Set the parameters to default values.
+                c3 = self.c1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 1.
+                c4 = self.c2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Gain 2.
+                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                     % [V] Reduced Absolute Inversion Offset.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+
+            elseif length( multiplication_R4_parameters ) == 4                                              % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c3 = multiplication_R4_parameters{ 1 };                                                     % [-] Subnetwork Gain 3.
+                c4 = multiplication_R4_parameters{ 2 };                                                     % [-] Subnetwork Gain 4.
+                delta1 = multiplication_R4_parameters{ 3 };                                                 % [V] Bifurcation Parameter 1.
+                R1 = multiplication_R4_parameters{ 4 };                                                     % [V] Maximum Membrane Voltage 1.
+
+            else                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
 
         
         % Implement a function to unpack the parameters for computing Rs of a reduced absolute multiplication subnetwork.
+        function [ c1, c2, c3, c4, delta1, R1 ] = unpack_reduced_absolute_multiplication_Rs_parameters( self, multiplication_Rs_parameters, neurons, undetected_option )
 
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                          % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_Rs_parameters = {  }; end                                                 % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_Rs_parameters )                                                              % If the parameters are empty...
+
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                    % [-] Reduced Absolute Inversion Gain 1.
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;                                                    % [-] Reduced Absolute Inversion Gain 2.
+                c3 = self.c1_reduced_absolute_dai_DEFAULT;                                                          % [-] Reduced Absolute Division After Inversion Gain 1.
+                c4 = self.c2_reduced_absolute_dai_DEFAULT;                                                          % [-] Reduced Absolute Division After Inversion Gain 2.
+                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                             % [V] Reduced Absolute Inversion Offset.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                
+            elseif length( multiplication_Rs_parameters ) == 6                                                      % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = multiplication_Rs_parameters{ 1 };                                                             % [-] Subnetwork Gain 1.
+                c2 = multiplication_Rs_parameters{ 2 };                                                             % [-] Subnetwork Gain 2.
+                c3 = multiplication_Rs_parameters{ 3 };                                                             % [-] Subnetwork Gain 3.
+                c4 = multiplication_Rs_parameters{ 4 };                                                             % [-] Subnetwork Gain 4.
+                delta1 = multiplication_Rs_parameters{ 5 };                                                         % [V] Bifurcation Gain 1.
+                R1 = multiplication_Rs_parameters{ 6 };                                                             % [V] Maximum Membrane Voltage 1.
+                
+            else                                                                                                    % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+        
         
         % Implement a function to unpack the parameters for designing a reduced absolute multiplication subnetwork.
-       
+        function [ c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_reduced_absolute_multiplication_parameters( self, multiplication_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                         % If the parameters are empty...
+
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                            % [-] Subnetwork Gain 1.
+                c3 = self.c1_reduced_absolute_division_DEFAULT;                                                             % [-] Subnetwork Gain 3.
+                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                                                     % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_reduced_absolute_division_DEFAULT;                                                      % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+
+            elseif length( multiplication_parameters ) == 14                                                                % If there are a specific number of parameters...
+
+                % Unpack the parameters.
+                c1 = multiplication_parameters{ 1 };                                                                        % [-] Subnetwork Gain 1.
+                c3 = multiplication_parameters{ 2 };                                                                        % [-] Subnetwork Gain 3.
+                delta1 = multiplication_parameters{ 3 };                                                                    % [V] Bifurcation Parameter 1.
+                delta2 = multiplication_parameters{ 4 };                                                                    % [V] Bifurcation Parameter 2.
+                R1 = multiplication_parameters{ 5 };                                                                        % [V] Maximum Membrane Voltage 1.
+                R2 = multiplication_parameters{ 6 };                                                                        % [V] Maximum Membrane Voltage 2.
+                Gm1 = multiplication_parameters{ 7 };                                                                       % [S] Membrane Conductance 1.
+                Gm2 = multiplication_parameters{ 8 };                                                                       % [S] Membrane Conductance 2.
+                Gm3 = multiplication_parameters{ 9 };                                                                       % [S] Membrane Conductance 3.
+                Gm4 = multiplication_parameters{ 10 };                                                                      % [S] Membrane Conductance 4.
+                Cm1 = multiplication_parameters{ 11 };                                                                      % [F] Membrane Capacitance 1.
+                Cm2 = multiplication_parameters{ 12 };                                                                      % [F] Membrane Capacitance 2.
+                Cm3 = multiplication_parameters{ 13 };                                                                      % [F] Membrane Capacitance 3.
+                Cm4 = multiplication_parameters{ 14 };                                                                      % [F] Membrane Capacitance 4.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
         
         % Implement a function to unpack the parameters for designing a reduced relative multiplication subnetwork.
+        function [ delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4 ] = unpack_reduced_relative_multiplication_parameters( self, multiplication_parameters, neurons, undetected_option )
+
+            % Set the default input arguments.
+            if nargin < 4, undetected_option = self.undetected_option; end                                                  % [-] Undetected Option.
+            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Classes.
+            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+
+            % Determine how to set the parameters.
+            if isempty( multiplication_parameters )                                                                         % If the parameters are empty...
+
+                % Set the parameters to default values.
+                delta1 = self.delta_reduced_relative_inversion_DEFAULT;                                                     % [V] Bifurcation Parameter 1.
+                delta2 = self.delta_reduced_relative_division_DEFAULT;                                                      % [V] Bifurcation Parameter 2.
+                R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 2.
+                R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 3.
+                R4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 4.
+                Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 1.
+                Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 2.
+                Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 3.
+                Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option );          % [S] Membrane Conductance 4.
+                Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 1.
+                Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 2.
+                Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 3.
+                Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option );          % [F] Membrane Capacitance 4.
+                    
+            elseif length( multiplication_parameters ) == 14                                                                % If there are a specific number of parameters...
+
+                % Unpack the parameters.                
+                delta1 = multiplication_parameters{ 1 };                                                                    % [V] Bifurcation Parameter 1.
+                delta2 = multiplication_parameters{ 2 };                                                                    % [V] Bifurcation Parameter 2.
+                R1 = multiplication_parameters{ 3 };                                                                        % [V] Maximum Membrane Voltage 1.
+                R2 = multiplication_parameters{ 4 };                                                                        % [V] Maximum Membrane Voltage 2.
+                R3 = multiplication_parameters{ 5 };                                                                        % [V] Maximum Membrane Voltage 3.
+                R4 = multiplication_parameters{ 6 };                                                                        % [V] Maximum Membrane Voltage 4.
+                Gm1 = multiplication_parameters{ 7 };                                                                       % [S] Membrane Conductance 1.
+                Gm2 = multiplication_parameters{ 8 };                                                                       % [S] Membrane Conductance 2.
+                Gm3 = multiplication_parameters{ 9 };                                                                       % [S] Membrane Conductance 3.
+                Gm4 = multiplication_parameters{ 10 };                                                                      % [S] Membrane Conductance 4.
+                Cm1 = multiplication_parameters{ 11 };                                                                      % [F] Membrane Capacitance 1.
+                Cm2 = multiplication_parameters{ 12 };                                                                      % [F] Membrane Capacitance 2.
+                Cm3 = multiplication_parameters{ 13 };                                                                      % [F] Membrane Capacitance 3.
+                Cm4 = multiplication_parameters{ 14 };                                                                      % [F] Membrane Capacitance 4.
+                
+            else                                                                                                            % Otherwise...
+
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+
+            end 
+
+        end
+
+        
+        %% Parameter Packing Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for computing the R2 of an absolute transmission subetwork.
+        function transmission_parameters_R2 = pack_absolute_transmission_R2_parameters( self, c, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            transmission_parameters_R2 = cell( 1, 2 );
+            
+            % Pack the parameters.
+            transmission_parameters_R2{ 1 } = c;
+            transmission_parameters_R2{ 2 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters of an absolute transmission subnetwork.
+        function transmission_parameters = pack_absolute_transmission_parameters( self, c, R1, Gm1, Gm2, Cm1, Cm2, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, neurons = self.neurons; end
+            if nargin < 7, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 6, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 5, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 4, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 3, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            transmission_parameters = cell( 1, 6 );
+            
+            % Pack the parameters.
+            transmission_parameters{ 1 } = c;
+            transmission_parameters{ 2 } = R1;
+            transmission_parameters{ 3 } = Gm1;
+            transmission_parameters{ 4 } = Gm2;
+            transmission_parameters{ 5 } = Cm1;
+            transmission_parameters{ 6 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters of a relative transmission subnetwork.
+        function transmission_parameters = pack_relative_transmission_parameters( self, R1, R2, Gm1, Gm2, Cm1, Cm2, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, neurons = self.neurons; end
+            if nargin < 7, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 6, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 5, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 4, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 3, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            
+            % Preallocate a cell array to store the parameters.
+            transmission_parameters = cell( 1, 6 );
+            
+            % Pack the parameters.
+            transmission_parameters{ 1 } = R1;
+            transmission_parameters{ 2 } = R2;
+            transmission_parameters{ 3 } = Gm1;
+            transmission_parameters{ 4 } = Gm2;
+            transmission_parameters{ 5 } = Cm1;
+            transmission_parameters{ 6 } = Cm2;
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+
+        % Implement a function to pack the parameters for computing the Rn of an absolute addition subnetwork.
+        function addition_parameters_Rn = pack_absolute_addition_Rn_parameters( self, cs, Rs_input, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, cs = self.c_absolute_addition_DEFAULT*ones( 1, length( neurons ) - 1 ); end
+            
+            % Preallocate a cell array to store the parameters.
+            addition_parameters_Rn = cell( 1, 2 );
+            
+            % Pack the parameters.
+            addition_parameters_Rn{ 1 } = cs;
+            addition_parameters_Rn{ 2 } = Rs_input;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for an absolute addition subnetwork.
+        function addition_parameters = pack_absolute_addition_parameters( self, cs, Rs_input, Gms, Cms, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, Cms = self.get_neuron_property( 'all', 'Cm', true, neurons, undetected_option ); end
+            if nargin < 4, Gms = self.get_neuron_property( 'all', 'Gm', true, neurons, undetected_option ); end
+            if nargin < 3, Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, cs = self.c_absolute_addition_DEFAULT*ones( 1, length( neurons ) - 1 ); end
+            
+            % Preallocate a cell array to store the parameters.
+            addition_parameters = cell( 1, 4 );
+            
+            % Pack the parameters.
+            addition_parameters{ 1 } = cs;
+            addition_parameters{ 2 } = Rs_input;
+            addition_parameters{ 3 } = Gms;
+            addition_parameters{ 4 } = Cms;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for a relative addition subnetwork.
+        function addition_parameters = pack_relative_addition_parameters( self, cs, Rs, Gms, Cms, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, Cms = self.get_neuron_property( 'all', 'Cm', true, neurons, undetected_option ); end
+            if nargin < 4, Gms = self.get_neuron_property( 'all', 'Gm', true, neurons, undetected_option ); end
+            if nargin < 3, Rs = self.get_neuron_property( 'all', 'R', true, neurons, undetected_option ); end
+            if nargin < 2, cs = self.c_relative_addition_DEFAULT*ones( 1, length( neurons ) - 1 ); end
+            
+            % Preallocate a cell array to store the parameters.
+            addition_parameters = cell( 1, 4 );
+            
+            % Pack the parameters.
+            addition_parameters{ 1 } = cs;
+            addition_parameters{ 2 } = Rs;
+            addition_parameters{ 3 } = Gms;
+            addition_parameters{ 4 } = Cms;
+            
+        end
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the Rn of an absolute subtraction subnetwork.
+        function subtraction_parameters_Rn = pack_absolute_subtraction_Rn_parameters( self, cs, s_ks, Rs_input, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, neurons = self.neurons; end
+            if nargin < 4, Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, s_ks = self.signature_DEFAULT; end
+            if nargin < 2, cs = self.c_absolute_subtraction_DEFAULT*ones( 1, length( neurons ) - 1 ); end
+            
+            % Preallocate a cell array to store the parameters.
+            subtraction_parameters_Rn = cell( 1, 3 );
+            
+            % Pack the parameters.
+            subtraction_parameters_Rn{ 1 } = cs;            
+            subtraction_parameters_Rn{ 2 } = s_ks;
+            subtraction_parameters_Rn{ 3 } = Rs_input;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for an absolute subtraction subnetwork.
+        function subtraction_parameters = pack_absolute_subtraction_parameters( self, cs, ss, Rs_input, Gms, Cms, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, neurons = self.neurons; end
+            if nargin < 6, Cms = self.get_neuron_property( 'all', 'Cm', true, neurons, undetected_option ); end
+            if nargin < 5, Gms = self.get_neuron_property( 'all', 'Gm', true, neurons, undetected_option ); end
+            if nargin < 4, Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, ss = self.signature_DEFAULT; end
+            if nargin < 2, cs = self.c_absolute_subtraction_DEFAULT*ones( 1, length( neurons ) - 1 ); end
+            
+            % Preallocate a cell array to store the parameters.
+            subtraction_parameters = cell( 1, 5 );
+            
+            % Pack the parameters.
+            subtraction_parameters{ 1 } = cs;
+            subtraction_parameters{ 2 } = ss;
+            subtraction_parameters{ 3 } = Rs_input;
+            subtraction_parameters{ 4 } = Gms;
+            subtraction_parameters{ 5 } = Cms;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for a relative subtraction subnetwork.
+        function subtraction_parameters = pack_relative_subtraction_parameters( self, cs, ss, Rs_input, Gms, Cms, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, neurons = self.neurons; end
+            if nargin < 6, Cms = self.get_neuron_property( 'all', 'Cm', true, neurons, undetected_option ); end
+            if nargin < 5, Gms = self.get_neuron_property( 'all', 'Gm', true, neurons, undetected_option ); end
+            if nargin < 4, Rs_input = self.get_neuron_property( neurons.neuron_IDs( 1:end - 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, ss = self.signature_DEFAULT; end
+            if nargin < 2, cs = self.c_relative_subtraction_DEFAULT*ones( 1, length( neurons ) - 1 ); end
+            
+            % Preallocate a cell array to store the parameters.
+            subtraction_parameters = cell( 1, 5 );
+            
+            % Pack the parameters.
+            subtraction_parameters{ 1 } = cs;
+            subtraction_parameters{ 2 } = ss;
+            subtraction_parameters{ 3 } = Rs_input;
+            subtraction_parameters{ 4 } = Gms;
+            subtraction_parameters{ 5 } = Cms;
+            
+        end
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R2 of an absolute inversion subnetwork.
+        function inversion_parameters_R2 = pack_absolute_inversion_R2_parameters( self, c1, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            inversion_parameters_R2 = cell( 1, 2 );
+            
+            % Pack the parameters.
+            inversion_parameters_R2{ 1 } = c1;
+            inversion_parameters_R2{ 2 } = c3;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for an absolute inversion subnetwork.
+        function inversion_parameters = pack_absolute_inversion_parameters( self, c1, c3, delta, R1, Gm1, Gm2, Cm1, Cm2, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, neurons = self.neurons; end
+            if nargin < 9, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 8, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 5, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            inversion_parameters = cell( 1, 8 );
+            
+            % Pack the parameters.
+            inversion_parameters{ 1 } = c1;
+            inversion_parameters{ 2 } = c3;
+            inversion_parameters{ 3 } = delta;
+            inversion_parameters{ 4 } = R1;
+            inversion_parameters{ 5 } = Gm1;
+            inversion_parameters{ 6 } = Gm2;
+            inversion_parameters{ 7 } = Cm1;
+            inversion_parameters{ 8 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for a relative inversion subnetwork.
+        function inversion_parameters = pack_relative_inversion_parameters( self, c3, delta, R1, R2, Gm1, Gm2, Cm1, Cm2, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 11, neurons = self.neurons; end
+            if nargin < 10, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            inversion_parameters = cell( 1, 8 );
+            
+            % Pack the parameters.
+            inversion_parameters{ 1 } = c3;
+            inversion_parameters{ 2 } = delta;
+            inversion_parameters{ 3 } = R1;
+            inversion_parameters{ 4 } = R2;
+            inversion_parameters{ 5 } = Gm1;
+            inversion_parameters{ 6 } = Gm2;
+            inversion_parameters{ 7 } = Cm1;
+            inversion_parameters{ 8 } = Cm2;
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R2 of a reduced absolute inversion subnetwork.
+        function inversion_parameters_R2 = pack_reduced_absolute_inversion_R2_parameters( self, c1, c2 )
+            
+            % Set the default input arguments.
+            if nargin < 3, c2 = self.c2_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            inversion_parameters_R2 = cell( 1, 2 );
+            
+            % Pack the parameters.
+            inversion_parameters_R2{ 1 } = c1;
+            inversion_parameters_R2{ 2 } = c2;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for a reduced absolute inversion subnetwork.
+        function inversion_parameters = pack_reduced_absolute_inversion_parameters( self, c1, delta, R1, Gm1, Gm2, Cm1, Cm2, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, neurons = self.neurons; end
+            if nargin < 8, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 7, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 6, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 5, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            inversion_parameters = cell( 1, 7 );
+            
+            % Pack the parameters.
+            inversion_parameters{ 1 } = c1;
+            inversion_parameters{ 2 } = delta;
+            inversion_parameters{ 3 } = R1;
+            inversion_parameters{ 4 } = Gm1;
+            inversion_parameters{ 5 } = Gm2;
+            inversion_parameters{ 6 } = Cm1;
+            inversion_parameters{ 7 } = Cm2;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for a reduced relative inversion subnetwork.
+        function inversion_parameters = pack_reduced_relative_inversion_parameters( self, delta, R1, R2, Gm1, Gm2, Cm1, Cm2, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, neurons = self.neurons; end
+            if nargin < 8, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 7, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 6, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 5, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 4, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            inversion_parameters = cell( 1, 7 );
+            
+            % Pack the parameters.
+            inversion_parameters{ 1 } = delta;
+            inversion_parameters{ 2 } = R1;
+            inversion_parameters{ 3 } = R2;
+            inversion_parameters{ 4 } = Gm1;
+            inversion_parameters{ 5 } = Gm2;
+            inversion_parameters{ 6 } = Cm1;
+            inversion_parameters{ 7 } = Cm2;
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R3 of an absolute division subnetwork.
+        function division_parameters_R3 = pack_absolute_division_R3_parameters( self, c1, c3, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, neurons = self.neurons; end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            division_parameters_R3 = cell( 1, 3 );
+            
+            % Pack the parameters.
+            division_parameters_R3{ 1 } = c1;
+            division_parameters_R3{ 2 } = c3;
+            division_parameters_R3{ 3 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for an absolute division subnetwork.
+        function division_parameters = pack_absolute_division_parameters( self, c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, neurons = self.neurons; end
+            if nargin < 12, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            division_parameters = cell( 1, 11 );
+            
+            % Pack the parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = c3;
+            division_parameters{ 3 } = delta;
+            division_parameters{ 4 } = R1;
+            division_parameters{ 5 } = R2;
+            division_parameters{ 6 } = Gm1;
+            division_parameters{ 7 } = Gm2;
+            division_parameters{ 8 } = Gm3;
+            division_parameters{ 9 } = Cm1;
+            division_parameters{ 10 } = Cm2;
+            division_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to pack the parameters for a relative division subnetwork.
+        function division_parameters = pack_relative_division_parameters( self, c3, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, neurons = self.neurons; end
+            if nargin < 12, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            division_parameters = cell( 1, 11 );
+            
+            % Pack the parameters.
+            division_parameters{ 1 } = c3;
+            division_parameters{ 2 } = delta;
+            division_parameters{ 3 } = R1;
+            division_parameters{ 4 } = R2;
+            division_parameters{ 5 } = R3;
+            division_parameters{ 6 } = Gm1;
+            division_parameters{ 7 } = Gm2;
+            division_parameters{ 8 } = Gm3;
+            division_parameters{ 9 } = Cm1;
+            division_parameters{ 10 } = Cm2;
+            division_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R3 of a reduced absolute division subnetwork.
+        function division_parameters_R3 = pack_reduced_absolute_division_R3_parameters( self, c1, c2, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, neurons = self.neurons; end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            division_parameters_R3 = cell( 1, 3 );
+            
+            % Pack the parameters.
+            division_parameters_R3{ 1 } = c1;
+            division_parameters_R3{ 2 } = c2;
+            division_parameters_R3{ 3 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for a reduced absolute division subnetwork.
+        function division_parameters = pack_reduced_absolute_division_parameters( self, c1, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, neurons = self.neurons; end
+            if nargin < 11, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 5, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            division_parameters = cell( 1, 10 );
+            
+            % Pack the parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = delta;
+            division_parameters{ 3 } = R1;
+            division_parameters{ 4 } = R2;
+            division_parameters{ 5 } = Gm1;
+            division_parameters{ 6 } = Gm2;
+            division_parameters{ 7 } = Gm3;
+            division_parameters{ 8 } = Cm1;
+            division_parameters{ 9 } = Cm2;
+            division_parameters{ 10 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to pack the parameters for a reduced relative division subnetwork.
+        function division_parameters = pack_reduced_relative_division_parameters( self, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, neurons = self.neurons; end
+            if nargin < 11, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 5, R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 2, delta = self.delta_relative_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            division_parameters = cell( 1, 10 );
+            
+            % Pack the parameters.
+            division_parameters{ 1 } = delta;
+            division_parameters{ 2 } = R1;
+            division_parameters{ 3 } = R2;
+            division_parameters{ 4 } = R3;
+            division_parameters{ 5 } = Gm1;
+            division_parameters{ 6 } = Gm2;
+            division_parameters{ 7 } = Gm3;
+            division_parameters{ 8 } = Cm1;
+            division_parameters{ 9 } = Cm2;
+            division_parameters{ 10 } = Cm3;
+
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R3 of an absolute division after inversion subnetwork.
+        function dai_parameters_R3 = pack_absolute_dai_R3_parameters( self, c1, c2, c3, delta1, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, neurons = self.neurons; end
+            if nargin < 6, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, delta1 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            dai_parameters_R3 = cell( 1, 5 );
+            
+            % Pack the parameters.
+            dai_parameters_R3{ 1 } = c1;
+            dai_parameters_R3{ 2 } = c2;
+            dai_parameters_R3{ 3 } = c3;
+            dai_parameters_R3{ 4 } = delta1;
+            dai_parameters_R3{ 5 } = R1;
+
+        end
+        
+        
+        % Implement a function to pack the parameters of an absolute division after inversion subnetwork.
+        function dai_parameters = pack_absolute_dai_parameters( self, c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 14, neurons = self.neurons; end
+            if nargin < 13, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 12, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 6, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, delta2 = self.delta2_absolute_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta1_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            dai_parameters = cell( 1, 12 );
+            
+            % Pack the parameters.
+            dai_parameters{ 1 } = c1;
+            dai_parameters{ 2 } = c3;
+            dai_parameters{ 3 } = delta1;
+            dai_parameters{ 4 } = delta2;
+            dai_parameters{ 5 } = R1;
+            dai_parameters{ 6 } = R2;
+            dai_parameters{ 7 } = Gm1;
+            dai_parameters{ 8 } = Gm2;
+            dai_parameters{ 9 } = Gm3;
+            dai_parameters{ 10 } = Cm1;
+            dai_parameters{ 11 } = Cm2;
+            dai_parameters{ 12 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to pack the parameters of a relative division after inversion subnetwork.
+        function dai_parameters = pack_relative_dai_parameters( self, c3, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 14, neurons = self.neurons; end
+            if nargin < 13, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 12, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 6, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, delta2 = self.delta2_absolute_division_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_absolute_division_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            dai_parameters = cell( 1, 12 );
+            
+            % Pack the parameters.
+            dai_parameters{ 1 } = c3;
+            dai_parameters{ 2 } = delta1;
+            dai_parameters{ 3 } = delta2;
+            dai_parameters{ 4 } = R1;
+            dai_parameters{ 5 } = R2;
+            dai_parameters{ 6 } = R3;
+            dai_parameters{ 7 } = Gm1;
+            dai_parameters{ 8 } = Gm2;
+            dai_parameters{ 9 } = Gm3;
+            dai_parameters{ 10 } = Cm1;
+            dai_parameters{ 11 } = Cm2;
+            dai_parameters{ 12 } = Cm3;
+
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R3 of a reduced absolute division after inversion subnetwork.
+        function dai_parameters_R3 = pack_reduced_absolute_dai_R3_parameters( self, c1, c2, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, neurons = self.neurons; end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            dai_parameters_R3 = cell( 1, 3 );
+            
+            % Pack the parameters.
+            dai_parameters_R3{ 1 } = c1;
+            dai_parameters_R3{ 2 } = c2;
+            dai_parameters_R3{ 3 } = R1;
+
+        end
+        
+        
+        % Implement a function to pack the parameters of a reduced absolute division after inversion subnetwork.
+        function dai_parameters = pack_reduced_absolute_dai_parameters( self, c1, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, neurons = self.neurons; end
+            if nargin < 12, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, delta2 = self.delta2_absolute_division_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            dai_parameters = cell( 1, 11 );
+            
+            % Pack the parameters.
+            dai_parameters{ 1 } = c1;
+            dai_parameters{ 2 } = delta1;
+            dai_parameters{ 3 } = delta2;
+            dai_parameters{ 4 } = R1;
+            dai_parameters{ 5 } = R2;
+            dai_parameters{ 6 } = Gm1;
+            dai_parameters{ 7 } = Gm2;
+            dai_parameters{ 8 } = Gm3;
+            dai_parameters{ 9 } = Cm1;
+            dai_parameters{ 10 } = Cm2;
+            dai_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % Implement a function to pack the parameters of a reduced relative division after inversion subnetwork.
+        function dai_parameters = pack_reduced_relative_dai_parameters( self, delta1, delta2, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, neurons = self.neurons; end
+            if nargin < 12, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 10, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 6, R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, delta2 = self.delta2_absolute_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            dai_parameters = cell( 1, 11 );
+            
+            % Pack the parameters.
+            dai_parameters{ 1 } = delta1;
+            dai_parameters{ 2 } = delta2;
+            dai_parameters{ 3 } = R1;
+            dai_parameters{ 4 } = R2;
+            dai_parameters{ 5 } = R3;
+            dai_parameters{ 6 } = Gm1;
+            dai_parameters{ 7 } = Gm2;
+            dai_parameters{ 8 } = Gm3;
+            dai_parameters{ 9 } = Cm1;
+            dai_parameters{ 10 } = Cm2;
+            dai_parameters{ 11 } = Cm3;
+
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R3 of an absolute multiplication subnetwork.
+        function multiplication_parameters_R3 = pack_absolute_multiplication_R3_parameters( self, c1, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters_R3 = cell( 1, 2 );
+            
+            % Pack the parameters.
+            multiplication_parameters_R3{ 1 } = c1;
+            multiplication_parameters_R3{ 2 } = c3;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R4 of an absolute multiplication subnetwork.
+        function multiplication_parameters_R4 = pack_absolute_multiplication_R4_parameters( self, c4, c5, c6, delta1, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 6, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, delta1 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 4, c6 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 3, c5 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters_R4 = cell( 1, 5 );
+            
+            % Pack the parameters.
+            multiplication_parameters_R4{ 1 } = c4;
+            multiplication_parameters_R4{ 2 } = c5;
+            multiplication_parameters_R4{ 3 } = c6;
+            multiplication_parameters_R4{ 4 } = delta1;
+            multiplication_parameters_R4{ 5 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the Rs of an absolute multiplication subnetwork.
+        function multiplication_parameters_Rs = pack_absolute_multiplication_Rs_parameters( self, c1, c3, c4, c5, c6, delta1, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, neurons = self.neurons; end
+            if nargin < 8, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 7, delta1 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 6, c6 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 5, c5 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 4, c4 = self.c1_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters_Rs = cell( 1, 7 );
+            
+            % Pack the parameters.
+            multiplication_parameters_Rs{ 1 } = c1;
+            multiplication_parameters_Rs{ 2 } = c3;
+            multiplication_parameters_Rs{ 3 } = c4;
+            multiplication_parameters_Rs{ 4 } = c5;
+            multiplication_parameters_Rs{ 5 } = c6;
+            multiplication_parameters_Rs{ 6 } = delta1;
+            multiplication_parameters_Rs{ 7 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters of an absolute multiplication subnetwork.
+        function multiplication_parameters = pack_absolute_multiplication_parameters( self, c1, c3, c4, c6, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 19, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 18, neurons = self.neurons; end
+            if nargin < 17, Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 16, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 15, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 14, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 13, Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 12, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 11, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 10, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 9, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 8, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 7, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 6, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 5, c6 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 4, c4 = self.c1_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters = cell( 1, 16 );
+            
+            % Pack the parameters.
+            multiplication_parameters{ 1 } = c1;
+            multiplication_parameters{ 2 } = c3;
+            multiplication_parameters{ 3 } = c4;
+            multiplication_parameters{ 4 } = c6;
+            multiplication_parameters{ 5 } = delta1;
+            multiplication_parameters{ 6 } = delta2;
+            multiplication_parameters{ 7 } = R1;
+            multiplication_parameters{ 8 } = R2;
+            multiplication_parameters{ 9 } = Gm1;
+            multiplication_parameters{ 10 } = Gm2;
+            multiplication_parameters{ 11 } = Gm3;
+            multiplication_parameters{ 12 } = Gm4;
+            multiplication_parameters{ 13 } = Cm1;
+            multiplication_parameters{ 14 } = Cm2;
+            multiplication_parameters{ 15 } = Cm3;
+            multiplication_parameters{ 16 } = Cm4;
+
+        end
+        
+        
+        % Implement a function to pack the parameters of a relative multiplication subnetwork.
+        function multiplication_parameters = pack_relative_multiplication_parameters( self, c3, c6, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 19, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 18, neurons = self.neurons; end
+            if nargin < 17, Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 16, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 15, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 14, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 13, Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 12, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 11, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 10, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 9, R4 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 8, R3 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 7, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 6, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c3 = self.c3_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters = cell( 1, 16 );
+            
+            % Pack the parameters.
+            multiplication_parameters{ 1 } = c3;
+            multiplication_parameters{ 2 } = c6;
+            multiplication_parameters{ 3 } = delta1;
+            multiplication_parameters{ 4 } = delta2;
+            multiplication_parameters{ 5 } = R1;
+            multiplication_parameters{ 6 } = R2;
+            multiplication_parameters{ 7 } = R3;
+            multiplication_parameters{ 8 } = R4;
+            multiplication_parameters{ 9 } = Gm1;
+            multiplication_parameters{ 10 } = Gm2;
+            multiplication_parameters{ 11 } = Gm3;
+            multiplication_parameters{ 12 } = Gm4;
+            multiplication_parameters{ 13 } = Cm1;
+            multiplication_parameters{ 14 } = Cm2;
+            multiplication_parameters{ 15 } = Cm3;
+            multiplication_parameters{ 16 } = Cm4;
+
+        end
+        
+                
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for computing the R3 of a reduced absolute multiplication subnetwork.
+        function multiplication_parameters_R3 = pack_reduced_absolute_multiplication_R3_parameters( self, c1, c2 )
+            
+            % Set the default input arguments.
+            if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters_R3 = cell( 1, 2 );
+            
+            % Pack the parameters.
+            multiplication_parameters_R3{ 1 } = c1;
+            multiplication_parameters_R3{ 2 } = c2;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R4 of a reduced absolute multiplication subnetwork.
+        function multiplication_parameters_R4 = pack_reduced_absolute_multiplication_R4_parameters( self, c3, c4, delta1, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, neurons = self.neurons; end
+            if nargin < 5, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, delta1 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 3, c4 = self.c2_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c3 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters_R4 = cell( 1, 4 );
+            
+            % Pack the parameters.
+            multiplication_parameters_R4{ 1 } = c3;
+            multiplication_parameters_R4{ 2 } = c4;
+            multiplication_parameters_R4{ 3 } = delta1;
+            multiplication_parameters_R4{ 4 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the Rs of a reduced absolute multiplication subnetwork.
+        function multiplication_parameters_Rs = pack_reduced_absolute_multiplication_Rs_parameters( self, c1, c2, c3, c4, delta1, R1, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, neurons = self.neurons; end
+            if nargin < 7, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 6, delta1 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 5, c4 = self.c2_reduced_absolute_division_DEFAULT; end
+            if nargin < 4, c3 = self.c1_reduced_absolute_division_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters_Rs = cell( 1, 6 );
+            
+            % Pack the parameters.
+            multiplication_parameters_Rs{ 1 } = c1;
+            multiplication_parameters_Rs{ 2 } = c2;
+            multiplication_parameters_Rs{ 3 } = c3;
+            multiplication_parameters_Rs{ 4 } = c4;
+            multiplication_parameters_Rs{ 5 } = c6;
+            multiplication_parameters_Rs{ 6 } = delta1;
+            multiplication_parameters_Rs{ 7 } = R1;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters of a reduced absolute multiplication subnetwork.
+        function multiplication_parameters = pack_reduced_absolute_multiplication_parameters( self, c1, c3, delta1, delta2, R1, R2, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 16, neurons = self.neurons; end
+            if nargin < 15, Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 14, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 13, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 12, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 10, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 6, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c1_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters = cell( 1, 14 );
+            
+            % Pack the parameters.
+            multiplication_parameters{ 1 } = c1;
+            multiplication_parameters{ 2 } = c3;
+            multiplication_parameters{ 3 } = delta1;
+            multiplication_parameters{ 4 } = delta2;
+            multiplication_parameters{ 5 } = R1;
+            multiplication_parameters{ 6 } = R2;
+            multiplication_parameters{ 7 } = Gm1;
+            multiplication_parameters{ 8 } = Gm2;
+            multiplication_parameters{ 9 } = Gm3;
+            multiplication_parameters{ 10 } = Gm4;
+            multiplication_parameters{ 11 } = Cm1;
+            multiplication_parameters{ 12 } = Cm2;
+            multiplication_parameters{ 13 } = Cm3;
+            multiplication_parameters{ 14 } = Cm4;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters of a reduced relative multiplication subnetwork.
+        function multiplication_parameters = pack_reduced_relative_multiplication_parameters( self, delta1, delta2, R1, R2, R3, R4, Gm1, Gm2, Gm3, Gm4, Cm1, Cm2, Cm3, Cm4, neurons, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 16, neurons = self.neurons; end
+            if nargin < 15, Cm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 14, Cm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 13, Cm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 12, Cm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Cm', true, neurons, undetected_option ); end
+            if nargin < 11, Gm4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 10, Gm3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 9, Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 8, Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option ); end
+            if nargin < 7, R4 = self.get_neuron_property( neurons.neuron_IDs( 4 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 6, R3 = self.get_neuron_property( neurons.neuron_IDs( 3 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 5, R2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 4, R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option ); end
+            if nargin < 3, delta2 = self.delta_relative_division_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_relative_inversion_DEFAULT; end
+            
+            % Preallocate a cell array to store the parameters.
+            multiplication_parameters = cell( 1, 14 );
+            
+            % Pack the parameters.
+            multiplication_parameters{ 1 } = delta1;
+            multiplication_parameters{ 2 } = delta2;
+            multiplication_parameters{ 3 } = R1;
+            multiplication_parameters{ 4 } = R2;
+            multiplication_parameters{ 5 } = R3;
+            multiplication_parameters{ 6 } = R4;
+            multiplication_parameters{ 7 } = Gm1;
+            multiplication_parameters{ 8 } = Gm2;
+            multiplication_parameters{ 9 } = Gm3;
+            multiplication_parameters{ 10 } = Gm4;
+            multiplication_parameters{ 11 } = Cm1;
+            multiplication_parameters{ 12 } = Cm2;
+            multiplication_parameters{ 13 } = Cm3;
+            multiplication_parameters{ 14 } = Cm4;
+            
+        end
         
         
         %% Maximum Membrane Voltage Parameter Conversion Functions.
