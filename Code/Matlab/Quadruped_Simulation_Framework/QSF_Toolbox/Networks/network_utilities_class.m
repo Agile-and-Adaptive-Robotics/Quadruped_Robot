@@ -361,7 +361,102 @@ classdef network_utilities_class
             
         end
             
-
+        
+        %% Subnetwork Parameter Design Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to compute the gain of a relative transmission subnetwork.
+        function c = compute_relative_transmission_c( ~ )
+        
+            % Compute the gain.
+            c = 1;                      % [-] Subnetwork Gain.
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to compute the gain of a relative addition subnetwork.
+        function c = compute_relative_addition_c( self, n_neurons )
+           
+            % Set the default input arguments.
+            if nargin < 2, n_neurons = self.n_relative_addition_neurons_DEFAULT; end
+            
+            % Compute the gain.
+            c = 1/n_neurons;            % [-] Subnetwork Gain.
+            
+        end
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        % Implement a function to compute the gain of a relative subtraction subnetwork.
+        function c = compute_relative_subtraction_c( self, n_neurons )
+            
+            % Set the default input arguments.
+            if nargin < 2, n_neurons = self.n_relative_subtraction_neurons_DEFAULT; end
+            
+            % Compute the gain.
+            c = 1/n_neurons;                                % [-] Subnetwork Gain.
+            
+        end
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the c2 gain of an absolute inversion subnetwork.
+        function c2 = compute_absolute_inversion_c2( self, c1, c3, delta, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = ( c1 - delta*c3 )/( delta*R1 );            % [-] Subnetwork Gain.
+            
+        end
+        
+        
+        % Implement a function to compute the c1 gain of a relative inversion subnetwork.
+        function c1 = compute_relative_inversion_c1( self, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c1 = c3;                                        % [-] Subnetwork Gain.
+            
+        end
+        
+        
+        % Implement a function to compute the c2 gain of a relative inversion subnetwork.
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+                
+        
+        
         %% Steady State Formulations.
         
         % ---------- Transmission Subnetwork Functions ----------

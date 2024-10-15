@@ -2659,7 +2659,7 @@ classdef neuron_manager_class
         end
         
         %}
-        
+                       
         
         %% Parameter Processing Functions.
         
@@ -5029,7 +5029,7 @@ classdef neuron_manager_class
             elseif length( inversion_parameters ) == 7                                                                      % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = inversion_parameters{ 1 };                                                                             % [-] Subnetwork Gain.
+                c1 = inversion_parameters{ 1 };                                                                             % [-] Subnetwork Gain 1.
                 delta = inversion_parameters{ 2 };                                                                          % [V] Bifurcation Parameter.
                 R1 = inversion_parameters{ 3 };                                                                             % [V] Maximum Membrane Voltage 1.
                 Gm1 = inversion_parameters{ 4 };                                                                            % [S] Membrane Conductance 1.
@@ -5037,7 +5037,7 @@ classdef neuron_manager_class
                 Cm1 = inversion_parameters{ 6 };                                                                            % [F] Membrane Capacitance 1.
                 Cm2 = inversion_parameters{ 7 };                                                                            % [F] Membrane Capacitance 2.
             
-            else                                                                                                        % Otherwise...
+            else                                                                                                            % Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -7159,31 +7159,27 @@ classdef neuron_manager_class
         % ---------- Transmission Subnetwork Functions ----------
 
         % Implement a function to convert transmission parameters to transmission R2 design parameters.
-        function transmission_R2_parameters = convert_transmission_parameters2R2_parameters( self, synapse_ID, transmission_parameters, dEs21, encoding_scheme, synapses, undetected_option )
+        function transmission_parameters_R2 = convert_transmission_parameters2R2_parameters( self, transmission_parameters, encoding_scheme, neurons, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, synapses = self.synapses; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, transmission_parameters = {  }; end
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, transmission_parameters = {  }; end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute transmission parameters.
-                [ R2, Gm2, Ia2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters );
+                % Unpack the absolute transmission parameters.                
+                [ c, R1, ~, ~, ~, ~ ] = self.unpack_absolute_transmission_parameters( transmission_parameters, neurons, undetected_option );
                 
-                % Pack the absolute transmission gs parameters.
-                transmission_R2_parameters = self.pack_absolute_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option );
+                % Pack the absolute transmission R2 parameters.
+                transmission_parameters_R2 = self.pack_absolute_transmission_R2_parameters( c, R1, neurons, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative transmission parameters.
-                [ R2, Gm2, Ia2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
-                
-                % Pack the relative transmission gs parameters.
-                transmission_R2_parameters = self.pack_relative_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option );
+                % Pack the relative transmission R2 parameters.
+                transmission_parameters_R2 = {  };
                 
             else                                                                                                            % Otherwise...
                 
@@ -7197,22 +7193,144 @@ classdef neuron_manager_class
         
         % ---------- Addition Subnetwork Functions ----------
 
-        % Implement a function to convert addition parameters to addition Rs design parameters.
+        % Implement a function to convert addition parameters to addition Rn design parameters.
+        function addition_parameters_Rn = convert_addition_parameters2Rn_parameters( self, addition_parameters, encoding_scheme, neurons, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, addition_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute addition parameters.                
+                [ cs, Rs_input, ~, ~ ] = self.unpack_absolute_addition_parameters( addition_parameters, neurons, undetected_option );
+                
+                % Pack the absolute addition Rn parameters.
+                addition_parameters_Rn = self.pack_absolute_addition_Rn_parameters( cs, Rs_input, neurons, undetected_option );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative addition Rn parameters.
+                addition_parameters_Rn = {  };
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Subtraction Subnetwork Functions ----------
         
         % Implement a function to convert subtraction parameters to subtraction Rs design parameters.
+        function subtraction_parameters_Rn = convert_subtraction_parameters2Rn_parameters( self, subtraction_parameters, encoding_scheme, neurons, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, subtraction_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute subtraction parameters.
+                [ cs, ss, Rs_input, ~, ~ ] = self.unpack_absolute_subtraction_parameters( subtraction_parameters, neurons, undetected_option );
+                
+                % Pack the absolute subtraction Rn parameters.
+                subtraction_parameters_Rn = self.pack_absolute_subtraction_Rn_parameters( cs, ss, Rs_input, neurons, undetected_option );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative subtraction Rn parameters.
+                subtraction_parameters_Rn = {  };
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to convert inversion parameters to inversion R2 design parameters.
+        function inversion_parameters_R2 = convert_inversion_parameters2R2_parameters( self, inversion_parameters, encoding_scheme, neurons, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, inversion_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute inversion parameters.
+                [ c1, c3, ~, ~, ~, ~, ~, ~ ] = self.unpack_absolute_inversion_parameters( inversion_parameters, neurons, undetected_option );
+                
+                % Pack the absolute inversion R2 parameters.
+                inversion_parameters_R2 = self.pack_absolute_inversion_R2_parameters( c1, c3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative inversion R2 parameters.
+                inversion_parameters_R2 = {  };
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to convert reduced inversion parameters to reduced inversion R2 design parameters.
+        function inversion_parameters_R2 = convert_reduced_inversion_parameters2R2_parameters( self, inversion_parameters, encoding_scheme, neurons, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, inversion_parameters = {  }; end
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute inversion parameters.
+                [ c1, delta, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_absolute_inversion_parameters( inversion_parameters, neurons, undetected_option );
+                
+                
+                
+                % Pack the absolute inversion R2 parameters.
+                inversion_parameters_R2 = self.pack_reduced_absolute_inversion_R2_parameters( c1, c2 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative inversion R2 parameters.
+                inversion_parameters_R2 = {  };
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
         
         
         % ---------- Division Subnetwork Functions ----------
