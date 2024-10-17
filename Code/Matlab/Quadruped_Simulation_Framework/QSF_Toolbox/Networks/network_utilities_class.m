@@ -433,18 +433,154 @@ classdef network_utilities_class
         
         
         % Implement a function to compute the c2 gain of a relative inversion subnetwork.
+        function c2 = compute_relative_inversion_c2( self, c3, delta, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = ( R2 - delta )*c3/delta;
+            
+        end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
+        % Implement a function to compute the gain c2 of a reduced absolute inversion subnetwork.
+        function c2 = compute_reduced_absolute_inversion_c2( self, c1, delta, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = ( c1 - delta*R1 )/delta;
+            
+        end
+        
+        
+        % Implement a function to compute the gain c1 of a reduced relative inversion subnetwork.
+        function c1 = compute_reduced_relative_inversion_c1( self, delta, R2 )
+            
+           % Set the default input arguments.
+           if nargin < 3, R2 = self.R_DEFAULT; end
+           if nargin < 2, delta = self.delta_reduced_relative_inversion_DEFAULT; end
+           
+           % Compute the gain.
+           c1 = delta/( R2 - delta );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c2 of a reduced relative inversion subnetwork.
+        function c2 = compute_reduced_relative_inversion_c2( self, delta, R2 )
+            
+           % Set the default input arguments.
+           if nargin < 3, R2 = self.R_DEFAULT; end
+           if nargin < 2, delta = self.delta_reduced_relative_inversion_DEFAULT; end
+           
+           % Compute the gain.
+           c2 = delta/( R2 - delta );
+            
+        end
+        
         
         % ---------- Division Subnetwork Functions ----------
         
+        % Implement a function to compute the gain c2 of an absolute division subnetwork.
+        function c2 = compute_absolute_division_c2( self, c1, c3, delta, R1, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = ( R1*c1 - delta*c3 )/( delta*R2 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c1 of a relative division subnetwork.
+        function c1 = compute_relative_division_c1( self, c3 )
+            
+            % Set the default input arguments.
+            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
+            
+            % Compute the gain.
+            c1 = c3;
+            
+        end
+        
+        
+        % Implement a function to compute the gain c2 of a relative division subnetwork.
+        function c2 = compute_relative_division_c2( self, c1, c3, delta, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R3 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_relative_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_division_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = ( R3*c1 - delta*c3 )/delta;
+            
+        end
+ 
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
+        % Implement a function to compute the gain c2 of a reduced absolute division subnetwork.
+        function c2 = compute_reduced_absolute_division_c2( self, c1, delta, R1, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = ( c1*R1 - delta*R2 )/delta;
+            
+        end
+        
+        
+        % Implement a function to compute the gain c1 of a reduced relative division subnetwork.
+        function c1 = compute_reduced_relative_division_c1( self, delta, R3 )
+            
+            % Set the default input argument.
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta = self.delta_reduced_relative_division_DEFAULT; end
+            
+            % Compute the gain.
+            c1 = delta/( R3 - delta );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c2 of a reduced relative division subnetwork.
+        function c2 = compute_reduced_relative_division_c2( self, delta, R3 )
+        
+            % Set the default input argument.
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta = self.delta_reduced_relative_division_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = delta/( R3 - delta );
+            
+        end
+        
         
         % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to compute the gain c2 of an absolute division after inversion subnetwork.
+        
+        
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
