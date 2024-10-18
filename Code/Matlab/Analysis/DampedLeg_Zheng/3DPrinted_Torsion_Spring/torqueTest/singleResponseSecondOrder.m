@@ -4,19 +4,19 @@ plot(data)
 xlim([0 150])
 
 %%
-n = 28;
+n = 27;
 data0 = data - data(1);
-data = abs(deg2rad(data0(n:n+100)));
+data = abs(deg2rad(data0(n:n+50)));
 data0 = data;
 data = data - data(1);
 dataNorm = data/data(end);
 
-%index  [  1     2     3     4     5     6     7     8  ]
+%index  [  1     2     3     4     5     6     7     8     9  ]
 %torque [0.010 0.020 0.030 0.040 0.050 0.060 0.070 0.100 0.200]       % [Nm] small pulley
 %torque [      0.123       0.245                   0.613      ]       % [Nm] big pulley
 mList = [0.050 0.100 0.150 0.200 0.250 0.300 0.350 0.500 1.000];      % [kg]
 
-index = 1;
+index = 4;
 
 I = 6.16561/1000^2;         % [kg*m^2]      inertia of the pulley and hex rod from Solidworks
 m = mList(index);       %   [kg]
@@ -31,9 +31,9 @@ k = (m*g*r)/data0(end);
 omegan = sqrt(k/I);
 ts = settime5(dataNorm,t);        % [s]           settling time based on 5% of steady state value
 % zeta = zetaHOD(ts,omegan);        % overdamped system
-% zeta = zetaUD(ts,omegan);         % underdamped system
+zeta = zetaUD(ts,omegan);         % underdamped system
 
-zeta = 0.99;
+% zeta = 0.99;
 b = 2*zeta*omegan*I;
 
 
@@ -49,7 +49,7 @@ plot(t,dataNorm)
 plot(t,modelFONorm)
 xlabel('Time (s)')
 ylabel('Normalized Deflection')
-legend('Experimental Data','First Order Model Approximation','Location','southeast')
+legend('Experimental Data','Second Order Model Approximation','Location','southeast')
 hold off
 
 
