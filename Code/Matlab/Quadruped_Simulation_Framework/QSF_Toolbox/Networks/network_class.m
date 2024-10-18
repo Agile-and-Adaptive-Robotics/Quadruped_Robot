@@ -3252,6 +3252,846 @@ classdef network_class
         %}
         
         
+        %% Parameter Packing Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a transmission subnetwork.
+        function transmission_parameters = pack_absolute_transmission_parameters( self, c, R1, R2, Gm2, Ia2, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input parameters.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 6, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 2 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 5, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            transmission_parameters = cell( 1, 5 );
+            
+            % Pack the parameters.
+            transmission_parameters{ 1 } = c;
+            transmission_parameters{ 2 } = R1;
+            transmission_parameters{ 3 } = R2;
+            transmission_parameters{ 4 } = Gm2;
+            transmission_parameters{ 5 } = Ia2;
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a addition subnetwork.
+        function addition_parameters = pack_absolute_addition_parameters( self, cs, Rs_input, Gm_n, Ia_n, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input parameters.
+            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 7, applied_current_manager = self.applied_current_manager; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, Ia_n = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 4, Gm_n = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( end ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, Rs_input = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, cs = self.c_absolute_addition_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 ); end
+            
+            % Preallocate a cell to store the parameters.
+            addition_parameters = cell( 1, 4 );
+            
+            % Pack the parameters.
+            addition_parameters{ 1 } = cs;
+            addition_parameters{ 2 } = Rs_input;
+            addition_parameters{ 3 } = Gm_n;
+            addition_parameters{ 4 } = Ia_n;
+            
+        end
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a subtraction subnetwork.
+        function subtraction_parameters = pack_absolute_subtraction_parameters( self, cs, ss, Rs_input, Gm_n, Ia_n, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input parameters.
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, applied_current_manager = self.applied_current_manager; end
+            if nargin < 7, neuron_manager = self.neuron_manager; end
+            if nargin < 6, Ia_n = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 5, Gm_n = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( end ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Rs_input = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, ss = self.signature_DEFAULT; end
+            if nargin < 2, cs = self.c_absolute_subtraction_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 ); end
+            
+            % Preallocate a cell to store the parameters.
+            subtraction_parameters = cell( 1, 5 );
+            
+            % Pack the parameters.
+            subtraction_parameters{ 1 } = cs;
+            subtraction_parameters{ 2 } = ss;
+            subtraction_parameters{ 3 } = Rs_input;
+            subtraction_parameters{ 4 } = Gm_n;
+            subtraction_parameters{ 5 } = Ia_n;
+
+        end
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a inversion subnetwork.
+        function inversion_parameters = pack_absolute_inversion_parameters( self, c1, c3, delta, R2, Gm2, Ia2, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end
+            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 7, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 2 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 6, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            inversion_parameters = cell( 1, 6 );
+            
+            % Pack the parameters.
+            inversion_parameters{ 1 } = c1;
+            inversion_parameters{ 2 } = c3;
+            inversion_parameters{ 3 } = delta;
+            inversion_parameters{ 4 } = R2;
+            inversion_parameters{ 5 } = Gm2;
+            inversion_parameters{ 6 } = Ia2;
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a reduced inversion subnetwork.
+        function reduced_inversion_parameters = pack_reduced_absolute_inversion_parameters( self, c1, c2, delta, R2, Gm2, Ia2, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, applied_current_manager = self.applied_current_manager; end
+            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 7, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 2 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 6, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            reduced_inversion_parameters = cell( 1, 6 );
+            
+            % Pack the parameters.
+            reduced_inversion_parameters{ 1 } = c1;
+            reduced_inversion_parameters{ 2 } = c2;
+            reduced_inversion_parameters{ 3 } = delta;
+            reduced_inversion_parameters{ 4 } = R2;
+            reduced_inversion_parameters{ 5 } = Gm2;
+            reduced_inversion_parameters{ 6 } = Ia2;
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a division subnetwork.
+        function division_parameters = pack_absolute_division_parameters( self, c1, c3, delta, R1, R3, Gm3, Ia3, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 8, Ia3 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 7, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            division_parameters = cell( 1, 7 );
+            
+            % Pack the parameters.
+            division_parameters{ 1 } = c1;
+            division_parameters{ 2 } = c3;
+            division_parameters{ 3 } = delta;
+            division_parameters{ 4 } = R1;
+            division_parameters{ 5 } = R3;
+            division_parameters{ 6 } = Gm3;
+            division_parameters{ 7 } = Ia3;
+            
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a reduced division subnetwork.
+        function reduced_division_parameters = pack_reduced_absolute_division_parameters( self, c1, c2, delta, R1, R3, Gm3, Ia3, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 8, Ia3 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 7, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            reduced_division_parameters = cell( 1, 7 );
+            
+            % Pack the parameters.
+            reduced_division_parameters{ 1 } = c1;
+            reduced_division_parameters{ 2 } = c2;
+            reduced_division_parameters{ 3 } = delta;
+            reduced_division_parameters{ 4 } = R1;
+            reduced_division_parameters{ 5 } = R3;
+            reduced_division_parameters{ 6 } = Gm3;
+            reduced_division_parameters{ 7 } = Ia3;
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a division after inversion subnetwork.
+        function dai_parameters = pack_absolute_dai_parameters( self, c1, c2, c3, delta1, delta2, R1, R2, neuron_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 8, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 7, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 5, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 3, c2 = self.c2_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            dai_parameters = cell( 1, 7 );
+            
+            % Pack the parameters.
+            dai_parameters{ 1 } = c1;
+            dai_parameters{ 2 } = c2;
+            dai_parameters{ 3 } = c3;
+            dai_parameters{ 4 } = delta1;
+            dai_parameters{ 5 } = delta2;
+            dai_parameters{ 6 } = R1;
+            dai_parameters{ 7 } = R2;
+
+        end
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a reduced division after inversion subnetwork.
+        function reduced_dai_parameters = pack_reduced_absolute_dai_parameters( self, c1, c2, c3, delta1, delta2, R1, R2, neuron_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, neuron_manager = self.neuron_manager; end
+            if nargin < 8, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 7, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 5, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 3, c2 = self.c2_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            reduced_dai_parameters = cell( 1, 7 );
+            
+            % Pack the parameters.
+            reduced_dai_parameters{ 1 } = c1;
+            reduced_dai_parameters{ 2 } = c2;
+            reduced_dai_parameters{ 3 } = c3;
+            reduced_dai_parameters{ 4 } = delta1;
+            reduced_dai_parameters{ 5 } = delta2;
+            reduced_dai_parameters{ 6 } = R1;
+            reduced_dai_parameters{ 7 } = R2;
+
+        end
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a multiplication subnetwork.
+        function multiplication_parameters = pack_absolute_multiplication_parameters( self, c1, c3, c4, c5, c6, delta1, delta2, R1, R3, Gm3, Ia3, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 14, applied_current_manager = self.applied_current_manager; end
+            if nargin < 13, neuron_manager = self.neuron_manager; end
+            if nargin < 12, Ia3 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 11, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 10, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 9, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 8, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 7, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 6, c6 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 5, c5 = self.c2_absolute_dai_DEFAULT; end
+            if nargin < 4, c4 = self.c1_absolute_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            multiplication_parameters = cell( 1, 11 );
+            
+            % Pack the parameters.
+            multiplication_parameters{ 1 } = c1;
+            multiplication_parameters{ 2 } = c3;
+            multiplication_parameters{ 3 } = c4;
+            multiplication_parameters{ 4 } = c5;
+            multiplication_parameters{ 5 } = c6;
+            multiplication_parameters{ 6 } = delta1;
+            multiplication_parameters{ 7 } = delta2;
+            multiplication_parameters{ 8 } = R1;
+            multiplication_parameters{ 9 } = R3;
+            multiplication_parameters{ 10 } = Gm3;
+            multiplication_parameters{ 11 } = Ia3;
+            
+        end
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to pack the parameters for a reduced multiplication subnetwork.
+        function reduced_multiplication_parameters = pack_reduced_absolute_multiplication_parameters( self, c1, c2, c3, c4, delta1, delta2, R1, R3, R4, Gm3, Gm4, Ia3, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 14, applied_current_manager = self.applied_current_manager; end
+            if nargin < 13, neuron_manager = self.neuron_manager; end
+            if nargin < 12, Ia3 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 11, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 10, R4 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 4 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 10, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 9, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 8, delta2 = self.delta_absolute_division_DEFAULT; end
+            if nargin < 7, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 5, c4 = self.c2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
+            if nargin < 3, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            reduced_multiplication_parameters = cell( 1, 12 );
+            
+            % Pack the parameters.
+            reduced_multiplication_parameters{ 1 } = c1;
+            reduced_multiplication_parameters{ 2 } = c2;
+            reduced_multiplication_parameters{ 3 } = c3;
+            reduced_multiplication_parameters{ 4 } = c4;
+            reduced_multiplication_parameters{ 5 } = delta1;
+            reduced_multiplication_parameters{ 6 } = delta2;
+            reduced_multiplication_parameters{ 7 } = R1;
+            reduced_multiplication_parameters{ 8 } = R3;
+            reduced_multiplication_parameters{ 9 } = R4;
+            reduced_multiplication_parameters{ 10 } = Gm3;
+            reduced_multiplication_parameters{ 11 } = Gm4;
+            reduced_multiplication_parameters{ 12 } = Ia3;
+            
+        end
+        
+        
+        %% Parameter Unpacking Functions.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a transmission subnetwork.
+        function [ c, R1, R2, Gm2, Ia2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters, neuron_manager, applied_current_manager, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, transmission_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( transmission_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                c = self.c_absolute_transmission_DEFAULT;
+                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option );
+                R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 2 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( transmission_parameters ) == 5           % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c = transmission_parameters{ 1 };
+                R1 = transmission_parameters{ 2 };
+                R2 = transmission_parameters{ 3 };
+                Gm2 = transmission_parameters{ 4 };
+                Ia2 = transmission_parameters{ 5 };
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for an addition subnetwork.
+        function [ cs, Rs_input, Gm_n, Ia_n ] = unpack_absolute_addition_parameters( self, addition_parameters, neuron_manager, applied_current_manager, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, addition_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( addition_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                cs = self.c_absolute_addition_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 );
+                Rs_input = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm_n = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( end ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia_n = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( addition_parameters ) == 4       	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = addition_parameters{ 1 };
+                Rs_input = addition_parameters{ 2 };
+                Gm_n = addition_parameters{ 3 };
+                Ia_n = addition_parameters{ 4 };
+                
+            else                                              	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+
+        % Implement a function to unpack the parameters for a subtraction subnetwork.
+        function [ cs, ss, Rs_input, Gm_n, Ia_n ] = unpack_absolute_subtraction_parameters( self, subtraction_parameters, neuron_manager, applied_current_manager, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, subtraction_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( subtraction_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                cs = self.c_absolute_subtraction_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 );
+                ss = self.signature_DEFAULT;
+                Rs_input = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1:( end - 1 ) ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm_n = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( end ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia_n = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( subtraction_parameters ) == 5       	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                cs = subtraction_parameters{ 1 };
+                ss = subtraction_parameters{ 2 };
+                Rs_input = subtraction_parameters{ 3 };
+                Gm_n = subtraction_parameters{ 4 };
+                Ia_n = subtraction_parameters{ 5 };
+                
+            else                                              	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a inversion subnetwork.
+        function [ c1, c3, delta, R2, Gm2, Ia2 ] = unpack_absolute_inversion_parameters( self, inversion_parameters, neuron_manager, applied_current_manager, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, inversion_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( inversion_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_inversion_DEFAULT;
+                c3 = self.c3_absolute_inversion_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;
+                R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 2 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( inversion_parameters ) == 6           % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = inversion_parameters{ 1 };
+                c3 = inversion_parameters{ 2 };
+                delta = inversion_parameters{ 3 };
+                R2 = inversion_parameters{ 4 };
+                Gm2 = inversion_parameters{ 5 };
+                Ia2 = inversion_parameters{ 6 };
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a reduced inversion subnetwork.
+        function [ c1, c2, delta, R2, Gm2, Ia2 ] = unpack_reduced_absolute_inversion_parameters( self, reduced_inversion_parameters, neuron_manager, applied_current_manager, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, reduced_inversion_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( reduced_inversion_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;
+                c2 = self.c2_reduced_absolute_inversion_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;
+                R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 2 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( reduced_inversion_parameters ) == 6           % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = reduced_inversion_parameters{ 1 };
+                c2 = reduced_inversion_parameters{ 2 };
+                delta = reduced_inversion_parameters{ 3 };
+                R2 = reduced_inversion_parameters{ 4 };
+                Gm2 = reduced_inversion_parameters{ 5 };
+                Ia2 = reduced_inversion_parameters{ 6 };
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a division subnetwork.
+        function [ c1, c3, delta, R1, R3, Gm3, Ia3 ] = unpack_absolute_division_parameters( self, division_parameters, neuron_manager, applied_current_manager, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, division_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( division_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_division_DEFAULT;
+                c3 = self.c3_absolute_division_DEFAULT;
+                delta = self.delta_absolute_division_DEFAULT;
+                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option );
+                R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia3 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( division_parameters ) == 7           % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = division_parameters{ 1 };
+                c3 = division_parameters{ 2 };
+                delta = division_parameters{ 3 };
+                R1 = division_parameters{ 4 };
+                R3 = division_parameters{ 5 };
+                Gm3 = division_parameters{ 6 };
+                Ia3 = division_parameters{ 7 };
+                
+            else                                              	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a reduced division subnetwork.
+        function [ c1, c2, delta, R1, R3, Gm3, Ia3 ] = unpack_reduced_absolute_division_parameters( self, reduced_division_parameters, neuron_manager, applied_current_manager, undetected_option )
+        
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 4, applied_current_manager = self.applied_current_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, division_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( division_parameters )                   % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_division_DEFAULT;
+                c2 = self.c2_reduced_absolute_division_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;
+                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option );
+                R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
+                Gm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option );
+                Ia3 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neuron.neuron_IDs( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( division_parameters ) == 7           % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = reduced_division_parameters{ 1 };
+                c2 = reduced_division_parameters{ 2 };
+                delta = reduced_division_parameters{ 3 };
+                R1 = reduced_division_parameters{ 4 };
+                R3 = reduced_division_parameters{ 5 };
+                Gm3 = reduced_division_parameters{ 6 };
+                Ia3 = reduced_division_parameters{ 7 };
+                
+            else                                              	% Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a division after inversion subnetwork.
+        function [ c1, c2, c3, delta1, delta2, R1, R2 ] = unpack_absolute_dai_parameters( self, dai_parameters, neuron_manager, undetected_option )
+           
+            % Set the default input arguments.
+            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, dai_parameters = {  }; end
+            
+            % Determine how to unpack the parameters.
+            if isempty( dai_parameters )                    % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                c1 = self.c1_absolute_dai_DEFAULT;
+                c2 = self.c2_absolute_dai_DEFAULT;
+                c3 = self.c3_absolute_dai_DEFAULT;
+                delta1 = self.delta_absolute_inversion_DEFAULT;
+                delta2 = self.delta_absolute_dai_DEFAULT;
+                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 1 ), 'R', true, neuron_manager.neurons, undetected_option );
+                R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.neuron_IDs( 2 ), 'R', true, neuron_manager.neurons, undetected_option );
+                
+            elseif length( dai_parameters ) == 7            % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                c1 = dai_parameters{ 1 };
+                c2 = dai_parameters{ 2 };                
+                c3 = dai_parameters{ 3 };
+                delta1 = dai_parameters{ 4 };
+                delta2 = dai_parameters{ 5 };                
+                R1 = dai_parameters{ 6 };
+                R2 = dai_parameters{ 7 };
+                
+            else                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a reduced division after inversion subnetwork.
+        
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a multiplication subnetwork.
+        
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters for a reduced multiplication subnetwork.
+        
+        
+        
+        
+        %% Parameter Conversion Functions.
+        
+%         % ---------- Transmission Subnetwork Functions ----------
+%         
+%         % Implement a function to convert transmission parameters to neuron parameters.
+%         function neuron_parameters = transmission_parameters2neuron_parameters( self, transmission_parameters, encoding_scheme )
+%             
+%             % transmission_parameters = { c, R1, R2, Gm2, Ia2 }
+%             % neuron_parameters = { c, R1 }
+%             
+%             % Set the default input arguments.
+%             if nargin < 2, transmission_parameters = {  }; end
+%             
+%             % Determine how to perform the parameter conversion.
+%             if strcmpi( encoding_scheme, 'absolute' )
+%             
+%                 % Preallocate a cell to store the neuron parameters.
+%                 neuron_parameters = cell( 1, 2 );
+% 
+%                 % Retrieve the appropriate transmission parameters.
+%                 neuron_parameters{ 1 } = transmission_parameters{ 1 };
+%                 neuron_parameters{ 2 } = transmission_parameters{ 2 };
+% 
+%             elseif strcmpi( encoding_scheme, 'relative' )
+%                 
+%                 
+%             else
+%                 
+%                 
+%             end
+%                 
+%             
+%         end
+%         
+%         
+%         % Implement a function to convert transmission parameters to synapse parameters.
+%         function synapse_parameters = transmission_parameters2synapse_parameters( self, transmission_parameters )
+%             
+%             % transmission_parameters = { c, R1, R2, Gm2, Ia2 }
+%             % synapse_parameters = { R2, Gm2, Ia2 }
+%             
+%             % Set the default input arguments.
+%             
+%             R2 = transmission
+%             Gm2
+%             Ia2
+%             
+%         end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        % Implement a function to convert addition parameters to neuron parameters.
+        
+        
+        % Implement a function to convert addition parameters to synapse parameters.
+        
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        % Implement a function to convert subtraction parameters to neuron parameters.
+        
+        
+        % Implement a function to convert subtraction parameters to synapse parameters.
+        
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert inversion parameters to neuron parameters.
+        
+        
+        % Implement a function to convert inversion parameters to synapse parameters.
+        
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced inversion parameters to neuron parameters.
+        
+        
+        % Implement a function to convert reduced inversion parameters to synapse parameters.
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        % Implement a function to convert division parameters to neuron parameters.
+        
+        
+        % Implement a function to convert division parameters to synapse parameters.
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced division parameters to neuron parameters.
+        
+        
+        % Implement a function to convert reduced division parameters to synapse parameters.
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert division after inversion parameters to neuron parameters.
+        
+        
+        % Implement a function to convert division after inversion parameters to synapse parameters.
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced division after inversion parameters to neuron parameters.
+        
+        
+        % Implement a function to convert reduced division after inversion parameters to synapse parameters.
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to convert multiplication parameters to neuron parameters.
+        
+        
+        % Implement a function to convert multiplication parameters to synapse parameters.
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        % Implement a function to convert reduced multiplication parameters to neuron parameters.
+        
+        
+        % Implement a function to convert reduced multiplication parameters to synapse parameters.
+        
+        
+        
         %% Subnetwork Design Functions.
         
         % ---------- Transmission Subnetwork Functions ----------
@@ -3273,7 +4113,6 @@ classdef network_class
             network = self;
             
             % Convert subnetwork parameters to neuron parameters and synapse parameters.
-
             
             % Design the transmission subnetwork neurons.
             [ Gnas, R2, neurons, neuron_manager, network ] = network.design_transmission_neurons( neuron_IDs, neuron_parameters, encoding_scheme, neuron_manager, true, undetected_option );

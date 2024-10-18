@@ -2736,7 +2736,7 @@ classdef neuron_manager_class
                 if isempty( transmission_parameters )                                                                           % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    c = self.c_transmission_DEFAULT;                                                                            % [-] Transmission Subnetwork Gain.
+                    c = self.c_aboslute_transmission_DEFAULT;                                                                  	% [-] Transmission Subnetwork Gain.
                     R1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'R', true, neurons, undetected_option );         	% [V] Maximum Member Voltage.
                     % Gm1 = self.get_neuron_property( neurons.neuron_IDs( 1 ), 'Gm', true, neurons, undetected_option );       	% [S] Membrane Conductance 1.
                     % Gm2 = self.get_neuron_property( neurons.neuron_IDs( 2 ), 'Gm', true, neurons, undetected_option );      	% [S] Membrane Conductance 2.

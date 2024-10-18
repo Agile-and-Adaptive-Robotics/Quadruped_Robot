@@ -488,6 +488,22 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the gain of a reduced relative inversion subnetwork.
+        function [ c1, c2 ] = compute_reduced_relative_inversion_gains( self, delta, R2 )
+            
+            % Set the default input arguments.
+           if nargin < 3, R2 = self.R_DEFAULT; end
+           if nargin < 2, delta = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+           % Compute the gain c1.
+           c1 = self.compute_reduced_relative_inversion_c1( delta, R2 );
+           
+           % Compute the gain c2.
+           c2 = self.compute_reduced_relative_inversion_c2( delta, R2 );
+           
+        end
+        
+        
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to compute the gain c2 of an absolute division subnetwork.
@@ -533,6 +549,23 @@ classdef network_utilities_class
         end
  
         
+        % Implement a function to compute the gains of a relative division subnetwork.
+        function [ c1, c2 ] = compute_relative_division_gains( self, c3, delta, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_relative_division_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
+            
+            % Compute the gain c1.
+            c1 = self.compute_relative_division_c1( c3 );
+           
+            % Compute the gain c2.
+            c2 = self.compute_relative_division_c2( c1, c3, delta, R3 );
+            
+        end
+        
+        
         % ---------- Reduced Division Subnetwork Functions ----------
         
         % Implement a function to compute the gain c2 of a reduced absolute division subnetwork.
@@ -572,6 +605,22 @@ classdef network_utilities_class
             
             % Compute the gain.
             c2 = delta/( R3 - delta );
+            
+        end
+        
+        
+        % Implement a function to compute the gains of a reduced relative division subnetwork.
+        function [ c1, c2 ] = compute_reduced_relative_division_gains( self, delta, R3 )
+            
+            % Set the default input argument.
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta = self.delta_reduced_relative_division_DEFAULT; end
+            
+            % Compute the gain c1.
+            c1 = self.compute_reduced_relative_division_c1( delta, R3 );
+            
+            % Compute the gain c2.
+            c2 = self.compute_reduced_relative_division_c2( delta, R3 );
             
         end
         
@@ -626,6 +675,25 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the gains of a relative division after inversion subnetwork.
+        function [ c1, c2 ] = compute_relative_dai_gains( self, c3, delta1, delta2, R2, R3 )
+        
+            % Set the default input arguments.
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_relative_dai_DEFAULT; end
+            if nargin < 3, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_dai_DEFAULT; end
+            
+            % Compute the gain c1.
+            c1 = self.compute_relative_dai_c1( c3, delta1, delta2, R2, R3 );
+            
+            % Compute the gain c2.
+            c2 = self.compute_relative_dai_c2( c3, delta1, delta2, R2, R3 );
+            
+        end
+        
+        
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the gain c2 of a reduced vision after inversion subnetwork.
@@ -672,14 +740,290 @@ classdef network_utilities_class
         
         end
         
+        
+        % Implement a function to compute the gains of a reduced relative division after inversion subnetwork.
+        function [ c1, c2 ] = compute_reduced_relative_dai_gains( self, delta1, delta2, R2, R3 )
             
+            % Set the default input arguments.
+            if nargin < 5, R3 = self.R_DEFAULT; end
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the gain c1.
+            c1 = self.compute_reduced_relative_dai_c1( delta1, delta2, R2, R3 );
+            
+            % Compute the gain c2.
+            c2 = self.compute_reduced_relative_dai_c2( delta1, delta2, R2, R3 );
+            
+        end
+        
+        
         % ---------- Multiplication Subnetwork Functions ----------
         
+        % Implement a function to coimpute the gain c2 of an absolute multiplication subnetwork.
+        function c2 = compute_absolute_multiplication_c2( self, c1, c3, delta1, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+        
+            % Compute the gain.
+            c2 = self.compute_absolute_inversion_c2( c1, c3, delta1, R2 );
+            
+        end
+            
+        
+        % Implement a function to compute the gain c4 of an absolute multiplication subnetwork.
+        function c4 = compute_absolute_multiplication_c4( self, c4, c6, delta2, R1, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_absolute_dai_DEFAULT; end
+            
+            % Compute the gain.
+            c4 = self.compute_absolute_dai_c2( c4, c6, delta2, R1, R3 );
+            
+        end
         
         
+        % Implement a function to compute the gains of an absolute multiplication subnetwork.
+        function [ c2, c4 ] = compute_absolute_multiplication_gains( self, c1, c3, c4, c6, delta1, delta2, R1, R2, R3 )
         
+            % Set the default input arguments.
+            if nargin < 10, R3 = self.R_DEFAULT; end
+            if nargin < 9, R2 = self.R_DEFAULT; end
+            if nargin < 8, R1 = self.R_DEFAULT; end
+            if nargin < 7, delta2 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 6, delta1 = self.delta_absolute_dai_DEFAULT; end
+            if nargin < 5, c6 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 4, c4 = self.c1_absolute_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            
+            % Compute the gain c2.
+            c2 = self.compute_absolute_multiplication_c2( c1, c3, delta1, R2 );
+            
+            % Compute the gain c4.
+            c4 = self.compute_absolute_multiplication_c4( c4, c6, delta2, R1, R3 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c1 of a relative multiplication subnetwork.    
+        function c1 = compute_relative_multiplication_c1( self, c3 )
+        
+            % Set the default input arguments.
+            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c1 = self.compute_relative_inversion_c1( c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c2 of a relative multiplication subnetwork.    
+        function c2 = compute_relative_multiplication_c2( self, c3, delta1, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = self.compute_relative_inversion_c2( c3, delta1, R3 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c4 of a relative multiplication subnetwork.    
+        function c4 = compute_relative_multiplication_c4( self, c6 )
+        
+            % Set the default input arguments.
+            if nargin < 2, c6 = self.c3_relative_dai_DEFAULT; end
+            
+            % Compute the gain.
+            c4 = self.compute_relative_division_c1( c6 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c5 of a relative multiplication subnetwork.    
+        function c5 = compute_relative_multiplication_c5( self, c4, c6, delta2, R4 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, delta2 = self.delta_relative_division_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c4 = self.c1_relative_dai_DEFAULT; end
+            
+            % Compute the gain.
+            c5 = self.compute_relative_division_c2( c4, c6, delta2, R4 );
+            
+        end
+        
+        
+        % Imlement a function to compute the gains of a relative multiplication subnetwork.
+        function [ c1, c2, c4, c5 ] = compute_relative_multiplication_gains( self, c3, c6, delta1, delta2, R3, R4 )
+        
+            % Set the default input arguments.
+            if nargin < 7, R4 = self.R_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_relative_dai_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c6 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+
+            % Compute the gain c1.
+            c1 = self.compute_relative_multiplication_c1( c3 );
+            
+            % Compute the gain c2.
+            c2 = self.compute_relative_multiplication_c2( c3, delta1, R3 );
+            
+            % Compute the gain c4.
+            c4 = self.compute_relative_multiplication_c4( c6 );
+            
+            % Compute the gain c5.
+            c5 = self.compute_relative_multiplication_c5( c4, c6, delta2, R4 );
+            
+        end
+        
+            
         % ---------- Reduced Multiplication Subnetwork Functions ----------
                 
+        % Implement a function to compute the gain c2 of a reduced absolute multiplication subnetwork.
+        function c2 = compute_reduced_absolute_multiplication_c2( self, c1, delta1, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = self.compute_reduced_absolute_inversion_c2( c1, delta1, R2 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c4 of a reduced absolute multiplication subnetwork.
+        function c4 = compute_reduced_absolute_multiplication_c4( self, c3, delta2, R1, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R3 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
+            
+            % Compute the gain.
+            c4 = self.compute_reduced_absolute_dai_c2( c3, delta2, R1, R3 );
+            
+        end
+        
+        
+        % Implement a function to compute the gains of a reduced absolute multiplication subnetwork.
+        function [ c2, c4 ] = compute_reduced_absolute_multiplication_gains( self, c1, c3, delta1, delta2, R1, R2, R3 )
+        
+            % Set the default input arguments.
+            if nargin < 8, R3 = self.R_DEFAULT; end
+            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, delta2 = self.delta_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Compute the gain c2.
+            c2 = self.compute_reduced_absolute_multiplication_c2( c1, delta1, R2 );
+            
+            % Compute the gain c4.
+            c4 = self.compute_reduced_absolute_multiplication_c4( c3, delta2, R1, R3 );
+            
+        end
+
+        
+        % Implement a function to compute the gain c1 of a reduced relative multiplication subnetwork.
+        function c1 = compute_reduced_relative_multiplication_c1( self, delta1, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c1 = self.compute_reduced_relative_inversion_c1( delta1, R3 );
+            
+        end
+        
+        
+        % Implement a function to compute the gain c2 of a reduced relative multiplication subnetwork.
+        function c2 = compute_reduced_relative_multiplication_c2( self, delta1, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 3, R3 = self.R_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c2 = self.compute_reduced_relative_inversion_c2( delta1, R3 );
+            
+        end
+                
+                
+        % Implement a function to compute the gain c3 of a reduced relative multiplication subnetwork.
+        function c3 = compute_reduced_relative_multiplication_c3( self, delta1, delta2, R3, R4 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c3 = self.compute_reduced_relative_dai_c1( delta1, delta2, R3, R4 );
+            
+        end
+                        
+
+        % Implement a function to compute the gain c4 of a reduced relative multiplication subnetwork.
+        function c4 = compute_reduced_relative_multiplication_c4( self, delta1, delta2, R3, R4 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the gain.
+            c4 = self.compute_reduced_relative_dai_c2( delta1, delta2, R3, R4 );
+            
+        end
+        
+        
+        % Implement a function to compute the gains of a reduced relative multiplication subnetwork.
+        function [ c1, c2, c3, c4 ] = compute_reduced_relative_mulitplication_gains( self, delta1, delta2, R3, R4 )
+            
+            % Set the default input arguments.
+            if nargin < 5, R4 = self.R_DEFAULT; end
+            if nargin < 4, R3 = self.R_DEFAULT; end
+            if nargin < 3, delta2 = self.delta_reduced_relative_dai_DEFAULT; end
+            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the gain c1.
+            c1 = self.compute_reduced_relative_multiplication_c1( delta1, R3 );
+            
+            % Compute the gain c2.
+            c2 = self.compute_reduced_relative_multiplication_c2( delta1, R3 );
+            
+            % Compute the gain c3.
+            c3 = self.compute_reduced_relative_multiplication_c3( delta1, delta2, R3, R4 );
+            
+            % Compute the gain c4.
+            c4 = self.compute_reduced_relative_multiplication_c4( delta1, delta2, R3, R4 );
+            
+        end
         
         
         %% Steady State Formulations.
