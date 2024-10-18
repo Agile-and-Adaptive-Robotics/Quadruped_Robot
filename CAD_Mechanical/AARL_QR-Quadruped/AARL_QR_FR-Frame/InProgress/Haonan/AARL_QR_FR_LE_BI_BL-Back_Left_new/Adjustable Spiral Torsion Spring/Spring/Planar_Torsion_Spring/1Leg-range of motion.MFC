@@ -1,0 +1,16 @@
+[StartTime]
+1Leg-range of motion.MFC=33s
+[SolverState]
+1Leg-range of motion.MFC=2
+[MainFrame]
+1Leg-range of motion.MFC=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPMADAAAAADLBAAAAAEHEAAAAAGICAAAAA
+[ShowMin]
+1Leg-range of motion.MFC=No
+[SolverType]
+1Leg-range of motion.MFC=Linear Analysis
+[StudyType]
+1Leg-range of motion.MFC=0
+[StudyName]
+1Leg-range of motion.MFC=range of motion
+[Solver]
+1Leg-range of motion.MFC=Sparse

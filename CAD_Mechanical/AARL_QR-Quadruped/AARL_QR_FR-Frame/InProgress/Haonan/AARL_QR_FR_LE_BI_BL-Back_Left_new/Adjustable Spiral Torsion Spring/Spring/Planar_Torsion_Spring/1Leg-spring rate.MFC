@@ -1,0 +1,16 @@
+[StartTime]
+1Leg-spring rate.MFC=1m:38s
+[SolverState]
+1Leg-spring rate.MFC=2
+[MainFrame]
+1Leg-spring rate.MFC=MCAAAAAAAAAAAAAABAAAAAAAPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPMADAAAAADLBAAAAAEHEAAAAAGICAAAAA
+[ShowMin]
+1Leg-spring rate.MFC=No
+[SolverType]
+1Leg-spring rate.MFC=Linear Analysis
+[StudyType]
+1Leg-spring rate.MFC=0
+[StudyName]
+1Leg-spring rate.MFC=spring rate
+[Solver]
+1Leg-spring rate.MFC=Sparse
