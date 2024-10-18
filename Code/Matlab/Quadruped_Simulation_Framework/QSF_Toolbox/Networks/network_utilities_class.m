@@ -446,6 +446,23 @@ classdef network_utilities_class
         end
         
         
+        % Implement a function to compute the gains of a relative inversion subnetwork.
+        function [ c1, c2 ] = compute_relative_inversion_gains( self, c3, delta, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, delta = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            
+            % Compute the gain c1.
+            c1 = self.compute_relative_inversion_c1( c3 );
+            
+            % Compute the gain c2.
+            c2 = self.compute_relative_inversion_c2( c3, delta, R2 );
+            
+        end
+        
+        
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the gain c2 of a reduced absolute inversion subnetwork.
