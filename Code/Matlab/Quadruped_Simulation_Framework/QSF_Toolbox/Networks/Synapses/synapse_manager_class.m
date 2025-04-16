@@ -1285,12 +1285,12 @@ classdef synapse_manager_class
                 if isempty( parameters )                                              	% If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R2 = self.R_DEFAULT;                                              	% [V] Activation Domain.
+                    c = self.c_absolute_transmission_DEFAULT;                           % [-] Subnetwork Gain.
+                    x1_max = self.x1max_absolute_transmission_DEFAULT;                  % [-] Maximum Decoded Input.
                     Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
-                    Ia2 = self.Ia_DEFAULT;                                             	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
-                    parameters = { R2, Gm2, Ia2 };
+                    parameters = { c, x1_max, Gm2 };
                     
                 else                                                                    % Otherwise...
                     
@@ -1312,15 +1312,14 @@ classdef synapse_manager_class
                     % Set the default parameter values.
                     R2 = self.R_DEFAULT;                                             	% [V] Activation Domain.
                     Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
-                    Ia2 = self.Ia_DEFAULT;                                            	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
-                    parameters = { R2, Gm2, Ia2 };
+                    parameters = { R2, Gm2 };
                     
                 else                                                                 	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                      	% If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 2                                      	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -5117,9 +5116,9 @@ classdef synapse_manager_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters for an absolute transmission subnetwork.
-        function [ R2, Gm2, Ia2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters )
+        function [ c, x1_max, Gm2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters )
             
-            % Absolute: R2, Gm2, Ia2
+            % Absolute: c, x1_max, Gm2
 
             % Set the default input arguments.
             if nargin < 2, transmission_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
@@ -5128,16 +5127,16 @@ classdef synapse_manager_class
             if isempty( transmission_parameters )                                                                               % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
-                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
-                Ia2 = self.Ia_DEFAULT;                                                                                          % [A] Applied Current.
+                c = self.c_absolute_transmission_DEFAULT;                                                                   	% [-] Subnetwork Gain.
+                x1_max = self.x1max_absolute_transmission_DEFAULT;                                                              % [-] Maximum Decoded Input.
+                Gm2 = self.Gm_DEFAULT;                                                                                          % [S] Membrane Conductance.
                 
             elseif length( transmission_parameters ) == 3                                                                       % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R2 = transmission_parameters{ 1 };                                                                            	% [V] Activation Domain.
-                Gm2 = transmission_parameters{ 2 };                                                                          	% [S] Membrane Conductance.
-                Ia2 = transmission_parameters{ 3 };                                                                            	% [A] Applied Current.
+                c = transmission_parameters{ 1 };                                                                            	% [-] Subnetwork Gain.
+                x1_max = transmission_parameters{ 2 };                                                                          % [-] Maximum Decoded Input.
+                Gm2 = transmission_parameters{ 3 };                                                                            	% [S] Membrane Conductance.
             
             else                                                                                                                % Otherwise...
                
@@ -5150,9 +5149,9 @@ classdef synapse_manager_class
         
         
         % Implement a function to unpack the parameters for a relative transmission subnetwork.
-        function [ R2, Gm2, Ia2 ] = unpack_relative_transmission_parameters( self, transmission_parameters )
+        function [ R2, Gm2 ] = unpack_relative_transmission_parameters( self, transmission_parameters )
             
-            % Relative: R2, Gm2, Ia2
+            % Relative: R2, Gm2
 
             % Set the default input arguments.
             if nargin < 2, transmission_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
@@ -5163,14 +5162,12 @@ classdef synapse_manager_class
                 % Set the parameters to default values.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
-                Ia2 = self.Ia_DEFAULT;                                                                                          % [A] Applied Current.
                 
-            elseif length( transmission_parameters ) == 3                                                                       % If there are a specific number of parameters...
+            elseif length( transmission_parameters ) == 2                                                                       % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
                 R2 = transmission_parameters{ 1 };                                                                            	% [V] Activation Domain.
                 Gm2 = transmission_parameters{ 2 };                                                                          	% [S] Membrane Conductance.
-                Ia2 = transmission_parameters{ 3 };                                                                            	% [A] Applied Current.
             
             else                                                                                                                % Otherwise...
                
@@ -6467,85 +6464,81 @@ classdef synapse_manager_class
         % ---------- Transmission Subnetwork Functions ----------
 
         % Implement a function to pack absolute transmission gs parameters.
-        function parameters_gs = pack_absolute_transmission_gs_parameters( self, synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option )
+        function parameters_gs = pack_absolute_transmission_gs_parameters( self, synapse_ID, c, x1_max, Gm2, dEs21, synapses, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 5, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 3, R2 = self.R_DEFAULT; end
+            if nargin < 6, dEs21 = selfv.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_absolute_transmission_DEFAULT; end
+            if nargin < 3, c = self.c_absolute_transmission_DEFAULT; end
             
             % Preallocate a cell array to store the parameters.
             parameters_gs = cell( 1, 4 );
             
             % Pack the parameters.
-            parameters_gs{ 1 } = R2;
-            parameters_gs{ 2 } = Gm2;
-            parameters_gs{ 3 } = dEs21;
-            parameters_gs{ 4 } = Ia2;
+            parameters_gs{ 1 } = c;
+            parameters_gs{ 2 } = x1_max;
+            parameters_gs{ 3 } = Gm2;
+            parameters_gs{ 4 } = dEs21;
             
         end
         
         
         % Implement a function to pack relative transmission gs parameters.
-        function parameters_gs = pack_relative_transmission_gs_parameters( self, synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option )
+        function parameters_gs = pack_relative_transmission_gs_parameters( self, synapse_ID, R2, Gm2, dEs21, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, synapses = self.synapses; end
             if nargin < 5, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
             if nargin < 4, Gm2 = self.Gm_DEFAULT; end
             if nargin < 3, R2 = self.R_DEFAULT; end
             
             % Preallocate a cell array to store the parameters.
-            parameters_gs = cell( 1, 4 );
+            parameters_gs = cell( 1, 3 );
             
             % Pack the parameters.
             parameters_gs{ 1 } = R2;
             parameters_gs{ 2 } = Gm2;
             parameters_gs{ 3 } = dEs21;
-            parameters_gs{ 4 } = Ia2;
             
         end
         
         
         % Implement a function to pack absolute transmission parameters.
-        function transmission_parameters = pack_absolute_transmission_parameters( self, R2, Gm2, Ia2 )
+        function transmission_parameters = pack_absolute_transmission_parameters( self, c, x1_max, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, R2 = self.R_DEFAULT; end
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
+            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
             
             % Preallocate a cell array to store the parameters.
             transmission_parameters = cell( 1, 3 );
             
             % Pack the parameters.
-            transmission_parameters{ 1 } = R2;
-            transmission_parameters{ 2 } = Gm2;
-            transmission_parameters{ 3 } = Ia2;
+            transmission_parameters{ 1 } = c;
+            transmission_parameters{ 2 } = x1_max;
+            transmission_parameters{ 3 } = Gm2;
             
         end
         
         
         % Implement a function to pack relative transmission parameters.
-        function transmission_parameters = pack_relative_transmission_parameters( self, R2, Gm2, Ia2 )
+        function transmission_parameters = pack_relative_transmission_parameters( self, R2, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
             
             % Preallocate a cell array to store the parameters.
-            transmission_parameters = cell( 1, 3 );
+            transmission_parameters = cell( 1, 2 );
             
             % Pack the parameters.
             transmission_parameters{ 1 } = R2;
             transmission_parameters{ 2 } = Gm2;
-            transmission_parameters{ 3 } = Ia2;
             
         end
         

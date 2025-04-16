@@ -102,9 +102,9 @@ Ias1 = Us1_desired*Gm1;                            	% [A] Applied Currents.
 % Create an instance of the netwo5rk class.
 network = network_class( network_dt, network_tf );
 
-% Expected form: 
-% transmission_input_parameters = { c, x1_max, Gm1, Gm2, Cm1, Cm2 };
-% transmission_output_parameters = { x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2 }
+% Absolute: 
+    % transmission_input_parameters = { c, x1_max, Gm1, Gm2, Cm1, Cm2 };
+    % transmission_output_parameters = { x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2 }
 
 % Create a transmission subnetwork.
 % [ x2_max, Gnas, R2, dEs21, gs21, Ia2, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );

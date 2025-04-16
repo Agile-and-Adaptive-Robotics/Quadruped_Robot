@@ -242,7 +242,7 @@ classdef synapse_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters required to compute the absolute transmission synaptic conductance.
-        function [ R2, Gm2, dEs21, Ia2 ] = unpack_absolute_transmission_gs_parameters( self, parameters )
+        function [ c, x1_max, Gm2, dEs21 ] = unpack_absolute_transmission_gs_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
@@ -251,18 +251,18 @@ classdef synapse_class
             if isempty( parameters )                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R2 = self.R_DEFAULT;                                    % [V] Activation Domain.
+                c = self.c_absolute_transmission_DEFAULT;               % [-] Subnetwork Gain.
+                x1_max = self.x1max_absolute_transmission_DEFAULT;      % [-] Maximum Encoded Input.
                 Gm2 = self.Gm_DEFAULT;                                  % [S] Membrane Conductance.
                 dEs21 = self.dEs;                                       % [V] Synaptic Reversal Potential.
-                Ia2 = self.Ia_absolute_transmission_DEFAULT;            % [A] Applied Current.
             
             elseif length( parameters ) == 4                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R2 = parameters{ 1 };                                   % [V] Activation Domain.
-                Gm2 = parameters{ 2 };                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                  % [A] Applied Current.
+                c = parameters{ 1 };                                    % [-] Subnetwork Gain.
+                x1_max = parameters{ 2 };                             	% [-] Maximum Encoded Input.
+                Gm2 = parameters{ 3 };                                  % [S] Membrane Conductance.
+                dEs21 = parameters{ 4 };                               	% [V] Synaptic Reversal Potential.
                 
             else                                                        % Otherwise...
                
@@ -275,7 +275,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative transmission synaptic conductance.
-        function [ R2, Gm2, dEs21, Ia2 ] = unpack_relative_transmission_gs_parameters( self, parameters )
+        function [ R2, Gm2, dEs21 ] = unpack_relative_transmission_gs_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
@@ -287,15 +287,13 @@ classdef synapse_class
                 R2 = self.R_DEFAULT;                                  	% [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 dEs21 = self.dEs;                                       % [V] Synaptic Reversal Potential.
-                Ia2 = self.Ia_absolute_transmission_DEFAULT;            % [A] Applied Current.
             
-            elseif length( parameters ) == 4                            % If there are a specific number of parameters...
+            elseif length( parameters ) == 3                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
                 R2 = parameters{ 1 };                                   % [V] Activation Domain.
                 Gm2 = parameters{ 2 };                                  % [S] Membrane Conductance.
                 dEs21 = parameters{ 3 };                                % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                  % [A] Applied Current.
                 
             else                                                        % Otherwise...
                

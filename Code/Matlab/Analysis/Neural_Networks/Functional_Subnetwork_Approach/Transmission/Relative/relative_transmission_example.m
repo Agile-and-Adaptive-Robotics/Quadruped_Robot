@@ -66,6 +66,7 @@ f_decode = @( U, R_encode, R_decode ) ( R_decode./R_encode ).*U;
 %% Define Relative Transmission Subnetwork Design Parameters.
 
 % Define the transmission subnetwork design parameters.
+x1_max = 20;
 R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -76,7 +77,7 @@ Cm2 = 5e-9;                                         % [F] Membrane Capacitance (
 % Cm2 = 30e-9;                                         % [F] Membrane Capacitance (Neuron 2).
  
 % Store the transmission subnetwork design parameters in a cell.
-transmission_parameters = { R1, R2, Gm1, Gm2, Cm1, Cm2 };
+transmission_input_parameters = { c, x1_max, R1, R2, Gm1, Gm2, Cm1, Cm2 };
 
 
 %% Define the Desired Input Signal.
@@ -104,8 +105,13 @@ Ias1 = Us1_desired*Gm1;                             % [A] Applied Currents.
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
+% Relative: 
+    % transmission_input_parameters = { c, x1_max, R1, R2, Gm1, Gm2, Cm1, Cm2 };
+    % transmission_output_parameters = { x2_max, Gna1, Gna2, dEs21, gs21, Ia2 }
+
 % Create a transmission subnetwork.
-[ c, Gnas, R2, dEs21, gs21, Ia2, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+% [ c, Gnas, R2, dEs21, gs21, Ia2, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+[ transmission_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Create the input applied current.
 [ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID, input_current_name, input_current_to_neuron_ID, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );

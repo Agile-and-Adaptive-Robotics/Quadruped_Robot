@@ -6436,8 +6436,8 @@ classdef network_class
             elseif length( transmission_parameters ) == 8           % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = self.c_relative_transmission_DEFAULT;
-                x1_max = self.x1_max_relative_transmission_DEFAULT;
+                c = transmission_parameters{ 1 };
+                x1_max = transmission_parameters{ 2 };
                 R1 = transmission_parameters{ 3 };
                 R2 = transmission_parameters{ 4 };
                 Gm1 = transmission_parameters{ 5 };
