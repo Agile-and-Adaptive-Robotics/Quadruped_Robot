@@ -6212,7 +6212,7 @@ classdef network_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters for an absolute transmission subnetwork.  
-        function [ c, x1_max, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters, neuron_manager, undetected_option )
+        function [ c, R1, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_parameters( self, transmission_parameters, neuron_manager, undetected_option )
             
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
@@ -6224,8 +6224,7 @@ classdef network_class
                  
                 % Set the parameters to default values.
                 c = self.c_absolute_transmission_DEFAULT;
-                x1_max = self.x1_max_absolute_transmission_DEFAULT;
-                % R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
+                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 Gm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
                 Gm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
                 Cm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
@@ -6235,7 +6234,7 @@ classdef network_class
                 
                 % Unpack the parameters.
                 c = transmission_parameters{ 1 };
-                x1_max = transmission_parameters{ 2 };
+                R1 = transmission_parameters{ 2 };
                 Gm1 = transmission_parameters{ 3 };
                 Gm2 = transmission_parameters{ 4 };
                 Cm1 = transmission_parameters{ 5 };
@@ -6252,7 +6251,7 @@ classdef network_class
         
         
         % Implement a function to unpack the parameters for a relative transmission subnetwork.
-        function [ c, x1_max, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_relative_transmission_parameters( self, transmission_parameters, neuron_manager, undetected_option )
+        function [ R1, R2, Gm1, Gm2, Cm1, Cm2 ] = unpack_relative_transmission_parameters( self, transmission_parameters, neuron_manager, undetected_option )
         
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
@@ -6263,8 +6262,6 @@ classdef network_class
             if isempty( transmission_parameters )                 	% If the parameters are empty...
                  
                 % Set the parameters to default values.
-                c = self.c_relative_transmission_DEFAULT;
-                x1_max = self.x1_max_relative_transmission_DEFAULT;
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 Gm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -6272,17 +6269,15 @@ classdef network_class
                 Cm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( transmission_parameters ) == 8           % If there are a specific number of parameters...
+            elseif length( transmission_parameters ) == 6           % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = self.c_relative_transmission_DEFAULT;
-                x1_max = self.x1_max_relative_transmission_DEFAULT;
-                R1 = transmission_parameters{ 3 };
-                R2 = transmission_parameters{ 4 };
-                Gm1 = transmission_parameters{ 5 };
-                Gm2 = transmission_parameters{ 6 };
-                Cm1 = transmission_parameters{ 7 };
-                Cm2 = transmission_parameters{ 8 };
+                R1 = transmission_parameters{ 1 };
+                R2 = transmission_parameters{ 2 };
+                Gm1 = transmission_parameters{ 3 };
+                Gm2 = transmission_parameters{ 4 };
+                Cm1 = transmission_parameters{ 5 };
+                Cm2 = transmission_parameters{ 6 };
                 
             else                                                    % Otherwise...
                 
@@ -8992,43 +8987,6 @@ classdef network_class
         end
         
         
-        % Implement a function to convert transmission parameters to formulation parameters.
-        function formulation_parameters = transmission_parameters2formulation_parameters( self, transmission_parameters, encoding_scheme, neuron_manager, undetected_option )
-            
-            % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neuron_manager = self.neuron_manager; end
-            if nargin < 3, encoding_scheme = 'absolute'; end
-            if nargin < 2, transmission_parameters = {  }; end
-            
-            % Determine how to perform the parameter conversion.
-            if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
-                
-                % Unpack the absolute transmission parameters.
-                [ c, x1_max, ~, ~, ~, ~ ] = self.unpack_absolute_transmission_parameters( transmission_parameters, neuron_manager, undetected_option );
-                
-                % Pack the formulation parameters.
-                formulation_parameters = self.pack_absolute_transmission_formulation_parameters( c, x1_max );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
-                
-                % Unpack the relative transmission parameters.
-                [ c, x1_max, ~, ~, ~, ~ ] = self.unpack_relative_transmission_parameters( transmission_parameters, neuron_manager, undetected_option );
-                
-                % Pack the formulation parameters.
-                formulation_parameters = self.pack_absolute_transmission_formulation_parameters( c, x1_max );
-                
-            else                                                            % Otherwise...
-                
-                % Throw an error.
-                error( 'Encoding scheme %s not recognized. Must be either ''absolute'' or ''relative.''\n', encoding_scheme )
-                
-            end
-            
-        end
-            
-        
-        
         % Implement a function to convert transmission parameters to neuron parameters.
         function neuron_parameters = transmission_parameters2neuron_parameters( self, transmission_parameters, encoding_scheme, neuron_manager, undetected_option )
             
@@ -10500,19 +10458,13 @@ classdef network_class
             network = self;
               
             
-            % -------------------- Formulation Design --------------------
+            % -------------------- Gain Design --------------------
             
             % Convert the transmission parameters to gain parameters.
             gain_parameters = self.transmission_parameters2gain_parameters( transmission_parameters, encoding_scheme, neuron_manager, undetected_option );
             
             % Compute the subnetwork gains.
             c = self.compute_transmission_c( gain_parameters, encoding_scheme );
-            
-            % Convert the transmission parameters to formulation parameters.
-            formulation_parameters = self.transmission_parameters2formulation_parameters( transmission_parameters, encoding_scheme, neuron_manager, undetected_option );
-            
-            % Compute the maximum decoded output.
-            
             
            
             % -------------------- Neuron Design --------------------
@@ -13940,7 +13892,7 @@ classdef network_class
             n_synapses = self.n_transmission_synapses_DEFAULT;
             
             % Unpack the transmission parameters.
-            [ ~, ~, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters, neuron_manager, undetected_option );
+            [ ~, R1, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters, neuron_manager, undetected_option );
             
             % Define the neuron properties.
             neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
@@ -13950,7 +13902,7 @@ classdef network_class
             Cms = [ Cm1, Cm2 ];
             Gms = [ Gm1, Gm2 ];
             Ers = self.Er_DEFAULT*ones( 1, n_neurons );
-            Rs = self.R_DEFAULT*ones( 1, n_neurons );
+            Rs = [ R1, self.R_DEFAULT ];
             Ams = self.Am_DEFAULT*ones( 1, n_neurons );
             Sms = self.Sm_DEFAULT*ones( 1, n_neurons );
             dEms = self.dEm_DEFAULT*ones( 1, n_neurons );
@@ -14001,7 +13953,7 @@ classdef network_class
             n_synapses = self.n_transmission_synapses_DEFAULT;
             
             % Unpack the transmission parameters.
-            [ ~, ~, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
+            [ R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
             
             % Define the neuron properties.
             neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
@@ -16852,7 +16804,7 @@ classdef network_class
 
             % Create an instance of the network object.
             network = self;
-                        
+            
           	% Convert the transmission parameters to network parameters.
             [ neuron_input_parameters, synapse_input_parameters ] = network.transmission_parameters2network_parameters( transmission_parameters, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
                         

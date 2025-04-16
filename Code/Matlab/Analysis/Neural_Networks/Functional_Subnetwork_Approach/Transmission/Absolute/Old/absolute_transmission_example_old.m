@@ -66,7 +66,7 @@ f_decode = @( U ) U*( 10^3 );
 %% Define Additional Absolute Transmission Design Subnetwork Parameters.
 
 % Define the transmission subnetwork design parameters.
-x1_max = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
+R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
 Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
@@ -75,7 +75,7 @@ Cm2 = 5e-9;                                         % [F] Membrane Capacitance (
 % Cm2 = 30e-9;                                      % [F] Membrane Capacitance (Neuron 2).
 
 % Store the transmission subnetwork design parameters in a cell.
-transmission_parameters = { c, x1_max, Gm1, Gm2, Cm1, Cm2 };
+transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
 
 
 %% Define the Desired Input Signal.
