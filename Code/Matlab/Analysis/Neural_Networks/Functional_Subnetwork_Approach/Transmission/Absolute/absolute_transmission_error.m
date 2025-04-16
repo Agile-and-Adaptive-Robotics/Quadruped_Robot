@@ -30,7 +30,7 @@ network_tf = 0.5;                                 	% [s] Simulation Duration.
 % network_tf = 3;                                 	% [s] Simulation Duration.
 
 % Compute the number of simulation timesteps.
-n_timesteps = floor( network_tf/network_dt ) + 1;   % [#] Number of Simulation Timesteps.
+n_timesteps = floor( network_tf / network_dt ) + 1;   % [#] Number of Simulation Timesteps.
 
 % Construct the simulation times associated with the input currents.
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
