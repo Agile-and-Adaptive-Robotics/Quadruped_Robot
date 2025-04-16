@@ -2670,12 +2670,71 @@ classdef neuron_manager_class
         
         % ---------- Transmission Subnetwork Functions ----------
 
-        % Implement a function to process the transmission subnetwork output activation domain parameters.
-        function transmission_R2_parameters = process_transmission_R2_parameters( self, transmission_R2_parameters, encoding_scheme, neurons, undetected_option )
+        % Implement a function to process the maximum encoded input parameters for a transmission subnetwork.
+        function transmission_R1_parameters = process_transmission_R1_parameters( self, transmission_R1_parameters, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, transmission_R1_parameters = {  }; end                                                       % [cell] Transmission R2 Parameters Cell.
+            
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
+                if isempty( transmission_R1_parameters )                                                                % If no parameters were provided...
+                    
+                    % Retrieve the parameters.
+                    x1_max = self.x1max_absolute_transmission_DEFAULT;                                                  % [V] Activation Domain.
+                    
+                    % Store the required parameters in a cell.
+                    transmission_R1_parameters = { x1_max };
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if length( transmission_R1_parameters ) ~= 1                                                        % If there is anything other than a single parameter entry...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
+                if isempty( transmission_R1_parameters )                                                                % If no parameters were provided...
+                                        
+                    % Store the required parameters in a cell.
+                    transmission_R1_parameters = {  };
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the parameters cell has a valid number of entries.
+                    if ~isempty( transmission_R1_parameters )                                                           % If there is anything other than a single parameter entry...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            else                                                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the maximum encoded output parameters for a transmission subnetwork.
+        function transmission_R2_parameters = process_transmission_R2_parameters( self, transmission_R2_parameters, encoding_scheme )
+            
+            % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, transmission_R2_parameters = {  }; end                                                       % [cell] Transmission R2 Parameters Cell.
             
@@ -2687,10 +2746,10 @@ classdef neuron_manager_class
                     
                     % Retrieve the parameters.
                     c = self.c_absolute_transmission_DEFAULT;                                                         	% [-] Absolute Transmission Gain.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    x1_max = self.x1max_absolute_transmission_DEFAULT;                                                  % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    transmission_R2_parameters = { c, R1 };
+                    transmission_R2_parameters = { c, x1_max };
                     
                 else                                                                                                    % Otherwise...
                     
@@ -2708,17 +2767,14 @@ classdef neuron_manager_class
                 
                 % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
                 if isempty( transmission_R2_parameters )                                                                % If no parameters were provided...
-                    
-                    % Retrieve the parameters.
-                    R2 = self.get_neuron_property( neurons( 2 ).ID, 'R', true, neurons, undetected_option );         	% [V] Activation Domain.
-                    
+                                        
                     % Store the required parameters in a cell.
-                    transmission_R2_parameters = { R2 };
+                    transmission_R2_parameters = {  };
                     
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( transmission_R2_parameters ) ~= 1                                                        % If there is anything other than a single parameter entry...
+                    if ~isempty( transmission_R2_parameters )                                                           % If there is anything other than a single parameter entry...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2738,11 +2794,9 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the transmission subnetwork parameters.
-        function transmission_parameters = process_transmission_parameters( self, transmission_parameters, encoding_scheme, neurons, undetected_option )
+        function transmission_parameters = process_transmission_parameters( self, transmission_parameters, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                              % [-] Undetected Option.  Determines behavior when a neuron of the specified ID can not be found.
-            if nargin < 4, neurons = self.neurons; end                                                                          % [class] Array of Neuron Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, transmission_parameters = {  }; end                                                                  % [cell] Parameters Cell.  (Absolute: c, R1, Gm1, Gm2, Cm1, Cm2; Relative: R1, R2, Gm1, Gm2, Cm1, Cm2)
             
@@ -2754,10 +2808,10 @@ classdef neuron_manager_class
                     
                     % Set the default parameter values.
                     c = self.c_aboslute_transmission_DEFAULT;                                                                  	% [-] Transmission Subnetwork Gain.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );         	% [V] Maximum Member Voltage.
+                    x1_max = self.x1max_absolute_transmission_DEFAULT;                                                          % [V] Maximum Membrane Voltage.
                     
                     % Store the required parameters in a cell.
-                    transmission_parameters = { c, R1 };
+                    transmission_parameters = { c, x1_max };
 
                 else                                                                                                            % Otherwise...
                     
@@ -2775,12 +2829,9 @@ classdef neuron_manager_class
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
                 if isempty( transmission_parameters )                                                                           % If no parameters were provided...
-                    
-                    % Set the default parameter values.
-                    R2 = self.get_neuron_property( neurons( 2 ).ID, 'R', true, neurons, undetected_option );         	% [V] Maximum Member Voltage.
-                    
+                                        
                     % Store the required parameters in a cell.
-                    transmission_parameters = { R2 };
+                    transmission_parameters = {  };
 
                 else                                                                                                            % Otherwise...
                     
@@ -5507,32 +5558,62 @@ classdef neuron_manager_class
         
         % ---------- Transmission Subnetwork Functions ----------
 
-        % Implement a function to pack the parameters for computing the R2 of an absolute transmission subetwork.
-        function transmission_parameters_R2 = pack_absolute_transmission_R2_parameters( self, c, R1, neurons, undetected_option )
-            
+        % Implement a function to pack the parameters for computing the maximum encoded input of an absolute transmission subnetwork.
+        function R1_parameters = pack_absolute_transmission_R1_parameters( self, x1_max )
+           
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            transmission_parameters_R2 = cell( 1, 2 );
+            % Preallocate a cell to store the parameters.
+            R1_parameters = cell( 1, 1 );
             
             % Pack the parameters.
-            transmission_parameters_R2{ 1 } = c;
-            transmission_parameters_R2{ 2 } = R1;
+            R1_parameters{ 1 } = x1_max;
             
         end
         
         
+        % Implement a function to pack the parameters for computing the maximum encoded output of an absolute transmission subnetwork.
+        function R2_parameters = pack_absolute_transmission_R2_parameters( self, c, x1_max )
+           
+            % Set the default input arguments.
+            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
+            if nargin < 2, c = self.c_absolute_transmission_DFEAULT; end
+            
+            % Preallocate a cell to store the parameters.
+            R2_parameters = cell( 1, 2 );
+            
+            % Pack the parameters.
+            R2_parameters{ 1 } = c;
+            R2_parameters{ 2 } = x1_max;
+            
+        end
+        
+        
+%         % Implement a function to pack the parameters for computing the R2 of an absolute transmission subetwork.
+%         function transmission_parameters_R2 = pack_absolute_transmission_R2_parameters( self, c, R1, neurons, undetected_option )
+%             
+%             % Set the default input arguments.
+%             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+%             if nargin < 4, neurons = self.neurons; end
+%             if nargin < 3, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
+%             if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+%             
+%             % Preallocate a cell array to store the parameters.
+%             transmission_parameters_R2 = cell( 1, 2 );
+%             
+%             % Pack the parameters.
+%             transmission_parameters_R2{ 1 } = c;
+%             transmission_parameters_R2{ 2 } = R1;
+%             
+%         end
+        
+        
         % Implement a function to pack the parameters of an absolute transmission subnetwork.
-        function transmission_parameters = pack_absolute_transmission_parameters( self, c, R1, neurons, undetected_option )
+        function transmission_parameters = pack_absolute_transmission_parameters( self, c, x1_max )
 
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
-            if nargin < 3, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
+            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
             
             % Preallocate a cell array to store the parameters.
@@ -5540,7 +5621,7 @@ classdef neuron_manager_class
 
             % Pack the parameters.
             transmission_parameters{ 1 } = c;
-            transmission_parameters{ 2 } = R1;
+            transmission_parameters{ 2 } = x1_max;
             
         end
         
@@ -6228,31 +6309,61 @@ classdef neuron_manager_class
         
         % ---------- Transmission Subnetwork Functions ----------
 
-        % Implement a function to convert transmission parameters to transmission R2 design parameters.
-        function transmission_R2_parameters = transmission_parameters2transmission_R2_parameters( self, transmission_parameters, encoding_scheme, neurons, undetected_option )
+%         % Implement a function to convert transmission parameters to transmission R2 design parameters.
+%         function transmission_R2_parameters = transmission_parameters2transmission_R2_parameters( self, transmission_parameters, encoding_scheme, neurons, undetected_option )
+%         
+%             % Set the default input arguments.
+%             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
+%             if nargin < 4, neurons = self.neurons; end
+%             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+%             if nargin < 2, transmission_parameters = {  }; end
+%             
+%             % Determine how to create the parameters cell.
+%             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+%                 
+%                 % Unpack the absolute transmission parameters.                
+%                 [ c, R1 ] = self.unpack_absolute_transmission_parameters( transmission_parameters, neurons, undetected_option );
+%                 
+%                 % Pack the absolute transmission R2 parameters.
+%                 transmission_R2_parameters = self.pack_absolute_transmission_R2_parameters( c, R1, neurons, undetected_option );
+%                 
+%             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+%                 
+%                 % Unpack the relative transmission parameters.
+%                 R2 = self.unpack_relative_transmission_parameters( transmission_parameters, neurons, undetected_option );
+%                 
+%                 % Pack the relative transmission R2 parameters.
+%                 transmission_R2_parameters = { R2 };
+%                 
+%             else                                                                                                            % Otherwise...
+%                 
+%                 % Throw an error.
+%                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+%                 
+%             end
+%             
+%         end
+        
+        
+        % Implement a function to convert the transmission neuron input parameters to transmission R1 design parameters.
+        function R1_parameters = transmission_parameters2R1_parameters( self, neuron_input_parameters, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, transmission_parameters = {  }; end
+            if nargin < 2, neuron_input_parameters = {  }; end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute transmission parameters.                
-                [ c, R1 ] = self.unpack_absolute_transmission_parameters( transmission_parameters, neurons, undetected_option );
+                [ ~, x1_max ] = self.unpack_absolute_transmission_parameters( neuron_input_parameters );
                 
                 % Pack the absolute transmission R2 parameters.
-                transmission_R2_parameters = self.pack_absolute_transmission_R2_parameters( c, R1, neurons, undetected_option );
+                R1_parameters = self.pack_absolute_transmission_R1_parameters( x1_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative transmission parameters.
-                R2 = self.unpack_relative_transmission_parameters( transmission_parameters, neurons, undetected_option );
-                
-                % Pack the relative transmission R2 parameters.
-                transmission_R2_parameters = { R2 };
+                error( 'R1 is a free parameter for relative transmission subnetworks.' )
                 
             else                                                                                                            % Otherwise...
                 
@@ -6260,7 +6371,37 @@ classdef neuron_manager_class
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
                 
             end
+        
+        end
+        
+        
+        % Implement a function to convert the transmission neuron input parameters to transmission R2 design parameters.
+        function R2_parameters = transmission_parameters2R2_parameters( self, neuron_input_parameters, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, neuron_input_parameters = {  }; end
             
+            % Determine how to create the parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute transmission parameters.                
+                [ c, x1_max ] = self.unpack_absolute_transmission_parameters( neuron_input_parameters );
+                
+                % Pack the absolute transmission R2 parameters.
+                R2_parameters = self.pack_absolute_transmission_R2_parameters( c, x1_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                error( 'R2 is a free parameter for relative transmission subnetworks.' )
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+        
         end
         
         
@@ -6755,27 +6896,56 @@ classdef neuron_manager_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain for neuron 2 of a transmission subnetwork.
-        function [ R2, neurons, self ] = compute_transmission_R2( self, neuron_IDs, parameters, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ R1, neurons, self ] = compute_transmission_R1( self, neuron_IDs, R1_parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end      	% [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                           % [cell] Parameters Cell.
+            if nargin < 3, R1_parameters = {  }; end                                       	% [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the parameters.
-            parameters = self.process_transmission_R2_parameters( parameters, encoding_scheme, neurons );
+            R1_parameters = self.process_transmission_R1_parameters( R1_parameters, encoding_scheme );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_R1( R1_parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain for neuron 2 of a transmission subnetwork.
+        function [ R2, neurons, self ] = compute_transmission_R2( self, neuron_IDs, R2_parameters, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end      	% [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, R2_parameters = {  }; end                                       	% [cell] Parameters Cell.
+            if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs.
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the parameters.
+            R2_parameters = self.process_transmission_R2_parameters( R2_parameters, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
-            [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_R2( parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_transmission_R2( R2_parameters, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
             
             % Determine whether to update the neuron manager.
             if set_flag, self.neurons = neurons; end
@@ -9368,30 +9538,82 @@ classdef neuron_manager_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to design the neurons for a transmission subnetwork.
-        function [ Gnas, R2, neurons, self ] = design_transmission_neurons( self, neuron_IDs, transmission_parameters, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ neuron_output_parameters, neurons, self ] = design_transmission_neurons( self, neuron_IDs, neuron_input_parameters, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Absolute:
+                % neuron_input_parameters = { c, x1_max }
+                % neuron_output_parameters = { R1, R2, Gna1, Gna2 }
+            
+            % Relative:
+                % neuron_input_parameters = {  }
+                % neuron_output_parameters = { Gna1, Gna2 }
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, transmission_parameters = {  }; end                            	% [-] Design Parameters.
+            if nargin < 3, neuron_input_parameters = {  }; end                            	% [-] Design Parameters.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the transmission parameters.
-            transmission_parameters = self.process_transmission_parameters( transmission_parameters, encoding_scheme, neurons, undetected_option );
+            neuron_input_parameters = self.process_transmission_parameters( neuron_input_parameters, encoding_scheme );
             
             % Compute the sodium channel conductance for the neurons of the transmission subnetwork.
             [ Gnas, neurons, neuron_manager ] = self.compute_transmission_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
             
-            % Convert the transmission parameters to transmission R2 parameters.
-            transmission_R2_parameters = self.transmission_parameters2transmission_R2_parameters( transmission_parameters, encoding_scheme, neurons, undetected_option );
+            % Determine whether to compute the maximum encoded input and output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Convert the neuron input parameters to R1 parameters.
+                R1_parameters = self.transmission_parameters2R1_parameters( neuron_input_parameters, encoding_scheme );
+                R2_parameters = self.transmission_parameters2R2_parameters( neuron_input_parameters, encoding_scheme );
+                
+                % Compute the maximum encoded input and output.
+                [ R1, neurons, neuron_manager ] = neuron_manager.compute_transmission_R1( neuron_IDs, R1_parameters, encoding_scheme, neurons, true, undetected_option );
+                [ R2, neurons, neuron_manager ] = neuron_manager.compute_transmission_R2( neuron_IDs, R2_parameters, encoding_scheme, neurons, true, undetected_option );
+                                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
-            % Compute the activation domain for neuron 2 of the transmission subnetwork.
-            [ R2, neurons, neuron_manager ] = neuron_manager.compute_transmission_R2( neuron_IDs, transmission_R2_parameters, encoding_scheme, neurons, true, undetected_option );
+            % Determine how to create the neuron output parameters cell.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Preallocate a cell to store the neuron output parameters.
+                neuron_output_parameters = cell( 1, 4 );
+                                
+                % Store the neuron output parameters.
+                neuron_output_parameters{ 1 } = R1;
+                neuron_output_parameters{ 2 } = R2;
+                neuron_output_parameters{ 3 } = Gnas( 1 );
+                neuron_output_parameters{ 4 } = Gnas( 2 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                % Preallocate a cell to store the neuron output parameters.
+                neuron_output_parameters = cell( 1, 2 );
+                                
+                % Store the neuron output parameters.
+                neuron_output_parameters{ 1 } = Gnas( 1 );
+                neuron_output_parameters{ 2 } = Gnas( 2 );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end

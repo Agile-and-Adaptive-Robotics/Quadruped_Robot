@@ -1592,24 +1592,51 @@ classdef neuron_class
         
         % ---------- Transmission Subnetwork Functions ----------
         
-        % Implement a function to unpack the parameters required to compute the absolute transmission output activation domain.
-        function [ c, R1 ] = unpack_absolute_transmission_Rn_parameters( self, parameters )
+        % Implement a function to unpack the parameters required to compute the maximum encoded input for an absolute transmission subnetwork.
+        function x1_max = unpack_absolute_transmission_R1_parameters( self, R1_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Parameters Cell.
+            if nargin < 2, R1_parameters = {  }; end                       % [-] Parameters Cell.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                    % If the parameters are empty...
+            if isempty( R1_parameters )                                    % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                x1_max = self.x1max_absolute_transmission_DEFAULT;          % [V] Activation Domain.
+                
+            elseif length( R1_parameters ) == 1                          	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                x1_max = R1_parameters{ 1 };                             	% [V] Activation Domain.
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the maximum encoded output for an absolute transmission subnetwork.
+        function [ c, x1_max ] = unpack_absolute_transmission_R2_parameters( self, R2_parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, R2_parameters = {  }; end                       % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( R2_parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
                 c = self.c_absolute_transmission_DEFAULT;               % [-] Absolute Transmission Gain.
-                R1 = self.R_DEFAULT;                                    % [V] Activation Domain
+                x1_max = self.x1max_absolute_transmission_DEFAULT;      % [V] Activation Domain.
                 
-            elseif length( parameters ) == 2                          	% If there are a specific number of parameters...
+            elseif length( R2_parameters ) == 2                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = parameters{ 1 };                                    % [-] Absolute Transmission Gain.
-                R1 = parameters{ 2 };                                	% [V] Activation Domain
+                c = R2_parameters{ 1 };                                    % [-] Absolute Transmission Gain.
+                x1_max = R2_parameters{ 2 };                             	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -2067,33 +2094,66 @@ classdef neuron_class
         
         % ---------- Transmission Subnetwork Functions ----------
         
-        % Implement a function to compute the operational domain of the transmission output neuron.
-        function [ R2, self ] = compute_transmission_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        % Implement a function to compute the maximum encoded input of a transmission subnetwork.
+        function [ R1, self ] = compute_transmission_R1( self, R1_parameters, encoding_scheme, set_flag, neuron_utilities )
         
             % Set the default input arguments.
-            if nargin < 5, neuron_utilities = self.neuron_utilities; end           	% [class] Neuron Utilities.
-            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                  	% [T/F] Set Flag (Determines whether to update the neuron object.)
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, R1_parameters = {  }; end
             
             % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
-            if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is set to absolute...
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
 
                 % Unpack the absolute transmission parameters.
-                [ c, R1 ] = self.unpack_absolute_transmission_Rn_parameters( parameters );
+                x1_max = self.unpack_absolute_transmission_R1_parameters( R1_parameters );
                 
-                % Compute the activation domain for this neuron assuming that it belongs to an absolue addition subnetwork.
-                R2 = neuron_utilities.compute_absolute_transmission_R2( c, R1 );         % [V] Activation Domain.
-            
-            elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is set to relative...
-            
-                % Retrieve the maximum membrane voltage.
-                R2 = parameters{ 1 };
+                % Compute maximum encoded output.
+                R1 = neuron_utilities.compute_absolute_transmission_R1( x1_max );       % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
 
-                % % Throw an error.
-                % error( 'R2 is a free parameter for relative transmission subnetworks.' )
+                % Throw an error.
+                error( 'R1 is a free parameter for relative transmission subnetworks.' )
 
-            else                                                                    % Otherwise...
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R1; end
+                    
+        end
+        
+        
+        % Implement a function to compute the maximum encoded output of a transmission subnetwork.
+        function [ R2, self ] = compute_transmission_R2( self, R2_parameters, encoding_scheme, set_flag, neuron_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, R2_parameters = {  }; end
+            
+            % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Unpack the absolute transmission parameters.
+                [ c, x1_max ] = self.unpack_absolute_transmission_R2_parameters( R2_parameters );
+                
+                % Compute maximum encoded output.
+                R2 = neuron_utilities.compute_absolute_transmission_R2( c, x1_max );    % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+
+                % Throw an error.
+                error( 'R2 is a free parameter for relative transmission subnetworks.' )
+
+            else                                                                        % Otherwise...
 
                 % Throw an error.
                 error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )

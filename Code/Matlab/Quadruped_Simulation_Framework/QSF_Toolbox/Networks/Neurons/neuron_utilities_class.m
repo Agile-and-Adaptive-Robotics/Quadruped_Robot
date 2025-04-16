@@ -1146,15 +1146,27 @@ classdef neuron_utilities_class
         
         % ---------- Transmission Subnetwork Functions ----------
 
-        % Implement a function to compute the operational domain of the absolute transmission subnetwork output neuron.
-        function R2 = compute_absolute_transmission_R2( self, c, R1 )
+        % Implement a function to compute the maximum encoded input of an absolute transmission subnetwork.
+        function R1 = compute_absolute_transmission_R1( self, x1_max )
         
             % Set the default input arguments.
-            if nargin < 3, R1 = self.R_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_absolute_transmission_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R1 = x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the maximum encoded output of an absolute transmission subnetwork.
+        function R2 = compute_absolute_transmission_R2( self, c, x1_max )
+        
+            % Set the default input arguments.
+            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
             
-            % Compute the operational domain.
-            R2 = c*R1;
+            % Compute the maximum encoded output.
+            R2 = c*x1_max;
             
         end
 

@@ -1541,17 +1541,17 @@ classdef synapse_utilities_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute transmission subnetwork synapses.
-        function gs21 = compute_absolute_transmission_gs21( self, R2, Gm2, dEs21, Ia2, validation_flag )
+        function gs21 = compute_absolute_transmission_gs21( self, c, x1_max, Gm2, dEs21, validation_flag )
         
             % Set the default input arguments.
             if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 5, Ia2 = self.Ia2_absolute_transmission_DEFAULT; end            % [A] Absolute Transmission Applied Current Magnitude.
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                % [V] Synapse Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
-            if nargin < 2, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
+            if nargin < 5, dEs21 = self.dEs21_DEFAULT; end                              % [V] Synaptic Reversal Potential.
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end     	% [-] Maximum Decoded Input.
+            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end              	% [-] Subnetwork Gain.
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );                                     % [S] Synaptic Conductance.
+            gs21 = ( c*x1_max*Gm2 ) / ( dEs21 - c*x1_max );                                     % [S] Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
             if validation_flag                                                          % If we want to validate the synaptic conductances...
@@ -1565,17 +1565,16 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximm synaptic conductance of relative transmission subnetwork synapses.
-        function gs21 = compute_relative_transmission_gs21( self, R2, Gm2, dEs21, Ia2, validation_flag )
+        function gs21 = compute_relative_transmission_gs21( self, R2, Gm2, dEs21, validation_flag )
             
             % Set the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 5, Ia2 = self.Ia2_relative_transmission_DEFAULT; end            % [A] Relative Transmission Applied Current Magnitude.
+            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
             if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                % [V] Synapse Reversal Potential.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
             if nargin < 2, R2 = self.R_DEFAULT; end                                     % [V] Activation Domain.
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( R2*Gm2 - Ia2 )/( dEs21 - R2 );                                     % [S] Synaptc Conductance.
+            gs21 = ( R2*Gm2 ) / ( dEs21 - R2 );                                     % [S] Synaptc Conductance.
             
             % Determine whether to validate the synaptic conductance.
             if validation_flag                                                          % If we want to validate the synaptic conductances...
@@ -1588,44 +1587,44 @@ classdef synapse_utilities_class
         end
         
         
-        % Implement a function to compute the maximum synaptic conductance of transmission subnetwork synapses.
-        function gs21 = compute_transmission_gs21( self, parameters, encoding_scheme, validation_flag )
-        
-            % Set the default input arguments.
-            if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
-            
-            % Determine how to compute the synaptic reversal potential.
-            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
-               
-                % Unpack the parameters.
-                R2 = parameters{ 1 };                                                   % [V] Activation Domain.
-                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
-                
-                % Compute the synaptic reversal potential using an absolute encoding scheme.
-                gs21 = self.compute_absolute_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
-                
-            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
-                
-                % Unpack the parameters.
-                R2 = parameters{ 1 };                                                   % [V] Activation Domain.
-                Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
-                
-                % Compute the synaptic reversal potential using a relative encoding scheme.
-                gs21 = self.compute_relative_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
-            
-            else                                                                        % Otherwise...
-            
-                % Throw an error.
-                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
-                
-            end
-            
-        end
+%         % Implement a function to compute the maximum synaptic conductance of transmission subnetwork synapses.
+%         function gs21 = compute_transmission_gs21( self, parameters, encoding_scheme, validation_flag )
+%         
+%             % Set the default input arguments.
+%             if nargin < 4, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+%             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
+%             
+%             % Determine how to compute the synaptic reversal potential.
+%             if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is absolute...
+%                
+%                 % Unpack the parameters.
+%                 R2 = parameters{ 1 };                                                   % [V] Activation Domain.
+%                 Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+%                 dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+%                 Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
+%                 
+%                 % Compute the synaptic reversal potential using an absolute encoding scheme.
+%                 gs21 = self.compute_absolute_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
+%                 
+%             elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is relative...
+%                 
+%                 % Unpack the parameters.
+%                 R2 = parameters{ 1 };                                                   % [V] Activation Domain.
+%                 Gm2 = parameters{ 2 };                                                  % [S] Membrane Conductance.
+%                 dEs21 = parameters{ 3 };                                                % [V] Synaptic Reversal Potential.
+%                 Ia2 = parameters{ 4 };                                                  % [A] Applied Current Magnitude.
+%                 
+%                 % Compute the synaptic reversal potential using a relative encoding scheme.
+%                 gs21 = self.compute_relative_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );
+%             
+%             else                                                                        % Otherwise...
+%             
+%                 % Throw an error.
+%                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+%                 
+%             end
+%             
+%         end
         
             
         % ---------- Addition Subnetwork Functions ----------

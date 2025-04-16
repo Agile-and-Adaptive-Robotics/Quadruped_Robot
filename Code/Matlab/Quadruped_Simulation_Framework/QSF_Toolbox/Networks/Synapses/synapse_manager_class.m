@@ -1216,13 +1216,13 @@ classdef synapse_manager_class
                 if isempty( parameters )                                                                                % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
+                    c = self.c_absolute_transmission_DEFAULT;                                                         	% [-] Subnetwork Gain.
+                    x1_max = self.x1max_absolute_transmission_DEFAULT;                                                  % [-] Maximum Decoded Input.
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
-                    Ia2 = self.Ia_DEFAULT;                                                                             	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
-                    parameters = { R2, Gm2, dEs21, Ia2 };
+                    parameters = { c, x1_max, Gm2, dEs21 };
                     
                 else                                                                                                   	% Otherwise...
                     
@@ -1245,15 +1245,14 @@ classdef synapse_manager_class
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
-                    Ia2 = self.Ia_DEFAULT;                                                                            	% [A] Applied Current.
                     
                     % Store the required parameters in a cell.
-                    parameters = { R2, Gm2, dEs21, Ia2 };
+                    parameters = { R2, Gm2, dEs21 };
                     
                 else                                                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                     	% If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 3                                                                     	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -8369,18 +8368,18 @@ classdef synapse_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute transmission parameters.
-                [ R2, Gm2, Ia2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters );
+                [ c, x1_max, Gm2 ] = self.unpack_absolute_transmission_parameters( transmission_parameters );
                 
                 % Pack the absolute transmission gs parameters.
-                transmission_gs_parameters = self.pack_absolute_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option );
+                transmission_gs_parameters = self.pack_absolute_transmission_gs_parameters( synapse_ID, c, x1_max, Gm2, dEs21, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Unpack the relative transmission parameters.
-                [ R2, Gm2, Ia2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
+                [ R2, Gm2 ] = self.unpack_relative_transmission_parameters( transmission_parameters );
                 
                 % Pack the relative transmission gs parameters.
-                transmission_gs_parameters = self.pack_relative_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, Ia2, synapses, undetected_option );
+                transmission_gs_parameters = self.pack_relative_transmission_gs_parameters( synapse_ID, R2, Gm2, dEs21, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -12738,31 +12737,46 @@ classdef synapse_manager_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to design the synapses for a transmission subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_transmission_synapse( self, neuron_IDs, transmission_parameters, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_parameters, synapse_ID, synapses, self ] = design_transmission_synapse( self, neuron_IDs, synapse_input_parameters, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
+            % Absolute:
+                % synapse_input_parameters = { c, x1_max, Gm2 }
+                % synapse_output_parameters = { gs21, dEs21 }
+            
+            % Relative:
+                % synapse_input_parameters = { R2, Gm2 }
+                % synapse_output_parameters = { gs21, dEs21 }
+                
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end                  % [T/F] Validation Flag.
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, transmission_parameters = {  }; end                                  % [variable] Transmission Parameters.
+            if nargin < 3, synapse_input_parameters = {  }; end                                	% [variable] Synapse Input Parameters.
             if nargin < 2, neuron_IDs = 1:self.n_transmission_neurons_DEFAULT; end              % [#] Neuron IDs.
             
             % Retrieve the synapse ID associated with the transmission neurons.
             synapse_ID = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 1 ), neuron_IDs( 2 ) );
             
             % Process the design parameters.
-            transmission_parameters = self.process_transmission_parameters( transmission_parameters, encoding_scheme );
+            synapse_input_parameters = self.process_transmission_parameters( synapse_input_parameters, encoding_scheme );
             
             % Compute the synaptic reversal potential.
             [ dEs21, synapses, synapse_manager ] = self.compute_transmission_dEs21( synapse_ID, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic parameters into gs21 parameters.
-            transmission_gs_parameters = self.convert_transmission_parameters2gs_parameters( synapse_ID, transmission_parameters, dEs21, encoding_scheme, synapses, undetected_option );
+            gs_parameters = self.convert_transmission_parameters2gs_parameters( synapse_ID, synapse_input_parameters, dEs21, encoding_scheme, synapses, undetected_option );
 
             % Compute the synaptic conductance.
-            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_transmission_gs21( synapse_ID, transmission_gs_parameters, encoding_scheme, synapses, true, validation_flag, undetected_option );
+            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_transmission_gs21( synapse_ID, gs_parameters, encoding_scheme, synapses, true, validation_flag, undetected_option );
+            
+            % Preallocate an array to store the synapse output parameters.
+            synapse_output_parameters = cell( 1, 2 );
+            
+            % Store the synapse output parameters in a cell.
+            synapse_output_parameters{ 1 } = dEs21;
+            synapse_output_parameters{ 2 } = gs21;
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end

@@ -3717,7 +3717,7 @@ classdef applied_current_manager_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to design the applied currents for a transmission subnetwork.
-        function Ias2 = design_transmission_applied_current( self, encoding_scheme, applied_currents, array_utilities )
+        function applied_current_output_parameters = design_transmission_applied_current( self, encoding_scheme, applied_currents, array_utilities )
         
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                              % [class] Array Utilities Class Object.
@@ -3726,6 +3726,12 @@ classdef applied_current_manager_class
             
             % Compute the applied current magnitudes of this subnetwork.            
             Ias2 = self.compute_transmission_Ias2( encoding_scheme, applied_currents, array_utilities );
+            
+            % Preallocate an array to store the applied current output parameters.
+            applied_current_output_parameters = cell( 1, 1 );
+            
+            % Store the applied current magnitudes in the output parameters cell.
+            applied_current_output_parameters{ 1 } = Ias2;
             
         end
         

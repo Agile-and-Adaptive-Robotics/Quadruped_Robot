@@ -2419,18 +2419,18 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute addition subnetwork.                
-                [ R2, Gm2, dEs21, Ia2 ] = self.unpack_absolute_transmission_gs_parameters( parameters );
+                [ c, x1_max, Gm2, dEs21 ] = self.unpack_absolute_transmission_gs_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue addition subnetwork.
-                gs21 = synapse_utilities.compute_absolute_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );            % [V] Synaptic Reversal Potential.
+                gs21 = synapse_utilities.compute_absolute_transmission_gs21( c, x1_max, Gm2, dEs21, validation_flag );            % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                       % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative addition subnetwork.                
-                [ R2, Gm2, dEs21, Ia2 ] = self.unpack_relative_transmission_gs_parameters( parameters );
+                [ R2, Gm2, dEs21 ] = self.unpack_relative_transmission_gs_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative addition subnetwork.
-                gs21 = synapse_utilities.compute_relative_transmission_gs21( R2, Gm2, dEs21, Ia2, validation_flag );            % [V] Synaptic Reversal Potential.
+                gs21 = synapse_utilities.compute_relative_transmission_gs21( R2, Gm2, dEs21, validation_flag );            % [V] Synaptic Reversal Potential.
                 
             else                                                                                                                % Otherwise...
                 

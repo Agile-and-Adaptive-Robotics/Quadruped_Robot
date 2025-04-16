@@ -366,11 +366,37 @@ classdef network_utilities_class
         
         % ---------- Transmission Subnetwork Functions ----------
         
-        % Implement a function to compute the gain of a relative transmission subnetwork.
-        function c = compute_relative_transmission_c( ~ )
+%         % Implement a function to compute the gain of a relative transmission subnetwork.
+%         function c = compute_relative_transmission_c( ~ )
+%         
+%             % Compute the gain.
+%             c = 1.0;                      % [-] Subnetwork Gain.
+%             
+%         end
         
-            % Compute the gain.
-            c = 1.0;                      % [-] Subnetwork Gain.
+        
+        % Implement a function to compute the maximum decoded output of an absolute transmission subnetwork.
+        function x2_max = compute_absolute_transmission_x2max( self, c, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
+            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x2_max = c*x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the maximum decoded output of a relative transmission subnetwork.
+        function x2_max = compute_relative_transmission_x2max( self, c, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 3, x1_max = self.x1max_relative_transmission_DEFAULT; end
+            if nargin < 2, c = self.c_relative_transmission_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x2_max = c*x1_max;
             
         end
         
@@ -405,60 +431,117 @@ classdef network_utilities_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the c2 gain of an absolute inversion subnetwork.
-        function c2 = compute_absolute_inversion_c2( self, c1, c3, delta, R1 )
+        %{
+%         % Implement a function to compute the c2 gain of an absolute inversion subnetwork.
+%         function c2 = compute_absolute_inversion_c2( self, c1, c3, delta, R1 )
+%             
+%             % Set the default input arguments.
+%             if nargin < 5, R1 = self.R_DEFAULT; end
+%             if nargin < 4, delta = self.delta_DEFAULT; end
+%             if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+%             if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+%             
+%             % Compute the gain.
+%             c2 = ( c1 - delta*c3 )/( delta*R1 );            % [-] Subnetwork Gain.
+%             
+%         end
+%         
+%         
+%         % Implement a function to compute the c1 gain of a relative inversion subnetwork.
+%         function c1 = compute_relative_inversion_c1( self, c3 )
+%             
+%             % Set the default input arguments.
+%             if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+%             
+%             % Compute the gain.
+%             c1 = c3;                                        % [-] Subnetwork Gain.
+%             
+%         end
+%         
+%         
+%         % Implement a function to compute the c2 gain of a relative inversion subnetwork.
+%         function c2 = compute_relative_inversion_c2( self, c3, delta, R2 )
+%             
+%             % Set the default input arguments.
+%             if nargin < 4, R2 = self.R_DEFAULT; end
+%             if nargin < 3, delta = self.delta_relative_inversion_DEFAULT; end
+%             if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+%             
+%             % Compute the gain.
+%             c2 = ( R2 - delta )*c3/delta;
+%             
+%         end
+%         
+%         
+%         % Implement a function to compute the gains of a relative inversion subnetwork.
+%         function [ c1, c2 ] = compute_relative_inversion_gains( self, c3, delta, R2 )
+%         
+%             % Set the default input arguments.
+%             if nargin < 4, R2 = self.R_DEFAULT; end
+%             if nargin < 3, delta = self.delta_relative_inversion_DEFAULT; end
+%             if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+%             
+%             % Compute the gain c1.
+%             c1 = self.compute_relative_inversion_c1( c3 );
+%             
+%             % Compute the gain c2.
+%             c2 = self.compute_relative_inversion_c2( c3, delta, R2 );
+%             
+%         end
+        %}
+        
+        % Implement a function to compute the maximum decoded output of an absolute transmission subnetwork.
+        function x2_max = compute_absolute_inversion_x2max( self, c1, c3 )
             
             % Set the default input arguments.
-            if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, delta = self.delta_DEFAULT; end
-            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_transmission_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_transmission_DEFAULT; end
             
-            % Compute the gain.
-            c2 = ( c1 - delta*c3 )/( delta*R1 );            % [-] Subnetwork Gain.
+            % Compute the maximum decoded output.
+            x2_max = c1 / c3;
             
         end
         
         
-        % Implement a function to compute the c1 gain of a relative inversion subnetwork.
-        function c1 = compute_relative_inversion_c1( self, c3 )
+        % Implement a function to compute the maximum decoded output of a relative transmission subnetwork.
+        function x2_max = compute_relative_inversion_x2max( self, c1, c3 )
             
             % Set the default input arguments.
-            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_transmission_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_transmission_DEFAULT; end
             
-            % Compute the gain.
-            c1 = c3;                                        % [-] Subnetwork Gain.
+            % Compute the maximum decoded output.
+            x2_max = c1 / c3;
             
         end
         
         
-        % Implement a function to compute the c2 gain of a relative inversion subnetwork.
-        function c2 = compute_relative_inversion_c2( self, c3, delta, R2 )
+        % Implement a function to compute the second gain of an absolute transmission subnetwork.
+        function c2 = compute_absolute_inversion_c2( self, c1, c3, delta, x1_max )
             
             % Set the default input arguments.
-            if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_absolute_transmission_DEFAULT; end
+            if nargin < 4, delta = self.delta_absolute_transmission_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_transmission_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_transmission_DEFAULT; end
             
-            % Compute the gain.
-            c2 = ( R2 - delta )*c3/delta;
+            % Compute the second gain.
+            c2 = ( c1 - delta*c3 ) / ( delta*x1_max );
             
         end
         
         
-        % Implement a function to compute the gains of a relative inversion subnetwork.
-        function [ c1, c2 ] = compute_relative_inversion_gains( self, c3, delta, R2 )
-        
+        % Implement a function to compute the second gain of an absolute transmission subnetwork.
+        function c2 = compute_relative_inversion_c2( self, c1, c3, delta, x1_max )
+            
             % Set the default input arguments.
-            if nargin < 4, R2 = self.R_DEFAULT; end
-            if nargin < 3, delta = self.delta_relative_inversion_DEFAULT; end
-            if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_relative_transmission_DEFAULT; end
+            if nargin < 4, delta = self.delta_relative_transmission_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_transmission_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_transmission_DEFAULT; end
             
-            % Compute the gain c1.
-            c1 = self.compute_relative_inversion_c1( c3 );
-            
-            % Compute the gain c2.
-            c2 = self.compute_relative_inversion_c2( c3, delta, R2 );
+            % Compute the second gain.
+            c2 = ( c1 - delta*c3 ) / ( delta*x1_max );
             
         end
         
