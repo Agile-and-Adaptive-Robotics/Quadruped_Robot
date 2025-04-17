@@ -1207,7 +1207,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                       % [cell] Parameters Cell.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 3, parameters = struct( [  ] ); end                                                           	% [struct] Parameters Struct.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
@@ -1222,12 +1222,15 @@ classdef synapse_manager_class
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c, x1_max, Gm2, dEs21 };
+                    parameters.c = c;
+                    parameters.x1_max = x1_max;
+                    parameters.Gm2 = Gm2;
+                    parameters.dEs21 = dEs21;
                     
                 else                                                                                                   	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                      	% If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 4                                                       	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1247,12 +1250,14 @@ classdef synapse_manager_class
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
                     % Store the required parameters in a cell.
-                    parameters = { R2, Gm2, dEs21 };
+                    parameters.R2 = R2;
+                    parameters.Gm2 = Gm2;
+                    parameters.dEs21 = dEs21;
                     
                 else                                                                                                  	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                                     	% If there is anything other than the require number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 3                                                                     	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1276,7 +1281,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                     	% [cell] Parameters Cell.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 2, parameters = struct( [  ] ); end                           	% [struct] Parameters Struct.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
@@ -1290,12 +1295,14 @@ classdef synapse_manager_class
                     Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
                     
                     % Store the required parameters in a cell.
-                    parameters = { c, x1_max, Gm2 };
+                    parameters.c = c;
+                    parameters.x1_max = x1_max;
+                    parameters.Gm2 = Gm2;
                     
                 else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                    	% If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 3                                    	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1314,12 +1321,13 @@ classdef synapse_manager_class
                     Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
                     
                     % Store the required parameters in a cell.
-                    parameters = { R2, Gm2 };
+                    parameters.R2 = R2;
+                    parameters.Gm2 = Gm2;
                     
                 else                                                                 	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                      	% If there is anything other than the require number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 2                                      	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1347,7 +1355,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -1422,7 +1430,7 @@ classdef synapse_manager_class
                     
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                    	% [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                    	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
@@ -1499,7 +1507,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                        	% [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                   	% [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                             	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                         	% [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                         	% [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                    	% If this operation is using an absolute encoding scheme...
@@ -1579,7 +1587,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                               % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If this operation is using an absolute encoding scheme...
@@ -1661,7 +1669,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -1731,7 +1739,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -1803,7 +1811,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -1873,7 +1881,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -1945,7 +1953,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2017,7 +2025,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2107,7 +2115,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2181,7 +2189,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2255,7 +2263,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2327,7 +2335,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2417,7 +2425,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2491,7 +2499,7 @@ classdef synapse_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2565,7 +2573,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2641,7 +2649,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2732,7 +2740,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2807,7 +2815,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2884,7 +2892,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -2959,7 +2967,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3049,7 +3057,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3123,7 +3131,7 @@ classdef synapse_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3199,7 +3207,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3275,7 +3283,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3347,7 +3355,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3439,7 +3447,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3519,7 +3527,7 @@ classdef synapse_manager_class
                         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3600,7 +3608,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3675,7 +3683,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3747,7 +3755,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3839,7 +3847,7 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3918,7 +3926,7 @@ classdef synapse_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -3996,7 +4004,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                   % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                   % [cell] Parameters Cell.
             
             % Determine how to unpack the parameters for this synapse.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
@@ -4038,7 +4046,7 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                   % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                   % [cell] Parameters Cell.
             
             % Determine how to unpack the parameters for this synapse.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
@@ -5121,7 +5129,7 @@ classdef synapse_manager_class
             % Absolute: c, x1_max, Gm2
 
             % Set the default input arguments.
-            if nargin < 2, transmission_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, transmission_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( transmission_parameters )                                                                               % If the parameters are empty...
@@ -5131,12 +5139,12 @@ classdef synapse_manager_class
                 x1_max = self.x1max_absolute_transmission_DEFAULT;                                                              % [-] Maximum Decoded Input.
                 Gm2 = self.Gm_DEFAULT;                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( transmission_parameters ) == 3                                                                       % If there are a specific number of parameters...
+            elseif length( fieldnames( transmission_parameters ) ) == 3                                                                       % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = transmission_parameters{ 1 };                                                                            	% [-] Subnetwork Gain.
-                x1_max = transmission_parameters{ 2 };                                                                          % [-] Maximum Decoded Input.
-                Gm2 = transmission_parameters{ 3 };                                                                            	% [S] Membrane Conductance.
+                c = transmission_parameters.c;                                                                            	% [-] Subnetwork Gain.
+                x1_max = transmission_parameters.x1_max;                                                                          % [-] Maximum Decoded Input.
+                Gm2 = transmission_parameters.Gm2;                                                                            	% [S] Membrane Conductance.
             
             else                                                                                                                % Otherwise...
                
@@ -5154,7 +5162,7 @@ classdef synapse_manager_class
             % Relative: R2, Gm2
 
             % Set the default input arguments.
-            if nargin < 2, transmission_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, transmission_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( transmission_parameters )                                                                               % If the parameters are empty...
@@ -5163,11 +5171,11 @@ classdef synapse_manager_class
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( transmission_parameters ) == 2                                                                       % If there are a specific number of parameters...
+            elseif length( fieldnames( transmission_parameters ) ) == 2                                                                       % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R2 = transmission_parameters{ 1 };                                                                            	% [V] Activation Domain.
-                Gm2 = transmission_parameters{ 2 };                                                                          	% [S] Membrane Conductance.
+                R2 = transmission_parameters.R2;                                                                            	% [V] Activation Domain.
+                Gm2 = transmission_parameters.Gm2;                                                                          	% [S] Membrane Conductance.
             
             else                                                                                                                % Otherwise...
                
@@ -5187,7 +5195,7 @@ classdef synapse_manager_class
             % Absolute: c_k, R_k, Gm_n, Ia_n
 
             % Set the default input arguments.
-            if nargin < 3, addition_parameters = {  }; end                                                       	% [-] Input Parameters Cell.
+            if nargin < 3, addition_parameters = struct( [  ] ); end                                                       	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( addition_parameters )                                                                       % If the parameters are empty...
@@ -5225,7 +5233,7 @@ classdef synapse_manager_class
             % Relative: c_k, R_n, Gm_n, Ia_n
 
             % Set the default input arguments.
-            if nargin < 3, addition_parameters = {  }; end                                                       	% [-] Input Parameters Cell.
+            if nargin < 3, addition_parameters = struct( [  ] ); end                                                       	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( addition_parameters )                                                                       % If the parameters are empty...
@@ -5265,7 +5273,7 @@ classdef synapse_manager_class
             % Absolute: c_k, s_k, R_k, Gm_n, Ia_n
 
             % Set the default input arguments.
-            if nargin < 3, subtraction_parameters = {  }; end                                                            	% [-] Input Parameters Cell.
+            if nargin < 3, subtraction_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( subtraction_parameters )                                                                            % If the parameters are empty...
@@ -5305,7 +5313,7 @@ classdef synapse_manager_class
             % Relative: c_k, s_k, R_k, Gm_n, Ia_n
 
             % Set the default input arguments.
-            if nargin < 3, subtraction_parameters = {  }; end                                                            	% [-] Input Parameters Cell.
+            if nargin < 3, subtraction_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( subtraction_parameters )                                                                            % If the parameters are empty...
@@ -5347,7 +5355,7 @@ classdef synapse_manager_class
             % Absolute: delta1, Gm2, Ia2
 
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = {  }; end                                                            	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_parameters )                                                                       	% If the parameters are empty...
@@ -5380,7 +5388,7 @@ classdef synapse_manager_class
             % Relative: delta1, Gm2, Ia2
 
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = {  }; end                                                            	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_parameters )                                                                       	% If the parameters are empty...
@@ -5415,7 +5423,7 @@ classdef synapse_manager_class
             % Absolute: delta1, Gm2, Ia2
 
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = {  }; end                                                            	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_parameters )                                                                       	% If the parameters are empty...
@@ -5448,7 +5456,7 @@ classdef synapse_manager_class
             % Relative: delta1, Gm2, Ia2
 
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = {  }; end                                                            	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_parameters )                                                                       	% If the parameters are empty...
@@ -5485,7 +5493,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5526,7 +5534,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5565,7 +5573,7 @@ classdef synapse_manager_class
             % Absolute: delta, R3, Gm3, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                                              	% [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                                              	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                          	% If the parameters are empty...
@@ -5600,7 +5608,7 @@ classdef synapse_manager_class
             % Relative: delta, R3, Gm3, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5639,7 +5647,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5680,7 +5688,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5719,7 +5727,7 @@ classdef synapse_manager_class
             % Absolute: delta2, R3, Gm3, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5754,7 +5762,7 @@ classdef synapse_manager_class
             % Relative: delta, R3, Gm3, Ia3
             
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5793,7 +5801,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5836,7 +5844,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5875,7 +5883,7 @@ classdef synapse_manager_class
             % Absolute: c1, c3, delta1, delta2, R1, R2
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5914,7 +5922,7 @@ classdef synapse_manager_class
             % Relative: c1, c3, delta1, delta2, R2
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5955,7 +5963,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -5996,7 +6004,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, division_parameters = {  }; end                                  % [-] Input Parameters Cell.
+            if nargin < 3, division_parameters = struct( [  ] ); end                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                                                               % If the parameters are empty...
@@ -6035,7 +6043,7 @@ classdef synapse_manager_class
             % Absolute: delta1, delta2, R2, R3, Gm3
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                             	% If the parameters are empty...
@@ -6072,7 +6080,7 @@ classdef synapse_manager_class
             % Relative: delta1, delta2, R2, R3, Gm3
 
             % Set the default input arguments.
-            if nargin < 2, division_parameters = {  }; end                                  % [-] Input Parameters Cell.
+            if nargin < 2, division_parameters = struct( [  ] ); end                                  % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( division_parameters )                                             	% If the parameters are empty...
@@ -6113,7 +6121,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, multiplication_parameters = {  }; end                                                         	% [-] Input Parameters Cell.
+            if nargin < 3, multiplication_parameters = struct( [  ] ); end                                                         	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                      	% If the parameters are empty...
@@ -6162,7 +6170,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            if nargin < 3, multiplication_parameters = struct( [  ] ); end                                                            % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                     	% If the parameters are empty...
@@ -6205,7 +6213,7 @@ classdef synapse_manager_class
             % Absolute: c4, c6, delta1, delta2, R1, R3, Gm3, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, multiplication_parameters = {  }; end                                                         	% [-] Input Parameters Cell.
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end                                                         	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                      	% If the parameters are empty...
@@ -6248,7 +6256,7 @@ classdef synapse_manager_class
             % Relative: c4, c6, delta1, delta2, R3, Gm3, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end                                                            % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                     	% If the parameters are empty...
@@ -6293,7 +6301,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            if nargin < 3, multiplication_parameters = struct( [  ] ); end                                                            % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                      	% If the parameters are empty...
@@ -6340,7 +6348,7 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            if nargin < 3, multiplication_parameters = struct( [  ] ); end                                                            % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                     	% If the parameters are empty...
@@ -6383,7 +6391,7 @@ classdef synapse_manager_class
             % Absolute: delta1, delta2, R3, R4, Gm3, Gm4, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end                                                            % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                      	% If the parameters are empty...
@@ -6424,7 +6432,7 @@ classdef synapse_manager_class
             % Relative: delta1, delta2, R3, R4, Gm3, Gm4, Ia3
 
             % Set the default input arguments.
-            if nargin < 2, multiplication_parameters = {  }; end                                                            % [-] Input Parameters Cell.
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end                                                            % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( multiplication_parameters )                                                                     	% If the parameters are empty...
@@ -6474,14 +6482,11 @@ classdef synapse_manager_class
             if nargin < 4, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             if nargin < 3, c = self.c_absolute_transmission_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            parameters_gs = cell( 1, 4 );
-            
             % Pack the parameters.
-            parameters_gs{ 1 } = c;
-            parameters_gs{ 2 } = x1_max;
-            parameters_gs{ 3 } = Gm2;
-            parameters_gs{ 4 } = dEs21;
+            parameters_gs.c = c;
+            parameters_gs.x1_max = x1_max;
+            parameters_gs.Gm2 = Gm2;
+            parameters_gs.dEs21 = dEs21;
             
         end
         
@@ -6496,13 +6501,10 @@ classdef synapse_manager_class
             if nargin < 4, Gm2 = self.Gm_DEFAULT; end
             if nargin < 3, R2 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            parameters_gs = cell( 1, 3 );
-            
             % Pack the parameters.
-            parameters_gs{ 1 } = R2;
-            parameters_gs{ 2 } = Gm2;
-            parameters_gs{ 3 } = dEs21;
+            parameters_gs.R2 = R2;
+            parameters_gs.Gm2 = Gm2;
+            parameters_gs.dEs21 = dEs21;
             
         end
         
@@ -6515,13 +6517,10 @@ classdef synapse_manager_class
             if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            transmission_parameters = cell( 1, 3 );
-            
             % Pack the parameters.
-            transmission_parameters{ 1 } = c;
-            transmission_parameters{ 2 } = x1_max;
-            transmission_parameters{ 3 } = Gm2;
+            transmission_parameters.c = c;
+            transmission_parameters.x1_max = x1_max;
+            transmission_parameters.Gm2 = Gm2;
             
         end
         
@@ -6532,13 +6531,10 @@ classdef synapse_manager_class
             % Set the default input arguments.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            transmission_parameters = cell( 1, 2 );
-            
+                        
             % Pack the parameters.
-            transmission_parameters{ 1 } = R2;
-            transmission_parameters{ 2 } = Gm2;
+            transmission_parameters.R2 = R2;
+            transmission_parameters.Gm2 = Gm2;
             
         end
         
@@ -8355,7 +8351,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, transmission_parameters = {  }; end
+            if nargin < 3, transmission_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8394,7 +8390,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, addition_parameters = {  }; end
+            if nargin < 3, addition_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8433,7 +8429,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, subtraction_parameters = {  }; end
+            if nargin < 3, subtraction_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8472,7 +8468,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, inversion_parameters = {  }; end
+            if nargin < 3, inversion_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8511,7 +8507,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, reduced_inversion_parameters = {  }; end
+            if nargin < 3, reduced_inversion_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8549,7 +8545,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_gs_parameters = {  }; end
+            if nargin < 2, division_gs_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8586,7 +8582,7 @@ classdef synapse_manager_class
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, gs31 = self.get_synapse_property( synapse_IDs( 1 ), 'gs', true, synapses, undetected_option ); end            % [V] Synaptic Reversal Potential.
-            if nargin < 2, division_gs_parameters = {  }; end
+            if nargin < 2, division_gs_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8624,7 +8620,7 @@ classdef synapse_manager_class
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 5, dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, division_parameters = {  }; end
+            if nargin < 3, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8662,7 +8658,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_parameters = {  }; end
+            if nargin < 2, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8699,7 +8695,7 @@ classdef synapse_manager_class
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, gs31 = self.get_synapse_property( synapse_IDs( 1 ), 'gs', true, synapses, undetected_option ); end            % [V] Synaptic Reversal Potential.
-            if nargin < 2, division_parameters = {  }; end
+            if nargin < 2, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8737,7 +8733,7 @@ classdef synapse_manager_class
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 5, dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, reduced_division_parameters = {  }; end
+            if nargin < 3, reduced_division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8775,7 +8771,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_parameters = {  }; end
+            if nargin < 2, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8811,7 +8807,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_parameters = {  }; end
+            if nargin < 2, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8848,7 +8844,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, dai_parameters = {  }; end
+            if nargin < 3, dai_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8886,7 +8882,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_parameters = {  }; end
+            if nargin < 2, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8922,7 +8918,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_parameters = {  }; end
+            if nargin < 2, division_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8959,7 +8955,7 @@ classdef synapse_manager_class
             if nargin < 6, synapses = self.synapses; end
             if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, reduced_dai_parameters = {  }; end
+            if nargin < 3, reduced_dai_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -8997,7 +8993,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, multiplication_parameters = {  }; end
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9033,7 +9029,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, multiplication_parameters = {  }; end
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9069,7 +9065,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, multiplication_parameters = {  }; end
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9107,7 +9103,7 @@ classdef synapse_manager_class
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 5, dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 4, dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, multiplication_parameters = {  }; end
+            if nargin < 3, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9145,7 +9141,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, multiplication_parameters = {  }; end
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9181,7 +9177,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, multiplication_parameters = {  }; end
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9217,7 +9213,7 @@ classdef synapse_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, synapses = self.synapses; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, multiplication_parameters = {  }; end
+            if nargin < 2, multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9255,7 +9251,7 @@ classdef synapse_manager_class
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 5, dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 4, dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
-            if nargin < 3, reduced_multiplication_parameters = {  }; end
+            if nargin < 3, reduced_multiplication_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -9297,7 +9293,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9329,7 +9325,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
 
             % Validate the synapse IDs.
@@ -9375,7 +9371,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9421,7 +9417,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9453,7 +9449,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9485,7 +9481,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9515,7 +9511,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9545,7 +9541,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9586,7 +9582,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9616,7 +9612,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9646,7 +9642,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9687,7 +9683,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9717,7 +9713,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9747,7 +9743,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9788,7 +9784,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9818,7 +9814,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9848,7 +9844,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9889,7 +9885,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9919,7 +9915,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9949,7 +9945,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9979,7 +9975,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10026,7 +10022,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10056,7 +10052,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10086,7 +10082,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10116,7 +10112,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, parameters = {  }; end                                               % [cell] Parameters Cell.
+            if nargin < 3, parameters = struct( [  ] ); end                                               % [cell] Parameters Cell.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -12746,7 +12742,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, synapse_input_parameters = {  }; end                                	% [variable] Synapse Input Parameters.
+            if nargin < 3, synapse_input_parameters = struct( [  ] ); end                                	% [variable] Synapse Input Parameters.
             if nargin < 2, neuron_IDs = 1:self.n_transmission_neurons_DEFAULT; end              % [#] Neuron IDs.
             
             % Retrieve the synapse ID associated with the transmission neurons.
@@ -12764,12 +12760,9 @@ classdef synapse_manager_class
             % Compute the synaptic conductance.
             [ gs21, synapses, synapse_manager ] = synapse_manager.compute_transmission_gs21( synapse_ID, gs_parameters, encoding_scheme, synapses, true, validation_flag, undetected_option );
             
-            % Preallocate an array to store the synapse output parameters.
-            synapse_output_parameters = cell( 1, 2 );
-            
-            % Store the synapse output parameters in a cell.
-            synapse_output_parameters{ 1 } = dEs21;
-            synapse_output_parameters{ 2 } = gs21;
+            % Store the synapse output parameters in a structure.
+            synapse_output_parameters.dEs21 = dEs21;
+            synapse_output_parameters.gs21 = gs21;
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
@@ -12788,7 +12781,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, addition_parameters = {  }; end
+            if nargin < 3, addition_parameters = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:self.n_addition_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Compute the number of synapses.
@@ -12835,7 +12828,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, subtraction_parameters = {  }; end
+            if nargin < 3, subtraction_parameters = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:self.n_subtraction_neurons_DEFAULT; end             % [#] Neuron IDs.   
             
             % Compute the number of synapses.
@@ -12882,7 +12875,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, inversion_parameters = {  }; end                                     % [cell] Parameters Cell.
+            if nargin < 3, inversion_parameters = struct( [  ] ); end                                     % [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.n_inversion_neurons_DEFAULT; end                 % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
@@ -12917,7 +12910,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_inversion_parameters = {  }; end                            	% [cell] Parameters Cell.
+            if nargin < 3, reduced_inversion_parameters = struct( [  ] ); end                            	% [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.n_inversion_neurons_DEFAULT; end                 % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
@@ -12952,7 +12945,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, division_parameters = {  }; end                                    	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, division_parameters = struct( [  ] ); end                                    	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -12989,7 +12982,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, dai_parameters = {  }; end                                          	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, dai_parameters = struct( [  ] ); end                                          	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13026,7 +13019,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_division_parameters = {  }; end                             	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_division_parameters = struct( [  ] ); end                             	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13063,7 +13056,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_dai_parameters = {  }; end                                 	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_dai_parameters = struct( [  ] ); end                                 	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13100,7 +13093,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, multiplication_parameters = {  }; end                               	% [cell] Parameters Cell.
+            if nargin < 3, multiplication_parameters = struct( [  ] ); end                               	% [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.
@@ -13135,7 +13128,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_multiplication_parameters = {  }; end                       	% [cell] Parameters Cell.
+            if nargin < 3, reduced_multiplication_parameters = struct( [  ] ); end                       	% [cell] Parameters Cell.
             if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.

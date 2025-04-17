@@ -1130,69 +1130,71 @@ classdef network_utilities_class
         
         % ---------- Transmission Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of a transmission subnetwork.
-        function ys = compute_desired_transmission_sso( ~, xs, c )
-            
-            % Set the default input arguments.
-            if nargin < 3, c = 1; end
-            if nargin < 2, xs = 0; end
-            
-            % Compute the desired steady state output.
-            ys = c*xs;
-            
-        end
         
-        
-        % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
-        function U2s = compute_da_transmission_sso( ~, U1s, c )
-            
-            %{
-            Input(s):
-                U1s     =   [V] Membrane Voltages (Neuron 1).
-                c       =   [-] Absolute Transmission Gain.
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 3, c = 1; end
-            if nargin < 2, U1s = 0; end
-            
-            % Compute the steady state network output.
-            U2s = c*U1s;
-            
-        end
-        
-        
-        % Implement a function to compute the steady state output associated with the desired formulation of a relative transmission subnetwork.
-        function U2s = compute_dr_transmission_sso( ~, U1s, c, R1, R2 )
-            
-            %{
-            Input(s):
-                U1s     =   [V] Membrane Voltages (Neuron 1).
-                c       =   [-] Relative Transmission Gain.
-                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2      =   [V] Maximum Membrane Voltage (Neuron 2).
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 5, R2 = 20e-3; end
-            if nargin < 4, R1 = 20e-3; end
-            if nargin < 3, c = 1; end
-            if nargin < 2, U1s = 0; end
-            
-            % Compute the steady state network output.
-            U2s = c*( R2/R1 )*U1s;
-            
-        end
-        
-        
-        % Implement a function to compute the steady state output associated with the achieved formulation of a transmission subnetwork.
-        function U2s = compute_achieved_transmission_sso( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        %{
+%         % Implement a function to compute the steady state output associated with the decoded desired formulation of a transmission subnetwork.
+%         function ys = compute_desired_transmission_sso( ~, xs, c )
+%             
+%             % Set the default input arguments.
+%             if nargin < 3, c = 1; end
+%             if nargin < 2, xs = 0; end
+%             
+%             % Compute the desired steady state output.
+%             ys = c*xs;
+%             
+%         end
+%         
+%         
+%         % Implement a function to compute the steady state output associated with the desired formulation of an absolute transmission subnetwork.
+%         function U2s = compute_da_transmission_sso( ~, U1s, c )
+%             
+%             %{
+%             Input(s):
+%                 U1s     =   [V] Membrane Voltages (Neuron 1).
+%                 c       =   [-] Absolute Transmission Gain.
+%             
+%             Output(s):
+%                 U2s     =   [V] Membrane Voltages (Neuron 2).
+%             %}
+%             
+%             % Set the default input arguments.
+%             if nargin < 3, c = 1; end
+%             if nargin < 2, U1s = 0; end
+%             
+%             % Compute the steady state network output.
+%             U2s = c*U1s;
+%             
+%         end
+%         
+%         
+%         % Implement a function to compute the steady state output associated with the desired formulation of a relative transmission subnetwork.
+%         function U2s = compute_dr_transmission_sso( ~, U1s, c, R1, R2 )
+%             
+%             %{
+%             Input(s):
+%                 U1s     =   [V] Membrane Voltages (Neuron 1).
+%                 c       =   [-] Relative Transmission Gain.
+%                 R1      =   [V] Maximum Membrane Voltage (Neuron 1).
+%                 R2      =   [V] Maximum Membrane Voltage (Neuron 2).
+%             
+%             Output(s):
+%                 U2s     =   [V] Membrane Voltages (Neuron 2).
+%             %}
+%             
+%             % Set the default input arguments.
+%             if nargin < 5, R2 = 20e-3; end
+%             if nargin < 4, R1 = 20e-3; end
+%             if nargin < 3, c = 1; end
+%             if nargin < 2, U1s = 0; end
+%             
+%             % Compute the steady state network output.
+%             U2s = c*( R2/R1 )*U1s;
+%             
+%         end
+%         
+%         
+%         % Implement a function to compute the steady state output associated with the achieved formulation of a transmission subnetwork.
+%         function U2s = compute_achieved_transmission_sso( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
         
             % Set the default input arguments.
             if nargin < 7, dEs21 = 194e-3; end                                  % [V] Synaptic Reversal Potential (Synapse 21).
@@ -1205,7 +1207,95 @@ classdef network_utilities_class
             U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );           % [V] Membrane Voltage (Neuron 2).
             
         end
+        %}
         
+        
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a transmission subnetwork.
+        function U2s = compute_encoded_achieved_transmission_sso( self, U1s, R1, Gm2, gs21, dEs21, Ia2 )
+            
+            % Set the default input arguments.
+            if nargin < 7, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs21 = self.dEs_DEFAULT; end
+            if nargin < 5, gs21 = self.gs_DEFAULT; end
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            U2s = ( gs21.*dEs21.*U1s + R1.*Ia2 )./( gs21.*U1s + R1.*Gm2 );
+            
+        end
+                
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of an absolute transmission subnetwork.
+        function x2s = compute_decoded_achieved_absolute_transmission_sso( self, x1s, R1, Gm2, gs21, dEs21, Ia2 )
+        
+            % Set the default input arguments.
+            if nargin < 7, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs21 = self.dEs_DEFAULT; end
+            if nargin < 5, gs21 = self.gs_DEFAULT; end
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            x2s = ( gs21.*dEs21.*x1s + R1.*Ia2 )./( gs21.*x1s + R1.*Gm2 );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a relative transmission subnetwork.
+        function x2s = computed_decoded_achieved_relative_transmission_sso( self, x1s, c, x1_max, R2, Gm2, gs21, dEs21, Ia2 )
+        
+            % Set the default input arguments.
+            if nargin < 9, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 8, dEs21 = self.dEs_DEFAULT; end
+            if nargin < 7, gs21 = self.gs_DEFAULT; end
+            if nargin < 6, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            if nargin < 3, c = self.c_DEFAULT; end
+            
+            % Compute the steady state output.
+            x2s = ( ( c.*x1_max )./R2 ).*( ( gs21.*dEs21.*x1s + x1_max.*Ia2 )./( gs21.*x1s + x1_max.*Gm2 ) );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the desired mapping of a transmission subnetwork.
+        function x2s = compute_decoded_desired_transmission_sso( self, x1s, c )
+        
+            % Set the default input arguments.
+            if nargin < 3, c = self.c_DEFAULT; end
+            
+            % Compute the steady state output.
+            x2s = c.*x1s;
+        
+        end
+        
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of an absolute transmission subnetwork.
+        function U2s = compute_encoded_desired_absolute_transmission_sso( self, U1s, c )
+        
+            % Set the default input arguments.
+            if nargin < 3, c = self.c_DEFAULT; end
+            
+            % Compute the steady state output.
+            U2s = c.*U1s;
+        
+        end
+        
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a relative transmission subnetwork.
+        function U2s = compute_encoded_desired_relative_transmission_sso( self, U1s, R1, R2 )
+                
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            U2s = ( R2./R1 ).*U1s;
+        
+        end
+
         
         % ---------- Addition Subnetwork Functions ----------
         

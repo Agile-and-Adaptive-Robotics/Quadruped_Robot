@@ -3725,13 +3725,10 @@ classdef applied_current_manager_class
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
             
             % Compute the applied current magnitudes of this subnetwork.            
-            Ias2 = self.compute_transmission_Ias2( encoding_scheme, applied_currents, array_utilities );
-            
-            % Preallocate an array to store the applied current output parameters.
-            applied_current_output_parameters = cell( 1, 1 );
+            Ia2 = self.compute_transmission_Ias2( encoding_scheme, applied_currents, array_utilities );
             
             % Store the applied current magnitudes in the output parameters cell.
-            applied_current_output_parameters{ 1 } = Ias2;
+            applied_current_output_parameters.Ia2 = Ia2;
             
         end
         

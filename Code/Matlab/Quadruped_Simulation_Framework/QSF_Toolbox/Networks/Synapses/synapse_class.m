@@ -256,13 +256,13 @@ classdef synapse_class
                 Gm2 = self.Gm_DEFAULT;                                  % [S] Membrane Conductance.
                 dEs21 = self.dEs;                                       % [V] Synaptic Reversal Potential.
             
-            elseif length( parameters ) == 4                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = parameters{ 1 };                                    % [-] Subnetwork Gain.
-                x1_max = parameters{ 2 };                             	% [-] Maximum Encoded Input.
-                Gm2 = parameters{ 3 };                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 4 };                               	% [V] Synaptic Reversal Potential.
+                c = parameters.c;                                    % [-] Subnetwork Gain.
+                x1_max = parameters.x1_max;                             	% [-] Maximum Encoded Input.
+                Gm2 = parameters.Gm2;                                  % [S] Membrane Conductance.
+                dEs21 = parameters.dEs21;                               	% [V] Synaptic Reversal Potential.
                 
             else                                                        % Otherwise...
                
@@ -288,12 +288,12 @@ classdef synapse_class
                 Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 dEs21 = self.dEs;                                       % [V] Synaptic Reversal Potential.
             
-            elseif length( parameters ) == 3                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 3                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R2 = parameters{ 1 };                                   % [V] Activation Domain.
-                Gm2 = parameters{ 2 };                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                % [V] Synaptic Reversal Potential.
+                R2 = parameters.R2;                                   % [V] Activation Domain.
+                Gm2 = parameters.Gm2;                                  % [S] Membrane Conductance.
+                dEs21 = parameters.dEs21;                                % [V] Synaptic Reversal Potential.
                 
             else                                                        % Otherwise...
                

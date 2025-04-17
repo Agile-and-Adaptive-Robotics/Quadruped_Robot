@@ -1596,7 +1596,7 @@ classdef neuron_class
         function x1_max = unpack_absolute_transmission_R1_parameters( self, R1_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, R1_parameters = {  }; end                       % [-] Parameters Cell.
+            if nargin < 2, R1_parameters = struct( [  ] ); end                       % [-] Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( R1_parameters )                                    % If the parameters are empty...
@@ -1604,10 +1604,10 @@ classdef neuron_class
                 % Set the parameters to default values.
                 x1_max = self.x1max_absolute_transmission_DEFAULT;          % [V] Activation Domain.
                 
-            elseif length( R1_parameters ) == 1                          	% If there are a specific number of parameters...
+            elseif length( fieldnames( R1_parameters ) ) == 1                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                x1_max = R1_parameters{ 1 };                             	% [V] Activation Domain.
+                x1_max = R1_parameters.x1_max;                             	% [V] Activation Domain.
                 
             else                                                            % Otherwise...
                 
@@ -1623,7 +1623,7 @@ classdef neuron_class
         function [ c, x1_max ] = unpack_absolute_transmission_R2_parameters( self, R2_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, R2_parameters = {  }; end                       % [-] Parameters Cell.
+            if nargin < 2, R2_parameters = struct( [  ] ); end                       % [-] Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( R2_parameters )                                    % If the parameters are empty...
@@ -1632,11 +1632,11 @@ classdef neuron_class
                 c = self.c_absolute_transmission_DEFAULT;               % [-] Absolute Transmission Gain.
                 x1_max = self.x1max_absolute_transmission_DEFAULT;      % [V] Activation Domain.
                 
-            elseif length( R2_parameters ) == 2                          	% If there are a specific number of parameters...
+            elseif length(fieldnames( R2_parameters ) ) == 2                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = R2_parameters{ 1 };                                    % [-] Absolute Transmission Gain.
-                x1_max = R2_parameters{ 2 };                             	% [V] Activation Domain.
+                c = R2_parameters.c;                                    % [-] Absolute Transmission Gain.
+                x1_max = R2_parameters.x1_max;                             	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -2101,7 +2101,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, R1_parameters = {  }; end
+            if nargin < 2, R1_parameters = struct( [  ] ); end
             
             % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
@@ -2137,7 +2137,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, R2_parameters = {  }; end
+            if nargin < 2, R2_parameters = struct( [  ] ); end
             
             % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...

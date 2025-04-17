@@ -2675,7 +2675,7 @@ classdef neuron_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, transmission_R1_parameters = {  }; end                                                       % [cell] Transmission R2 Parameters Cell.
+            if nargin < 2, transmission_R1_parameters = struct( [  ] ); end                                             % [struct] Transmission R2 Parameters Struct.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
@@ -2687,7 +2687,7 @@ classdef neuron_manager_class
                     x1_max = self.x1max_absolute_transmission_DEFAULT;                                                  % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    transmission_R1_parameters = { x1_max };
+                    transmission_R1_parameters.x1_max = x1_max;
                     
                 else                                                                                                    % Otherwise...
                     
@@ -2707,7 +2707,7 @@ classdef neuron_manager_class
                 if isempty( transmission_R1_parameters )                                                                % If no parameters were provided...
                                         
                     % Store the required parameters in a cell.
-                    transmission_R1_parameters = {  };
+                    transmission_R1_parameters = struct( [  ] );
                     
                 else                                                                                                    % Otherwise...
                     
@@ -2736,7 +2736,7 @@ classdef neuron_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, transmission_R2_parameters = {  }; end                                                       % [cell] Transmission R2 Parameters Cell.
+            if nargin < 2, transmission_R2_parameters = struct( [  ] ); end                                             % [struct] Transmission R2 Parameters Struct.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
@@ -2749,12 +2749,13 @@ classdef neuron_manager_class
                     x1_max = self.x1max_absolute_transmission_DEFAULT;                                                  % [V] Activation Domain.
                     
                     % Store the required parameters in a cell.
-                    transmission_R2_parameters = { c, x1_max };
+                    transmission_R2_parameters.c = c;
+                    transmission_R2_parameters.x1_max = x1_max;
                     
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( transmission_R2_parameters ) ~= 2                                                        % If there is anything other than a single parameter entry...
+                    if length( fieldnames( transmission_R2_parameters ) ) ~= 2                                                        % If there is anything other than a single parameter entry...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2769,17 +2770,12 @@ classdef neuron_manager_class
                 if isempty( transmission_R2_parameters )                                                                % If no parameters were provided...
                                         
                     % Store the required parameters in a cell.
-                    transmission_R2_parameters = {  };
+                    transmission_R2_parameters = struct( [  ] );
                     
                 else                                                                                                    % Otherwise...
-                    
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if ~isempty( transmission_R2_parameters )                                                           % If there is anything other than a single parameter entry...
-                        
-                        % Throw an error.
-                        error( 'Invalid parameters detected.' )
-                        
-                    end
+
+                    % Throw an error.
+                    error( 'Invalid parameters detected.' )
                     
                 end
                 
@@ -2798,7 +2794,7 @@ classdef neuron_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, transmission_parameters = {  }; end                                                                  % [cell] Parameters Cell.  (Absolute: c, R1, Gm1, Gm2, Cm1, Cm2; Relative: R1, R2, Gm1, Gm2, Cm1, Cm2)
+            if nargin < 2, transmission_parameters = struct( [  ] ); end                                                       	% [struct] Parameters Struct.  (Absolute: c, R1, Gm1, Gm2, Cm1, Cm2; Relative: R1, R2, Gm1, Gm2, Cm1, Cm2)
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If this operation is using an absolute encoding scheme...
@@ -2811,12 +2807,13 @@ classdef neuron_manager_class
                     x1_max = self.x1max_absolute_transmission_DEFAULT;                                                          % [V] Maximum Membrane Voltage.
                     
                     % Store the required parameters in a cell.
-                    transmission_parameters = { c, x1_max };
+                    transmission_parameters.c = c;
+                    transmission_parameters.x1_max = x1_max;
 
                 else                                                                                                            % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( transmission_parameters ) ~= 2                                                                   % If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( transmission_parameters ) ) ~= 2                                                                   % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -2831,18 +2828,13 @@ classdef neuron_manager_class
                 if isempty( transmission_parameters )                                                                           % If no parameters were provided...
                                         
                     % Store the required parameters in a cell.
-                    transmission_parameters = {  };
+                    transmission_parameters = struct( [  ] );
 
                 else                                                                                                            % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( transmission_parameters ) ~= 1                                                                   % If there is anything other than the required number of parameter entries...
+                    % Throw an error.
+                    error( 'Invalid parameters detected.' )
                         
-                        % Throw an error.
-                        error( 'Invalid parameters detected.' )
-                        
-                    end
-                    
                 end
                 
             else                                                                                                                % Otherwise...
@@ -3093,7 +3085,7 @@ classdef neuron_manager_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end    	% [-] Undetected Option.
             if nargin < 4, neurons = self.neurons; end                                 	% [class] Array of Neuron Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, inversion_R2_parameters = {  }; end                          % [cell] Inversion R2 Parameters Cell.
+            if nargin < 2, inversion_R2_parameters = struct( [  ] ); end                          % [cell] Inversion R2 Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
@@ -3236,7 +3228,7 @@ classdef neuron_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, reduced_inversion_R2_parameters = {  }; end                 	% [cell] Reduced Inversion R2 Parameters Cell.
+            if nargin < 2, reduced_inversion_R2_parameters = struct( [  ] ); end                 	% [cell] Reduced Inversion R2 Parameters Cell.
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
@@ -4435,25 +4427,25 @@ classdef neuron_manager_class
        	% ---------- Transmission Subnetwork Functions ----------
 
         % Implement a function to unpack the parameters for computing R2 of an absolute transmission subnetwork.
-        function [ c, R1 ] = unpack_absolute_transmission_R2_parameters( self, transmission_R2_parameters, neurons, undetected_option )
+        function [ c, x1_max ] = unpack_absolute_transmission_R2_parameters( self, transmission_R2_parameters, neurons, undetected_option )
             
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
             if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
-            if nargin < 2, transmission_R2_parameters = {  }; end                                                   % [-] Input Parameters Cell.
+            if nargin < 2, transmission_R2_parameters = struct( [  ] ); end                                                   % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( transmission_R2_parameters )                                                                % If the parameters are empty...
             
                 % Set the parameters to default values.
                 c = self.c_absolute_transmission_DEFAULT;
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                x1_max = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
                 
-            elseif length( transmission_R2_parameters ) == 2                                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( transmission_R2_parameters ) ) == 2                                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = transmission_R2_parameters{ 1 };                                                                % [V] Activation Domain.
-                R1 = transmission_R2_parameters{ 2 };                                                               % [S] Membrane Conductance.
+                c = transmission_R2_parameters.c;                                                                % [V] Activation Domain.
+                x1_max = transmission_R2_parameters.R1;                                                               % [S] Membrane Conductance.
             
             else                                                                                                  	% Otherwise...
                
@@ -4466,33 +4458,25 @@ classdef neuron_manager_class
         
         
         % Implement a function to unpack the parameters for designing an absolute transmission subnetwork.
-        function [ c, R1 ] = unpack_absolute_transmission_parameters( self, transmission_parameters, neurons, undetected_option )
+        function [ c, x1_max ] = unpack_absolute_transmission_parameters( self, transmission_parameters, neurons, undetected_option )
 
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                    	% [-] Undetected Option.
             if nargin < 3, neurons = self.neurons; end                                                              	% [class] Array of Neuron Class Objects.
-            if nargin < 2, transmission_parameters = {  }; end                                                          % [-] Transmission Parameters Cell.
+            if nargin < 2, transmission_parameters = struct( [  ] ); end                                                          % [-] Transmission Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( transmission_parameters )                                                                       % If the parameters are empty...
                 
                 % Set the parameters to default values.
                 c = self.c_absolute_transmission_DEFAULT;
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );        % [V] Activation Domain.
-                % Gm1 = self.get_neuron_property( neurons( 1 ).ID, 'Gm', true, neurons, undetected_option ); 	% [S] Membrane Conductance (Neuron 1).
-                % Gm2 = self.get_neuron_property( neurons( 2 ).ID, 'Gm', true, neurons, undetected_option );   	% [S] Membrane Conductance (Neuron 2).
-                % Cm1 = self.get_neuron_property( neurons( 1 ).ID, 'Cm', true, neurons, undetected_option );   	% [F] Membrane Capacitance (Neuron 1).
-                % Cm2 = self.get_neuron_property( neurons( 2 ).ID, 'Cm', true, neurons, undetected_option );   	% [F] Membrane Capacitance (Neuron 2).
+                x1_max = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );        % [V] Activation Domain.
                 
-            elseif length( transmission_parameters ) == 2                                                               % If there are a specific number of parameters...
+            elseif length( fieldnames( transmission_parameters ) ) == 2                                                               % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = transmission_parameters{ 1 };                                                                       % [-] Subnetwork Gain.
-                R1 = transmission_parameters{ 2 };                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
-                % Gm1 = transmission_parameters{ 3 };                                                                 	% [S] Membrane Conductance (Neuron 1).
-                % Gm2 = transmission_parameters{ 4 };                                                                  	% [S] Membrane Conductance (Neuron 2).
-                % Cm1 = transmission_parameters{ 5 };                                                                 	% [F] Membrane Capacitance (Neuron 1).
-                % Cm2 = transmission_parameters{ 6 };                                                                  	% [F] Membrane Capacitance (Neuron 2).
+                c = transmission_parameters.c;                                                                       % [-] Subnetwork Gain.
+                x1_max = transmission_parameters.x1_max;                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
             
             else                                                                                                        % Otherwise...
                
@@ -4510,7 +4494,7 @@ classdef neuron_manager_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                    	% [-] Undetected Option.
             if nargin < 3, neurons = self.neurons; end                                                              	% [class] Array of Neuron Class Objects.
-            if nargin < 2, transmission_parameters = {  }; end                                                          % [-] Transmission Parameters Cell.
+            if nargin < 2, transmission_parameters = struct( [  ] ); end                                                          % [-] Transmission Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( transmission_parameters )                                                                       % If the parameters are empty...
@@ -4518,10 +4502,10 @@ classdef neuron_manager_class
                 % Set the parameters to default values.
                 R2 = self.get_neuron_property( neurons( 2 ).ID, 'R', true, neurons, undetected_option );        % [V] Activation Domain.
                 
-            elseif length( transmission_parameters ) == 1                                                               % If there are a specific number of parameters...
+            elseif length( fieldnames( transmission_parameters ) ) == 1                                                               % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R2 = transmission_parameters{ 1 };                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
+                R2 = transmission_parameters.R2;                                                                      % [V] Maximum Membrane Voltage (Neuron 1).
             
             else                                                                                                        % Otherwise...
                
@@ -4682,7 +4666,7 @@ classdef neuron_manager_class
         function [ c1, c3 ] = unpack_absolute_inversion_R2_parameters( self, inversion_R2_parameters )
             
             % Set the default input arguments.
-            if nargin < 2, inversion_R2_parameters = {  }; end          % [-] Inversion Parameters Cell.
+            if nargin < 2, inversion_R2_parameters = struct( [  ] ); end          % [-] Inversion Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_R2_parameters )                    	% If the parameters are empty...
@@ -4788,7 +4772,7 @@ classdef neuron_manager_class
         function [ c1, c2 ] = unpack_reduced_absolute_inversion_R2_parameters( self, inversion_R2_parameters )
             
             % Set the default input arguments.
-            if nargin < 2, inversion_R2_parameters = {  }; end          % [-] Input Parameters Cell.
+            if nargin < 2, inversion_R2_parameters = struct( [  ] ); end          % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_R2_parameters )                    	% If the parameters are empty...
@@ -5564,11 +5548,8 @@ classdef neuron_manager_class
             % Set the default input arguments.
             if nargin < 2, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             
-            % Preallocate a cell to store the parameters.
-            R1_parameters = cell( 1, 1 );
-            
             % Pack the parameters.
-            R1_parameters{ 1 } = x1_max;
+            R1_parameters.x1_max = x1_max;
             
         end
         
@@ -5580,12 +5561,9 @@ classdef neuron_manager_class
             if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             if nargin < 2, c = self.c_absolute_transmission_DFEAULT; end
             
-            % Preallocate a cell to store the parameters.
-            R2_parameters = cell( 1, 2 );
-            
             % Pack the parameters.
-            R2_parameters{ 1 } = c;
-            R2_parameters{ 2 } = x1_max;
+            R2_parameters.c = c;
+            R2_parameters.x1_max = x1_max;
             
         end
         
@@ -5615,13 +5593,10 @@ classdef neuron_manager_class
             % Set the default input arguments.
             if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
             if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            transmission_parameters = cell( 1, 2 );
 
             % Pack the parameters.
-            transmission_parameters{ 1 } = c;
-            transmission_parameters{ 2 } = x1_max;
+            transmission_parameters.c = c;
+            transmission_parameters.x1_max = x1_max;
             
         end
         
@@ -5634,11 +5609,8 @@ classdef neuron_manager_class
             if nargin < 3, neurons = self.neurons; end
             if nargin < 2, R2 = self.get_neuron_property( neurons( 2 ).ID, 'R', true, neurons, undetected_option ); end
             
-            % Preallocate a cell array to store the parameters.
-            transmission_parameters = cell( 1, 1 );
-
             % Pack the parameters.
-            transmission_parameters{ 1 } = R2;
+            transmission_parameters.R2 = R2;
             
         end
         
@@ -6316,7 +6288,7 @@ classdef neuron_manager_class
 %             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
 %             if nargin < 4, neurons = self.neurons; end
 %             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-%             if nargin < 2, transmission_parameters = {  }; end
+%             if nargin < 2, transmission_parameters = struct( [  ] ); end
 %             
 %             % Determine how to create the parameters cell.
 %             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -6350,7 +6322,7 @@ classdef neuron_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_input_parameters = {  }; end
+            if nargin < 2, neuron_input_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -6380,7 +6352,7 @@ classdef neuron_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, neuron_input_parameters = {  }; end
+            if nargin < 2, neuron_input_parameters = struct( [  ] ); end
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
@@ -6537,7 +6509,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Pack the relative inversion R2 parameters.
-                reduced_inversion_R2_parameters = {  };
+                reduced_inversion_R2_parameters = struct( [  ] );
                 
             else                                                                                                            % Otherwise...
                 
@@ -6903,7 +6875,7 @@ classdef neuron_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, R1_parameters = {  }; end                                       	% [cell] Parameters Cell.
+            if nargin < 3, R1_parameters = struct( [  ] ); end                            	% [struct] Parameters Struct.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs.
             
             % Validate the neuron IDs.
@@ -6932,7 +6904,7 @@ classdef neuron_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, R2_parameters = {  }; end                                       	% [cell] Parameters Cell.
+            if nargin < 3, R2_parameters = struct( [  ] ); end                              % [struct] Parameters Struct.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [-] Neuron IDs.
             
             % Validate the neuron IDs.
@@ -9545,7 +9517,7 @@ classdef neuron_manager_class
                 % neuron_output_parameters = { R1, R2, Gna1, Gna2 }
             
             % Relative:
-                % neuron_input_parameters = {  }
+                % neuron_input_parameters = struct( [  ] )
                 % neuron_output_parameters = { Gna1, Gna2 }
             
             % Set the default input arguments.
@@ -9553,7 +9525,7 @@ classdef neuron_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, neuron_input_parameters = {  }; end                            	% [-] Design Parameters.
+            if nargin < 3, neuron_input_parameters = struct( [  ] ); end                            	% [-] Design Parameters.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [#] Neuron IDs.
             
             % Validate the neuron IDs.
@@ -9590,23 +9562,17 @@ classdef neuron_manager_class
             % Determine how to create the neuron output parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
                 
-                % Preallocate a cell to store the neuron output parameters.
-                neuron_output_parameters = cell( 1, 4 );
-                                
                 % Store the neuron output parameters.
-                neuron_output_parameters{ 1 } = R1;
-                neuron_output_parameters{ 2 } = R2;
-                neuron_output_parameters{ 3 } = Gnas( 1 );
-                neuron_output_parameters{ 4 } = Gnas( 2 );
+                neuron_output_parameters.R1 = R1;
+                neuron_output_parameters.R2 = R2;
+                neuron_output_parameters.Gna1 = Gnas( 1 );
+                neuron_output_parameters.Gna2 = Gnas( 2 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
-                
-                % Preallocate a cell to store the neuron output parameters.
-                neuron_output_parameters = cell( 1, 2 );
                                 
                 % Store the neuron output parameters.
-                neuron_output_parameters{ 1 } = Gnas( 1 );
-                neuron_output_parameters{ 2 } = Gnas( 2 );
+                neuron_output_parameters.Gna1 = Gnas( 1 );
+                neuron_output_parameters.Gna2 = Gnas( 2 );
                 
             else                                                    % Otherwise...
                 

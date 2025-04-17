@@ -51,11 +51,11 @@ encoding_scheme = 'absolute';
 network_utilities = network_utilities_class(  );
 
 % Define the transmission subnetwork parameters.
-c = 1.0;                                            % [-] Absolute Transmission Subnetwork Gain.
-% c = 2.0;                                            % [-] Absolute Transmission Subnetwork Gain.
+c = 1.0;                                                % [-] Absolute Transmission Subnetwork Gain.
+% c = 2.0;                                              % [-] Absolute Transmission Subnetwork Gain.
 
 % Define the desired mapping operation.
-f_desired = @( x ) network_utilities.compute_desired_transmission_sso( x, c );
+f_desired = @( x ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
 
 
 %% Define the Encoding & Decoding Operations.
@@ -74,14 +74,19 @@ f_decode = @( U ) U*( 10^3 );
 %% Define Absolute Transmission Subnetwork Parameters.
 
 % Define the transmission subnetwork design parameters.
-R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
+x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
 Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
 % Store the transmission subnetwork design parameters in a cell.
-transmission_parameters = { c, R1, Gm1, Gm2, Cm1, Cm2 };
+transmission_input_parameters.c = c;
+transmission_input_parameters.x1_max = x1_max;
+transmission_input_parameters.Gm1 = Gm1;
+transmission_input_parameters.Gm2 = Gm2;
+transmission_input_parameters.Cm1 = Cm1;
+transmission_input_parameters.Cm2 = Cm2;
 
 
 %% Define the Desired Input Signal.
@@ -110,7 +115,7 @@ Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 network = network_class( network_dt, network_tf );
 
 % Create a transmission subnetwork.
-[ c, Gnas, R2, dEs21, gs21, Ia2, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+[ transmission_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Create the input applied current.
 [ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID, input_current_name, input_current_to_neuron_ID, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
@@ -142,7 +147,7 @@ dt0 = 1e-6;                                                                     
 U1s = linspace( 0, Rs( 1 ), 100  )';
 
 % Compute the desired and achieved absolute transmission steady state output.
-U2s_desired = network.compute_da_transmission_sso( U1s, c, network.neuron_manager, undetected_option, network.network_utilities );
+U2s_desired = network.compute_encoded_desired_absolute_transmission_sso( U1s, c, network.network_utilities );
 [ U2s_achieved_theoretical, As, dts, condition_numbers ] = network.achieved_transmission_RK4_stability_analysis( U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
 
 % Store the desired and theoretically achieved absolute transmission steady state results in arrays.
@@ -272,8 +277,8 @@ end
 %% Compute the Absolute Transmission Desired & Achieved (Theory) Network Output.
 
 % Compute the encoded desired and achieved (theory) result output.
-Us_desired_output = network.compute_da_transmission_sso( Us_achieved_numerical( :, 1 ), c, network.neuron_manager, undetected_option, network.network_utilities );
-Us_achieved_theoretical_output = network.compute_achieved_transmission_sso( Us_achieved_numerical( :, 1 ), Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ), network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
+Us_desired_output = network.compute_encoded_desired_absolute_transmission_sso( Us_achieved_numerical( :, 1 ), c, network.network_utilities );
+Us_achieved_theoretical_output = network.compute_encoded_achieved_transmission_sso( Us_achieved_numerical( :, 1 ), Rs( 1 ), Gms( 2 ), gs( 2, 1 ), dEs( 2, 1 ), Ias( 2 ), network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
 
 % Compute the encoded desired and achieved (theory) result.
 Us_desired = Us_achieved_numerical; Us_desired( :, end ) = Us_desired_output;
@@ -291,10 +296,10 @@ ys_achieved_theoretical = f_decode( Us_achieved_theoretical( :, 2 ) );
 %% Compute the Absolute Transmission Network Error.
 
 % Compute the error between the encoded theoretical output and the desired output.
-[ errors_theoretical_encoded, error_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_theoretical, Us_desired, R2 );
+[ errors_theoretical_encoded, error_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_theoretical, Us_desired, Rs( 2 ) );
 
 % Compute the error between the encoded numerical output and the desired output.
-[ errors_numerical_encoded, error_percentages_numerical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_numerical_encoded, error_min_percentage_numerical_encoded, index_min_numerical_encoded, error_max_numerical_encoded, error_max_percentage_numerical_encoded, index_max_numerical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_numerical, Us_desired, R2 );
+[ errors_numerical_encoded, error_percentages_numerical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_numerical_encoded, error_min_percentage_numerical_encoded, index_min_numerical_encoded, error_max_numerical_encoded, error_max_percentage_numerical_encoded, index_max_numerical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_numerical, Us_desired, Rs( 2 ) );
 
 % Compute the error between the decoded theoretical output and the desired output.
 [ errors_theoretical_decoded, error_percentages_theoretical_decoded, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, index_min_theoretical_decoded, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, index_max_theoretical_decoded, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded ] = network.numerical_method_utilities.compute_error_statistics( ys_achieved_theoretical, ys_desired, y_max );

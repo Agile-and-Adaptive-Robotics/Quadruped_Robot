@@ -54,7 +54,7 @@ network_utilities = network_utilities_class(  );
 c = 2.0;            % [-] Subnetwork Gain.
 
 % Define the desired mapping operation.
-f_desired = @( x ) network_utilities.compute_desired_transmission_sso( x, c );
+f_desired = @( x ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
 
 
 %% Define the Encoding & Decoding Operations.
@@ -73,17 +73,23 @@ f_decode = @( U, R_encode, R_decode ) ( R_decode./R_encode ).*U;
 %% Define Relative Transmission Subnetwork Parameters.
 
 % Define the transmission subnetwork design parameters.
+x1_max = 20;
 R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
 Gm2 = 1e-6;                                         % [S] Membrane Conductance (Neuron 2).
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
-% Cm1 = 30e-9;                                      % [F] Membrane Capacitance (Neuron 1).
-% Cm2 = 30e-9;                                      % [F] Membrane Capacitance (Neuron 2).
-
+ 
 % Store the transmission subnetwork design parameters in a cell.
-transmission_parameters = { R1, R2, Gm1, Gm2, Cm1, Cm2 };
+transmission_input_parameters.c = c;
+transmission_input_parameters.x1_max = x1_max;
+transmission_input_parameters.R1 = R1;
+transmission_input_parameters.R2 = R2;
+transmission_input_parameters.Gm1 = Gm1;
+transmission_input_parameters.Gm2 = Gm2;
+transmission_input_parameters.Cm1 = Cm1;
+transmission_input_parameters.Cm2 = Cm2;
 
 
 %% Define the Desired Input Signal.
@@ -112,7 +118,7 @@ Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 network = network_class( network_dt, network_tf );
 
 % Create a transmission subnetwork.
-[ c, Gnas, R2, dEs21, gs21, Ia2, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+[ transmission_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Create the input applied current.
 [ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID, input_current_name, input_current_to_neuron_ID, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
@@ -144,7 +150,7 @@ dt0 = 1e-6;                                                                     
 U1s = linspace( 0, Rs( 1 ), 100  )';
 
 % Compute the desired and achieved absolute transmission steady state output.
-U2s_desired = network.compute_dr_transmission_sso( U1s, c, R1, R2, network.neuron_manager, undetected_option, network.network_utilities );
+U2s_desired = network.compute_encoded_desired_relative_transmission_sso( U1s, R1, R2, network.neuron_manager, undetected_option, network.network_utilities );
 [ U2s_achieved_theoretical, As, dts, condition_numbers ] = network.achieved_transmission_RK4_stability_analysis( U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
 
 % Store the desired and theoretically achieved absolute transmission steady state results in arrays.
@@ -274,8 +280,8 @@ end
 %% Compute the Relative Transmission Desired & Achieved (Theory) Network Output.
 
 % Compute the desired membrane voltage output.
-Us_desired_output = network.compute_dr_transmission_sso( Us_achieved_numerical( :, 1 ), c, Rs( 1 ), Rs( 2 ), network.neuron_manager, undetected_option, network.network_utilities );
-Us_achieved_theoretical_output = network.compute_achieved_transmission_sso( Us_achieved_numerical( :, 1 ), Rs( 1 ), Gms( 2 ), Ias( 2 ), gs( 2, 1 ), dEs( 2, 1 ), network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
+Us_desired_output = network.compute_encoded_desired_relative_transmission_sso( Us_achieved_numerical( :, 1 ), Rs( 1 ), Rs( 2 ), network.neuron_manager, undetected_option, network.network_utilities );
+Us_achieved_theoretical_output = network.compute_encoded_achieved_transmission_sso( Us_achieved_numerical( :, 1 ), Rs( 1 ), Gms( 2 ), gs( 2, 1 ), dEs( 2, 1 ), Ias( 2 ), network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
 
 % Compute the desired membrane voltage output.
 Us_desired = Us_achieved_numerical; Us_desired( :, end ) = Us_desired_output;
@@ -407,5 +413,4 @@ plot( xs_achieved_theoretical, error_percentages_theoretical_decoded, '-', 'Line
 plot( xs_achieved_numerical, error_percentages_numerical_decoded, '--', 'Linewidth', 3 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'relative_transmission_ss_response_error_percentage_decoded' ] )
-
 

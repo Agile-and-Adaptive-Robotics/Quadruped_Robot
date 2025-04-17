@@ -266,6 +266,42 @@ classdef numerical_method_utilities_class
         end
         
         
+        %% Structure Functions.
+        
+        % Implement a function that concatenates two structures.
+        function C = concatenate_two_structures( ~, A, B )
+        
+            B_fieldnames = fieldnames( B );
+            
+            num_B_fields = length( B_fieldnames );
+            
+            C = A;
+            
+            for k = 1:num_B_fields
+               
+                C.( B_fieldnames{ k } ) = B.( B_fieldnames{ k } );
+                
+            end
+            
+        end
+            
+        
+        % Implement a function that concatenates a cell of structures.
+        function new_struct = concatenate_structures( self, structures )
+        
+            num_structures = length( structures );
+            
+            new_struct = structures{ 1 };
+            
+            for k = 1:( num_structures - 1 )
+            
+                new_struct = self.concatenate_two_structures( new_struct, structures{ k + 1 } );
+            
+            end
+            
+        end
+        
+        
         %% Printing Functions.
         
         % Implement a function to print summary statistics.
