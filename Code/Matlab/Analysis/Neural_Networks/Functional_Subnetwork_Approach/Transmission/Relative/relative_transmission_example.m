@@ -37,36 +37,15 @@ integration_method = 'RK4';                         % [str] Integration Method (
 % Define the encoding scheme.
 encoding_scheme = 'relative';
 
-
-%% Define the Desired Transmission Subnetwork Parameters.
-
 % Create an instance of the network utilities class.
 network_utilities = network_utilities_class(  );
-
-% Define the transmission subnetwork parameters.
-c = 1.0;            % [-] Subnetwork Gain.
-
-% Define the desired mapping operation.
-f_desired = @( x ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
-
-
-%% Define the Encoding & Decoding Operations.
-
-% Define the domain of the input and output signals.
-x_max = 20;
-y_max = f_desired( x_max );
-
-% Define the encoding operation.
-f_encode = @( x, R_encode, R_decode ) ( R_encode./R_decode ).*x;
-
-% Define the decoding operations.
-f_decode = @( U, R_encode, R_decode ) ( R_decode./R_encode ).*U;
 
 
 %% Define Relative Transmission Subnetwork Design Parameters.
 
 % Define the transmission subnetwork design parameters.
-x1_max = 20;
+c = 1.0;                                            % [-] Subnetwork Gain.
+x1_max = 20;                                        % [-] Maximum Decoded Input.
 R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -85,13 +64,24 @@ transmission_input_parameters.Cm1 = Cm1;
 transmission_input_parameters.Cm2 = Cm2;
 
 
+%% Define the Encoding & Decoding Operations.
+
+% Define the encoding maps.
+f_encode1 = @( x1 ) network_utilities.encode_relative_transmission_input( x1, x1_max, R1 );
+f_encode2 = @( x2 ) network_utilities.encode_relative_transmission_output( x2, c, x1_max, R2 );
+
+% Define the decoding maps.
+f_decode1 = @( U1 ) network_utilities.decode_relative_transmission_input( U1, x1_max, R1 );
+f_decode2 = @( U2 ) network_utilities.decode_relative_transmission_output( U2, c, x1_max, R2 );
+
+
 %% Define the Desired Input Signal.
 
 % Define the desired input signal.
-xs_desired = x_max*ones( n_timesteps, 1 );
+xs1_desired = x1_max*ones( n_timesteps, 1 );
 
 % Encode the input signal.
-Us1_desired = f_encode( xs_desired, R1, x_max );
+Us1_desired = f_encode1( xs1_desired );
 
 
 %% Define the Relative Transmission Subnetwork Input Current Parameters.
@@ -170,10 +160,13 @@ toc
 %% Decode the Relative Transmission Subnetwork Output.
 
 % Decode the network input.
-xs = f_decode( Us( 1, : ), R1, x_max );
+xs1 = f_decode1( Us( 1, : ) );
 
 % Decode the network output.
-ys = f_decode( Us( 2, : ), R2, y_max );
+xs2 = f_decode2( Us( 2, : ) );
+
+% Concatenate the decoded input and output.
+Xs = [ xs1; xs2 ];
 
 
 %% Plot the Relative Transmission Subnetwork Results.
@@ -196,8 +189,8 @@ saveas( fig_network_encoded, [ save_directory, '\', 'relative_transmission_examp
 
 % Plot the decoded network input and output over time.
 fig_network_decoded = figure( 'Color', 'w', 'Name', 'RT: Decoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'RT: Decoded Input & Output [-]' ), title( 'RT: Decoded Input & Output vs Time' )
-plot( ts, xs, '-', 'Linewidth', 3 )
-plot( ts, ys, '-', 'Linewidth', 3 )
+plot( ts, Xs( 1, : ), '-', 'Linewidth', 3 )
+plot( ts, Xs( 2, : ), '-', 'Linewidth', 3 )
 legend( 'Input', 'Output' )
 saveas( fig_network_decoded, [ save_directory, '\', 'relative_transmission_example_decoded' ] )
 
@@ -208,7 +201,7 @@ saveas( fig_network_encoded, [ save_directory, '\', 'relative_transmission_dynam
 
 % Plot the decoded network input and output.
 fig_network_decoded = figure( 'Color', 'w', 'Name', 'RT: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input, x [-]' ), ylabel( 'Decoded Output, y [-]' ), title( 'RT: Decoded Output vs Decoded Input' )
-plot( xs, ys, '-', 'Linewidth', 3 )
+plot( Xs( 1, : ), Xs( 2, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_decoded, [ save_directory, '\', 'relative_transmission_dynamic_example_decoded' ] )
 
 % Animate the network states over time.

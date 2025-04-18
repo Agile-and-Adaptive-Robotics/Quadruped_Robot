@@ -2574,6 +2574,141 @@ classdef network_utilities_class
         end
         
         
+        %% Encoding & Decoding Maps.
+        
+        % ---------- Transmission Subnetwork Functions ----------
+
+        % Implement a function to encode the absolute transmission input.
+        function U1 = encode_absolute_transmission_input( ~, x1 )
+        
+            % Encode the input.
+            U1 = x1;
+        
+        end
+        
+            
+        % Implement a function to encode the absolute transmission output.
+        function U2 = encode_absolute_transmission_output( ~, x2 )
+           
+            % Encode the output.
+            U2 = x2;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute transmission input.
+        function x1 = decode_absolute_transmission_input( ~, U1 )
+        
+            % Decode the input.
+            x1 = U1;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute transmission output.
+        function x2 = decode_absolute_transmission_output( ~, U2 )
+            
+           % Decode the output.
+           x2 = U2;
+            
+        end
+        
+        
+        % Implement a function to encode the relative transmission input.
+        function U1 = encode_relative_transmission_input( ~, x1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Encode the input.
+            U1 = ( R1./x1_max ).*x1;
+            
+        end
+
+        
+        % Implement a function to encode the relative transmission output.
+        function U2 = encode_relative_transmission_output( ~, x2, c, x1_max, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            if nargin < 3, c = self.c_DEFAULT; end
+            
+            % Encode the output.
+            U2 = ( R2./( c.*x1_max ) ).*x2;
+            
+        end
+        
+        
+        % Implement a function to decode the relative transmission input.
+        function x1 = decode_relative_transmission_input( ~, U1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Decode the input.
+            x1 = ( x1_max./R1 ).*U1;
+            
+        end
+        
+        
+        % Implement a function to decode the relative transmission output.
+        function x2 = decode_relative_transmission_output( ~, U2, c, x1_max, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            if nargin < 3, c = self.c_DEFAULT; end
+            
+            % Decode the output.
+            x2 = ( ( c.*x1_max )./R2 ).*U2;
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        
+        
         %% Network Functions.
         
         % Implement a function to compute the linearized system matrix for a neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)

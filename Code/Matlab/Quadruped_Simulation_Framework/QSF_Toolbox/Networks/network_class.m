@@ -2,6 +2,7 @@ classdef network_class
     
     % This class contains properties and methods related to networks.
     
+    
     %% NETWORK PROPERTIES
     
     % Define the class properties.
@@ -6499,10 +6500,12 @@ classdef network_class
         
         
         % Implement a function to unpack the output parameters for an absolute transmission subnetwork.
-        function [ c, x1_max, Gm1, Gm2, Cm1, Cm2 ] = unpack_absolute_transmission_output_parameters( self, transmission_output_parameters, neuron_manager, undetected_option )
-            
+        function [ x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2 ] = unpack_absolute_transmission_output_parameters( self, transmission_output_parameters, neuron_manager, synapse_manager, applied_current_manager, undetected_option )
+                        
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
             if nargin < 2, transmission_output_parameters = struct( [  ] ); end
             
@@ -6510,22 +6513,26 @@ classdef network_class
             if isempty( transmission_output_parameters )                   % If the parameters are empty...
                  
                 % Set the parameters to default values.
-                c = self.c_absolute_transmission_DEFAULT;
-                x1_max = self.x1_max_absolute_transmission_DEFAULT;
-                Gm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
-                Gm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
-                Cm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
-                Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
+                x2_max = self.x2max_absolute_transmission_DEFAULT;
+                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
+                R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
+                Gna1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option );
+                Gna2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option );
+                dEs21 = self.get_dEs( 'all', neuron_manager, synapse_manager ); dEs21 = dEs21( 2, 1 );                                                                      % [V] Synaptic Reversal Potential.
+                gs21 = self.get_gs( 'all', neuron_manager, synapse_manager ); gs21 = gs21( 2, 1 );                                                                          % [S] Synaptic Conductance.
+                Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( fieldnames( transmission_output_parameters ) ) == 6           % If there are a specific number of parameters...
+            elseif length( fieldnames( transmission_output_parameters ) ) == 8           % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c = transmission_output_parameters.c;
-                x1_max = transmission_output_parameters.x1_max;
-                Gm1 = transmission_output_parameters.Gm1;
-                Gm2 = transmission_output_parameters.Gm2;
-                Cm1 = transmission_output_parameters.Cm1;
-                Cm2 = transmission_output_parameters.Cm2;
+                x2_max = transmission_output_parameters.x2_max;
+                R1 = transmission_output_parameters.R1;
+                R2 = transmission_output_parameters.R2;
+                Gna1 = transmission_output_parameters.Gna1;
+                Gna2 = transmission_output_parameters.Gna2;
+                dEs21 = transmission_output_parameters.dEs21;
+                gs21 = transmission_output_parameters.gs21;
+                Ia2 = transmission_output_parameters.Ia2;
                 
             else                                                    % Otherwise...
                 
@@ -6538,7 +6545,44 @@ classdef network_class
         
         
         % Implement a function to unpack the output parameters for a relative transmission subnetwork.
-        
+        function [ x2_max, Gna1, Gna2, dEs21, gs21, Ia2 ] = unpack_relative_transmission_output_parameters( self, transmission_output_parameters, neuron_manager, synapse_manager, applied_current_manager, undetected_option )
+                        
+            % Set the default input arguments.
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, applied_current_manager = self.applied_current_manager; end
+            if nargin < 4, synapse_manager = self.synapse_manager; end
+            if nargin < 3, neuron_manager = self.neuron_manager; end
+            if nargin < 2, transmission_output_parameters = struct( [  ] ); end
+            
+            % Determine how to unpack the parameters.
+            if isempty( transmission_output_parameters )                                % If the parameters are empty...
+                 
+                % Set the parameters to default values.
+                x2_max = self.x2max_absolute_transmission_DEFAULT;
+                Gna1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option );
+                Gna2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option );
+                dEs21 = self.get_dEs( 'all', neuron_manager, synapse_manager ); dEs21 = dEs21( 2, 1 );                                                                      % [V] Synaptic Reversal Potential.
+                gs21 = self.get_gs( 'all', neuron_manager, synapse_manager ); gs21 = gs21( 2, 1 );                                                                          % [S] Synaptic Conductance.
+                Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
+                
+            elseif length( fieldnames( transmission_output_parameters ) ) == 6           % If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                x2_max = transmission_output_parameters.x2_max;
+                Gna1 = transmission_output_parameters.Gna1;
+                Gna2 = transmission_output_parameters.Gna2;
+                dEs21 = transmission_output_parameters.dEs21;
+                gs21 = transmission_output_parameters.gs21;
+                Ia2 = transmission_output_parameters.Ia2;
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
         
         
         %{
@@ -19431,7 +19475,165 @@ classdef network_class
             
         end
         
+        
+        %% Encoding & Decoding Maps.
+        
+        % ---------- Transmission Subnetwork Functions ----------
 
+        % Implement a function to encode the absolute transmission input.
+        function U1 = encode_absolute_transmission_input( ~, x1, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
+            
+            % Encode the input.
+            U1 = network_utilities.encode_absolute_transmission_input( x1 );
+        
+        end
+        
+            
+        % Implement a function to encode the absolute transmission output.
+        function U2 = encode_absolute_transmission_output( ~, x2, network_utilities )
+           
+            % Set the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
+            
+            % Encode the output.
+            U2 = network_utilities.encode_absolute_transmission_output( x2 );
+            
+        end
+        
+        
+        % Implement a function to decode the absolute transmission input.
+        function x1 = decode_absolute_transmission_input( ~, U1, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
+            
+            % Decode the input.
+            x1 = network_utilities.decode_absolute_transmission_input( U1 );
+            
+        end
+        
+        
+        % Implement a function to decode the absolute transmission output.
+        function x2 = decode_absolute_transmission_output( ~, U2, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 3, network_utilities = self.network_utilities; end
+            
+            % Decode the output.
+            x2 = network_utilities.decode_absolute_transmission_output( U2 );
+            
+        end
+        
+        
+        % Implement a function to encode the relative transmission input.
+        function U1 = encode_relative_transmission_input( ~, x1, x1_max, R1, neuron_manager, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, x1_max = self.x1max_relative_transmission_DEFAULT; end
+            
+            % Encode the input.
+            U1 = network_utilities.encode_relative_transmission_input( x1, x1_max, R1 );
+            
+        end
+
+        
+        % Implement a function to encode the relative transmission output.
+        function U2 = encode_relative_transmission_output( ~, x2, c, x1_max, R2, neuron_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( end ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, x1_max = self.x1max_relative_transmission_DEFAULT; end
+            if nargin < 3, c = self.c_relative_transmission_DEFAULT; end
+            
+            % Encode the output.
+            U2 = network_utilities.encode_relative_transmission_output( x2, c, x1_max, R2 );
+            
+        end
+        
+        
+        % Implement a function to decode the relative transmission input.
+        function x1 = decode_relative_transmission_input( ~, U1, x1_max, R1, neuron_manager, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 7, network_utilities = self.network_utilities; end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, neuron_manager = self.neuron_manager; end
+            if nargin < 4, R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, x1_max = self.x1max_relative_transmission_DEFAULT; end
+            
+            % Decode the input.
+            x1 = network_utilities.decode_relative_transmission_input( U1, x1_max, R1 );
+            
+        end
+        
+        
+        % Implement a function to decode the relative transmission output.
+        function x2 = decode_relative_transmission_output( ~, U2, c, x1_max, R2, neuron_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 8, network_utilities = self.network_utilities; end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, neuron_manager = self.neuron_manager; end
+            if nargin < 5, R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( end ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, x1_max = self.x1max_relative_transmission_DEFAULT; end
+            if nargin < 3, c = self.c_relative_transmission_DEFAULT; end
+            
+            % Decode the output.
+            x2 = network_utilities.decode_relative_transmission_output( U2, c, x1_max, R2 );
+            
+        end
+        
+        
+        % ---------- Addition Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Subtraction Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Division Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        
+        
+        % ---------- Reduced Division Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Division After Inversion Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Multiplication Subnetwork Functions ----------
+        
+        
+        
+        % ---------- Reduced Multiplication Subnetwork Functions ----------
+        
+        
+        
         %% Simulation Functions.
         
         % Implement a function to compute a single network simulation step.
@@ -19741,21 +19943,19 @@ classdef network_class
         
                 
         % Implement a function to simulate decoded steady state network results for multiple sets of decoded input signals.
-        function [ xs_numerical, Us_numerical, Ias_magnitude ] = compute_steady_state_simulation_decoded( self, dt, tf, integration_method, input_current_ID, xs_numerical_input, f_encode, encode_parameters, f_decode, decode_parameters, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
+        function [ xs_numerical, Us_numerical, Ias_magnitude ] = compute_steady_state_simulation_decoded( self, dt, tf, integration_method, input_current_ID, xs_numerical_input, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
         
             % Set the default simulation duration.
-            if nargin < 18, network_utilities = self.network_utilities; end                                                                                                                                         % [class] Network Utilities Class.
-            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end                                                                                                                                 % [str] Undetected Option.
-            if nargin < 16, process_option = self.process_option_DEFAULT; end                                                                                                                                       % [str] Process Option.
-            if nargin < 15, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                                                                                                           % [T/F] Filter Disabled Flag.
-            if nargin < 14, applied_voltage_manager = self.applied_voltage_manager; end                                                                                                                             % [class] Applied Voltage Manager Class.
-            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                                                                                                              % [class] Applied Current Manager Class.
-            if nargin < 12, synapse_manager = self.synapse_manager; end                                                                                                                                              % [class] Synapse Manager Class.
-            if nargin < 11, neuron_manager = self.neuron_manager; end                                                                                                                                                % [class] Neuron Manager Class.
-            if nargin < 10, decode_parameters = {  }; end
-            if nargin < 9, f_decode = @( xs, parameters ) zeros( size( xs ) ); end
-            if nargin < 8, encode_parameters = {  }; end
-            if nargin < 7, f_encode = @( xs, parameters ) zeros( size( xs ) ); end
+            if nargin < 16, network_utilities = self.network_utilities; end                                                                                                                                         % [class] Network Utilities Class.
+            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                                                                                                                 % [str] Undetected Option.
+            if nargin < 14, process_option = self.process_option_DEFAULT; end                                                                                                                                       % [str] Process Option.
+            if nargin < 13, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end                                                                                                                           % [T/F] Filter Disabled Flag.
+            if nargin < 12, applied_voltage_manager = self.applied_voltage_manager; end                                                                                                                             % [class] Applied Voltage Manager Class.
+            if nargin < 11, applied_current_manager = self.applied_current_manager; end                                                                                                                             % [class] Applied Current Manager Class.
+            if nargin < 10, synapse_manager = self.synapse_manager; end                                                                                                                                             % [class] Synapse Manager Class.
+            if nargin < 9, neuron_manager = self.neuron_manager; end                                                                                                                                                % [class] Neuron Manager Class.
+            if nargin < 8, f_decode_output = @( xs ) zeros( size( xs ) ); end
+            if nargin < 7, f_encode_input = @( xs ) zeros( size( xs ) ); end
             if nargin < 6, xs_numerical_input = zeros( 1, 1 ); end                                                                                                                                                  % [V] Encoded Input (Target Voltage for Input Neurons).
             if nargin < 5, input_current_ID = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
             if nargin < 4, integration_method = 'RK4'; end                                                                                                                                                          % [str] Integration Method.
@@ -19763,7 +19963,7 @@ classdef network_class
             if nargin < 2, dt = self.dt; end     
                         
             % Compute the encoded input signals.
-            Us_numerical_input = f_encode( xs_numerical_input, encode_parameters );
+            Us_numerical_input = f_encode_input( xs_numerical_input );
             
             % Compute the encoded steady state simulation results.
             [ Us_numerical, Ias_magnitude ] = self.compute_steady_state_simulation_encoded( dt, tf, integration_method, input_current_ID, Us_numerical_input, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities );
@@ -19772,7 +19972,7 @@ classdef network_class
             xs_numerical = [ xs_numerical_input, zeros( size( xs_numerical_input, 1 ), 1 ) ];
             
             % Compute the decoded output signals.
-            xs_numerical( :, 2 ) = f_decode( Us_numerical( :, 2 ), decode_parameters );
+            xs_numerical( :, 2 ) = f_decode_output( Us_numerical( :, 2 ) );
             
         end
         

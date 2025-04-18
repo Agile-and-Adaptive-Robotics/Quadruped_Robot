@@ -6281,6 +6281,8 @@ classdef neuron_manager_class
         
         % ---------- Transmission Subnetwork Functions ----------
 
+        
+        %{
 %         % Implement a function to convert transmission parameters to transmission R2 design parameters.
 %         function transmission_R2_parameters = transmission_parameters2transmission_R2_parameters( self, transmission_parameters, encoding_scheme, neurons, undetected_option )
 %         
@@ -6315,6 +6317,7 @@ classdef neuron_manager_class
 %             end
 %             
 %         end
+        %}
         
         
         % Implement a function to convert the transmission neuron input parameters to transmission R1 design parameters.

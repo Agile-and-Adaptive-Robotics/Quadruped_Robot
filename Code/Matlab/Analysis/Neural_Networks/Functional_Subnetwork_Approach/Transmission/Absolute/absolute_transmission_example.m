@@ -36,42 +36,21 @@ integration_method = 'RK4';                         % [str] Integration Method (
 % Define the encoding scheme.
 encoding_scheme = 'absolute';
 
-
-%% Define the Desired Transmission Subnetwork Parameters.
-
 % Create an instance of the network utilities class.
 network_utilities = network_utilities_class(  );
-
-% Define the transmission subnetwork parameters.
-c = 1.0;                                            % [-] Absolute Transmission Subnetwork Gain.
-
-% Define the desired mapping operation.
-f_desired = @( x ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
-
-
-%% Define the Encoding & Decoding Operations.
-
-% Define the domain of the input and output signals.
-x_max = 20;
-y_max = f_desired( x_max );
-
-% Define the encoding scheme.
-f_encode = @( x ) x*( 10^( -3 ) );
-
-% Define the decoding scheme.
-f_decode = @( U ) U*( 10^3 );
 
 
 %% Define Additional Absolute Transmission Design Subnetwork Parameters.
 
 % Define the transmission subnetwork design parameters.
+c = 1.0;                                            % [-] Absolute Transmission Subnetwork Gain.
 x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
 Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters in a cell.
+% Store the transmission subnetwork design parameters in a structure.
 transmission_input_parameters.c = c;
 transmission_input_parameters.x1_max = x1_max;
 transmission_input_parameters.Gm1 = Gm1;
@@ -80,13 +59,24 @@ transmission_input_parameters.Cm1 = Cm1;
 transmission_input_parameters.Cm2 = Cm2;
 
 
+%% Define the Encoding & Decoding Operations.
+
+% Define the encoding maps.
+f_encode1 = @( x1 ) network_utilities.encode_absolute_transmission_input( x1 );
+f_encode2 = @( x2 ) network_utilities.encode_absolute_transmission_output( x2 );
+
+% Define the decoding maps.
+f_decode1 = @( U1 ) network_utilities.decode_absolute_transmission_input( U1 );
+f_decode2 = @( U2 ) network_utilities.decode_absolute_transmission_output( U2 );
+
+
 %% Define the Desired Input Signal.
 
 % Define the desired decoded input signal.
-xs_desired = x_max*ones( n_timesteps, 1 );
+xs1_desired = x1_max*ones( n_timesteps, 1 );
 
 % Encode the input signal.
-Us1_desired = f_encode( xs_desired );
+Us1_desired = f_encode1( xs1_desired );
 
 
 %% Define the Absolute Transmission Subnetwork Input Current Parameters.
@@ -165,10 +155,13 @@ toc
 %% Decode the Absolute Transmission Subnetwork Output.
 
 % Decode the network input.
-xs = f_decode( Us( 1, : ) );
+xs1 = f_decode1( Us( 1, : ) );
 
 % Decode the network output.
-ys = f_decode( Us( 2, : ) );
+xs2 = f_decode2( Us( 2, : ) );
+
+% Concatenate the decoded input and output.
+Xs = [ xs1; xs2 ];
 
 
 %% Plot the Absolute Transmission Subnetwork Results.
@@ -191,8 +184,8 @@ saveas( fig_network_encoded, [ save_directory, '\', 'absolute_transmission_examp
 
 % Plot the decoded network input and output over time.
 fig_network_decoded = figure( 'Color', 'w', 'Name', 'AT: Decoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'AT: Decoded Input & Output [-]' ), title( 'AT: Decoded Input & Output vs Time' )
-plot( ts, xs, '-', 'Linewidth', 3 )
-plot( ts, ys, '-', 'Linewidth', 3 )
+plot( ts, Xs( 1, : ), '-', 'Linewidth', 3 )
+plot( ts, Xs( 2, : ), '-', 'Linewidth', 3 )
 legend( 'Decoded Input', 'Decoded Output' )
 saveas( fig_network_decoded, [ save_directory, '\', 'absolute_transmission_example_decoded' ] )
 
@@ -203,7 +196,7 @@ saveas( fig_network_encoded, [ save_directory, '\', 'absolute_transmission_dynam
 
 % Plot the decoded network input and output.
 fig_network_decoding = figure( 'Color', 'w', 'Name', 'AT: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input [-]' ), ylabel( 'Decoded Output [-]' ), title( 'AT: Decoded Output vs Decoded Input' )
-plot( xs, ys, '-', 'Linewidth', 3 )
+plot( Xs( 1, : ), Xs( 2, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_decoding, [ save_directory, '\', 'absolute_transmission_dynamic_example_decoded' ] )
 
 % Animate the network states over time.

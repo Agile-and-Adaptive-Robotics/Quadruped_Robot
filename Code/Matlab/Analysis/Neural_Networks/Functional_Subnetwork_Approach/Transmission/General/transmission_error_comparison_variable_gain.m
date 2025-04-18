@@ -14,6 +14,7 @@ load_directory = '.\Load';                        	% [str] Load Directory.
 % simulate_flag = false;                            % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 
 % Set the level of verbosity.
+verbose_flag = true;                            	% [T/F] Printing Flag. (Determines whether to print out information.)
 
 % Define the undetected option.
 undetected_option = 'Error';                        % [str] Undetected Option.
@@ -302,7 +303,7 @@ for k = 1:n_gains               % Iterate through each of the gains...
     c = cs( k );
     
     % Define the desired mapping operation.
-    f_desired = @( x, c ) network_utilities.compute_desired_transmission_sso( x, c );
+    f_desired = @( x, c ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
     
     % Define the domain of the input and output signals.
     x_max_input = 20;

@@ -50,49 +50,27 @@ numerical_method_utilities = numerical_method_utilities_class(  );
 plotting_utilities = plotting_utilities_class(  );
 
 
-%% Define the Desired Transmission Subnetwork Parameters.
-
-% Define the subnetwork gain.
-c = 3.0;
-
-% Define the desired mapping operation.
-f_desired = @( x, c ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
-
-% Define the domain of the input and output signals.
-x_max_input = 20;
-x_max_output = f_desired( x_max_input, c );
-
-
-%% Define the Encoding & Decoding Operations.
-
-% Define the encoding operations.
-f_encode_absolute = @( x ) x*( 10^( -3 ) );
-f_encode_relative = @( x, R_encode, R_decode ) ( R_encode./R_decode ).*x;
-
-% Define the decoding operations.
-f_decode_absolute = @( U ) U*( 10^3 );
-f_decode_relative = @( U, R_encode, R_decode ) ( R_decode./R_encode ).*U;
-
-
 %% Define Transmission Subnetwork Parameters.
 
+% Define the subnetwork gain (shared by both encoding schemes).
+c = 3.0;
+x1_max = 20e-3;                                             % [-] Maximum Encoded Input.
+
 % Define the transmission subnetwork design parameters.
-x1max_absolute = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
-Gm1_absolute = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
-Gm2_absolute = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
-Cm1_absolute = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
-Cm2_absolute = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
+Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
+Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
+Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
+Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
 
 % Store the transmission subnetwork design parameters in a cell.
 absolute_transmission_input_parameters.c = c;
-absolute_transmission_input_parameters.x1_max = x1max_absolute;
+absolute_transmission_input_parameters.x1_max = x1_max;
 absolute_transmission_input_parameters.Gm1 = Gm1_absolute;
 absolute_transmission_input_parameters.Gm2 = Gm2_absolute;
 absolute_transmission_input_parameters.Cm1 = Cm1_absolute;
 absolute_transmission_input_parameters.Cm2 = Cm2_absolute;
 
 % Define the transmission subnetwork design parameters.
-x1max_relative = 20;
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -102,13 +80,36 @@ Cm2_relative = 5e-9;                                         % [F] Membrane Capa
  
 % Store the transmission subnetwork design parameters in a cell.
 relative_transmission_input_parameters.c = c;
-relative_transmission_input_parameters.x1_max = x1max_relative;
+relative_transmission_input_parameters.x1_max = x1_max;
 relative_transmission_input_parameters.R1 = R1_relative;
 relative_transmission_input_parameters.R2 = R2_relative;
 relative_transmission_input_parameters.Gm1 = Gm1_relative;
 relative_transmission_input_parameters.Gm2 = Gm2_relative;
 relative_transmission_input_parameters.Cm1 = Cm1_relative;
 relative_transmission_input_parameters.Cm2 = Cm2_relative;
+
+
+%% Define the Encoding & Decoding Operations.
+
+% Define the absolute encoding maps.
+f_encode1_absolute = @( x1 ) network_utilities.encode_absolute_transmission_input( x1 );
+f_encode2_absolute = @( x2 ) network_utilities.encode_absolute_transmission_output( x2 );
+f_encode_absolute = @( Xs ) [ f_encode1_absolute( Xs( :, 1 ) ), f_encode2_absolute( Xs( :, 2 ) ) ];
+
+% Define the absolute decoding maps.
+f_decode1_absolute = @( U1 ) network_utilities.decode_absolute_transmission_input( U1 );
+f_decode2_absolute = @( U2 ) network_utilities.decode_absolute_transmission_output( U2 );
+f_decode_absolute = @( Us ) [ f_decode1_absolute( Us( :, 1 ) ), f_decode2_absolute( Us( :, 2 ) ) ];
+
+% Define the relative encoding maps.
+f_encode1_relative = @( x1 ) network_utilities.encode_relative_transmission_input( x1, x1_max, R1_relative );
+f_encode2_relative = @( x2 ) network_utilities.encode_relative_transmission_output( x2, c, x1_max, R2_relative );
+f_encode_relative = @( Xs ) [ f_encode1( Xs( :, 1 ) ), f_encode2( Xs( :, 2 ) ) ];
+
+% Define the relative decoding maps.
+f_decode1_relative = @( U1 ) network_utilities.decode_relative_transmission_input( U1, x1_max, R1_relative );
+f_decode2_relative = @( U2 ) network_utilities.decode_relative_transmission_output( U2, c, x1_max, R2_relative );
+f_decode_relative = @( Us ) [ f_decode1_relative( Us( :, 1 ) ), f_decode2_relative( Us( :, 2 ) ) ];
 
 
 %% Define the Absolute & Relative Transmission Subnetwork Input Currents.
@@ -141,7 +142,8 @@ network_relative = network_class( network_dt, network_tf );
 [ relative_transmission_output_parameters, neurons_relative, synapses_relative, neuron_manager_relative, synapse_manager_relative, network_relative ] = network_relative.create_transmission_subnetwork( relative_transmission_input_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
 
 % Unpack the transmission subnetwork output parameters.
-
+[ x2max_absolute, R1_absolute, R2_absolute, Gna1_absolute, Gna2_absolute, dEs21_absolute, gs21_absolute, Ia2_absolute ] = network_absolute.unpack_absolute_transmission_output_parameters( absolute_transmission_output_parameters, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+[ x2max_relative, Gna1_relative, Gna2_relative, dEs21_relative, gs21_relative, Ia2_relative ] = network_relative.unpack_relative_transmission_output_parameters( relative_transmission_output_parameters, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
 
 % Create the input applied current.
 [ ~, ~, ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.create_applied_current( input_current_ID_absolute, input_current_name_absolute, input_current_to_neuron_ID_absolute, ts, Ias1_absolute, true, network_absolute.applied_current_manager.applied_currents, true, false, network_absolute.applied_current_manager.array_utilities );
@@ -173,27 +175,11 @@ undetected_option = 'Ignore';               % [str] Undetected Option.
 if simulate_flag                            % If we want to simulate the network...
 
     % Define the decoded input signals.
-    xs_numerical_input = linspace( 0, x_max_input, n_input_signals )';
-
-    % Define the general encoding operations.
-    f_general_encode_absolute = @( x, parameters ) f_encode_absolute( x );
-    f_general_encode_relative = @( x, parameters ) f_encode_relative( x, parameters{ 1 }, parameters{ 2 } );
-
-    % Define the general decoding operations.
-    f_general_decode_absolute = @( U, parameters ) f_decode_absolute( U );
-    f_general_decode_relative = @( U, parameters ) f_decode_relative( U, parameters{ 1 }, parameters{ 2 } );
-
-    % Define the encoding parameters.
-    encode_parameters_absolute = {  };
-    encode_parameters_relative = { R1_relative, x_max_input };
-
-    % Define the decoding parameters.
-    decode_parameters_absolute = {  };
-    decode_parameters_relative = { R2_relative, x_max_output };
+    xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
 
     % Compute the decoded steady state simulation results.
-    [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_general_encode_absolute, encode_parameters_absolute, f_general_decode_absolute, decode_parameters_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
-    [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_general_encode_relative, encode_parameters_relative, f_general_decode_relative, decode_parameters_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
+    [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
+    [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, f_decode2_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
 
     % Save the simulation results.
     save( [ save_directory, '\', 'absolute_transmission_subnetwork_error' ], 'Ias_magnitude_absolute', 'Us_numerical_absolute', 'xs_numerical_absolute' )
@@ -231,26 +217,20 @@ Us_theoretical_absolute = [ Us_numerical_absolute( :, 1 ), zeros( size( Us_numer
 Us_theoretical_relative = [ Us_numerical_relative( :, 1 ), zeros( size( Us_numerical_relative, 1 ), 1 ) ];
 
 % Compute the absolute and relative desired subnetwork output.
-% Us_desired_absolute( :, 2 ) = network_absolute.compute_da_transmission_sso( Us_desired_absolute( :, 1 ), c, network_absolute.neuron_manager, undetected_option, network_absolute.network_utilities );
-% Us_desired_relative( :, 2 ) = network_relative.compute_dr_transmission_sso( Us_desired_relative( :, 1 ), 1.0, R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
-
 Us_desired_absolute( :, 2 ) = network_absolute.compute_encoded_desired_absolute_transmission_sso( Us_desired_absolute( :, 1 ), c, network_absolute.network_utilities );
 Us_desired_relative( :, 2 ) = network_relative.compute_encoded_desired_relative_transmission_sso( Us_desired_relative( :, 1 ), R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
 
 % Compute the absolute and relative achieved theoretical subnetwork output.
-% Us_theoretical_absolute( :, 2 ) = network_absolute.compute_achieved_transmission_sso( Us_theoretical_absolute( :, 1 ), R1_absolute, Gm2_absolute, Ia2_absolute, gs21_absolute, dEs21_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
-% Us_theoretical_relative( :, 2 ) = network_relative.compute_achieved_transmission_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, Ia2_relative, gs21_relative, dEs21_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
-
 Us_theoretical_absolute( :, 2 ) = network_absolute.compute_encoded_achieved_transmission_sso( Us_theoretical_absolute( :, 1 ), R1_absolute, Gm2_absolute, gs21_absolute, dEs21_absolute, Ia2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
 Us_theoretical_relative( :, 2 ) = network_relative.compute_encoded_achieved_transmission_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, gs21_relative, dEs21_relative, Ia2_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
 
 % Compute the decoded desired absolute and relative network outputs.
-xs_desired_absolute( :, 2 ) = f_decode_absolute( Us_desired_absolute( :, 2 ) );
-xs_desired_relative( :, 2 ) = f_decode_relative( Us_desired_relative( :, 2 ), R2_relative, x_max_output );
+xs_desired_absolute( :, 2 ) = f_decode2_absolute( Us_desired_absolute( :, 2 ) );
+xs_desired_relative( :, 2 ) = f_decode2_relative( Us_desired_relative( :, 2 ) );
 
 % Compute the decoded achieved theoretical absolute and relative network outputs.
-xs_theoretical_absolute( :, 2 ) = f_decode_absolute( Us_theoretical_absolute( :, 2 ) );
-xs_theoretical_relative( :, 2 ) = f_decode_relative( Us_theoretical_relative( :, 2 ), R2_relative, x_max_output );
+xs_theoretical_absolute( :, 2 ) = f_decode2_absolute( Us_theoretical_absolute( :, 2 ) );
+xs_theoretical_relative( :, 2 ) = f_decode2_relative( Us_theoretical_relative( :, 2 ) );
 
 
 %% Compute the Absolute & Relative Transmission Network Error.
@@ -264,12 +244,12 @@ xs_theoretical_relative( :, 2 ) = f_decode_relative( Us_theoretical_relative( :,
 [ errors_numerical_encoded_relative, error_percentages_numerical_encoded_relative, error_rmse_numerical_encoded_relative, error_rmse_percentage_numerical_encoded_relative, error_std_numerical_encoded_relative, error_std_percentage_numerical_encoded_relative, error_min_numerical_encoded_relative, error_min_percentage_numerical_encoded_relative, index_min_numerical_encoded_relative, error_max_numerical_encoded_relative, error_max_percentage_numerical_encoded_relative, index_max_numerical_encoded_relative, error_range_numerical_encoded_relative, error_range_percentage_numerical_encoded_relative ] = numerical_method_utilities.compute_error_statistics( Us_numerical_relative, Us_desired_relative, R2_relative );
 
 % Compute the error between the decoded theoretical output and the desired output.
-[ errors_theoretical_decoded_absolute, error_percentages_theoretical_decoded_absolute, error_rmse_theoretical_decoded_absolute, error_rmse_percentage_theoretical_decoded_absolute, error_std_theoretical_decoded_absolute, error_std_percentage_theoretical_decoded_absolute, error_min_theoretical_decoded_absolute, error_min_percentage_theoretical_decoded_absolute, index_min_theoretical_decoded_absolute, error_max_theoretical_decoded_absolute, error_max_percentage_theoretical_decoded_absolute, index_max_theoretical_decoded_absolute, error_range_theoretical_decoded_absolute, error_range_percentage_theoretical_decoded_absolute ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_absolute, xs_desired_absolute, x_max_output );
-[ errors_theoretical_decoded_relative, error_percentages_theoretical_decoded_relative, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_relative, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_relative, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_relative, index_min_theoretical_decoded_relative, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_relative, index_max_theoretical_decoded_relative, error_range_theoretical_decoded_relative, error_range_percentage_theoretical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_relative, xs_desired_relative, x_max_output );
+[ errors_theoretical_decoded_absolute, error_percentages_theoretical_decoded_absolute, error_rmse_theoretical_decoded_absolute, error_rmse_percentage_theoretical_decoded_absolute, error_std_theoretical_decoded_absolute, error_std_percentage_theoretical_decoded_absolute, error_min_theoretical_decoded_absolute, error_min_percentage_theoretical_decoded_absolute, index_min_theoretical_decoded_absolute, error_max_theoretical_decoded_absolute, error_max_percentage_theoretical_decoded_absolute, index_max_theoretical_decoded_absolute, error_range_theoretical_decoded_absolute, error_range_percentage_theoretical_decoded_absolute ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_absolute, xs_desired_absolute, x2max_absolute );
+[ errors_theoretical_decoded_relative, error_percentages_theoretical_decoded_relative, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_relative, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_relative, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_relative, index_min_theoretical_decoded_relative, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_relative, index_max_theoretical_decoded_relative, error_range_theoretical_decoded_relative, error_range_percentage_theoretical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_relative, xs_desired_relative, x2max_relative );
 
 % Compute the error between the decoded numerical output and the desired output.
-[ errors_numerical_decoded_absolute, error_percentages_numerical_decoded_absolute, error_rmse_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_absolute, error_std_numerical_decoded_absolute, error_std_percentage_numerical_decoded_absolute, error_min_numerical_decoded_absolute, error_min_percentage_numerical_decoded_absolute, index_min_numerical_decoded_absolute, error_max_numerical_decoded_absolute, error_max_percentage_numerical_decoded_absolute, index_max_numerical_decoded_absolute, error_range_numerical_decoded_absolute, error_range_percentage_numerical_decoded_absolute ] = numerical_method_utilities.compute_error_statistics( xs_numerical_absolute, xs_desired_absolute, x_max_output );
-[ errors_numerical_decoded_relative, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_relative, index_min_numerical_decoded_relative, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_relative, index_max_numerical_decoded_relative, error_range_numerical_decoded_relative, error_range_percentage_numerical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_numerical_relative, xs_desired_relative, x_max_output );
+[ errors_numerical_decoded_absolute, error_percentages_numerical_decoded_absolute, error_rmse_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_absolute, error_std_numerical_decoded_absolute, error_std_percentage_numerical_decoded_absolute, error_min_numerical_decoded_absolute, error_min_percentage_numerical_decoded_absolute, index_min_numerical_decoded_absolute, error_max_numerical_decoded_absolute, error_max_percentage_numerical_decoded_absolute, index_max_numerical_decoded_absolute, error_range_numerical_decoded_absolute, error_range_percentage_numerical_decoded_absolute ] = numerical_method_utilities.compute_error_statistics( xs_numerical_absolute, xs_desired_absolute, x2max_absolute );
+[ errors_numerical_decoded_relative, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_relative, index_min_numerical_decoded_relative, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_relative, index_max_numerical_decoded_relative, error_range_numerical_decoded_relative, error_range_percentage_numerical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_numerical_relative, xs_desired_relative, x2max_relative );
 
 
 %% Print the Absolute & Relative Transmission Summary Statistics.
@@ -305,10 +285,10 @@ xs_critmax_theoretical_absolute = f_decode_absolute( Us_critmax_theoretical_abso
 xs_critmax_numerical_absolute = f_decode_absolute( Us_critmax_numerical_absolute );
 
 % Retrieve the minimum and maximum decoded theoretical and numerical relative network results.
-xs_critmin_theoretical_relative = f_decode_relative( Us_critmin_theoretical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
-xs_critmin_numerical_relative = f_decode_relative( Us_critmin_numerical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
-xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
-xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
+xs_critmin_theoretical_relative = f_decode_relative( Us_critmin_theoretical_relative );
+xs_critmin_numerical_relative = f_decode_relative( Us_critmin_numerical_relative );
+xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative );
+xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative );
 
 % Print the absolute transmission summary statistics.
 network_absolute.numerical_method_utilities.print_error_statistics( header_str_encoded_absolute, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_absolute, error_rmse_numerical_encoded_absolute, error_rmse_percentage_numerical_encoded_absolute, error_std_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_absolute, error_std_numerical_encoded_absolute, error_std_percentage_numerical_encoded_absolute, error_min_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_absolute, Us_critmin_theoretical_absolute, error_min_numerical_encoded_absolute, error_min_percentage_numerical_encoded_absolute, Us_critmin_numerical_absolute, error_max_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_absolute, Us_critmax_theoretical_absolute, error_max_numerical_encoded_absolute, error_max_percentage_numerical_encoded_absolute, Us_critmax_numerical_absolute, error_range_theoretical_encoded_absolute, error_range_percentage_theoretical_encoded_absolute, error_range_numerical_encoded_absolute, error_range_percentage_numerical_encoded_absolute )
