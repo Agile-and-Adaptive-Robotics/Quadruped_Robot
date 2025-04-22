@@ -63,6 +63,77 @@ c_max = 8;
 % Define the transmission subnetwork parameters.
 cs = linspace( c_min, c_max, n_gains );                                            % [-] Subnetwork Gain.
 
+
+%% Define the Constant Transmission Subnetwork Parameters.
+
+% Define the subnetwork formulation parameters (shared by both encoding schemes).
+x1_max = 20e-3;
+
+% Define the transmission subnetwork design parameters.
+Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
+Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
+Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
+Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
+
+% Store the transmission subnetwork design parameters in a cell.
+absolute_transmission_input_parameters.x1_max = x1_max;
+absolute_transmission_input_parameters.Gm1 = Gm1_absolute;
+absolute_transmission_input_parameters.Gm2 = Gm2_absolute;
+absolute_transmission_input_parameters.Cm1 = Cm1_absolute;
+absolute_transmission_input_parameters.Cm2 = Cm2_absolute;
+
+% Define the transmission subnetwork design parameters.
+R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
+R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
+Gm2_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 2).
+Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
+Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
+
+% Store the transmission subnetwork design parameters in a cell.
+relative_transmission_input_parameters.x1_max = x1_max;
+relative_transmission_input_parameters.R1 = R1_relative;
+relative_transmission_input_parameters.R2 = R2_relative;
+relative_transmission_input_parameters.Gm1 = Gm1_relative;
+relative_transmission_input_parameters.Gm2 = Gm2_relative;
+relative_transmission_input_parameters.Cm1 = Cm1_relative;
+relative_transmission_input_parameters.Cm2 = Cm2_relative;
+
+
+%% Define the Encoding & Decoding Operations.
+
+% Define the absolute encoding maps.
+f_encode1_absolute = @( x1 ) network_utilities.encode_absolute_transmission_input( x1 );
+f_encode2_absolute = @( x2 ) network_utilities.encode_absolute_transmission_output( x2 );
+f_encode_absolute = @( Xs ) [ f_encode1_absolute( Xs( :, 1 ) ), f_encode2_absolute( Xs( :, 2 ) ) ];
+
+% Define the absolute decoding maps.
+f_decode1_absolute = @( U1 ) network_utilities.decode_absolute_transmission_input( U1 );
+f_decode2_absolute = @( U2 ) network_utilities.decode_absolute_transmission_output( U2 );
+f_decode_absolute = @( Us ) [ f_decode1_absolute( Us( :, 1 ) ), f_decode2_absolute( Us( :, 2 ) ) ];
+
+% Define the relative encoding maps.
+f_encode1_relative = @( x1 ) network_utilities.encode_relative_transmission_input( x1, x1_max, R1_relative );
+f_encode2_relative = @( x2, c ) network_utilities.encode_relative_transmission_output( x2, c, x1_max, R2_relative );
+f_encode_relative = @( Xs, c ) [ f_encode1_relative( Xs( :, 1 ) ), f_encode2_relative( Xs( :, 2 ), c ) ];
+
+% Define the relative decoding maps.
+f_decode1_relative = @( U1 ) network_utilities.decode_relative_transmission_input( U1, x1_max, R1_relative );
+f_decode2_relative = @( U2, c ) network_utilities.decode_relative_transmission_output( U2, c, x1_max, R2_relative );
+f_decode_relative = @( Us, c ) [ f_decode1_relative( Us( :, 1 ) ), f_decode2_relative( Us( :, 2 ), c ) ];
+
+
+%% Define Simulation Parameters.
+
+% Set additional simulation properties.
+filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
+set_flag = true;                            % [T/F] Set Flag.
+process_option = 'None';                    % [str] Process Option.
+undetected_option = 'Ignore';               % [str] Undetected Option.
+
+
+%% Preallocate Arrays to Store Simulation Data.
+
 % Create arrays to store the encoded steady state output information.
 Us_desired_absolute_output = zeros( n_input_signals, n_gains );
 Us_theoretical_absolute_output = zeros( n_input_signals, n_gains );
@@ -186,7 +257,6 @@ errors_max_percentage_numerical_decoded_relative = zeros( n_gains, 1 );
 errors_range_numerical_decoded_relative = zeros( n_gains, 1 );
 errors_range_percentage_numerical_decoded_relative = zeros( n_gains, 1 );
 
-
 errors_diff_theoretical_encoded = zeros( n_input_signals, n_gains );
 errors_percent_diff_theoretical_encoded = zeros( n_input_signals, n_gains );
 errors_mse_diff_theoretical_encoded = zeros( n_gains, 1 );
@@ -284,63 +354,34 @@ condition_numbers_max_absolute = zeros( n_gains, 1 );
 condition_numbers_max_relative = zeros( n_gains, 1 );
 
 % Create arrays to store the network parameters.
-Gnas_absolute = zeros( n_gains, 2 );
-Rs2_absolute = zeros( n_gains, 1 );
-dEs21_absolute = zeros( n_gains, 1 );
-gs21_absolute = zeros( n_gains, 1 );
-Ias2_absolute = zeros( n_gains, 1 );
+x2maxs_absolute = zeros( n_gains, 1 );
+R1s_absolute = zeros( n_gains, 1 );
+R2s_absolute = zeros( n_gains, 1 );
+Gna1s_absolute = zeros( n_gains, 1 );
+Gna2s_absolute = zeros( n_gains, 1 );
+dEs21s_absolute = zeros( n_gains, 1 );
+gs21s_absolute = zeros( n_gains, 1 );
+Ia2s_absolute = zeros( n_gains, 1 );
 
-Gnas_relative = zeros( n_gains, 2 );
-Rs2_relative = zeros( n_gains, 1 );
-dEs21_relative = zeros( n_gains, 1 );
-gs21_relative = zeros( n_gains, 1 );
-Ias2_relative = zeros( n_gains, 1 );
+x2maxs_relative = zeros( n_gains, 1 );
+Gna1s_relative = zeros( n_gains, 1 );
+Gna2s_relative = zeros( n_gains, 1 );
+dEs21s_relative = zeros( n_gains, 1 );
+gs21s_relative = zeros( n_gains, 1 );
+Ia2s_relative = zeros( n_gains, 1 );
 
 % Perform the following analysis given each gain value.
 for k = 1:n_gains               % Iterate through each of the gains...
+        
     
-    % Retrieve the gain.
+    %% Define the Variable Transmission Subnetwork Parameters.
+
+    % Define the subnetwork formulation parameters (shared by both encoding schemes).
     c = cs( k );
-    
-    % Define the desired mapping operation.
-    f_desired = @( x, c ) network_utilities.compute_decoded_desired_transmission_sso( x, c );
-    
-    % Define the domain of the input and output signals.
-    x_max_input = 20;
-    x_max_output = f_desired( x_max_input, c );
-    
-    
-    %% Define the Encoding & Decoding Operations.
-    
-    % Define the encoding operations.
-    f_encode_absolute = @( x ) x*( 10^( -3 ) );
-    f_encode_relative = @( x, R_encode, R_decode ) ( R_encode./R_decode ).*x;
-    
-    % Define the decoding operations.
-    f_decode_absolute = @( U ) U*( 10^3 );
-    f_decode_relative = @( U, R_encode, R_decode ) ( R_decode./R_encode ).*U;
-    
-    
-    %% Define Transmission Subnetwork Parameters.
-    
-    % Define the absolute transmission subnetwork design parameters.
-    R1_absolute = 20e-3;                                        % [V] Maximum Membrane Voltage (Neuron 1).
-    Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
-    Gm2_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 2).
-    Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
-    Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
-    
-    % Define the relative transmission subnetwork design parameters.
-    R1_relative = 20e-3;                                     	% [V] Maximum Membrane Voltage (Neuron 1).
-    R2_relative = 20e-3;                                      	% [V] Maximum Membrane Voltage (Neuron 2).
-    Gm1_relative = 1e-6;                                       	% [S] Membrane Conductance (Neuron 1).
-    Gm2_relative = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
-    Cm1_relative = 5e-9;                                       	% [F] Membrane Capacitance (Neuron 1).
-    Cm2_relative = 5e-9;                                       	% [F] Membrane Capacitance (Neuron 2).
-    
-    % Store the transmission subnetwork design parameters in a cell.
-    absolute_transmission_parameters = { c, R1_absolute, Gm1_absolute, Gm2_absolute, Cm1_absolute, Cm2_absolute };
-    relative_transmission_parameters = { R1_relative, R2_relative, Gm1_relative, Gm2_relative, Cm1_relative, Cm2_relative };
+
+    % Store the transmission subnetwork gain.
+    absolute_transmission_input_parameters.c = c;
+    relative_transmission_input_parameters.c = c;
     
     
     %% Define the Absolute & Relative Transmission Subnetwork Input Currents.
@@ -369,13 +410,17 @@ for k = 1:n_gains               % Iterate through each of the gains...
     network_relative = network_class( network_dt, network_tf );
     
     % Create a transmission subnetwork.
-    [ c_absolute, Gnas_absolute( k, : ), Rs2_absolute( k ), dEs21_absolute( k ), gs21_absolute( k ), Ias2_absolute( k ), neurons_absolute, synapses_absolute, neuron_manager_absolute, synapse_manager_absolute, network_absolute ] = network_absolute.create_transmission_subnetwork( absolute_transmission_parameters, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
-    [ c_relative, Gnas_relative( k, : ), Rs2_relative( k ), dEs21_relative( k ), gs21_relative( k ), Ias2_relative( k ), neurons_relative, synapses_relative, neuron_manager_relative, synapse_manager_relative, network_relative ] = network_relative.create_transmission_subnetwork( relative_transmission_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
-    
+    [ absolute_transmission_output_parameters, neurons_absolute, synapses_absolute, neuron_manager_absolute, synapse_manager_absolute, network_absolute ] = network_absolute.create_transmission_subnetwork( absolute_transmission_input_parameters, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
+    [ relative_transmission_output_parameters, neurons_relative, synapses_relative, neuron_manager_relative, synapse_manager_relative, network_relative ] = network_relative.create_transmission_subnetwork( relative_transmission_input_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
+
+    % Unpack the transmission subnetwork output parameters.
+    [ x2maxs_absolute( k ), R1s_absolute( k ), R2s_absolute( k ), Gna1s_absolute( k ), Gna2s_absolute( k ), dEs21s_absolute( k ), gs21s_absolute( k ), Ia2s_absolute( k ) ] = network_absolute.unpack_absolute_transmission_output_parameters( absolute_transmission_output_parameters, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+    [ x2maxs_relative( k ), Gna1s_relative( k ), Gna2s_relative( k ), dEs21s_relative( k ), gs21s_relative( k ), Ia2s_relative( k ) ] = network_relative.unpack_relative_transmission_output_parameters( relative_transmission_output_parameters, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );    
+
     % Create the input applied current.
     [ ~, ~, ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.create_applied_current( input_current_ID_absolute, input_current_name_absolute, input_current_to_neuron_ID_absolute, ts, Ias1_absolute, true, network_absolute.applied_current_manager.applied_currents, true, false, network_absolute.applied_current_manager.array_utilities );
     [ ~, ~, ~, network_relative.applied_current_manager ] = network_relative.applied_current_manager.create_applied_current( input_current_ID_relative, input_current_name_relative, input_current_to_neuron_ID_relative, ts, Ias1_relative, true, network_relative.applied_current_manager.applied_currents, true, false, network_relative.applied_current_manager.array_utilities );
-    
+        
     
 %     %% Print Transmission Subnetwork Information.
 %     
@@ -391,38 +436,16 @@ for k = 1:n_gains               % Iterate through each of the gains...
     
     
     %% Simulate the Transmission Network.
-    
-    % Set additional simulation properties.
-    filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
-    set_flag = true;                            % [T/F] Set Flag.
-    process_option = 'None';                    % [str] Process Option.
-    undetected_option = 'Ignore';               % [str] Undetected Option.
-    
+
     % Determine whether to simulate the network.
     if simulate_flag                            % If we want to simulate the network...
         
         % Define the decoded input signals.
-        xs_numerical_input = linspace( 0, x_max_input, n_input_signals )';
-        
-        % Define the general encoding operations.
-        f_general_encode_absolute = @( x, parameters ) f_encode_absolute( x );
-        f_general_encode_relative = @( x, parameters ) f_encode_relative( x, parameters{ 1 }, parameters{ 2 } );
-        
-        % Define the general decoding operations.
-        f_general_decode_absolute = @( U, parameters ) f_decode_absolute( U );
-        f_general_decode_relative = @( U, parameters ) f_decode_relative( U, parameters{ 1 }, parameters{ 2 } );
-        
-        % Define the encoding parameters.
-        encode_parameters_absolute = {  };
-        encode_parameters_relative = { R1_relative, x_max_input };
-        
-        % Define the decoding parameters.
-        decode_parameters_absolute = {  };
-        decode_parameters_relative = { R2_relative, x_max_output };
-        
+        xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
+                
         % Compute the decoded steady state simulation results.
-        [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_general_encode_absolute, encode_parameters_absolute, f_general_decode_absolute, decode_parameters_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
-        [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_general_encode_relative, encode_parameters_relative, f_general_decode_relative, decode_parameters_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
+        [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
+        [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, @( xs ) f_decode2_relative( xs, c ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
         
         % Determine whether to save the simulation data.
         if save_flag                    % If we want to save the simulation data...
@@ -471,34 +494,34 @@ for k = 1:n_gains               % Iterate through each of the gains...
     % Initialize the desired decoded steady state response.
     xs_desired_absolute = [ xs_numerical_absolute( :, 1 ), zeros( size( xs_numerical_absolute, 1 ), 1 ) ];
     xs_desired_relative = [ xs_numerical_relative( :, 1 ), zeros( size( xs_numerical_relative, 1 ), 1 ) ];
-    
+
     % Initialize the theoretically achieved decoded steady state response.
     xs_theoretical_absolute = [ xs_numerical_absolute( :, 1 ), zeros( size( xs_numerical_absolute, 1 ), 1 ) ];
     xs_theoretical_relative = [ xs_numerical_relative( :, 1 ), zeros( size( xs_numerical_relative, 1 ), 1 ) ];
-    
+
     % Initialize the desired encoded steady state response.
     Us_desired_absolute = [ Us_numerical_absolute( :, 1 ), zeros( size( Us_numerical_absolute, 1 ), 1 ) ];
     Us_desired_relative = [ Us_numerical_relative( :, 1 ), zeros( size( Us_numerical_relative, 1 ), 1 ) ];
-    
+
     % Initialize the theoretically achieved encoded stady state response.
     Us_theoretical_absolute = [ Us_numerical_absolute( :, 1 ), zeros( size( Us_numerical_absolute, 1 ), 1 ) ];
     Us_theoretical_relative = [ Us_numerical_relative( :, 1 ), zeros( size( Us_numerical_relative, 1 ), 1 ) ];
-    
+
     % Compute the absolute and relative desired subnetwork output.
-    Us_desired_absolute( :, 2 ) = network_absolute.compute_da_transmission_sso( Us_desired_absolute( :, 1 ), c, network_absolute.neuron_manager, undetected_option, network_absolute.network_utilities );
-    Us_desired_relative( :, 2 ) = network_relative.compute_dr_transmission_sso( Us_desired_relative( :, 1 ), 1.0, R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
-    
+    Us_desired_absolute( :, 2 ) = network_absolute.compute_encoded_desired_absolute_transmission_sso( Us_desired_absolute( :, 1 ), c, network_absolute.network_utilities );
+    Us_desired_relative( :, 2 ) = network_relative.compute_encoded_desired_relative_transmission_sso( Us_desired_relative( :, 1 ), R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
+
     % Compute the absolute and relative achieved theoretical subnetwork output.
-    Us_theoretical_absolute( :, 2 ) = network_absolute.compute_achieved_transmission_sso( Us_theoretical_absolute( :, 1 ), R1_absolute, Gm2_absolute, Ias2_absolute( k ), gs21_absolute( k ), dEs21_absolute( k ), network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
-    Us_theoretical_relative( :, 2 ) = network_relative.compute_achieved_transmission_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, Ias2_relative( k ), gs21_relative( k ), dEs21_absolute( k ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
-    
+    Us_theoretical_absolute( :, 2 ) = network_absolute.compute_encoded_achieved_transmission_sso( Us_theoretical_absolute( :, 1 ), R1s_absolute( k ), Gm2_absolute, gs21s_absolute( k ), dEs21s_absolute( k ), Ia2s_absolute( k ), network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
+    Us_theoretical_relative( :, 2 ) = network_relative.compute_encoded_achieved_transmission_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, gs21s_relative( k ), dEs21s_relative( k ), Ia2s_relative( k ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
+
     % Compute the decoded desired absolute and relative network outputs.
-    xs_desired_absolute( :, 2 ) = f_decode_absolute( Us_desired_absolute( :, 2 ) );
-    xs_desired_relative( :, 2 ) = f_decode_relative( Us_desired_relative( :, 2 ), R2_relative, x_max_output );
-    
+    xs_desired_absolute( :, 2 ) = f_decode2_absolute( Us_desired_absolute( :, 2 ) );
+    xs_desired_relative( :, 2 ) = f_decode2_relative( Us_desired_relative( :, 2 ), c );
+
     % Compute the decoded achieved theoretical absolute and relative network outputs.
-    xs_theoretical_absolute( :, 2 ) = f_decode_absolute( Us_theoretical_absolute( :, 2 ) );
-    xs_theoretical_relative( :, 2 ) = f_decode_relative( Us_theoretical_relative( :, 2 ), R2_relative, x_max_output );
+    xs_theoretical_absolute( :, 2 ) = f_decode2_absolute( Us_theoretical_absolute( :, 2 ) );
+    xs_theoretical_relative( :, 2 ) = f_decode2_relative( Us_theoretical_relative( :, 2 ), c );
     
     
     %% Store the Encoded & Decoded Network Outputs.
@@ -525,20 +548,20 @@ for k = 1:n_gains               % Iterate through each of the gains...
     %% Compute the Absolute & Relative Transmission Network Error.
     
     % Compute the error between the encoded theoretical output and the desired output.
-    [ errors_theoretical_encoded_absolute( :, k ), errors_percentage_theoretical_encoded_absolute( :, k ), errors_rmse_theoretical_encoded_absolute( k ), errors_rmse_percentage_theoretical_encoded_absolute( k ), errors_std_theoretical_encoded_absolute( k ), errors_std_percentage_theoretical_encoded_absolute( k ), errors_min_theoretical_encoded_absolute( k ), errors_min_percentage_theoretical_encoded_absolute( k ), index_min_theoretical_encoded_absolute, errors_max_theoretical_encoded_absolute( k ), errors_max_percentage_theoretical_encoded_absolute( k ), index_max_theoretical_encoded_absolute, errors_range_theoretical_encoded_absolute( k ), errors_range_percentage_theoretical_encoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_absolute, Us_desired_absolute, Rs2_absolute( k ) );
-    [ errors_theoretical_encoded_relative( :, k ), errors_percentage_theoretical_encoded_relative( :, k ), errors_rmse_theoretical_encoded_relative( k ), errors_rmse_percentage_theoretical_encoded_relative( k ), errors_std_theoretical_encoded_relative( k ), errors_std_percentage_theoretical_encoded_relative( k ), errors_min_theoretical_encoded_relative( k ), errors_min_percentage_theoretical_encoded_relative( k ), index_min_theoretical_encoded_relative, errors_max_theoretical_encoded_relative( k ), errors_max_percentage_theoretical_encoded_relative( k ), index_max_theoretical_encoded_relative, errors_range_theoretical_encoded_relative( k ), errors_range_percentage_theoretical_encoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_relative, Us_desired_relative, Rs2_relative( k ) );
+    [ errors_theoretical_encoded_absolute( :, k ), errors_percentage_theoretical_encoded_absolute( :, k ), errors_rmse_theoretical_encoded_absolute( k ), errors_rmse_percentage_theoretical_encoded_absolute( k ), errors_std_theoretical_encoded_absolute( k ), errors_std_percentage_theoretical_encoded_absolute( k ), errors_min_theoretical_encoded_absolute( k ), errors_min_percentage_theoretical_encoded_absolute( k ), index_min_theoretical_encoded_absolute, errors_max_theoretical_encoded_absolute( k ), errors_max_percentage_theoretical_encoded_absolute( k ), index_max_theoretical_encoded_absolute, errors_range_theoretical_encoded_absolute( k ), errors_range_percentage_theoretical_encoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_absolute, Us_desired_absolute, R2s_absolute( k ) );
+    [ errors_theoretical_encoded_relative( :, k ), errors_percentage_theoretical_encoded_relative( :, k ), errors_rmse_theoretical_encoded_relative( k ), errors_rmse_percentage_theoretical_encoded_relative( k ), errors_std_theoretical_encoded_relative( k ), errors_std_percentage_theoretical_encoded_relative( k ), errors_min_theoretical_encoded_relative( k ), errors_min_percentage_theoretical_encoded_relative( k ), index_min_theoretical_encoded_relative, errors_max_theoretical_encoded_relative( k ), errors_max_percentage_theoretical_encoded_relative( k ), index_max_theoretical_encoded_relative, errors_range_theoretical_encoded_relative( k ), errors_range_percentage_theoretical_encoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_relative, Us_desired_relative, R2_relative );
     
     % Compute the error between the encoded numerical output and the desired output.
-    [ errors_numerical_encoded_absolute( :, k ), errors_percentage_numerical_encoded_absolute( :, k ), errors_rmse_numerical_encoded_absolute( k ), errors_rmse_percentage_numerical_encoded_absolute( k ), errors_std_numerical_encoded_absolute( k ), errors_std_percentage_numerical_encoded_absolute( k ), errors_min_numerical_encoded_absolute( k ), errors_min_percentage_numerical_encoded_absolute( k ), index_min_numerical_encoded_absolute, errors_max_numerical_encoded_absolute( k ), errors_max_percentage_numerical_encoded_absolute( k ), index_max_numerical_encoded_absolute, errors_range_numerical_encoded_absolute( k ), errors_range_percentage_numerical_encoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( Us_numerical_absolute, Us_desired_absolute, Rs2_absolute( k ) );
-    [ errors_numerical_encoded_relative( :, k ), errors_percentage_numerical_encoded_relative( :, k ), errors_rmse_numerical_encoded_relative( k ), errors_rmse_percentage_numerical_encoded_relative( k ), errors_std_numerical_encoded_relative( k ), errors_std_percentage_numerical_encoded_relative( k ), errors_min_numerical_encoded_relative( k ), errors_min_percentage_numerical_encoded_relative( k ), index_min_numerical_encoded_relative, errors_max_numerical_encoded_relative( k ), errors_max_percentage_numerical_encoded_relative( k ), index_max_numerical_encoded_relative, errors_range_numerical_encoded_relative( k ), errors_range_percentage_numerical_encoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( Us_numerical_relative, Us_desired_relative, Rs2_relative( k ) );
+    [ errors_numerical_encoded_absolute( :, k ), errors_percentage_numerical_encoded_absolute( :, k ), errors_rmse_numerical_encoded_absolute( k ), errors_rmse_percentage_numerical_encoded_absolute( k ), errors_std_numerical_encoded_absolute( k ), errors_std_percentage_numerical_encoded_absolute( k ), errors_min_numerical_encoded_absolute( k ), errors_min_percentage_numerical_encoded_absolute( k ), index_min_numerical_encoded_absolute, errors_max_numerical_encoded_absolute( k ), errors_max_percentage_numerical_encoded_absolute( k ), index_max_numerical_encoded_absolute, errors_range_numerical_encoded_absolute( k ), errors_range_percentage_numerical_encoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( Us_numerical_absolute, Us_desired_absolute, R2s_absolute( k ) );
+    [ errors_numerical_encoded_relative( :, k ), errors_percentage_numerical_encoded_relative( :, k ), errors_rmse_numerical_encoded_relative( k ), errors_rmse_percentage_numerical_encoded_relative( k ), errors_std_numerical_encoded_relative( k ), errors_std_percentage_numerical_encoded_relative( k ), errors_min_numerical_encoded_relative( k ), errors_min_percentage_numerical_encoded_relative( k ), index_min_numerical_encoded_relative, errors_max_numerical_encoded_relative( k ), errors_max_percentage_numerical_encoded_relative( k ), index_max_numerical_encoded_relative, errors_range_numerical_encoded_relative( k ), errors_range_percentage_numerical_encoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( Us_numerical_relative, Us_desired_relative, R2_relative );
     
     % Compute the error between the decoded theoretical output and the desired output.
-    [ errors_theoretical_decoded_absolute( :, k ), errors_percentage_theoretical_decoded_absolute( :, k ), errors_rmse_theoretical_decoded_absolute( k ), errors_rmse_percentage_theoretical_decoded_absolute( k ), errors_std_theoretical_decoded_absolute( k ), errors_std_percentage_theoretical_decoded_absolute( k ), errors_min_theoretical_decoded_absolute( k ), errors_min_percentage_theoretical_decoded_absolute( k ), index_min_theoretical_decoded_absolute, errors_max_theoretical_decoded_absolute( k ), errors_max_percentage_theoretical_decoded_absolute( k ), index_max_theoretical_decoded_absolute, errors_range_theoretical_decoded_absolute( k ), errors_range_percentage_theoretical_decoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_absolute, xs_desired_absolute, x_max_output );
-    [ errors_theoretical_decoded_relative( :, k ), errors_percentage_theoretical_decoded_relative( :, k ), errors_rmse_theoretical_decoded_relative( k ), errors_rmse_percentage_theoretical_decoded_relative( k ), errors_std_theoretical_decoded_relative( k ), errors_std_percentage_theoretical_decoded_relative( k ), errors_min_theoretical_decoded_relative( k ), errors_min_percentage_theoretical_decoded_relative( k ), index_min_theoretical_decoded_relative, errors_max_theoretical_decoded_relative( k ), errors_max_percentage_theoretical_decoded_relative( k ), index_max_theoretical_decoded_relative, errors_range_theoretical_decoded_relative( k ), errors_range_percentage_theoretical_decoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_relative, xs_desired_relative, x_max_output );
+    [ errors_theoretical_decoded_absolute( :, k ), errors_percentage_theoretical_decoded_absolute( :, k ), errors_rmse_theoretical_decoded_absolute( k ), errors_rmse_percentage_theoretical_decoded_absolute( k ), errors_std_theoretical_decoded_absolute( k ), errors_std_percentage_theoretical_decoded_absolute( k ), errors_min_theoretical_decoded_absolute( k ), errors_min_percentage_theoretical_decoded_absolute( k ), index_min_theoretical_decoded_absolute, errors_max_theoretical_decoded_absolute( k ), errors_max_percentage_theoretical_decoded_absolute( k ), index_max_theoretical_decoded_absolute, errors_range_theoretical_decoded_absolute( k ), errors_range_percentage_theoretical_decoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_absolute, xs_desired_absolute, x2maxs_absolute( k ) );
+    [ errors_theoretical_decoded_relative( :, k ), errors_percentage_theoretical_decoded_relative( :, k ), errors_rmse_theoretical_decoded_relative( k ), errors_rmse_percentage_theoretical_decoded_relative( k ), errors_std_theoretical_decoded_relative( k ), errors_std_percentage_theoretical_decoded_relative( k ), errors_min_theoretical_decoded_relative( k ), errors_min_percentage_theoretical_decoded_relative( k ), index_min_theoretical_decoded_relative, errors_max_theoretical_decoded_relative( k ), errors_max_percentage_theoretical_decoded_relative( k ), index_max_theoretical_decoded_relative, errors_range_theoretical_decoded_relative( k ), errors_range_percentage_theoretical_decoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_relative, xs_desired_relative, x2maxs_relative( k ) );
     
     % Compute the error between the decoded numerical output and the desired output.
-    [ errors_numerical_decoded_absolute( :, k ), errors_percentage_numerical_decoded_absolute( :, k ), errors_rmse_numerical_decoded_absolute( k ), errors_rmse_percentage_numerical_decoded_absolute( k ), errors_std_numerical_decoded_absolute( k ), errors_std_percentage_numerical_decoded_absolute( k ), errors_min_numerical_decoded_absolute( k ), errors_min_percentage_numerical_decoded_absolute( k ), index_min_numerical_decoded_absolute, errors_max_numerical_decoded_absolute( k ), errors_max_percentage_numerical_decoded_absolute( k ), index_max_numerical_decoded_absolute, errors_range_numerical_decoded_absolute( k ), errors_range_percentage_numerical_decoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( xs_numerical_absolute, xs_desired_absolute, x_max_output );
-    [ errors_numerical_decoded_relative( :, k ), errors_percentage_numerical_decoded_relative( :, k ), errors_rmse_numerical_decoded_relative( k ), errors_rmse_percentage_numerical_decoded_relative( k ), errors_std_numerical_decoded_relative( k ), errors_std_percentage_numerical_decoded_relative( k ), errors_min_numerical_decoded_relative( k ), errors_min_percentage_numerical_decoded_relative( k ), index_min_numerical_decoded_relative, errors_max_numerical_decoded_relative( k ), errors_max_percentage_numerical_decoded_relative( k ), index_max_numerical_decoded_relative, errors_range_numerical_decoded_relative( k ), errors_range_percentage_numerical_decoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( xs_numerical_relative, xs_desired_relative, x_max_output );
+    [ errors_numerical_decoded_absolute( :, k ), errors_percentage_numerical_decoded_absolute( :, k ), errors_rmse_numerical_decoded_absolute( k ), errors_rmse_percentage_numerical_decoded_absolute( k ), errors_std_numerical_decoded_absolute( k ), errors_std_percentage_numerical_decoded_absolute( k ), errors_min_numerical_decoded_absolute( k ), errors_min_percentage_numerical_decoded_absolute( k ), index_min_numerical_decoded_absolute, errors_max_numerical_decoded_absolute( k ), errors_max_percentage_numerical_decoded_absolute( k ), index_max_numerical_decoded_absolute, errors_range_numerical_decoded_absolute( k ), errors_range_percentage_numerical_decoded_absolute( k ) ] = numerical_method_utilities.compute_error_statistics( xs_numerical_absolute, xs_desired_absolute, x2maxs_absolute( k ) );
+    [ errors_numerical_decoded_relative( :, k ), errors_percentage_numerical_decoded_relative( :, k ), errors_rmse_numerical_decoded_relative( k ), errors_rmse_percentage_numerical_decoded_relative( k ), errors_std_numerical_decoded_relative( k ), errors_std_percentage_numerical_decoded_relative( k ), errors_min_numerical_decoded_relative( k ), errors_min_percentage_numerical_decoded_relative( k ), index_min_numerical_decoded_relative, errors_max_numerical_decoded_relative( k ), errors_max_percentage_numerical_decoded_relative( k ), index_max_numerical_decoded_relative, errors_range_numerical_decoded_relative( k ), errors_range_percentage_numerical_decoded_relative( k ) ] = numerical_method_utilities.compute_error_statistics( xs_numerical_relative, xs_desired_relative, x2maxs_relative( k ) );
     
     
     %% Print the Absolute & Relative Transmission Summary Statistics.
@@ -574,10 +597,10 @@ for k = 1:n_gains               % Iterate through each of the gains...
     xs_critmax_numerical_absolute = f_decode_absolute( Us_critmax_numerical_absolute );
     
     % Retrieve the minimum and maximum decoded theoretical and numerical relative network results.
-    xs_critmin_theoretical_relative = f_decode_relative( Us_critmin_theoretical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
-    xs_critmin_numerical_relative = f_decode_relative( Us_critmin_numerical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
-    xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
-    xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative, [ R1_relative, R2_relative ], [ x_max_input, x_max_output ] );
+    xs_critmin_theoretical_relative = f_decode_relative( Us_critmin_theoretical_relative, c );
+    xs_critmin_numerical_relative = f_decode_relative( Us_critmin_numerical_relative, c );
+    xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative, c );
+    xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative, c );
     
 %     % Print the absolute transmission summary statistics.
 %     network_absolute.numerical_method_utilities.print_error_statistics( header_str_encoded_absolute, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_absolute, error_rmse_numerical_encoded_absolute, error_rmse_percentage_numerical_encoded_absolute, error_std_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_absolute, error_std_numerical_encoded_absolute, error_std_percentage_numerical_encoded_absolute, error_min_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_absolute, Us_critmin_theoretical_absolute, error_min_numerical_encoded_absolute, error_min_percentage_numerical_encoded_absolute, Us_critmin_numerical_absolute, error_max_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_absolute, Us_critmax_theoretical_absolute, error_max_numerical_encoded_absolute, error_max_percentage_numerical_encoded_absolute, Us_critmax_numerical_absolute, error_range_theoretical_encoded_absolute, error_range_percentage_theoretical_encoded_absolute, error_range_numerical_encoded_absolute, error_range_percentage_numerical_encoded_absolute )
@@ -669,7 +692,7 @@ surf( Cs, scale*Us_input, scale*Us_numerical_absolute_output, 'Edgecolor', 'None
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'transmission_absolute_encoded_ss_response_gain' ] ) 
 
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Relative Encoded Steady State Response' ); hold on, grid on, rotate3d on, view( 45, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Transmission: Relative Encoded Steady State Response' ), zlim( [ 0, 0.160*scale ] )
+fig = figure( 'Color', 'w', 'Name', 'Transmission: Relative Encoded Steady State Response' ); hold on, grid on, rotate3d on, view( 45, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Transmission: Relative Encoded Steady State Response' ), zlim( [ 0, 0.020*scale ] )
 surf( Cs, scale*Us_input, scale*Us_desired_relative_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
 surf( Cs, scale*Us_input, scale*Us_theoretical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
 surf( Cs, scale*Us_input, scale*Us_numerical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
@@ -681,18 +704,18 @@ saveas( fig, [ save_directory, '\', 'transmission_relative_encoded_ss_response_g
 
 % Plot the absolute decoded steady state behavior.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Absolute Decoded Steady State Response' ); hold on, grid on, rotate3d on, view( 45, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Transmission: Absolute Decoded Steady State Response' )
-surf( Cs, Xs_input, Xs_desired_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, Xs_theoretical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, Xs_numerical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+surf( Cs, scale*Xs_input, scale*Xs_desired_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*Xs_theoretical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*Xs_numerical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+legend( { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'transmission_absolute_decoded_ss_response_gain' ] ) 
 
 % Plot the relative decoded steady state behavior.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Relative Decoded Steady State Response' ); hold on, grid on, rotate3d on, view( 45, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Transmission: Relative Decoded Steady State Response' )
-surf( Cs, Xs_input, Xs_desired_relative_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, Xs_theoretical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, Xs_numerical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+surf( Cs, scale*Xs_input, scale*Xs_desired_relative_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*Xs_theoretical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*Xs_numerical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+legend( { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'transmission_relative_decoded_ss_response_gain' ] ) 
 
 
@@ -810,107 +833,107 @@ saveas( fig, [ save_directory, '\', 'transmission_encoded_error_gain_summary' ] 
 % Plot the decoded error vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error' ); 
 subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Error' )
-surf( Cs, Xs_input, errors_theoretical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_theoretical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_theoretical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_theoretical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 
 subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Error' )
-surf( Cs, Xs_input, errors_numerical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_numerical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, Xs_input, scale*errors_numerical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, Xs_input, scale*errors_numerical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain_comparison' ] ) 
 
 % Plot the theoretical decoded error vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Theoretical Decoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, Xs_input, errors_theoretical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_theoretical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_theoretical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_theoretical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'transmission_theoretical_decoded_error_gain' ] ) 
 
 % Plot the numerical decoded error vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Numerical Decoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, Xs_input, errors_numerical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_numerical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_numerical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_numerical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'transmission_numerical_decoded_error_gain' ] ) 
 
 % Plot the decoded error vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, Xs_input, errors_numerical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_numerical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_numerical_decoded_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_numerical_decoded_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain' ] ) 
 
 % Plot the decoded error vs gain summary.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Summary' );
 subplot( 2, 2, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Theoretical Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_theoretical_decoded_absolute; flipud( errors_max_theoretical_decoded_absolute ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_theoretical_decoded_absolute, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_decoded_absolute; flipud( errors_max_theoretical_decoded_absolute ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_theoretical_decoded_absolute, '-', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*errors_min_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
+plot( cs, scale*errors_max_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
 
 subplot( 2, 2, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Theoretical Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_theoretical_decoded_relative; flipud( errors_max_theoretical_decoded_relative ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_theoretical_decoded_relative, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_decoded_relative; flipud( errors_max_theoretical_decoded_relative ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_theoretical_decoded_relative, '-', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*errors_min_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
+plot( cs, scale*errors_max_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
 
 subplot( 2, 2, 3 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Numerical Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_numerical_decoded_absolute; flipud( errors_max_numerical_decoded_absolute ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_numerical_decoded_absolute, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_decoded_absolute; flipud( errors_max_numerical_decoded_absolute ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_numerical_decoded_absolute, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
 
 subplot( 2, 2, 4 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Numerical Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_numerical_decoded_relative; flipud( errors_max_numerical_decoded_relative ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_numerical_decoded_relative, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_decoded_relative; flipud( errors_max_numerical_decoded_relative ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_numerical_decoded_relative, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain_summary_comparison' ] ) 
 
 % Plot the theoretical decoded error vs gain summary.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Theoretical Decoded Error Summary' );
 subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_theoretical_decoded_absolute; flipud( errors_max_theoretical_decoded_absolute ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_theoretical_decoded_absolute, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_decoded_absolute; flipud( errors_max_theoretical_decoded_absolute ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_theoretical_decoded_absolute, '-', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*errors_min_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
+plot( cs, scale*errors_max_theoretical_decoded_absolute, '--', 'Color', color1, 'Linewidth', 1 )
 
 subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_theoretical_decoded_relative; flipud( errors_max_theoretical_decoded_relative ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_theoretical_decoded_relative, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_decoded_relative; flipud( errors_max_theoretical_decoded_relative ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_theoretical_decoded_relative, '-', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*errors_min_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
+plot( cs, scale*errors_max_theoretical_decoded_relative, '--', 'Color', color1, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_theoretical_decoded_error_gain_summary' ] ) 
 
 % Plot the numerical decoded error vs gain summary.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Numerical Decoded Error Summary' );
 subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_numerical_decoded_absolute; flipud( errors_max_numerical_decoded_absolute ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_numerical_decoded_absolute, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_decoded_absolute; flipud( errors_max_numerical_decoded_absolute ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_numerical_decoded_absolute, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
 
 subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_numerical_decoded_relative; flipud( errors_max_numerical_decoded_relative ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_numerical_decoded_relative, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_decoded_relative; flipud( errors_max_numerical_decoded_relative ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_numerical_decoded_relative, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_numerical_decoded_error_gain_summary' ] )
 
 % Plot the decoded error vs gain summary.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Summary' );
 subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_numerical_decoded_absolute; flipud( errors_max_numerical_decoded_absolute ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_numerical_decoded_absolute, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_decoded_absolute; flipud( errors_max_numerical_decoded_absolute ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_numerical_decoded_absolute, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_numerical_decoded_absolute, '--', 'Color', color2, 'Linewidth', 1 )
 
 subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_numerical_decoded_relative; flipud( errors_max_numerical_decoded_relative ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_rmse_numerical_decoded_relative, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_decoded_relative; flipud( errors_max_numerical_decoded_relative ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_rmse_numerical_decoded_relative, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_numerical_decoded_relative, '--', 'Color', color2, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain_summary' ] )
 
 
@@ -965,15 +988,15 @@ saveas( fig, [ save_directory, '\', 'transmission_encoded_error_difference_perce
 
 % Plot the decoded error difference.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Difference' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Difference, E [-]' ), title( 'Transmission: Decoded Error Difference' )
-surf( Cs, Xs_input, errors_diff_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_diff_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_diff_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_diff_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_gain' ] ) 
 
 % Plot the decoded error difference percentage.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Difference Percentage' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Difference Percentage, E [%]' ), title( 'Transmission: Decoded Error Difference Percentage' )
-surf( Cs, Xs_input, errors_percent_diff_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_percent_diff_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, errors_percent_diff_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, errors_percent_diff_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_percentage_gain' ] ) 
 
@@ -1036,16 +1059,16 @@ saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_perce
 % Plot the decoded error difference.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Difference Summary' );
 subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Difference, E [-]' ), title( 'Transmission: Decoded Theoretical Error Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_diff_theoretical_decoded; flipud( errors_max_diff_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_diff_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_diff_theoretical_decoded; flipud( errors_max_diff_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_mse_diff_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*errors_min_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
+plot( cs, scale*errors_max_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
 
 subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Difference, E [-]' ), title( 'Transmission: Decoded Numerical Error Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_diff_numerical_decoded; flipud( errors_max_diff_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_diff_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_diff_numerical_decoded; flipud( errors_max_diff_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_mse_diff_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_error_difference_gain_summary' ] ) 
 
 % Plot the decoded error percentage difference.
@@ -1105,7 +1128,7 @@ plot( cs, scale*errors_max_improv_numerical_encoded, '--', 'Color', color2, 'Lin
 saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_gain_summary' ] ) 
 
 % Plot the encoded error improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Error Improvement Summary' ), ylim( [ 0, 0.07 ] )
+fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Error Improvement Summary' )
 patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_improv_numerical_encoded; flipud( scale*errors_max_improv_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
 plot( cs, scale*errors_mse_improv_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
 plot( cs, scale*errors_min_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
@@ -1140,49 +1163,49 @@ saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_perc
 
 % Plot the decoded error improvement comparison.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Comparison' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Error Improvement Comparison' )
-surf( Cs, Xs_input, errors_improv_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_improv_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_gain_comparison' ] ) 
 
 % Plot the decoded error improvement.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Error Improvement' )
-surf( Cs, Xs_input, errors_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, scale*errors_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_gain' ] ) 
 
 % Plot the decoded error improvement percentage comparison.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Percentage Comparison' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement Percentage, E [%]' ), title( 'Transmission: Decoded Error Improvement Percentage Comparison' )
-surf( Cs, Xs_input, errors_percent_improv_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, errors_percent_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, errors_percent_improv_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, errors_percent_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_percentage_gain_comparison' ] ) 
 
 % Plot the decoded error improvement percentage.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Percentage' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement Percentage, E [%]' ), title( 'Transmission: Decoded Error Improvement Percentage' )
-surf( Cs, Xs_input, errors_percent_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( Cs, scale*Xs_input, errors_percent_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_percentage_gain' ] ) 
 
 % Plot the decoded error improvement comparison.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Summary Comparison' );
 subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Theoretical Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_improv_theoretical_decoded; flipud( errors_max_improv_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_improv_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_improv_theoretical_decoded; flipud( errors_max_improv_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_mse_improv_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*errors_min_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
+plot( cs, scale*errors_max_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
 
 subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Numerical Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_improv_numerical_decoded; flipud( errors_max_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_improv_numerical_decoded; flipud( errors_max_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_mse_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_gain_summary_comparison' ] ) 
 
 % Plot the decoded error improvement.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Numerical Error Improvement Summary' ), ylim( [ 0, 70 ] )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_improv_numerical_decoded; flipud( errors_max_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
+patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_improv_numerical_decoded; flipud( errors_max_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+plot( cs, scale*errors_mse_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
+plot( cs, scale*errors_min_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
+plot( cs, scale*errors_max_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
 saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_gain_summary' ] ) 
 
 % Plot the encoded error percentage improvement comparison.
@@ -1228,40 +1251,49 @@ saveas( fig, [ save_directory, '\', 'transmission_max_condition_number_gain' ] )
 
 %% Plot Network Parameters vs Gain.
 
-% Plot the sodium channel conductance vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Sodium Channel Conductance' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Sodium Channel Conductance, Gna [S]' ), title( 'Transmission: Sodium Channel Conductance' )
-plot( cs, Gnas_absolute( :, 1 ), '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Gnas_absolute( :, 1 ), '--', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Gnas_relative( :, 1 ), '-.', 'Color', color2, 'Linewidth', 3 )
-plot( cs, Gnas_relative( :, 1 ), '--', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute 1', 'Absolute 2', 'Relative 1', 'Relative 2' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_sodium_channel_conductance_gain' ] )
+% Plot the maximum decoded output vs gain.
+fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Decoded Output' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Maximum Decoded Output, x2_max [-]' ), title( 'Transmission: Maximum Decoded Output' )
+plot( cs, scale*x2maxs_absolute, '--', 'Color', color1, 'Linewidth', 3 )
+plot( cs, scale*x2maxs_relative , '--', 'Color', color2, 'Linewidth', 3 )
+legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+saveas( fig, [ save_directory, '\', 'transmission_maximum_decoded_output_gain' ] )
 
 % Plot the maximum membrane voltage vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Membrane Voltage' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Maximum Membrane Voltage, R [V]' ), title( 'Transmission: Maximum Membrane Voltage' )
-plot( cs, Rs2_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Rs2_relative, '-.', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+plot( cs, R1s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
+plot( cs, R2s_absolute, '--', 'Color', color1, 'Linewidth', 3 )
+plot( cs, R1_relative*ones( size( cs ) ) , '-.', 'Color', color2, 'Linewidth', 3 )
+plot( cs, R2_relative*ones( size( cs ) ) , '--', 'Color', color2, 'Linewidth', 3 )
+legend( { 'Absolute 1', 'Absolute 2', 'Relative 1', 'Relative 2' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_maximum_membrane_voltage_gain' ] )
+
+% Plot the sodium channel conductance vs gain.
+fig = figure( 'Color', 'w', 'Name', 'Transmission: Sodium Channel Conductance' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Sodium Channel Conductance, Gna [S]' ), title( 'Transmission: Sodium Channel Conductance' )
+plot( cs, Gna1s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
+plot( cs, Gna2s_absolute, '--', 'Color', color1, 'Linewidth', 3 )
+plot( cs, Gna1s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
+plot( cs, Gna2s_relative, '--', 'Color', color2, 'Linewidth', 3 )
+legend( { 'Absolute 1', 'Absolute 2', 'Relative 1', 'Relative 2' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+saveas( fig, [ save_directory, '\', 'transmission_sodium_channel_conductance_gain' ] )
 
 % Plot the synaptic reversal potential vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Synaptic Reversal Potential' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Synaptic Reversal Potential, dE [V]' ), title( 'Transmission: Synaptic Reversal Potential' )
-plot( cs, dEs21_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, dEs21_relative, '-.', 'Color', color2, 'Linewidth', 3 )
+plot( cs, dEs21s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
+plot( cs, dEs21s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_synaptic_reversal_potential_gain' ] )
 
 % Plot the maximum synaptic conductance vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Synaptic Conductance' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Maximum Synaptic Conductance, gs [S]' ), title( 'Transmission: Maximum Synaptic Conductance' )
-plot( cs, gs21_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, gs21_relative, '-.', 'Color', color2, 'Linewidth', 3 )
+plot( cs, gs21s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
+plot( cs, gs21s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_max_synaptic_conductance_gain' ] )
 
 % Plot the steady state applied current vs gain.
 fig = figure( 'Color', 'w', 'Name', 'Transmission: Applied Current' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Applied Current, Ia [A]' ), title( 'Transmission: Applied Current' )
-plot( cs, Ias2_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Ias2_relative, '-.', 'Color', color2, 'Linewidth', 3 )
+plot( cs, Ia2s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
+plot( cs, Ia2s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
 legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'transmission_applied_currents_gain' ] )
 

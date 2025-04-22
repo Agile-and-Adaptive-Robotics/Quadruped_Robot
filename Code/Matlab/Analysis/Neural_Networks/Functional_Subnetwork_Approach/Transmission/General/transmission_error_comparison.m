@@ -52,11 +52,12 @@ plotting_utilities = plotting_utilities_class(  );
 
 %% Define Transmission Subnetwork Parameters.
 
-% Define the subnetwork gain (shared by both encoding schemes).
+% Define the subnetwork formulation parameters (shared by both encoding schemes).
 c = 3.0;
-x1_max = 20e-3;                                             % [-] Maximum Encoded Input.
+x1_max = 20e-3;
 
 % Define the transmission subnetwork design parameters.
+% x1max_absolute = 20e-3;                                     % [-] Maximum Encoded Input.
 Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
@@ -71,6 +72,7 @@ absolute_transmission_input_parameters.Cm1 = Cm1_absolute;
 absolute_transmission_input_parameters.Cm2 = Cm2_absolute;
 
 % Define the transmission subnetwork design parameters.
+% x1max_relative = 20;                                         % [-] Maximum Encoded Input.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -364,55 +366,55 @@ subnetwork_name = 'Transmission';
 
 % Create plots of the absolute and relative encoded and decoded steady state responses.
 fig_absolute_encoded_ss_response = plotting_utilities.plot_steady_state_response( Us_desired_absolute( :, 1 ), Us_desired_absolute( :, 2 ), Us_theoretical_absolute( :, 2 ), Us_numerical_absolute( :, 2 ), scale, subnetwork_name, 'Absolute', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory );
-fig_absolute_decoded_ss_response = plotting_utilities.plot_steady_state_response( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), 1.0, subnetwork_name, 'Absolute', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
+fig_absolute_decoded_ss_response = plotting_utilities.plot_steady_state_response( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), scale, subnetwork_name, 'Absolute', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
 fig_relative_encoded_ss_response = plotting_utilities.plot_steady_state_response( Us_desired_relative( :, 1 ), Us_desired_relative( :, 2 ), Us_theoretical_relative( :, 2 ), Us_numerical_relative( :, 2 ), scale, subnetwork_name, 'Relative', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory );
-fig_relative_decoded_ss_response = plotting_utilities.plot_steady_state_response( xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), 1.0, subnetwork_name, 'Relative', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
+fig_relative_decoded_ss_response = plotting_utilities.plot_steady_state_response( xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), scale, subnetwork_name, 'Relative', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
 
 % Create a plot that compares the absolute and relative steady state responses using both encoded and decoded.
 fig_encoded_ss_response = plotting_utilities.plot_steady_state_response_comparison( Us_desired_absolute( :, 1 ), Us_desired_absolute( :, 2 ), Us_theoretical_absolute( :, 2 ), Us_numerical_absolute( :, 2 ), color_absolute, Us_desired_relative( :, 1 ), Us_desired_relative( :, 2 ), Us_theoretical_relative( :, 2 ), Us_numerical_relative( :, 2 ), color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory );
-fig_decoded_ss_response = plotting_utilities.plot_steady_state_response_comparison( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), color_absolute, xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), color_relative, 1.0, subnetwork_name, 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
+fig_decoded_ss_response = plotting_utilities.plot_steady_state_response_comparison( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), color_absolute, xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), color_relative, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
 
 
 %% Plot the Transmission Steady State Error.
 
 % Plot the encoded and decoded steady state error.
 fig_encoded_ss_error = plotting_utilities.plot_steady_state_error_comparison( Us_theoretical_absolute( :, 1 ), errors_theoretical_encoded_absolute, errors_numerical_encoded_absolute, color_absolute, Us_theoretical_relative( :, 1 ), errors_theoretical_encoded_relative, errors_numerical_encoded_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ss_error = plotting_utilities.plot_steady_state_error_comparison( xs_theoretical_absolute( :, 1 ), errors_theoretical_decoded_absolute, errors_numerical_decoded_absolute, color_absolute, xs_theoretical_relative( :, 1 ), errors_theoretical_decoded_relative, errors_numerical_decoded_relative, color_relative, 1.0, subnetwork_name, 'Decoded', 'x', 'E', '-', save_flag, save_directory );
+fig_decoded_ss_error = plotting_utilities.plot_steady_state_error_comparison( xs_theoretical_absolute( :, 1 ), errors_theoretical_decoded_absolute, errors_numerical_decoded_absolute, color_absolute, xs_theoretical_relative( :, 1 ), errors_theoretical_decoded_relative, errors_numerical_decoded_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x', 'E', '-', save_flag, save_directory );
 
 % Plot the encoded and decoded steady state error percentage.
 fig_encoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_percentage_comparison( Us_theoretical_absolute( :, 1 ), error_percentages_theoretical_encoded_absolute, error_percentages_numerical_encoded_absolute, color_absolute, Us_theoretical_relative( :, 1 ), error_percentages_theoretical_encoded_relative, error_percentages_numerical_encoded_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_percentage_comparison( xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_absolute, error_percentages_numerical_decoded_absolute, color_absolute, xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_relative, error_percentages_numerical_decoded_relative, color_relative, 1.0, subnetwork_name, 'Decoded', 'x1', 'E', '-', save_flag, save_directory );
+fig_decoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_percentage_comparison( xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_absolute, error_percentages_numerical_decoded_absolute, color_absolute, xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_relative, error_percentages_numerical_decoded_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', 'E', '-', save_flag, save_directory );
 
 
 %% Plot the Transmission Steady State Error Difference.
 
 % Plot the encoded and decoded steady state error difference between the absolute and relative transmission formulations.
 fig_encoded_ss_error_difference = plotting_utilities.plot_steady_state_error_difference( Us_theoretical_absolute( :, 1 ), error_diff_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_diff_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ss_error_difference = plotting_utilities.plot_steady_state_error_difference( xs_theoretical_absolute( :, 1 ), error_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_diff_numerical_decoded, 1.0, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+fig_decoded_ss_error_difference = plotting_utilities.plot_steady_state_error_difference( xs_theoretical_absolute( :, 1 ), error_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_diff_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
 
 % Plot the encoded and decoded steady state error percentage difference between the absolute and relative transmission formulations.
 fig_encoded_ss_error_percentage_difference = plotting_utilities.plot_steady_state_error_percentage_difference( Us_theoretical_absolute( :, 1 ), error_percent_diff_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_percent_diff_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ss_error_percentage_difference = plotting_utilities.plot_steady_state_error_percentage_difference( xs_theoretical_absolute( :, 1 ), error_percent_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_diff_numerical_decoded, 1.0, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+fig_decoded_ss_error_percentage_difference = plotting_utilities.plot_steady_state_error_percentage_difference( xs_theoretical_absolute( :, 1 ), error_percent_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_diff_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
 
 
 %% Plot the Transmission Steady State Error Improvement.
 
 % Plot the encoded and encoded steady state error improvement between the absolute and relative transmission formulations.
 fig_encoded_ss_error_improvement = plotting_utilities.plot_steady_state_error_improvement( Us_theoretical_absolute( :, 1 ), error_improv_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_improv_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ss_error_improvement = plotting_utilities.plot_steady_state_error_improvement( xs_theoretical_absolute( :, 1 ), error_improv_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_improv_numerical_decoded, 1.0, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+fig_decoded_ss_error_improvement = plotting_utilities.plot_steady_state_error_improvement( xs_theoretical_absolute( :, 1 ), error_improv_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_improv_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
 
 % Plot the encoded and decoded steady state error percentage improvement between the absolute and relative transmission formulations.
 fig_encoded_ss_error_percentage_improvement = plotting_utilities.plot_steady_state_error_percentage_improvement( Us_theoretical_absolute( :, 1 ), error_percent_improv_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_percent_improv_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ss_error_percentage_improvement = plotting_utilities.plot_steady_state_error_percentage_improvement( xs_theoretical_absolute( :, 1 ), error_percent_improv_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_improv_numerical_decoded, 1.0, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+fig_decoded_ss_error_percentage_improvement = plotting_utilities.plot_steady_state_error_percentage_improvement( xs_theoretical_absolute( :, 1 ), error_percent_improv_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_improv_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
 
 
 %% Plot the Numerical Stability Information.
 
 % Plot the RK4 maximum timestep vs the encoded and decoded input.
 fig_rk4_maximum_timestep_encoded = plotting_utilities.plot_rk4_maximum_timestep( Us_desired_absolute( :, 1 ), dts_absolute, color_absolute, Us_desired_relative( :, 1 ), dts_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
-fig_rk4_maximum_timestep_decoded = plotting_utilities.plot_rk4_maximum_timestep( xs_desired_absolute( :, 1 ), dts_absolute, color_absolute, xs_desired_relative( :, 1 ), dts_relative, color_relative, 1.0, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
+fig_rk4_maximum_timestep_decoded = plotting_utilities.plot_rk4_maximum_timestep( xs_desired_absolute( :, 1 ), dts_absolute, color_absolute, xs_desired_relative( :, 1 ), dts_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
 
 % Plot the linearized system condition numbers vs the encoded and decoded input.
 fig_condition_numbers_encoded = plotting_utilities.plot_condition_numbers( Us_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, Us_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
-fig_condition_numbers_decoded = plotting_utilities.plot_condition_numbers( xs_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, xs_desired_relative( :, 1 ), condition_numbers_relative, color_relative, 1.0, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
+fig_condition_numbers_decoded = plotting_utilities.plot_condition_numbers( xs_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, xs_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
     
