@@ -53,7 +53,7 @@ Gm2 = 1e-6;                                         % [S] Membrane Conductance (
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
  
-% Store the transmission subnetwork design parameters in a cell.
+% Store the transmission subnetwork design parameters.
 transmission_input_parameters.c = c;
 transmission_input_parameters.x1_max = x1_max;
 transmission_input_parameters.R1 = R1;

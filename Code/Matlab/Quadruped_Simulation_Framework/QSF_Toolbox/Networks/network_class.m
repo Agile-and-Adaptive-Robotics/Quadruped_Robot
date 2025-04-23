@@ -7182,7 +7182,7 @@ classdef network_class
             elseif length( fieldnames( inversion_input_parameters ) ) == 10              % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = inversion_input_parameter.c1;
+                c1 = inversion_input_parameters.c1;
                 c3 = inversion_input_parameters.c3;
                 delta = inversion_input_parameters.delta;
                 x1_max = inversion_input_parameters.x1_max;

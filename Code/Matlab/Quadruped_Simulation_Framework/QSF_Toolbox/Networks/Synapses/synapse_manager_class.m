@@ -1806,7 +1806,7 @@ classdef synapse_manager_class
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -5422,7 +5422,7 @@ classdef synapse_manager_class
                 R2 = self.R_DEFAULT;
                 Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.     
                                 
-            elseif length( inversion_parameters ) == 5                                                                	% If there are a specific number of parameters...
+            elseif length( fieldnames( inversion_parameters ) ) == 5                                                                	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
                 c1 = inversion_parameters.c1;
