@@ -1128,7 +1128,7 @@ classdef applied_current_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, parameters = struct( [  ] ); end
            
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
@@ -1137,16 +1137,19 @@ classdef applied_current_manager_class
                 if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
+                    c1 = self.c1_DEFAULT;
+                    c3 = self.c3_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;
-                    R2 = self.R_DEFAULT;                           
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm2, R2 };
+                    % Store the required parameters.
+                    parameters.c1 = c1;
+                    parameters.c3 = c3;
+                    parameters.Gm2 = Gm2;
                     
                 else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 3                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1161,16 +1164,17 @@ classdef applied_current_manager_class
                 if isempty( parameters )                                                % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    Gm2 = self.Gm_DEFAULT;
                     R2 = self.R_DEFAULT;                           
+                    Gm2 = self.Gm_DEFAULT;
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm2, R2 };
+                    % Store the required parameters.
+                    parameters.R2 = R2;
+                    parameters.Gm2 = Gm2;
                     
                 else                                                                    % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 2                        	% If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1776,7 +1780,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                	% [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, parameters = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                 % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -2531,18 +2535,17 @@ classdef applied_current_manager_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to pack the parameters for an absolute inversion subnetwork.
-        function inversion_parameters = pack_absolute_inversion_parameters( self, R2, Gm2 )
+        function inversion_parameters = pack_absolute_inversion_parameters( self, c1, c3, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, R2 = self.R_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            inversion_parameters = cell( 1, 2 );
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 3, c3 = self.c3_DEFAULT; end
+            if nargin < 2, c1 = self.c1_DEFAULT; end
             
             % Pack the parameters.
-            inversion_parameters{ 1 } = R2;
-            inversion_parameters{ 2 } = Gm2;            
+            inversion_parameters.c1 = c1;
+            inversion_parameters.c3 = c3;
+            inversion_parameters.Gm2 = Gm2;            
             
         end
         
@@ -2554,12 +2557,9 @@ classdef applied_current_manager_class
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            inversion_parameters = cell( 1, 2 );
-            
             % Pack the parameters.
-            inversion_parameters{ 1 } = R2;
-            inversion_parameters{ 2 } = Gm2;            
+            inversion_parameters.R2 = R2;
+            inversion_parameters.Gm2 = Gm2;            
             
         end
         
@@ -3768,7 +3768,7 @@ classdef applied_current_manager_class
         % ---------- Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for an inversion subnetwork.
-        function [ Ias2, applied_currents, self ] = design_inversion_applied_current( self, neuron_IDs, inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ applied_current_output_parameters, applied_currents, self ] = design_inversion_applied_current( self, neuron_IDs, inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.n_inversion_neurons_DEFAULT;
@@ -3778,7 +3778,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, inversion_parameters = {  }; end
+            if nargin < 3, inversion_parameters = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
@@ -3788,7 +3788,10 @@ classdef applied_current_manager_class
             inversion_parameters = self.process_inversion_Ias2_parameters( inversion_parameters, encoding_scheme );
             
             % Compute the inversion applied current magnitude outputs.
-            [ Ias2, applied_currents, self ] = self.compute_inversion_Ias2( applied_current_IDs, inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ia2, applied_currents, self ] = self.compute_inversion_Ias2( applied_current_IDs, inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            
+            % Store the applied current magnitudes in the output parameters cell.
+            applied_current_output_parameters.Ia2 = Ia2;
             
         end
         

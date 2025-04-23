@@ -40,7 +40,7 @@ encoding_scheme = 'absolute';
 network_utilities = network_utilities_class(  );
 
 
-%% Define Additional Absolute Transmission Design Subnetwork Parameters.
+%% Define Absolute Transmission Design Subnetwork Parameters.
 
 % Define the transmission subnetwork design parameters.
 c = 1.0;                                            % [-] Absolute Transmission Subnetwork Gain.
@@ -92,7 +92,7 @@ Ias1 = Us1_desired*Gm1;                            	% [A] Applied Currents.
 
 %% Create Absolute Transmission Subnetwork.
 
-% Create an instance of the netwo5rk class.
+% Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
 % Create a transmission subnetwork.

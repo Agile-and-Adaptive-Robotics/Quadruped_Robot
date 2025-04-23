@@ -1823,17 +1823,18 @@ classdef synapse_utilities_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the maximum synaptic conductance of absolute inversion subnetwork synapses.
-        function gs21 = compute_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
+        function gs21 = compute_absolute_inversion_gs21( self, c1, c3, delta, Gm2, dEs21, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end               % [A] Applied Current.
-            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end             % [V] Synaptic Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
-            if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end           % [V] Absolute Inversion Offset.
+            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 6, dEs21 = self.dEs_absolute_inversion_DEFAULT; end             % [V] Synaptic Reversal Potential.
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 4, delta = self.delta_absolute_inversion_DEFAULT; end           % [V] Absolute Inversion Offset.
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                               % [S] Maximum Synaptic Conductance.
+            gs21 = ( ( c3.*delta - c1 ).*Gm2 )./( c3.*( dEs21 - delta ) );                               % [S] Maximum Synaptic Conductance.
 
             % Determine whether to validate the synaptic conductance.
             if validation_flag                                                          % If we want to validate the synaptic conductances...
@@ -1847,17 +1848,19 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of relative inversion subnetwork synapses.
-        function gs21 = compute_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
+        function gs21 = compute_relative_inversion_gs21( self, c1, c3, delta, R2, Gm2, dEs21, validation_flag )
             
             % Define the default input arguments.
-            if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 5, Ia2 = self.Ia2_absolute_inversion_DEFAULT; end               % [A] Applied Current.
-            if nargin < 4, dEs21 = self.dEs_absolute_inversion_DEFAULT; end             % [V] Synaptic Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
-            if nargin < 2, delta = self.delta_relative_inversion_DEFAULT; end           % [V] Relative Inversion Offset.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end          % [T/F] Validation Flag (Determines whether to validate computed quantity.)
+            if nargin < 7, dEs21 = self.dEs_absolute_inversion_DEFAULT; end             % [V] Synaptic Reversal Potential.
+            if nargin < 6, Gm2 = self.Gm_DEFAULT; end                                   % [S] Membrane Conductance.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_relative_inversion_DEFAULT; end           % [V] Relative Inversion Offset.
+            if nargin < 3, c3 = self.c3_relative_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( delta*Gm2 - Ia2 )/( dEs21 - delta );                               % [S] Maximum Synaptic Conductance.
+            gs21 = ( ( delta.*c3 - c1 ).*R2*Gm2 )/( c1.*dEs21 - delta.*c3.*R2 );                               % [S] Maximum Synaptic Conductance.
 
             % Determine whether to validate the synaptic conductance.
             if validation_flag                                                          % If we want to validate the synaptic conductances...

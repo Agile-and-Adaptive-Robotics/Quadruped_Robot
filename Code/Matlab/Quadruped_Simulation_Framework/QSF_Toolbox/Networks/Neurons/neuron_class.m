@@ -1714,26 +1714,53 @@ classdef neuron_class
         
         % ---------- Inversion Subnetwork Functions ----------
                 
+        % Implement a function to unpack the parameters required to compute the maximum encoded input for an absolute inversion subnetwork.
+        function x1_max = unpack_absolute_inversion_R1_parameters( self, R1_parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, R1_parameters = struct( [  ] ); end              % [-] Parameters Cell.
+            
+            % Determine how to set the parameters.
+            if isempty( R1_parameters )                                     % If the parameters are empty...
+                
+                % Set the parameters to default values.
+                x1_max = self.x1max_absolute_inversion_DEFAULT;             % [V] Activation Domain.
+                
+            elseif length( fieldnames( R1_parameters ) ) == 1            	% If there are a specific number of parameters...
+                
+                % Unpack the parameters.
+                x1_max = R1_parameters.x1_max;                             	% [V] Activation Domain.
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end
+            
+        end
+        
+        
         % Implement a function to unpack the parameters required to compute the absolute inversion output activation domain.
-        function [ c1, c3 ] = unpack_absolute_inversion_R2_parameters( self, parameters )
+        function [ c1, c3 ] = unpack_absolute_inversion_R2_parameters( self, R2_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                   % [-] Parameters Cell.
+            if nargin < 2, R2_parameters = struct( [  ] ); end       	% [-] Parameters Structure.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                % If the parameters are empty...
+            if isempty( R2_parameters )                                % If the parameters are empty...
 
                 % Set the default parameters.
-                c1 = self.c1_absolute_inversion_DEFAULT;          	% [-] General Subnetwork Gain 1.
-                c3 = self.c3_absolute_inversion_DEFAULT;         	% [-] General Subnetwork Gain 3.
+                c1 = self.c1_absolute_inversion_DEFAULT;                % [-] General Subnetwork Gain 1.
+                c3 = self.c3_absolute_inversion_DEFAULT;                % [-] General Subnetwork Gain 3.
 
-            elseif length( parameters ) == 2                     	% If there are a specific number of parameters...
+            elseif length( fieldnames( R2_parameters ) ) == 2        	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                            	% [-] General Subnetwork Gain 1.
-                c3 = parameters{ 2 };                               % [-] General Subnetwork Gain 3.
+                c1 = R2_parameters.c1;                                 % [-] General Subnetwork Gain 1.
+                c3 = R2_parameters.c3;                                 % [-] General Subnetwork Gain 3.
                 
-            else                                                    % Otherwise...
+            else                                                        % Otherwise...
                 
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1741,34 +1768,7 @@ classdef neuron_class
             end            
             
         end
-        
-        
-        % Implement a function to unpack the parameters required to compute the relative inversion output activation domain.
-        function R2 = unpack_relative_inversion_R2_parameters( self, parameters )
-        
-            % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                   % [-] Parameters Cell.
-            
-            % Determine how to set the parameters.
-            if isempty( parameters )                                % If the parameters are empty...
-
-                % Set the default parameters.
-                R2 = self.R2_relative_inversion_DEFAULT;          	% [V] Maximum Membrane Voltage.
-
-            elseif length( parameters ) == 1                     	% If there are a specific number of parameters...
-
-                % Retrieve the parameters.
-                R2 = parameters{ 1 };                            	% [V] Maximum Membrane Voltage.
                 
-            else                                                    % Otherwise...
-                
-                % Throw an error.
-                error( 'Unable to unpack parameters.' )
-                
-            end            
-            
-        end
-        
         
         % Implement a function to unpack the parameters required to compute the reduced absolute inversion output activation domain.
         function [ c1, c2 ] = unpack_reduced_absolute_inversion_R2_parameters( self, parameters )
@@ -2109,7 +2109,7 @@ classdef neuron_class
                 % Unpack the absolute transmission parameters.
                 x1_max = self.unpack_absolute_transmission_R1_parameters( R1_parameters );
                 
-                % Compute maximum encoded output.
+                % Compute maximum encoded input.
                 R1 = neuron_utilities.compute_absolute_transmission_R1( x1_max );       % [V] Activation Domain.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
@@ -2244,31 +2244,64 @@ classdef neuron_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
+        % Implement a function to compute the maximum encoded input of an inversion subnetwork.
+        function [ R1, self ] = compute_inversion_R1( self, R1_parameters, encoding_scheme, set_flag, neuron_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, R1_parameters = struct( [  ] ); end
+            
+            % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
+
+                % Unpack the absolute inversion parameters.
+                x1_max = self.unpack_absolute_inversion_R1_parameters( R1_parameters );
+                
+                % Compute maximum encoded input.
+                R1 = neuron_utilities.compute_absolute_inversion_R1( x1_max );          % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                               % If the encoding scheme is set to relative...
+
+                % Throw an error.
+                error( 'R1 is a free parameter for relative inversion subnetworks.' )
+
+            else                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R1; end
+                    
+        end
+
+        
         % Implement a function to compute the operational domain of the inversion subnetwork output neuron.
-        function [ R2, self ] = compute_inversion_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+        function [ R2, self ] = compute_inversion_R2( self, R2_parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                         	% [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                       % [-] Parameters Cell.
+            if nargin < 2, R2_parameters = {  }; end                                                       % [-] Parameters Cell.
             
             % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                   % If the encoding scheme is set to absolute...
 
                 % Unpack the parameters required to compute the absolute inversion subnetwork output activation domain.
-                [ c1, c3 ] = self.unpack_absolute_inversion_R2_parameters( parameters );
+                [ c1, c3 ] = self.unpack_absolute_inversion_R2_parameters( R2_parameters );
                 
                 % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.            
                 R2 = neuron_utilities.compute_absolute_inversion_R2( c1, c3 );                          % [V] Activation Domain.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                               % If the encoding scheme is set to relative...
             
-                % Unpack the parameters required to compute the relative inversion subnetwork output activation domain.
-                R2 = self.unpack_relative_inversion_R2_parameters( parameters );
-                
-                % Compute the membrane capacitance for this neuron assuming that it belongs to a relative inversion subnetwork.            
-                R2 = neuron_utilities.compute_relative_inversion_R2( R2 );                          % [V] Activation Domain.
+                % Throw an error.
+                error( 'R2 is a free parameter for relative inversion subnetworks.' )
 
             else                                                                                        % Otherwise...
 

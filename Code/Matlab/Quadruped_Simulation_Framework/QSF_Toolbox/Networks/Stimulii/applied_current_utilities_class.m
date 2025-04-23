@@ -216,27 +216,28 @@ classdef applied_current_utilities_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of output absolute inversion subnetwork applied currents.
-        function Ias2 = compute_absolute_inversion_Ias2( self, Gm2, R2 )
+        function Ias2 = compute_absolute_inversion_Ias2( self, c1, c3, Gm2 )
             
             % Define the default input arguments.
-            if nargin < 3, R2 = self.R_DEFAULT; end                                       	% [V] Activation Domain.
-            if nargin < 2, Gm2 = self.Gm_DEFAULT; end                                     	% [S] Membrane Conductance.
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end                   % [S] Membrane Conductance.
+            if nargin < 3, c3 = self.c3_DEFAULT; end
+            if nargin < 2, c1 = self.c1_DEFAULT; end
             
             % Compute the magnitude of the inversion subentwork applied currents.
-            Ias2 = Gm2.*R2;                                                               	% [A] Applied Current.
+            Ias2 = ( c1./c3 ).*Gm2;                                 	% [A] Applied Current.
             
         end
         
         
         % Implement a function to compute the magnitude of output relative inversion subnetwork applied currents.
-        function Ias2 = compute_relative_inversion_Ias2( self, Gm2, R2 )
+        function Ias2 = compute_relative_inversion_Ias2( self, R2, Gm2 )
             
             % Define the default input arguments.
-            if nargin < 3, R2 = self.R_DEFAULT; end                                          % [V] Activation Domain.
-            if nargin < 2, Gm2 = self.Gm_DEFAULT; end                                        % [S] Membrane Conductance.
-            
+            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                      	% [S] Membrane Conductance.
+            if nargin < 2, R2 = self.R_DEFAULT; end                                       	% [V] Activation Domain.
+
             % Compute the magnitude of the inversion subentwork applied currents.
-            Ias2 = Gm2.*R2;                                                                    % [A] Applied Current.
+            Ias2 = R2.*Gm2;                                                              	% [A] Applied Current.
             
         end
         

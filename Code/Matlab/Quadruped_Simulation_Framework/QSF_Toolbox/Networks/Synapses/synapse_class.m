@@ -456,27 +456,29 @@ classdef synapse_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters required to compute the absolute inversion synaptic conductance.
-        function [ delta, Gm2, dEs21, Ia2 ] = unpack_absolute_inversion_gs_parameters( self, parameters )
+        function [ c1, c3, delta, Gm2, dEs21 ] = unpack_absolute_inversion_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [-] Input Parameters.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta = self.delta_absolute_inversion_DEFAULT;          % [V] Absolute Inversion Offset.
-                Gm2 = self.Gm_DEFAULT;                                  % [S] Membrane Conductance.
-                dEs21 = self.dEs;                                       % [V] Synaptic Reversal Potential.
-                Ia2 = self.Ia2_absolute_inversion_DEFAULT;              % [A] Applied Current.
-
-            elseif length( parameters ) == 4                            % If there are a specific number of parameters...
+                c1 = self.c1_absolute_inversion_DEFAULT;
+                c3 = self.c3_absolute_inversion_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;
+                Gm2 = self.Gm2_DEFAULT;
+                dEs21 = self.dEs;                
+                
+            elseif length( fieldnames( parameters ) ) == 5                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                % [V] Absolute Inversion Offset.
-                Gm2 = parameters{ 2 };                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                 	% [A] Applied Current.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                delta = parameters.delta;
+                Gm2 = parameters.Gm2;
+                dEs21 = parameters.dEs21;
             
             else                                                        % Otherwise...
                
@@ -489,27 +491,31 @@ classdef synapse_class
         
             
         % Implement a function to unpack the parameters required to compute the relative inversion synaptic conductance.
-        function [ delta, Gm2, dEs21, Ia2 ] = unpack_relative_inversion_gs_parameters( self, parameters )
+        function [ c1, c3, delta, R2, Gm2, dEs21 ] = unpack_relative_inversion_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta = self.delta_relative_inversion_DEFAULT;          % [V] Relative Inversion Offset.
-                Gm2 = self.Gm_DEFAULT;                                  % [S] Membrane Conductance.
-                dEs21 = self.dEs;                                       % [V] Synaptic Reversal Potential.
-                Ia2 = self.Ia2_relative_inversion_DEFAULT;              % [A] Applied Current.
+                c1 = self.c1_absolute_inversion_DEFAULT;
+                c3 = self.c3_absolute_inversion_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;
+                R2 = self.R_DEFAULT;
+                Gm2 = self.Gm2_DEFAULT;
+                dEs21 = self.dEs;     
 
-            elseif length( parameters ) == 4                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                % [V] Relative Inversion Offset.
-                Gm2 = parameters{ 2 };                                  % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                  % [A] Applied Current.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                delta = parameters.delta;
+                R2 = parameters.R2;
+                Gm2 = parameters.Gm2;
+                dEs21 = parameters.dEs21;
             
             else                                                        % Otherwise...
                
@@ -2537,24 +2543,24 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                 	% [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                 % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                    	% [-] Input Parameters Cell.
             
             % Determine how to compute the synaptic conductance for an inversion subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute inversion subnetwork.
-                [ delta1, Gm2, dEs21, Ia2 ] = self.unpack_absolute_inversion_gs_parameters( parameters );
+                [ c1, c3, delta, Gm2, dEs21 ] = self.unpack_absolute_inversion_gs_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue inversion subnetwork.
-                gs21 = synapse_utilities.compute_absolute_inversion_gs21( delta1, Gm2, dEs21, Ia2, validation_flag );           % [V] Synaptic Reversal Potential.
+                gs21 = synapse_utilities.compute_absolute_inversion_gs21( c1, c3, delta, Gm2, dEs21, validation_flag );           % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                       % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative inversion subnetwork.
-                [  delta1, Gm2, dEs21, Ia2 ] = self.unpack_relative_inversion_gs_parameters( parameters );
+                [  c1, c3, delta, R2, Gm2, dEs21 ] = self.unpack_relative_inversion_gs_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative inversion subnetwork.                
-                gs21 = synapse_utilities.compute_relative_inversion_gs21( delta1, Gm2, dEs21, Ia2, validation_flag );          	% [V] Synaptic Reversal Potential.
+                gs21 = synapse_utilities.compute_relative_inversion_gs21( c1, c3, delta, R2, Gm2, dEs21, validation_flag );          	% [V] Synaptic Reversal Potential.
                  
             else                                                                                                                % Otherwise...
                 

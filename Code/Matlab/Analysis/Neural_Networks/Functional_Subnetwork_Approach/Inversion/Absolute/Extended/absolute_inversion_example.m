@@ -17,8 +17,8 @@ verbose_flag = true;                             	% [T/F] Printing Flag.
 undetected_option = 'error';                        % [str] Undetected Option.
 
 % Define the network integration step size.
-network_dt = 1e-3;                                  % [s] Simulation Timestep.
-% network_dt = 1e-4;                            	% [s] Simulation Timestep.
+% network_dt = 1e-3;                                  % [s] Simulation Timestep.
+network_dt = 1e-4;                            	% [s] Simulation Timestep.
 
 % Define the network simulation duration.
 network_tf = 0.5;                                 	% [s] Simulation Duration.
@@ -37,56 +37,53 @@ integration_method = 'RK4';                         % [str] Integration Method (
 % Define the encoding scheme.
 encoding_scheme = 'absolute';
 
-
-%% Define the Desired Inversion Subnetwork Parameters.
-
 % Create an instance of the network utilities class.
 network_utilities = network_utilities_class(  );
 
-% Define the inversion subnetwork parameters.
-c1 = 0.40e-9;                                       % [W] Design Constant 1.
-c3 = 20e-9;                                         % [A] Design Constant 3.
-delta = 1e-3;                                       % [V] Membrane Voltage Offset.
 
-% Define the desired mapping operation.
-f_desired = @( x, c2 ) network_utilities.compute_desired_inversion_sso( x, c1, c2, c3 );
+%% Define Subnetwork Design Parameters.
+
+% Define the transmission subnetwork design parameters.
+c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+% c1 = 40e-6;                                         % [-] Subnetwork Gain 1.
+c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
+delta = 1e-3;                                       % [V] Minimum Decoded Output.
+x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
+Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
+Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
+Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
+Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
+
+% Store the transmission subnetwork design parameters in a structure.
+inversion_input_parameters.c1 = c1;
+inversion_input_parameters.c3 = c3;
+inversion_input_parameters.delta = delta;
+inversion_input_parameters.x1_max = x1_max;
+inversion_input_parameters.Gm1 = Gm1;
+inversion_input_parameters.Gm2 = Gm2;
+inversion_input_parameters.Cm1 = Cm1;
+inversion_input_parameters.Cm2 = Cm2;
 
 
 %% Define the Encoding & Decoding Operations.
 
-% Define the domain of the input and output signals.
-x_max = 20;
+% Define the encoding maps.
+f_encode1 = @( x1 ) network_utilities.encode_absolute_inversion_input( x1 );
+f_encode2 = @( x2 ) network_utilities.encode_absolute_inversion_output( x2 );
 
-% Define the encoding scheme.
-f_encode = @( x ) x*( 10^( -3 ) );
-
-% Define the decoding scheme.
-f_decode = @( U ) U*( 10^3 );
-
-
-%% Define Additional Absolute Inversion Design Subnetwork Parameters.
-
-% Define the inversion subnetwork design parameters.
-R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
-Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
-Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
-% Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
-% Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
-Cm1 = 15e-9;                                     	% [F] Membrane Capacitance (Neuron 1).
-Cm2 = 15e-9;                                      % [F] Membrane Capacitance (Neuron 2).
-
-% Store the inversion subnetwork design parameters in a cell.
-inversion_parameters = { c1, c3, delta, R1, Gm1, Gm2, Cm1, Cm2 };
+% Define the decoding maps.
+f_decode1 = @( U1 ) network_utilities.decode_absolute_inversion_input( U1 );
+f_decode2 = @( U2 ) network_utilities.decode_absolute_inversion_output( U2 );
 
 
 %% Define the Desired Input Signal.
 
 % Define the desired decoded input signal.
-% xs_desired = 0*ones( n_timesteps, 1 );
-xs_desired = x_max*ones( n_timesteps, 1 );
+% xs1_desired = 0*ones( n_timesteps, 1 );
+xs1_desired = x1_max*ones( n_timesteps, 1 );
 
 % Encode the input signal.
-Us1_desired = f_encode( xs_desired );
+Us1_desired = f_encode1( xs1_desired );
 
 
 %% Define the Absolute Inversion Subnetwork Input Current Parameters.
@@ -106,7 +103,7 @@ Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 network = network_class( network_dt, network_tf );
 
 % Create a inversion subnetwork.
-[ cs, Gnas, R2, dEs21, gs21, Ia2, ~, ~, ~, ~, ~, ~, network ] = network.create_inversion_subnetwork( inversion_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+[ inversion_output_parameters, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.create_inversion_subnetwork( inversion_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Update the input current ID and name.
 [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network.applied_current_manager.applied_currents, true );
@@ -125,15 +122,6 @@ network.applied_current_manager.applied_currents( 2 ) = temporary_applied_curren
 
 % Print inversion subnetwork information.
 network.print( network.neuron_manager, network.synapse_manager, network.applied_current_manager, verbose_flag );
-
-
-%% Compute Derived Encoding & Decoding Parameters.
-
-% Retrieve the second gain variable.
-c2 = cs( 2 );
-
-% Compute the maximum output signal.
-y_max = f_desired( 0, c2 );
 
 
 %% Compute Absolute Inversion Numerical Stability Analysis Parameters.
@@ -183,10 +171,13 @@ toc
 %% Decode the Absolute Inversion Subnetwork Output.
 
 % Decode the network input.
-xs = f_decode( Us( 1, : ) );
+xs1 = f_decode1( Us( 1, : ) );
 
 % Decode the network output.
-ys = f_decode( Us( 2, : ) );
+xs2 = f_decode2( Us( 2, : ) );
+
+% Concatenate the decoded input and output.
+Xs = [ xs1; xs2 ];
 
 
 %% Plot the Absolute Inversion Subnetwork Results.
@@ -209,8 +200,8 @@ saveas( fig_network_encoded, [ save_directory, '\', 'absolute_inversion_example_
 
 % Plot the decoded network input and output over time.
 fig_network_decoded = figure( 'Color', 'w', 'Name', 'AI: Decoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'AI: Decoded Input & Output [-]' ), title( 'AI: Decoded Input & Output vs Time' )
-plot( ts, xs, '-', 'Linewidth', 3 )
-plot( ts, ys, '-', 'Linewidth', 3 )
+plot( ts, Xs( 1, : ), '-', 'Linewidth', 3 )
+plot( ts, Xs( 2, : ), '-', 'Linewidth', 3 )
 legend( 'Decoded Input', 'Decoded Output' )
 saveas( fig_network_decoded, [ save_directory, '\', 'absolute_inversion_example_decoded' ] )
 
@@ -221,7 +212,7 @@ saveas( fig_network_encoded, [ save_directory, '\', 'absolute_inversion_dynamic_
 
 % Plot the decoded network input and output.
 fig_network_decoding = figure( 'Color', 'w', 'Name', 'AI: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input [-]' ), ylabel( 'Decoded Output [-]' ), title( 'AI: Decoded Output vs Decoded Input' )
-plot( xs, ys, '-', 'Linewidth', 3 )
+plot( Xs( 1, : ), Xs( 2, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_decoding, [ save_directory, '\', 'absolute_inversion_dynamic_example_decoded' ] )
 
 % Animate the network states over time.

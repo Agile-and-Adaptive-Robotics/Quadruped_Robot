@@ -1678,18 +1678,24 @@ classdef synapse_manager_class
                 if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    delta1 = self.delta_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    c1 = self.c1_absolute_inversion_DEFAULT;
+                    c3 = self.c3_absolute_inversion_DEFAULT;
+                    delta = self.delta_absolute_inversion_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                     
-                    % Store the required parameters in a cell.
-                    parameters = { delta1, Gm2, dEs21, Ia2 };
+                    % Store the required parameters.
+                    parameters.c1 = c1;
+                    parameters.c3 = c3;
+                    parameters.delta = delta;
+                    parameters.Gm2 = Gm2;
+                    parameters.dEs21 = dEs21;
+                    
                     
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1704,18 +1710,25 @@ classdef synapse_manager_class
                 if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    delta1 = self.delta_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
-                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );             % [V] Synaptic Reversal Potential.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
+                    c1 = self.c1_absolute_inversion_DEFAULT;
+                    c3 = self.c3_absolute_inversion_DEFAULT;
+                    delta = self.delta_absolute_inversion_DEFAULT;
+                    R2 = self.R_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;
+                    dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                     
-                    % Store the required parameters in a cell.
-                    parameters = { delta1, Gm2, dEs21, Ia2 };
+                    % Store the required parameters.
+                    parameters.c1 = c1;
+                    parameters.c3 = c3;
+                    parameters.delta = delta;
+                    parameters.R2 = R2;
+                    parameters.Gm2 = Gm2;
+                    parameters.dEs21 = dEs21;
                     
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1748,17 +1761,21 @@ classdef synapse_manager_class
                 if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    delta1 = self.delta_inversion_DEFAULT;
+                    c1 = self.c1_absolute_inversion_DEFAULT;
+                    c3 = self.c3_absolute_inversion_DEFAULT;
+                    delta = self.delta_absolute_inversion_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required parameters in a cell.
-                    parameters = { delta1, Gm2, Ia2 };
+                    % Store the required parameters.
+                    parameters.c1 = c1;
+                    parameters.c3 = c3;
+                    parameters.delta = delta;
+                    parameters.Gm2 = Gm2;
                     
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                                            % If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( parameters ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -1773,17 +1790,23 @@ classdef synapse_manager_class
                 if isempty( parameters )                                                                                    % If no parameters were provided...
                     
                     % Set the default parameter values.
-                    delta1 = self.delta_inversion_DEFAULT;
+                    c1 = self.c1_absolute_inversion_DEFAULT;
+                    c3 = self.c3_absolute_inversion_DEFAULT;
+                    delta = self.delta_absolute_inversion_DEFAULT;
+                    R2 = self.R_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required parameters in a cell.
-                    parameters = { delta1, Gm2, Ia2 };
+                    % Store the required parameters.
+                    parameters.c1 = c1;
+                    parameters.c3 = c3;
+                    parameters.delta = delta;
+                    parameters.R2 = R2;
+                    parameters.Gm2 = Gm2;
                     
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( parameters ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -5350,27 +5373,27 @@ classdef synapse_manager_class
         % ---------- Inversion Subnetwork Functions ----------
 
         % Implement a function to unpack the parameters for an absolute inversion subnetwork.
-        function [ delta1, Gm2, Ia2 ] = unpack_absolute_inversion_parameters( self, inversion_parameters )
+        function [ c1, c3, delta, Gm2 ] = unpack_absolute_inversion_parameters( self, inversion_parameters )
             
-            % Absolute: delta1, Gm2, Ia2
-
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                 	% [-] Input Parameters Cell.
             
             % Determine how to set the parameters.
             if isempty( inversion_parameters )                                                                       	% If the parameters are empty...
             
                 % Set the default parameter values.
-                delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
-                Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
+                c1 = self.c1_absolute_inversion_DEFAULT;
+                c3 = self.c3_absolute_inversion_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;                                                        	% [V] Inversion Subnetwork Offset.
+                Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                                 
-            elseif length( inversion_parameters ) == 3                                                                	% If there are a specific number of parameters...
+            elseif length( fieldnames( inversion_parameters ) ) == 4                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = inversion_parameters{ 1 };                                                                    	% [V] Inversion Subnetwork Offset.
-                Gm2 = inversion_parameters{ 2 };                                                                       	% [S] Membrane Conductance.
-                Ia2 = inversion_parameters{ 3 };                                                                      	% [A] Applied Current.
+                c1 = inversion_parameters.c1;
+                c3 = inversion_parameters.c3;
+                delta = inversion_parameters.delta;                                                                    	% [V] Inversion Subnetwork Offset.
+                Gm2 = inversion_parameters.Gm2;                                                                       	% [S] Membrane Conductance.
             
             else                                                                                                       	% Otherwise...
                
@@ -5383,9 +5406,8 @@ classdef synapse_manager_class
         
         
         % Implement a function to unpack the parameters for a relative inversion subnetwork.
-        function [ delta1, Gm2, Ia2 ] = unpack_relative_inversion_parameters( self, inversion_parameters )
+        function [ c1, c3, delta, R2, Gm2 ] = unpack_relative_inversion_parameters( self, inversion_parameters )
             
-            % Relative: delta1, Gm2, Ia2
 
             % Set the default input arguments.
             if nargin < 2, inversion_parameters = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
@@ -5394,16 +5416,20 @@ classdef synapse_manager_class
             if isempty( inversion_parameters )                                                                       	% If the parameters are empty...
             
                 % Set the default parameter values.
-                delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
-                Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
+                c1 = self.c1_absolute_inversion_DEFAULT;
+                c3 = self.c3_absolute_inversion_DEFAULT;
+                delta = self.delta_absolute_inversion_DEFAULT;                                                        	% [V] Inversion Subnetwork Offset.
+                R2 = self.R_DEFAULT;
+                Gm2 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.     
                                 
-            elseif length( inversion_parameters ) == 3                                                                	% If there are a specific number of parameters...
+            elseif length( inversion_parameters ) == 5                                                                	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = inversion_parameters{ 1 };                                                                    	% [V] Inversion Subnetwork Offset.
-                Gm2 = inversion_parameters{ 2 };                                                                       	% [S] Membrane Conductance.
-                Ia2 = inversion_parameters{ 3 };                                                                      	% [A] Applied Current.
+                c1 = inversion_parameters.c1;
+                c3 = inversion_parameters.c3;
+                delta = inversion_parameters.delta;                                                                    	% [V] Inversion Subnetwork Offset.
+                R2 = inversion_parameters.R2;
+                Gm2 = inversion_parameters.Gm2;                                                                       	% [S] Membrane Conductance.
             
             else                                                                                                       	% Otherwise...
                
@@ -6750,85 +6776,85 @@ classdef synapse_manager_class
         % ---------- Inversion Subnetwork Functions ----------
 
         % Implement a function to pack absolute inversion gs parameters.
-        function parameters_gs = pack_absolute_inversion_gs_parameters( self, synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option )
+        function parameters_gs = pack_absolute_inversion_gs_parameters( self, synapse_ID, c1, c3, delta, Gm2, dEs21, synapses, undetected_option )
 
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 5, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            parameters_gs = cell( 1, 4 );
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, synapses = self.synapses; end
+            if nargin < 7, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
+            if nargin < 6, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 5, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 3, c1 = self.c1_absolute_inversion_DEFAULT; end
             
             % Pack the parameters.
-            parameters_gs{ 1 } = delta1;
-            parameters_gs{ 2 } = Gm2;
-            parameters_gs{ 3 } = dEs21;
-            parameters_gs{ 4 } = Ia2;
+            parameters_gs.c1 = c1;
+            parameters_gs.c3 = c3;
+            parameters_gs.delta = delta;
+            parameters_gs.Gm2 = Gm2;
+            parameters_gs.dEs21 = dEs21;
             
         end
         
         
         % Implement a function to pack relative inversion gs parameters.
-        function parameters_gs = pack_relative_inversion_gs_parameters( self, synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option )
+        function parameters_gs = pack_relative_inversion_gs_parameters( self, synapse_ID, c1, c3, delta, R2, Gm2, dEs21, synapses, undetected_option )
 
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 5, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            parameters_gs = cell( 1, 4 );
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 9, synapses = self.synapses; end
+            if nargin < 8, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
+            if nargin < 7, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 3, c1 = self.c1_absolute_inversion_DEFAULT; end
             
             % Pack the parameters.
-            parameters_gs{ 1 } = delta1;
-            parameters_gs{ 2 } = Gm2;
-            parameters_gs{ 3 } = dEs21;
-            parameters_gs{ 4 } = Ia2;
+            parameters_gs.c1 = c1;
+            parameters_gs.c3 = c3;
+            parameters_gs.delta = delta;
+            parameters_gs.R2 = R2;
+            parameters_gs.Gm2 = Gm2;
+            parameters_gs.dEs21 = dEs21;
             
         end
         
         
         % Implement a function to pack absolute inversion parameters.
-        function inversion_parameters = pack_absolute_inversion_parameters( self, delta1, Gm2, Ia2 )
+        function inversion_parameters = pack_absolute_inversion_parameters( self, c1, c3, delta, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            inversion_parameters = cell( 1, 3 );
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, delta = self.delta_absolute_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
             
             % Pack the parameters.
-            inversion_parameters{ 1 } = delta1;
-            inversion_parameters{ 2 } = Gm2;
-            inversion_parameters{ 3 } = Ia2;
+            inversion_parameters.c1 = c1;
+            inversion_parameters.c3 = c3;
+            inversion_parameters.delta = delta;
+            inversion_parameters.Gm2 = Gm2;
             
         end
         
         
         % Implement a function to pack relative inversion parameters.
-        function inversion_parameters = pack_relative_inversion_parameters( self, delta1, Gm2, Ia2 )
+        function inversion_parameters = pack_relative_inversion_parameters( self, c1, c3, delta, R2, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_relative_inversion_DEFAULT; end
-            
-            % Preallocate a cell array to store the parameters.
-            inversion_parameters = cell( 1, 3 );
+            if nargin < 6, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, delta = self.delta_relative_inversion_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_inversion_DEFAULT; end
             
             % Pack the parameters.
-            inversion_parameters{ 1 } = delta1;
-            inversion_parameters{ 2 } = Gm2;
-            inversion_parameters{ 3 } = Ia2;
+            inversion_parameters.c1 = c1;
+            inversion_parameters.c3 = c3;
+            inversion_parameters.delta = delta;
+            inversion_parameters.R2 = R2;
+            inversion_parameters.Gm2 = Gm2;
             
         end
         
@@ -8474,18 +8500,18 @@ classdef synapse_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute inversion parameters.
-                [ delta1, Gm2, Ia2 ] = self.unpack_absolute_inversion_parameters( inversion_parameters );
+                [ c1, c3, delta, Gm2 ] = self.unpack_absolute_inversion_parameters( inversion_parameters );
                 
                 % Pack the absolute subtraction gs parameters.
-                inversion_gs_parameters = self.pack_absolute_inversion_gs_parameters( synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option );
+                inversion_gs_parameters = self.pack_absolute_inversion_gs_parameters( synapse_ID, c1, c3, delta, Gm2, dEs21, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Unpack the relative subtraction parameters.
-                [ delta1, Gm2, Ia2 ] = self.unpack_relative_inversion_parameters( inversion_parameters );
+                [ c1, c3, delta, R2, Gm2 ] = self.unpack_relative_inversion_parameters( inversion_parameters );
                 
                 % Pack the relative subtraction gs parameters.
-                inversion_gs_parameters = self.pack_relative_inversion_gs_parameters( synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option );
+                inversion_gs_parameters = self.pack_relative_inversion_gs_parameters( synapse_ID, c1, c3, delta, R2, Gm2, dEs21, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -12867,7 +12893,7 @@ classdef synapse_manager_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to design the synapses for an inversion subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_inversion_synapse( self, neuron_IDs, inversion_parameters, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_parameters, synapse_ID, synapses, self ] = design_inversion_synapse( self, neuron_IDs, inversion_parameters, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -12892,6 +12918,10 @@ classdef synapse_manager_class
                         
             % Compute the synaptic conductance.
             [ gs21, synapses, synapse_manager ] = synapse_manager.compute_inversion_gs21( synapse_ID, inversion_gs_parameters, encoding_scheme, synapses, true, validation_flag, undetected_option );
+            
+            % Store the synapse output parameters in a structure.
+            synapse_output_parameters.dEs21 = dEs21;
+            synapse_output_parameters.gs21 = gs21;
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end

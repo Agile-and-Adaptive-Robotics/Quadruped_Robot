@@ -498,7 +498,7 @@ classdef network_utilities_class
             if nargin < 2, c1 = self.c1_absolute_transmission_DEFAULT; end
             
             % Compute the maximum decoded output.
-            x2_max = c1 / c3;
+            x2_max = c1 ./ c3;
             
         end
         
@@ -2615,7 +2615,7 @@ classdef network_utilities_class
         
         
         % Implement a function to encode the relative transmission input.
-        function U1 = encode_relative_transmission_input( ~, x1, x1_max, R1 )
+        function U1 = encode_relative_transmission_input( self, x1, x1_max, R1 )
             
             % Set the default input arguments.
             if nargin < 4, R1 = self.R_DEFAULT; end
@@ -2628,7 +2628,7 @@ classdef network_utilities_class
 
         
         % Implement a function to encode the relative transmission output.
-        function U2 = encode_relative_transmission_output( ~, x2, c, x1_max, R2 )
+        function U2 = encode_relative_transmission_output( self, x2, c, x1_max, R2 )
         
             % Set the default input arguments.
             if nargin < 5, R2 = self.R_DEFAULT; end
@@ -2642,7 +2642,7 @@ classdef network_utilities_class
         
         
         % Implement a function to decode the relative transmission input.
-        function x1 = decode_relative_transmission_input( ~, U1, x1_max, R1 )
+        function x1 = decode_relative_transmission_input( self, U1, x1_max, R1 )
             
             % Set the default input arguments.
             if nargin < 4, R1 = self.R_DEFAULT; end
@@ -2655,7 +2655,7 @@ classdef network_utilities_class
         
         
         % Implement a function to decode the relative transmission output.
-        function x2 = decode_relative_transmission_output( ~, U2, c, x1_max, R2 )
+        function x2 = decode_relative_transmission_output( self, U2, c, x1_max, R2 )
         
             % Set the default input arguments.
             if nargin < 5, R2 = self.R_DEFAULT; end
@@ -2679,6 +2679,94 @@ classdef network_utilities_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
+        % Implement a function to encode the absolute inversion input.
+        function U1 = encode_absolute_inversion_input( ~, x1 )
+        
+            % Encode the input.
+            U1 = x1;
+        
+        end
+        
+            
+        % Implement a function to encode the absolute inversion output.
+        function U2 = encode_absolute_inversion_output( ~, x2 )
+           
+            % Encode the output.
+            U2 = x2;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute inversion input.
+        function x1 = decode_absolute_inversion_input( ~, U1 )
+        
+            % Decode the input.
+            x1 = U1;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute inversion output.
+        function x2 = decode_absolute_inversion_output( ~, U2 )
+            
+            % Decode the output.
+            x2 = U2;
+            
+        end
+        
+        
+        % Implement a function to encode the relative inversion input.
+        function U1 = encode_relative_inversion_input( self, x1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Encode the input.
+            U1 = ( R1./x1_max ).*x1;
+            
+        end
+
+        
+        % Implement a function to encode the relative inversion output.
+        function U2 = encode_relative_inversion_output( self, x2, c1, c3, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, c3 = self.c3_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
+            
+            % Encode the output.
+            U2 = ( ( c3.*R2 )./c1 ).*x2;
+            
+        end
+        
+        
+        % Implement a function to decode the relative inversion input.
+        function x1 = decode_relative_inversion_input( self, U1, x1_max, R1 )
+
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Decode the input.
+            x1 = ( x1_max./R1 ).*U1;
+            
+        end
+        
+        
+        % Implement a function to decode the relative inversion output.
+        function x2 = decode_relative_inversion_output( self, U2, c1, c3, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, c3 = self.c3_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
+            
+            % Decode the output.
+            x2 = ( c1./( c3.*R2 ) ).*U2;
+            
+        end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------

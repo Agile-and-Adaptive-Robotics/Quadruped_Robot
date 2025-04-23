@@ -1216,6 +1216,18 @@ classdef neuron_utilities_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
+        % Implement a function to compute the maximum encoded input of an absolute inversion subnetwork.
+        function R1 = compute_absolute_inversion_R1( self, x1_max )
+        
+            % Set the default input arguments.
+            if nargin < 2, x1_max = self.x1max_absolute_inversion_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R1 = x1_max;
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the absolute inversion subnetwork output neuron.
         function R2 = compute_absolute_inversion_R2( self, c1, c3 )
 
@@ -1224,18 +1236,10 @@ classdef neuron_utilities_class
             if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end          % [-] Inversion Subnetwork Gain 1.
 
             % Compute the operational domain.
-            R2 = c1/c3;                                                  % [V] Activation Domain.
+            R2 = c1./c3;                                                  % [V] Activation Domain.
 
         end
         
-        
-        % Implement a function to compute the operational domain of the relative inversion subnetwork output neuron.
-        function R2 = compute_relative_inversion_R2( self, R2 )
-
-            % Set the default input arguments.
-            if nargin < 2, R2 = self.R_relative_inversion_DEFAULT; end          % [V] Maximum Membrane Voltage.
-
-        end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
