@@ -73,10 +73,12 @@ inversion_input_parameters.Cm2 = Cm2;
 % Define the encoding maps.
 f_encode1 = @( x1 ) network_utilities.encode_relative_inversion_input( x1, x1_max, R1 );
 f_encode2 = @( x2 ) network_utilities.encode_relative_inversion_output( x2, c1, c3, R2 );
+f_encode = @( Xs ) [ f_encode1( Xs( :, 1 ) ), f_encode2( Xs( :, 2 ) ) ];
 
 % Define the decoding maps.
 f_decode1 = @( U1 ) network_utilities.decode_relative_inversion_input( U1, x1_max, R1 );
 f_decode2 = @( U2 ) network_utilities.decode_relative_inversion_output( U2, c1, c3, R2 );
+f_decode = @( Us ) [ f_decode1( Us( :, 1 ) ), f_decode2( Us( :, 2 ) ) ];
 
 
 %% Define the Decoded Input Signal.

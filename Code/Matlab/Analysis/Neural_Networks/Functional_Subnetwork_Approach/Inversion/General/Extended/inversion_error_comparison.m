@@ -4,484 +4,437 @@
 clear, close( 'all' ), clc
 
 
-%% Initialize Project Options.
+%% Define Simulation Parameters.
 
 % Define the save and load directories.
-save_directory = '.\Save';                                  % [str] Save Directory.
-load_directory = '.\Load';                                  % [str] Load Directory.
+save_directory = '.\Save';                         	% [str] Save Directory.
+load_directory = '.\Load';                         	% [str] Load Directory.
+
+% Set a flag to determine whether to simulate.
+simulate_flag = true;                             	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+% simulate_flag = false;                            % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
+
+% Set the level of verbosity.
+verbose_flag = true;                            	% [T/F] Printing Flag. (Determines whether to print out information.)
+
+% Define the undetected option.
+undetected_option = 'Error';                        % [str] Undetected Option.
 
 % Define the network simulation time step.
-network_dt = 1e-3;                                          % [s] Simulation Time Step.
+% network_dt = 1e-3;                               	% [s] Simulation Time Step.
+network_dt = 1e-4;                                  % [s] Simulation Timestep.
 
 % Define the network simulation duration.
-network_tf = 3;                                             % [s] Simulation Duration.
+network_tf = 0.5;                                 	% [s] Simulation Duration.
+% network_tf = 1;                                 	% [s] Simulation Duration.
+% network_tf = 3;                                 	% [s] Simulation Duration.
+
+% Compute the number of simulation timesteps.
+n_timesteps = floor( network_tf / network_dt ) + 1; % [#] Number of Simulation Timesteps.
+
+% Construct the simulation times associated with the input currents.
+ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
+
+% Define the integration method.
+integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
+
+% Define the number of input signals.
+n_input_signals = 20;                               % [#] Number of Input Signals.
+
+% Define whether to save the figures.
+save_flag = true;                                   % [T/F] Save Flag.
+
+% Create an instance of the network utilities class.
+network_utilities = network_utilities_class(  );
+numerical_method_utilities = numerical_method_utilities_class(  );
+plotting_utilities = plotting_utilities_class(  );
 
 
-%% Define Absolute Inversion Subnetwork Parameters.
+%% Define Subnetwork Parameters.
 
-% Define the maximum membrane voltages.
-R1_absolute = 20e-3;                                      	% [V] Maximum Membrane Voltage (Neuron 1).
+% Define the formulation parameters.
+c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
+delta = 1e-3;                                       % [V] Minimum Decoded Output.
+x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 
-% Define the membrane conductances.
-Gm1_absolute = 1e-6;                                       	% [S] Membrane Conductance (Neuron 1)
-Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2) 
+% Define the absolute subnetwork design parameters.
+Gm1_absolute = 1e-6;                              	% [S] Membrane Conductance (Neuron 1).
+Gm2_absolute = 1e-6;                              	% [S] Membrane Conductance (Neuron 2).
+Cm1_absolute = 5e-9;                               	% [F] Membrane Capacitance (Neuron 1).
+Cm2_absolute = 5e-9;                               	% [F] Membrane Capacitance (Neuron 2).
 
-% Define the membrane capacitance.
-Cm1_absolute = 5e-9;                                     	% [F] Membrane Capacitance (Neuron 1)
-Cm2_absolute = 5e-9;                                      	% [F] Membrane Capacitance (Neuron 2)
+% Store the absolute subnetwork design parameters in a structure.
+absolute_inversion_input_parameters.c1 = c1;
+absolute_inversion_input_parameters.c3 = c3;
+absolute_inversion_input_parameters.delta = delta;
+absolute_inversion_input_parameters.x1_max = x1_max;
+absolute_inversion_input_parameters.Gm1 = Gm1_absolute;
+absolute_inversion_input_parameters.Gm2 = Gm2_absolute;
+absolute_inversion_input_parameters.Cm1 = Cm1_absolute;
+absolute_inversion_input_parameters.Cm2 = Cm2_absolute;
 
-% Define the sodium channel conductance.
-Gna1_absolute = 0;                                        	% [S] Sodium Channel Conductance (Neuron 1).
-Gna2_absolute = 0;                                        	% [S] Sodium Channel Conductance (Neuron 2).
-
-% Define the synaptic conductances.
-dEs21_absolute = 0;                                       	% [V] Synaptic Reversal Potential (Synapse 21).
-
-% Define the applied currents.
-Ia1_absolute = R1_absolute*Gm1_absolute;                   	% [A] Applied Current (Neuron 1)
-
-% Define the current state.
-current_state1_absolute = 0;                               	% [-] Current State (Neuron 1). (Specified as a ratio of the total applied current that is active.)
-
-% Define the network design parameters.
-c1_absolute = 0.40e-9;                                    	% [W] Design Constant 1.
-c3_absolute = 20e-9;                                      	% [A] Design Constant 2.
-delta_absolute = 1e-3;                                    	% [V] Membrane Voltage Offset.
-
-% % Set the user specified parameters.
-% % R1_absolute = 20e-3;
-% % c1_absolute = 0.40e-9;
-% % c3_absolute = 20e-9;
-% % delta_absolute = 1e-3;
-% % % delta_absolute = 1e-4;
-% 
-% R1_absolute = 20e-3;
-% c1_absolute = 0.80e-9;          % [W]
-% c3_absolute = 20e-9;            % [A]
-% delta_absolute = 1e-3;
-
-
-%% Compute the Derived Absolute Inversion Subnetwork Parameters.
-
-% Compute the maximum membrane voltages.
-R2_absolute = c1_absolute/c3_absolute;                                                                      % [V] Maximum Membrane Voltage (Neuron 2).
-
-% Compute the network design parameters.
-c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );                  % [S] Design Constant 2.
-
-% Compute the applied currents.
-Ia2_absolute = R2_absolute*Gm2_absolute;                                                                    % [A] Applied Current (Neuron 2).
-
-% Compute the synaptic conductances.
-gs21_absolute = ( delta_absolute*Gm2_absolute - Ia2_absolute )/( dEs21_absolute - delta_absolute );         % [S]Synaptic Conductance (Synapse 21).
-
-% % Compute the network_absolute properties.
-% R2_absolute = c1_absolute/c3_absolute;
-% c2_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );      % [S]
-% dEs21_absolute = 0;
-% Gm2_absolute = c3_absolute/R1_absolute;
-% Iapp2_absolute = c1_absolute/R1_absolute;
-% gs21_absolute = ( c1_absolute - delta_absolute*c3_absolute )/( delta_absolute*R1_absolute );
+% Define the relative subnetwork design parameters.
+R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
+R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
+Gm2_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 2).
+Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
+Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
+ 
+% Store the relative subnetwork design parameters.
+relative_inversion_input_parameters.c1 = c1;
+relative_inversion_input_parameters.c3 = c3;
+relative_inversion_input_parameters.delta = delta;
+relative_inversion_input_parameters.x1_max = x1_max;
+relative_inversion_input_parameters.R1 = R1_relative;
+relative_inversion_input_parameters.R2 = R2_relative;
+relative_inversion_input_parameters.Gm1 = Gm1_relative;
+relative_inversion_input_parameters.Gm2 = Gm2_relative;
+relative_inversion_input_parameters.Cm1 = Cm1_relative;
+relative_inversion_input_parameters.Cm2 = Cm2_relative;
 
 
-%% Print Absolute Inversion Subnetwork Parameters.
+%% Define the Encoding & Decoding Operations.
 
-% Print out a header.
-fprintf( '\n------------------------------------------------------------\n' )
-fprintf( '------------------------------------------------------------\n' )
-fprintf( 'ABSOLUTE INVERSION SUBNETWORK PARAMETERS:\n' )
-fprintf( '------------------------------------------------------------\n' )
+% Define the absolute encoding maps.
+f_encode1_absolute = @( x1 ) network_utilities.encode_absolute_inversion_input( x1 );
+f_encode2_absolute = @( x2 ) network_utilities.encode_absolute_inversion_output( x2 );
+f_encode_absolute = @( Xs ) [ f_encode1_absolute( Xs( :, 1 ) ), f_encode2_absolute( Xs( :, 2 ) ) ];
 
-% Print out neuron information.
-fprintf( 'Neuron Parameters:\n' )
-fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_absolute*( 10^3 ) )
-fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_absolute*( 10^3 ) )
+% Define the absolute decoding maps.
+f_decode1_absolute = @( U1 ) network_utilities.decode_absolute_inversion_input( U1 );
+f_decode2_absolute = @( U2 ) network_utilities.decode_absolute_inversion_output( U2 );
+f_decode_absolute = @( Us ) [ f_decode1_absolute( Us( :, 1 ) ), f_decode2_absolute( Us( :, 2 ) ) ];
 
-fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_absolute*( 10^6 ) )
-fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_absolute*( 10^6 ) )
+% Define the relative encoding maps.
+f_encode1_relative = @( x1 ) network_utilities.encode_relative_inversion_input( x1, x1_max, R1_relative );
+f_encode2_relative = @( x2 ) network_utilities.encode_relative_inversion_output( x2, c1, c3, R2_relative );
+f_encode_relative = @( Xs ) [ f_encode1_relative( Xs( :, 1 ) ), f_encode2_relative( Xs( :, 2 ) ) ];
 
-fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_absolute*( 10^9 ) )
-fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_absolute*( 10^9 ) )
-
-fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_absolute*( 10^6 ) )
-fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_absolute*( 10^6 ) )
-fprintf( '\n' )
-
-% Print out the synapse information.
-fprintf( 'Synapse Parameters:\n' )
-fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_absolute*( 10^3 ) )
-fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_absolute*( 10^6 ) )
-fprintf( '\n' )
-
-% Print out the applied current information.
-fprintf( 'Applied Curent Parameters:\n' )
-fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1_absolute*Ia1_absolute*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_absolute*( 10^9 ) )
-fprintf( '\n' )
-
-% Print out the network design parameters.
-fprintf( 'Network Design Parameters:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[nW]\n', c1_absolute*( 10^9 ) )
-fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2_absolute*( 10^6 ) )
-fprintf( 'c3 \t\t= \t%0.2f \t[nA]\n', c3_absolute*( 10^9 ) )
-fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_absolute*( 10^3 ) )
-
-% Print out ending information.
-fprintf( '------------------------------------------------------------\n' )
-fprintf( '------------------------------------------------------------\n' )
+% Define the relative decoding maps.
+f_decode1_relative = @( U1 ) network_utilities.decode_relative_inversion_input( U1, x1_max, R1_relative );
+f_decode2_relative = @( U2 ) network_utilities.decode_relative_inversion_output( U2, c1, c3, R2_relative );
+f_decode_relative = @( Us ) [ f_decode1_relative( Us( :, 1 ) ), f_decode2_relative( Us( :, 2 ) ) ];
 
 
-%% Create an Absolute Inversion Subnetwork.
+%% Define the Absolute & Relative Subnetwork Input Currents.
+
+% Define the applied current ID.
+input_current_ID_absolute = 1;                                  % [#] Absolute Input Current ID.
+input_current_ID_relative = 1;                                  % [#] Relative Input Current ID.
+
+% Define the applied current name.
+input_current_name_absolute = 'Applied Current 1 (Absolute)';   % [str] Absolute Input Current Name.
+input_current_name_relative = 'Applied Current 1 (Relative)';  	% [str] Relative Input Current Name.
+
+% Define the IDs of the neurons to which the currents are applied.
+input_current_to_neuron_ID_absolute = 1;                        % [#] Absolute Neuron ID to Which Input Current is Applied.
+input_current_to_neuron_ID_relative = 1;                        % [#] Relative Neuron ID to Which Input Current is Applied.
+
+% Define the applied current magnitudes.
+Ias1_absolute = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
+Ias1_relative = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
+
+
+%% Create the Subnetworks.
 
 % Create an instance of the network class.
 network_absolute = network_class( network_dt, network_tf );
-
-% Create the network components.
-[ network_absolute.neuron_manager, neuron_IDs ] = network_absolute.neuron_manager.create_neurons( 2 );
-[ network_absolute.synapse_manager, synapse_IDs ] = network_absolute.synapse_manager.create_synapses( 1 );
-[ network_absolute.applied_current_manager, applied_current_IDs ] = network_absolute.applied_current_manager.create_applied_currents( 2 );
-
-% Set the neuron parameters.
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs, [ R1_absolute, R2_absolute ], 'R' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1_absolute, Gm2_absolute ], 'Gm' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1_absolute, Cm2_absolute ], 'Cm' );
-network_absolute.neuron_manager = network_absolute.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1_absolute, Gna2_absolute ], 'Gna' );
-
-% Set the synapse parameters.
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs, 1, 'from_neuron_ID' );
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs, 2, 'to_neuron_ID' );
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs, gs21_absolute, 'g_syn_max' );
-network_absolute.synapse_manager = network_absolute.synapse_manager.set_synapse_property( synapse_IDs, dEs21_absolute, 'dE_syn' );
-
-% Set the applied current parameters.
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2 ], 'neuron_ID' );
-network_absolute.applied_current_manager = network_absolute.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1_absolute*Ia1_absolute, Ia2_absolute ], 'I_apps' );
-
-
-%% Define Basic Relative Inversion Subnetwork Parameters.
-
-% Define the maximum membrane voltages.
-R1_relative = 20e-3;                                           	% [V] Maximum Membrane Voltage (Neuron 1).
-R2_relative = 20e-3;                                         	% [V] Maximum Membrane Voltage (Neuron 2).
-
-% Define the membrane conductances.
-Gm1_relative = 1e-6;                                          	% [S] Membrane Conductance (Neuron 1).
-Gm2_relative = 1e-6;                                           	% [S] Membrane Conductance (Neuron 2).
-
-% Define the membrane capacitance.
-Cm1_relative = 5e-9;                                          	% [F] Membrane Capacitance (Neuron 1).
-Cm2_relative = 5e-9;                                           	% [F] Membrane Capacitance (Neuron 2).
-
-% Define the sodium channel conductance.
-Gna1_relative = 0;                                            	% [S] Sodium Channel Conductance (Neuron 1).
-Gna2_relative = 0;                                            	% [S] Sodium Channel Conductance (Neuron 2).
-
-% Define the synaptic reversal potential.
-dEs21_relative = 0;                                         	% [V] Synaptic Reversal Potential (Synapse 21).
-
-% Define the applied currents.
-Ia1_relative = R1_relative*Gm1_relative;                      	% [A] Applied Current (Neuron 1).
-
-% Define the current states.
-current_state1_relative = 0;                                 	% [-] Current State (Neuron 1). (Specified as a ratio of te maximum current.)
-% current_state1_relative = 1;                                  % [-] Current State (Neuron 1). (Specified as a ratio of te maximum current.)
-
-% Define the network design parameters.
-c3_relative = 1e-6;                                            	% [-] Design Constant 3.
-delta_relative = 1e-3;                                        	% [V] Membrane Voltage Offset.
-
-% % Set the user specified parameters.
-% % R1_relative = 20e-3;
-% % R2_relative = 20e-3;
-% % c3_relative = 1e-6;
-% % delta_relative = 1e-3;
-% 
-% R1_relative = 20e-3;
-% R2_relative = 20e-3;
-% c3_relative = 20e-9;                                                                        % [S]
-% delta_relative = 1e-3;
-
-
-%% Compute Derived Relative Inversion Subnetwork Parameters.
-
-% Compute network design parameters.
-c1_relative = c3_relative;                                                                  % [-] Design Constant 1.
-c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );        	% [-] Design Constant 2.
-
-% Compute applied currents.
-Ia2_relative = R2_relative*c3_relative;                                                     % [A] Applied Current (Neuron 2).
-
-% Compute synaptic conductances.
-gs21_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );     	% [S] Synaptic Conductance (Synapse 21).
-
-% % Compute the network_absolute properties.
-% c1_relative = c3_relative;                                                                  % [S]
-% c2_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );          % [S]
-% Gm2_relative = c3_relative;
-% Iapp2_relative = R2_relative*c3_relative;
-% dEs21_relative = 0;
-% gs21_relative = ( ( R2_relative - delta_relative )*c3_relative )/( delta_relative );
-
-
-%% Print Relative Inversion Subnetwork Parameters.
-
-% Print out a header.
-fprintf( '\n------------------------------------------------------------\n' )
-fprintf( '------------------------------------------------------------\n' )
-fprintf( 'RELATIVE INVERSION SUBNETWORK PARAMETERS:\n' )
-fprintf( '------------------------------------------------------------\n' )
-
-% Print out neuron information.
-fprintf( 'Neuron Parameters:\n' )
-fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1_relative*( 10^3 ) )
-fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2_relative*( 10^3 ) )
-
-fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1_relative*( 10^6 ) )
-fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2_relative*( 10^6 ) )
-
-fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1_relative*( 10^9 ) )
-fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2_relative*( 10^9 ) )
-
-fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1_relative*( 10^6 ) )
-fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2_relative*( 10^6 ) )
-fprintf( '\n' )
-
-% Print out the synapse information.
-fprintf( 'Synapse Parameters:\n' )
-fprintf( 'dEs21 \t= \t%0.2f \t[mV]\n', dEs21_relative*( 10^3 ) )
-fprintf( 'gs21 \t= \t%0.2f \t[muS]\n', gs21_relative*( 10^6 ) )
-fprintf( '\n' )
-
-% Print out the applied current information.
-fprintf( 'Applied Curent Parameters:\n' )
-fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1_relative*Ia1_relative*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', Ia2_relative*( 10^9 ) )
-fprintf( '\n' )
-
-% Print out the network design parameters.
-fprintf( 'Network Design Parameters:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[muS]\n', c1_relative*( 10^6 ) )
-fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2_relative*( 10^6 ) )
-fprintf( 'c3 \t\t= \t%0.2f \t[muS]\n', c3_relative*( 10^6 ) )
-fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta_relative*( 10^3 ) )
-
-
-%% Create a Relative Inversion Subnetwork.
-
-% Create an instance of the network class.
 network_relative = network_class( network_dt, network_tf );
 
-% Create the network components.
-[ network_relative.neuron_manager, neuron_IDs ] = network_relative.neuron_manager.create_neurons( 2 );
-[ network_relative.synapse_manager, synapse_IDs ] = network_relative.synapse_manager.create_synapses( 1 );
-[ network_relative.applied_current_manager, applied_current_IDs ] = network_relative.applied_current_manager.create_applied_currents( 2 );
+% Create an inversion subnetwork.
+[ absolute_inversion_output_parameters, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_inversion_subnetwork( absolute_inversion_input_parameters, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
+[ relative_inversion_output_parameters, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_inversion_subnetwork( relative_inversion_input_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
 
-% Define neuron parameters.
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs, [ R1_relative, R2_relative ], 'R' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1_relative, Gm2_relative ], 'Gm' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1_relative, Cm2_relative ], 'Cm' );
-network_relative.neuron_manager = network_relative.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1_relative, Gna2_relative ], 'Gna' );
+% Unpack the subnetwork output parameters.
+[ c2_absolute, x2max_absolute, R1_absolute, R2_absolute, Gna1_absolute, Gna2_absolute, dEs21_absolute, gs21_absolute, Ia2_absolute ] = network_absolute.unpack_absolute_inversion_output_parameters( absolute_inversion_output_parameters, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+[ c2_relative, x2max_relative, Gna1_relative, Gna2_relative, dEs21_relative, gs21_relative, Ia2_relative ] = network_relative.unpack_relative_inversion_output_parameters( relative_inversion_output_parameters, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
 
-% Define synapse parameters.
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs, 1, 'from_neuron_ID' );
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs, 2, 'to_neuron_ID' );
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs, gs21_relative, 'g_syn_max' );
-network_relative.synapse_manager = network_relative.synapse_manager.set_synapse_property( synapse_IDs, dEs21_relative, 'dE_syn' );
+% Update the input current ID and name.
+[ ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.set_applied_current_property( network_absolute.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network_absolute.applied_current_manager.applied_currents, true );
+[ ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.set_applied_current_property( network_absolute.applied_current_manager.applied_currents( 1 ).ID, { 'Applied Current 2 (Absolute)' }, 'name', network_absolute.applied_current_manager.applied_currents, true );
 
-% Define applied current manager.
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2 ], 'neuron_ID' );
-network_relative.applied_current_manager = network_relative.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1_relative*Ia1_relative, Ia2_relative ], 'I_apps' );
+[ ~, network_relative.applied_current_manager ] = network_relative.applied_current_manager.set_applied_current_property( network_relative.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network_relative.applied_current_manager.applied_currents, true );
+[ ~, network_relative.applied_current_manager ] = network_relative.applied_current_manager.set_applied_current_property( network_relative.applied_current_manager.applied_currents( 1 ).ID, { 'Applied Current 2 (Relative)' }, 'name', network_relative.applied_current_manager.applied_currents, true );
 
+% Create the input applied current.
+[ ~, ~, ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.create_applied_current( input_current_ID_absolute, input_current_name_absolute, input_current_to_neuron_ID_absolute, ts, Ias1_absolute, true, network_absolute.applied_current_manager.applied_currents, true, false, network_absolute.applied_current_manager.array_utilities );
+[ ~, ~, ~, network_relative.applied_current_manager ] = network_relative.applied_current_manager.create_applied_current( input_current_ID_relative, input_current_name_relative, input_current_to_neuron_ID_relative, ts, Ias1_relative, true, network_relative.applied_current_manager.applied_currents, true, false, network_relative.applied_current_manager.array_utilities );
 
-%% Load the Absolute & Relative Inversion Subnetworks.
+% Reverse the order of the applied currents in the applied current manager for cleanliness.
+temporary_applied_current = network_absolute.applied_current_manager.applied_currents( 1 );
+network_absolute.applied_current_manager.applied_currents( 1 ) = network_absolute.applied_current_manager.applied_currents( 2 );
+network_absolute.applied_current_manager.applied_currents( 2 ) = temporary_applied_current;
 
-% Load the simulation results.
-absolute_inversion_simulation_data = load( [ load_directory, '\', 'absolute_inversion_subnetwork_error' ] );
-relative_inversion_simulation_data = load( [ load_directory, '\', 'relative_inversion_subnetwork_error' ] );
-
-% Store the absolute simulation results in separate variables.
-absolute_applied_currents = absolute_inversion_simulation_data.applied_currents;
-Us_achieved_absolute = absolute_inversion_simulation_data.Us_achieved;
-
-% Store the relative simulation results in separate variables.
-relative_applied_currents = relative_inversion_simulation_data.applied_currents;
-Us_achieved_relative = relative_inversion_simulation_data.Us_achieved;
+temporary_applied_current = network_relative.applied_current_manager.applied_currents( 1 );
+network_relative.applied_current_manager.applied_currents( 1 ) = network_relative.applied_current_manager.applied_currents( 2 );
+network_relative.applied_current_manager.applied_currents( 2 ) = temporary_applied_current;
 
 
-%% Compute the Error in the Steady State Inversion Subnetwork Responses.
+%% Print Subnetwork Information.
 
-% Compute the desired steady state output membrane voltage.
-Us_desired_absolute_output = c1_absolute./( c2_absolute*Us_achieved_absolute( :, 1 ) + c3_absolute );
-Us_desired_relative_output = ( c1_relative*R1_relative*R2_relative )./( c2_relative*Us_achieved_relative( :, 1 ) + c3_relative*R1_relative );
+% Print absolute subnetwork information.
+fprintf( '----------------------------------- ABSOLUTE INVERSION SUBNETWORK -----------------------------------\n\n' )
+network_absolute.print( network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, verbose_flag );
+fprintf( '---------------------------------------------------------------------------------------------------------\n\n\n' )
 
-% Generate desired steady state membrane voltage matrices.
-Us_desired_absolute = Us_achieved_absolute; Us_desired_absolute( :, end ) = Us_desired_absolute_output;
-Us_desired_relative = Us_achieved_relative; Us_desired_relative( :, end ) = Us_desired_relative_output;
-
-% Compute the error between the achieved and desired results.
-error_absolute = Us_achieved_absolute( :, end ) - Us_desired_absolute( :, end );
-error_relative = Us_achieved_relative( :, end ) - Us_desired_relative( :, end );
-
-% Compute the percent error between the achieve and desired results.
-error_absolute_percent = 100*( error_absolute/R2_absolute );
-error_relative_percent = 100*( error_relative/R2_relative );
-
-% Compute the mean error.
-mse_absolute = ( 1/numel( error_absolute ) )*sqrt( sum( error_absolute.^2, 'all' ) );
-mse_relative = ( 1/numel( error_relative ) )*sqrt( sum( error_relative.^2, 'all' ) );
-
-% Compute the mean error percentage.
-mse_absolute_percent = 100*( mse_absolute/R2_absolute );
-mse_relative_percent = 100*( mse_relative/R2_relative );
-% mse_absolute_percent = ( 1/numel( error_absolute_percent ) )*sqrt( sum( error_absolute_percent.^2, 'all' ) );
-% mse_relative_percent = ( 1/numel( error_relative_percent ) )*sqrt( sum( error_relative_percent.^2, 'all' ) );
-
-% Compute the standard deviation of the error.
-std_absolute = std( error_absolute, 0, 'all' );
-std_relative = std( error_relative, 0, 'all' );
-
-% Compute the standard deviation of the error percentage.
-std_absolute_percent = 100*( std_absolute/R2_absolute );
-std_relative_percent = 100*( std_relative/R2_relative );
-% std_absolute_percent = std( error_absolute_percent, 0, 'all' );
-% std_relative_percent = std( error_relative_percent, 0, 'all' );
-
-% Compute the maximum errors.
-[ error_absolute_max, index_absolute_max ] = max( abs( error_absolute ), [  ], 'all', 'linear' );
-[ error_relative_max, index_relative_max ] = max( abs( error_relative ), [  ], 'all', 'linear' );
-
-% Compute the maximum error percentages.
-error_absolute_max_percent = 100*( error_absolute_max/R2_absolute );
-error_relative_max_percent = 100*( error_relative_max/R2_relative );
-% error_absolute_max_percent = max( abs( error_absolute_percent ), [  ], 'all' );
-% error_relative_max_percent = max( abs( error_relative_percent ), [  ], 'all' );
-
-% Compute the minimum errors.
-[ error_absolute_min, index_absolute_min ] = min( abs( error_absolute ), [  ], 'all', 'linear' );
-[ error_relative_min, index_relative_min ] = min( abs( error_relative ), [  ], 'all', 'linear' );
-
-% Compute the minimum error percentages.
-error_absolute_min_percent = 100*( error_absolute_min/R2_absolute );
-error_relative_min_percent = 100*( error_relative_min/R2_relative );
-% error_absolute_min_percent = min( abs( error_absolute_percent ), [  ], 'all' );
-% error_relative_min_percent = min( abs( error_relative_percent ), [  ], 'all' );
-
-% Compute the range of the error.
-error_absolute_range = error_absolute_max - error_absolute_min;
-error_relative_range = error_relative_max - error_relative_min;
-
-% Compute the range of the error percentages.
-error_absolute_range_percent = 100*( error_absolute_range/R2_absolute );
-error_relative_range_percent = 100*( error_relative_range/R2_relative );
-% error_absolute_range_percent = error_absolute_max_percent - error_absolute_min_percent;
-% error_relative_range_percent = error_relative_max_percent - error_relative_min_percent;
-
-% Compute the difference in error between the absolute and relative encoding schemes.
-error_difference = abs( error_relative ) - abs( error_absolute );
-error_difference_percent = abs( error_relative_percent ) - abs( error_absolute_percent );
-
-% Compute the mean squared error difference.
-error_difference_mse = abs( mse_relative ) - abs( mse_absolute );
-error_difference_mse_percent = abs( mse_relative_percent ) - abs( mse_absolute_percent );
-% error_difference_mse = ( 1/numel( error_difference ) )*sqrt( sum( error_difference.^2, 'all' ) );
-% error_difference_mse_percent = ( 1/numel( error_difference_percent ) )*sqrt( sum( error_difference_percent.^2, 'all' ) );
-
-% Compute the standard deviation difference.
-error_difference_std = abs( std_relative ) - abs( std_absolute );
-error_difference_std_percent = abs( std_relative_percent ) - abs( std_absolute_percent );
-
-% Compute the maximum error difference.
-error_difference_max = abs( error_relative_max ) - abs( error_absolute_max );
-error_difference_max_percent = abs( error_relative_max_percent ) - abs( error_absolute_max_percent );
-% error_difference_max = max( abs( error_difference ), [  ], 'all' );
-% error_difference_max_percent = max( abs( error_difference_percent ), [  ], 'all' );
+% Print the relative subnetwork information.
+fprintf( '----------------------------------- RELATIVE INVERSION SUBNETWORK -----------------------------------\n\n' )
+network_relative.print( network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, verbose_flag );
+fprintf( '---------------------------------------------------------------------------------------------------------\n\n\n' )
 
 
-%% Print Out the Summary Information.
+%% Simulate the Subnetwork.
 
-% Retrieve the absolute input voltage matrices.
-Us1_achieved_absolute = Us_achieved_absolute( :, 1 );
-Us2_achieved_absolute = Us_achieved_absolute( :, 2 );
+% Set additional simulation properties.
+filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
+set_flag = true;                            % [T/F] Set Flag.
+process_option = 'None';                    % [str] Process Option.
+undetected_option = 'Ignore';               % [str] Undetected Option.
 
-% Retrieve the relative input voltage matrices.
-Us1_achieved_relative = Us_achieved_relative( :, 1 );
-Us2_achieved_relative = Us_achieved_relative( :, 2 );
+% Determine whether to simulate the network.
+if simulate_flag                            % If we want to simulate the network...
 
-% Print out the absolute subtraction summary statistics.
-fprintf( 'Absolute Inversion Summary Statistics\n' )
-fprintf( 'MSE: \t\t\t%9.3e [mV] (%6.2f [%%])\n', mse_absolute, mse_absolute_percent )
-fprintf( 'STD: \t\t\t%9.3e [mV] (%6.2f [%%])\n', std_absolute, std_absolute_percent )
-fprintf( 'Max Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV])\n', error_absolute_max, error_absolute_max_percent, Us1_achieved_absolute( index_absolute_max ), Us2_achieved_absolute( index_absolute_max ) )
-fprintf( 'Min Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV])\n', error_absolute_min, error_absolute_min_percent, Us1_achieved_absolute( index_absolute_min ), Us2_achieved_absolute( index_absolute_min ) )
-fprintf( 'Range Error: \t%0.3e [mV] (%6.2f [%%])\n', error_absolute_range, error_absolute_range_percent )
+    % Define the decoded input signals.
+    xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
 
-fprintf( '\n' )
-fprintf( 'Relative Inversion Summary Statistics\n' )
-fprintf( 'MSE: \t\t\t%9.3e [mV] (%6.2f [%%])\n', mse_relative, mse_relative_percent )
-fprintf( 'STD: \t\t\t%9.3e [mV] (%6.2f [%%])\n', std_relative, std_relative_percent )
-fprintf( 'Max Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV])\n', error_relative_max, error_relative_max_percent, Us1_achieved_relative( index_relative_max ), Us2_achieved_relative( index_relative_max ) )
-fprintf( 'Min Error: \t\t%9.3e [mV] (%6.2f [%%]) @ (%9.3e [mV], %9.3e [mV])\n', error_relative_min, error_relative_min_percent, Us1_achieved_relative( index_relative_min ), Us2_achieved_relative( index_relative_min ) )
-fprintf( 'Range Error: \t%0.3e [mV] (%6.2f [%%])\n', error_relative_range, error_relative_range_percent )
+    % Compute the decoded steady state simulation results.
+    [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
+    [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, f_decode2_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
 
-fprintf( '\n' )
-fprintf( 'Absolute vs Relative Inversion Summary Statistics:\n' )
-fprintf( 'delta MSE: \t\t\t%9.3e [mV] (%6.2f [%%])\n', error_difference_mse, error_difference_mse_percent )
-fprintf( 'delta STD:\t%9.3e [V] (%6.2f [%%])\n', error_difference_std, error_difference_std_percent )
-fprintf( 'delta Max Error:\t%9.3e [mV] (%6.2f [%%])\n', error_difference_max, error_difference_max_percent )
+    % Save the simulation results.
+    save( [ save_directory, '\', 'absolute_inversion_subnetwork_error' ], 'Ias_magnitude_absolute', 'Us_numerical_absolute', 'xs_numerical_absolute' )
+    save( [ save_directory, '\', 'relative_inversion_subnetwork_error' ], 'Ias_magnitude_relative', 'Us_numerical_relative', 'xs_numerical_relative' )
+
+else                % Otherwise... ( We must want to load data from an existing simulation... )
+
+    % Load the simulation results.
+    data_absolute = load( [ load_directory, '\', 'absolute_inversion_subnetwork_error' ] );
+    data_relative = load( [ load_directory, '\', 'relative_inversion_subnetwork_error' ] );
+
+    % Unpack the steady state simulation data.
+    [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.unpack_steady_state_simulation_data( data_absolute );
+    [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.unpack_steady_state_simulation_data( data_relative );
+
+end
 
 
-%% Plot the Steady State Inversion Error Surfaces
+%% Compute the Absolute & Relative Desired & Achieved (Theory) Subnetwork Output.
 
-% Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the absolute inversion subnetwork.
-fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [mV]' ), title( 'Absolute Inversion Subnetwork Steady State Response (Comparison)' )
-plot( Us_desired_absolute( :, 1 )*(10^3), Us_desired_absolute( :, end )*(10^3), '-', 'Linewidth', 3 )
-plot( Us_achieved_absolute( :, 1 )*(10^3), Us_achieved_absolute( :, end )*(10^3), '-', 'Linewidth', 3 )
-legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'Absolute_Inversion_Subnetwork_Steady_State_Response.png' ] )
+% Initialize the desired decoded steady state response.
+xs_desired_absolute = [ xs_numerical_absolute( :, 1 ), zeros( size( xs_numerical_absolute, 1 ), 1 ) ];
+xs_desired_relative = [ xs_numerical_relative( :, 1 ), zeros( size( xs_numerical_relative, 1 ), 1 ) ];
 
-% Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative inversion subnetwork.
-fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [mV]' ), title( 'Relative Inversion Subnetwork Steady State Response (Comparison)' )
-plot( Us_desired_relative( :, 1 )*(10^3), Us_desired_relative( :, end )*(10^3), '-', 'Linewidth', 3 )
-plot( Us_achieved_relative( :, 1 )*(10^3), Us_achieved_relative( :, end )*(10^3), '-', 'Linewidth', 3 )
-legend( { 'Desired', 'Achieved' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'Relative_Inversion_Subnetwork_Steady_State_Response.png' ] )
+% Initialize the theoretically achieved decoded steady state response.
+xs_theoretical_absolute = [ xs_numerical_absolute( :, 1 ), zeros( size( xs_numerical_absolute, 1 ), 1 ) ];
+xs_theoretical_relative = [ xs_numerical_relative( :, 1 ), zeros( size( xs_numerical_relative, 1 ), 1 ) ];
 
-% Create a figure that shows the differences between the achieved and desired membrane voltage outputs for the relative inversion subnetwork.
-% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage of Output Neuron, U2 [mV]' ), title( 'Inversion Subnetwork Steady State Response (Comparison)' )
-fig = figure( 'color', 'w' ); hold on, grid on
-plot( Us_desired_relative( :, 1 )*(10^3), Us_desired_absolute( :, end )*(10^3), 'r-', 'Linewidth', 3 )
-plot( Us_achieved_relative( :, 1 )*(10^3), Us_achieved_absolute( :, end )*(10^3), 'b--', 'Linewidth', 3 )
-plot( Us_desired_relative( :, 1 )*(10^3), Us_desired_relative( :, end )*(10^3), 'r-', 'Linewidth', 3 )
-plot( Us_achieved_relative( :, 1 )*(10^3), Us_achieved_relative( :, end )*(10^3), 'b--', 'Linewidth', 3 )
-legend( { 'Desired', 'Achieved' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'Relative_Inversion_Subnetwork_Steady_State_Response.png' ] )
+% Initialize the desired encoded steady state response.
+Us_desired_absolute = [ Us_numerical_absolute( :, 1 ), zeros( size( Us_numerical_absolute, 1 ), 1 ) ];
+Us_desired_relative = [ Us_numerical_relative( :, 1 ), zeros( size( Us_numerical_relative, 1 ), 1 ) ];
 
-% Create a surface that shows the membrane voltage error.
-fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error, E [mV]' ), title( 'Inversion Subnetwork Steady State Error' )
-plot( Us_achieved_absolute( :, 1 )*(10^3), error_absolute*(10^3), '-', 'Linewidth', 3 )
-plot( Us_achieved_relative( :, 1 )*(10^3), error_relative*(10^3), '-', 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Comparison.png' ] )
+% Initialize the theoretically achieved encoded stady state response.
+Us_theoretical_absolute = [ Us_numerical_absolute( :, 1 ), zeros( size( Us_numerical_absolute, 1 ), 1 ) ];
+Us_theoretical_relative = [ Us_numerical_relative( :, 1 ), zeros( size( Us_numerical_relative, 1 ), 1 ) ];
 
-% Create a surface that shows the membrane voltage error percentage.
-fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Percentage, E [%]' ), title( 'Inversion Subnetwork Steady State Error Percentage' )
-plot( Us_achieved_absolute( :, 1 )*(10^3), error_absolute_percent, '-', 'Linewidth', 3 )
-plot( Us_achieved_relative( :, 1 )*(10^3), error_relative_percent, '-', 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Comparison.png' ] )
+% Compute the absolute and relative desired subnetwork output.
+Us_desired_absolute( :, 2 ) = network_absolute.compute_encoded_desired_absolute_inversion_sso( Us_desired_absolute( :, 1 ), c1, c3, delta, x1_max, network_absolute.network_utilities );
+Us_desired_relative( :, 2 ) = network_relative.compute_encoded_desired_relative_inversion_sso( Us_desired_relative( :, 1 ), c1, c3, delta, R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
 
-% Create a surface that shows the difference in error between the absolute and relative inversion subnetworks.
-fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference, dE [mV]' ), title( 'Inversion Subnetwork Steady State Error Difference' )
-plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference*(10^3), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Difference.png' ] )
+% Compute the absolute and relative achieved theoretical subnetwork output.
+Us_theoretical_absolute( :, 2 ) = network_absolute.compute_encoded_achieved_inversion_sso( Us_theoretical_absolute( :, 1 ), R1_absolute, Gm2_absolute, gs21_absolute, dEs21_absolute, Ia2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
+Us_theoretical_relative( :, 2 ) = network_relative.compute_encoded_achieved_inversion_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, gs21_relative, dEs21_relative, Ia2_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
 
-% % Create a surface that shows the difference in error between the absolute and relative percent inversion subnetworks.
-% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Inversion Subnetwork Steady State Error Difference Percentage' )
-% plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference_percent, '-', 'Linewidth', 3 )
-% saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+% Compute the decoded desired absolute and relative network outputs.
+xs_desired_absolute( :, 2 ) = f_decode2_absolute( Us_desired_absolute( :, 2 ) );
+xs_desired_relative( :, 2 ) = f_decode2_relative( Us_desired_relative( :, 2 ) );
 
-% Create a surface that shows the difference in error between the absolute and relative percent inversion subnetworks.
-% fig = figure( 'color', 'w' ); hold on, grid on, xlabel( 'Membrane Voltage of Input Neuron, U1 [mV]' ), ylabel( 'Membrane Voltage Error Difference Percentage, dE [%]' ), title( 'Inversion Subnetwork Steady State Error Difference Percentage' )
-fig = figure( 'color', 'w' ); hold on, grid on
-plot( Us_achieved_absolute( :, 1 )*(10^3), error_difference_percent, 'b-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'Inversion_Subnetwork_Approximation_Error_Percentage_Difference.png' ] )
+% Compute the decoded achieved theoretical absolute and relative network outputs.
+xs_theoretical_absolute( :, 2 ) = f_decode2_absolute( Us_theoretical_absolute( :, 2 ) );
+xs_theoretical_relative( :, 2 ) = f_decode2_relative( Us_theoretical_relative( :, 2 ) );
+
+
+%% Compute the Absolute & Relative Subnetwork Error.
+
+% Compute the error between the encoded theoretical output and the desired output.
+[ errors_theoretical_encoded_absolute, error_percentages_theoretical_encoded_absolute, error_rmse_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_absolute, error_std_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_absolute, error_min_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_absolute, index_min_theoretical_encoded_absolute, error_max_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_absolute, index_max_theoretical_encoded_absolute, error_range_theoretical_encoded_absolute, error_range_percentage_theoretical_encoded_absolute ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_absolute, Us_desired_absolute, R2_absolute );
+[ errors_theoretical_encoded_relative, error_percentages_theoretical_encoded_relative, error_rmse_theoretical_encoded_relative, error_rmse_percentage_theoretical_encoded_relative, error_std_theoretical_encoded_relative, error_std_percentage_theoretical_encoded_relative, error_min_theoretical_encoded_relative, error_min_percentage_theoretical_encoded_relative, index_min_theoretical_encoded_relative, error_max_theoretical_encoded_relative, error_max_percentage_theoretical_encoded_relative, index_max_theoretical_encoded_relative, error_range_theoretical_encoded_relative, error_range_percentage_theoretical_encoded_relative ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_relative, Us_desired_relative, R2_relative );
+
+% Compute the error between the encoded numerical output and the desired output.
+[ errors_numerical_encoded_absolute, error_percentages_numerical_encoded_absolute, error_rmse_numerical_encoded_absolute, error_rmse_percentage_numerical_encoded_absolute, error_std_numerical_encoded_absolute, error_std_percentage_numerical_encoded_absolute, error_min_numerical_encoded_absolute, error_min_percentage_numerical_encoded_absolute, index_min_numerical_encoded_absolute, error_max_numerical_encoded_absolute, error_max_percentage_numerical_encoded_absolute, index_max_numerical_encoded_absolute, error_range_numerical_encoded_absolute, error_range_percentage_numerical_encoded_absolute ] = numerical_method_utilities.compute_error_statistics( Us_numerical_absolute, Us_desired_absolute, R2_absolute );
+[ errors_numerical_encoded_relative, error_percentages_numerical_encoded_relative, error_rmse_numerical_encoded_relative, error_rmse_percentage_numerical_encoded_relative, error_std_numerical_encoded_relative, error_std_percentage_numerical_encoded_relative, error_min_numerical_encoded_relative, error_min_percentage_numerical_encoded_relative, index_min_numerical_encoded_relative, error_max_numerical_encoded_relative, error_max_percentage_numerical_encoded_relative, index_max_numerical_encoded_relative, error_range_numerical_encoded_relative, error_range_percentage_numerical_encoded_relative ] = numerical_method_utilities.compute_error_statistics( Us_numerical_relative, Us_desired_relative, R2_relative );
+
+% Compute the error between the decoded theoretical output and the desired output.
+[ errors_theoretical_decoded_absolute, error_percentages_theoretical_decoded_absolute, error_rmse_theoretical_decoded_absolute, error_rmse_percentage_theoretical_decoded_absolute, error_std_theoretical_decoded_absolute, error_std_percentage_theoretical_decoded_absolute, error_min_theoretical_decoded_absolute, error_min_percentage_theoretical_decoded_absolute, index_min_theoretical_decoded_absolute, error_max_theoretical_decoded_absolute, error_max_percentage_theoretical_decoded_absolute, index_max_theoretical_decoded_absolute, error_range_theoretical_decoded_absolute, error_range_percentage_theoretical_decoded_absolute ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_absolute, xs_desired_absolute, x2max_absolute );
+[ errors_theoretical_decoded_relative, error_percentages_theoretical_decoded_relative, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_relative, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_relative, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_relative, index_min_theoretical_decoded_relative, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_relative, index_max_theoretical_decoded_relative, error_range_theoretical_decoded_relative, error_range_percentage_theoretical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_theoretical_relative, xs_desired_relative, x2max_relative );
+
+% Compute the error between the decoded numerical output and the desired output.
+[ errors_numerical_decoded_absolute, error_percentages_numerical_decoded_absolute, error_rmse_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_absolute, error_std_numerical_decoded_absolute, error_std_percentage_numerical_decoded_absolute, error_min_numerical_decoded_absolute, error_min_percentage_numerical_decoded_absolute, index_min_numerical_decoded_absolute, error_max_numerical_decoded_absolute, error_max_percentage_numerical_decoded_absolute, index_max_numerical_decoded_absolute, error_range_numerical_decoded_absolute, error_range_percentage_numerical_decoded_absolute ] = numerical_method_utilities.compute_error_statistics( xs_numerical_absolute, xs_desired_absolute, x2max_absolute );
+[ errors_numerical_decoded_relative, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_relative, index_min_numerical_decoded_relative, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_relative, index_max_numerical_decoded_relative, error_range_numerical_decoded_relative, error_range_percentage_numerical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_numerical_relative, xs_desired_relative, x2max_relative );
+
+
+%% Print the Absolute & Relative Subnetwork Summary Statistics.
+
+% Define a scale factor.
+scale = 1e3;
+
+% Define the absolute header strings.
+header_str_encoded_absolute = 'Absolute Inversion Encoded Error Statistics';
+header_str_decoded_absolute = 'Absolute Inversion Decoded Error Statistics';
+
+% Define the relative header strings.
+header_str_encoded_relative = 'Relative Inversion Encoded Error Statistics';
+header_str_decoded_relative = 'Relative Inversion Decoded Error Statistics';
+
+% Define the unit strings.
+unit_str_encoded = 'mV';
+unit_str_decoded = '-';
+
+% Retrieve the minimum and maximum encoded theoretical and numerical absolute network results.
+Us_critmin_theoretical_absolute = Us_theoretical_absolute( index_min_theoretical_encoded_absolute, : );
+Us_critmin_numerical_absolute = Us_numerical_absolute( index_min_numerical_encoded_absolute, : );
+Us_critmax_theoretical_absolute = Us_theoretical_absolute( index_max_theoretical_encoded_absolute, : );
+Us_critmax_numerical_absolute = Us_numerical_absolute( index_max_numerical_encoded_absolute, : );
+
+% Retrieve the minimum and maximum encoded theoretical and numerical relative network results.
+Us_critmin_theoretical_relative = Us_theoretical_relative( index_min_theoretical_encoded_relative, : );
+Us_critmin_numerical_relative = Us_numerical_relative( index_min_numerical_encoded_relative, : );
+Us_critmax_theoretical_relative = Us_theoretical_relative( index_max_theoretical_encoded_relative, : );
+Us_critmax_numerical_relative = Us_numerical_relative( index_max_numerical_encoded_relative, : );
+
+% Retrieve the minimum and maximum decoded theoretical and numerical absolute network results.
+xs_critmin_theoretical_absolute = f_decode_absolute( Us_critmin_theoretical_absolute );
+xs_critmin_numerical_absolute = f_decode_absolute( Us_critmin_numerical_absolute );
+xs_critmax_theoretical_absolute = f_decode_absolute( Us_critmax_theoretical_absolute );
+xs_critmax_numerical_absolute = f_decode_absolute( Us_critmax_numerical_absolute );
+
+% Retrieve the minimum and maximum decoded theoretical and numerical relative network results.
+xs_critmin_theoretical_relative = f_decode_relative( Us_critmin_theoretical_relative );
+xs_critmin_numerical_relative = f_decode_relative( Us_critmin_numerical_relative );
+xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative );
+xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative );
+
+% Print the absolute inversion summary statistics.
+network_absolute.numerical_method_utilities.print_error_statistics( header_str_encoded_absolute, unit_str_encoded, 1/scale, error_rmse_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_absolute, error_rmse_numerical_encoded_absolute, error_rmse_percentage_numerical_encoded_absolute, error_std_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_absolute, error_std_numerical_encoded_absolute, error_std_percentage_numerical_encoded_absolute, error_min_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_absolute, Us_critmin_theoretical_absolute, error_min_numerical_encoded_absolute, error_min_percentage_numerical_encoded_absolute, Us_critmin_numerical_absolute, error_max_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_absolute, Us_critmax_theoretical_absolute, error_max_numerical_encoded_absolute, error_max_percentage_numerical_encoded_absolute, Us_critmax_numerical_absolute, error_range_theoretical_encoded_absolute, error_range_percentage_theoretical_encoded_absolute, error_range_numerical_encoded_absolute, error_range_percentage_numerical_encoded_absolute )
+network_absolute.numerical_method_utilities.print_error_statistics( header_str_decoded_absolute, unit_str_decoded, 1/scale, error_rmse_theoretical_decoded_absolute, error_rmse_percentage_theoretical_decoded_absolute, error_rmse_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_absolute, error_std_theoretical_decoded_absolute, error_std_percentage_theoretical_decoded_absolute, error_std_numerical_decoded_absolute, error_std_percentage_numerical_decoded_absolute, error_min_theoretical_decoded_absolute, error_min_percentage_theoretical_decoded_absolute, xs_critmin_theoretical_absolute, error_min_numerical_decoded_absolute, error_min_percentage_numerical_decoded_absolute, xs_critmin_numerical_absolute, error_max_theoretical_decoded_absolute, error_max_percentage_theoretical_decoded_absolute, xs_critmax_theoretical_absolute, error_max_numerical_decoded_absolute, error_max_percentage_numerical_decoded_absolute, xs_critmax_numerical_absolute, error_range_theoretical_decoded_absolute, error_range_percentage_theoretical_decoded_absolute, error_range_numerical_decoded_absolute, error_range_percentage_numerical_decoded_absolute )
+
+% Print the relative inversion summary statistics.
+network_relative.numerical_method_utilities.print_error_statistics( header_str_encoded_relative, unit_str_encoded, 1/scale, error_rmse_theoretical_encoded_relative, error_rmse_percentage_theoretical_encoded_relative, error_rmse_numerical_encoded_relative, error_rmse_percentage_numerical_encoded_relative, error_std_theoretical_encoded_relative, error_std_percentage_theoretical_encoded_relative, error_std_numerical_encoded_relative, error_std_percentage_numerical_encoded_relative, error_min_theoretical_encoded_relative, error_min_percentage_theoretical_encoded_relative, Us_critmin_theoretical_relative, error_min_numerical_encoded_relative, error_min_percentage_numerical_encoded_relative, Us_critmin_numerical_relative, error_max_theoretical_encoded_relative, error_max_percentage_theoretical_encoded_relative, Us_critmax_theoretical_relative, error_max_numerical_encoded_relative, error_max_percentage_numerical_encoded_relative, Us_critmax_numerical_relative, error_range_theoretical_encoded_relative, error_range_percentage_theoretical_encoded_relative, error_range_numerical_encoded_relative, error_range_percentage_numerical_encoded_relative )
+network_relative.numerical_method_utilities.print_error_statistics( header_str_decoded_relative, unit_str_decoded, 1/scale, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_relative, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_relative, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_relative, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_relative, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_relative, xs_critmin_theoretical_relative, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_relative, xs_critmin_numerical_relative, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_relative, xs_critmax_theoretical_relative, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_relative, xs_critmax_numerical_relative, error_range_theoretical_decoded_relative, error_range_percentage_theoretical_decoded_relative, error_range_numerical_decoded_relative, error_range_percentage_numerical_decoded_relative )
+
+
+%% Compute the Difference between the Absolute & Relative Subnetwork Errors.
+
+% Compute the difference between the theoretical absolute and relative network errors.
+[ error_diff_theoretical_encoded, error_percent_diff_theoretical_encoded, error_mse_diff_theoretical_encoded, error_mse_percent_diff_theoretical_encoded, error_std_diff_theoretical_encoded, error_std_percent_diff_theoretical_encoded, error_min_diff_theoretical_encoded, error_min_percent_diff_theoretical_encoded, error_max_diff_theoretical_encoded, error_max_percent_diff_theoretical_encoded ] = numerical_method_utilities.compute_error_difference_statistics( errors_theoretical_encoded_absolute, errors_theoretical_encoded_relative, error_percentages_theoretical_encoded_absolute, error_percentages_theoretical_encoded_relative, error_rmse_theoretical_encoded_absolute, error_rmse_theoretical_encoded_relative, error_rmse_percentage_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_relative, error_std_theoretical_encoded_absolute, error_std_theoretical_encoded_relative, error_std_percentage_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_relative, error_min_theoretical_encoded_absolute, error_min_theoretical_encoded_relative, error_min_percentage_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_relative, error_max_theoretical_encoded_absolute, error_max_theoretical_encoded_relative, error_max_percentage_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_relative );
+[ error_diff_theoretical_decoded, error_percent_diff_theoretical_decoded, error_mse_diff_theoretical_decoded, error_mse_percent_diff_theoretical_decoded, error_std_diff_theoretical_decoded, error_std_percent_diff_theoretical_decoded, error_min_diff_theoretical_decoded, error_min_percent_diff_theoretical_decoded, error_max_diff_theoretical_decoded, error_max_percent_diff_theoretical_decoded ] = numerical_method_utilities.compute_error_difference_statistics( errors_theoretical_decoded_absolute, errors_theoretical_decoded_relative, error_percentages_theoretical_decoded_absolute, error_percentages_theoretical_decoded_relative, error_rmse_theoretical_decoded_absolute, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_absolute, error_rmse_percentage_theoretical_decoded_relative, error_std_theoretical_decoded_absolute, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_absolute, error_std_percentage_theoretical_decoded_relative, error_min_theoretical_decoded_absolute, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_absolute, error_min_percentage_theoretical_decoded_relative, error_max_theoretical_decoded_absolute, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_absolute, error_max_percentage_theoretical_decoded_relative );
+
+% Compute the difference between the numerical absolute and relative network errors.
+[ error_diff_numerical_encoded, error_percent_diff_numerical_encoded, error_mse_diff_numerical_encoded, error_mse_percent_diff_numerical_encoded, error_std_diff_numerical_encoded, error_std_percent_diff_numerical_encoded, error_min_diff_numerical_encoded, error_min_percent_diff_numerical_encoded, error_max_diff_numerical_encoded, error_max_percent_diff_numerical_encoded ] = numerical_method_utilities.compute_error_difference_statistics( errors_numerical_encoded_absolute, errors_numerical_encoded_relative, error_percentages_numerical_encoded_absolute, error_percentages_numerical_encoded_relative, error_rmse_numerical_encoded_absolute, error_rmse_numerical_encoded_relative, error_rmse_percentage_numerical_encoded_absolute, error_rmse_percentage_numerical_encoded_relative, error_std_numerical_encoded_absolute, error_std_numerical_encoded_relative, error_std_percentage_numerical_encoded_absolute, error_std_percentage_numerical_encoded_relative, error_min_numerical_encoded_absolute, error_min_numerical_encoded_relative, error_min_percentage_numerical_encoded_absolute, error_min_percentage_numerical_encoded_relative, error_max_numerical_encoded_absolute, error_max_numerical_encoded_relative, error_max_percentage_numerical_encoded_absolute, error_max_percentage_numerical_encoded_relative );
+[ error_diff_numerical_decoded, error_percent_diff_numerical_decoded, error_mse_diff_numerical_decoded, error_mse_percent_diff_numerical_decoded, error_std_diff_numerical_decoded, error_std_percent_diff_numerical_decoded, error_min_diff_numerical_decoded, error_min_percent_diff_numerical_decoded, error_max_diff_numerical_decoded, error_max_percent_diff_numerical_decoded ] = numerical_method_utilities.compute_error_difference_statistics( errors_numerical_decoded_absolute, errors_numerical_decoded_relative, error_percentages_numerical_decoded_absolute, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_absolute, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_absolute, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_absolute, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_absolute, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_absolute, error_min_percentage_numerical_decoded_relative, error_max_numerical_decoded_absolute, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_absolute, error_max_percentage_numerical_decoded_relative );
+
+% Compute the improvement between the theoretical absolute and relative network errors.
+[ error_improv_theoretical_encoded, error_percent_improv_theoretical_encoded, error_mse_improv_theoretical_encoded, error_mse_percent_improv_theoretical_encoded, error_std_improv_theoretical_encoded, error_std_percent_improv_theoretical_encoded, error_min_improv_theoretical_encoded, error_min_percent_improv_theoretical_encoded, error_max_improv_theoretical_encoded, error_max_percent_improv_theoretical_encoded ] = numerical_method_utilities.compute_error_improvement_statistics( errors_theoretical_encoded_absolute, errors_theoretical_encoded_relative, error_percentages_theoretical_encoded_absolute, error_percentages_theoretical_encoded_relative, error_rmse_theoretical_encoded_absolute, error_rmse_theoretical_encoded_relative, error_rmse_percentage_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_relative, error_std_theoretical_encoded_absolute, error_std_theoretical_encoded_relative, error_std_percentage_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_relative, error_min_theoretical_encoded_absolute, error_min_theoretical_encoded_relative, error_min_percentage_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_relative, error_max_theoretical_encoded_absolute, error_max_theoretical_encoded_relative, error_max_percentage_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_relative );
+[ error_improv_theoretical_decoded, error_percent_improv_theoretical_decoded, error_mse_improv_theoretical_decoded, error_mse_percent_improv_theoretical_decoded, error_std_improv_theoretical_decoded, error_std_percent_improv_theoretical_decoded, error_min_improv_theoretical_decoded, error_min_percent_improv_theoretical_decoded, error_max_improv_theoretical_decoded, error_max_percent_improv_theoretical_decoded ] = numerical_method_utilities.compute_error_improvement_statistics( errors_theoretical_decoded_absolute, errors_theoretical_decoded_relative, error_percentages_theoretical_decoded_absolute, error_percentages_theoretical_decoded_relative, error_rmse_theoretical_decoded_absolute, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_absolute, error_rmse_percentage_theoretical_decoded_relative, error_std_theoretical_decoded_absolute, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_absolute, error_std_percentage_theoretical_decoded_relative, error_min_theoretical_decoded_absolute, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_absolute, error_min_percentage_theoretical_decoded_relative, error_max_theoretical_decoded_absolute, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_absolute, error_max_percentage_theoretical_decoded_relative );
+
+% Compute the improvement between the numerical absolute and relative network errors.
+[ error_improv_numerical_encoded, error_percent_improv_numerical_encoded, error_mse_improv_numerical_encoded, error_mse_percent_improv_numerical_encoded, error_std_improv_numerical_encoded, error_std_percent_improv_numerical_encoded, error_min_improv_numerical_encoded, error_min_percent_improv_numerical_encoded, error_max_improv_numerical_encoded, error_max_percent_improv_numerical_encoded ] = numerical_method_utilities.compute_error_improvement_statistics( errors_numerical_encoded_absolute, errors_numerical_encoded_relative, error_percentages_numerical_encoded_absolute, error_percentages_numerical_encoded_relative, error_rmse_numerical_encoded_absolute, error_rmse_numerical_encoded_relative, error_rmse_percentage_numerical_encoded_absolute, error_rmse_percentage_numerical_encoded_relative, error_std_numerical_encoded_absolute, error_std_numerical_encoded_relative, error_std_percentage_numerical_encoded_absolute, error_std_percentage_numerical_encoded_relative, error_min_numerical_encoded_absolute, error_min_numerical_encoded_relative, error_min_percentage_numerical_encoded_absolute, error_min_percentage_numerical_encoded_relative, error_max_numerical_encoded_absolute, error_max_numerical_encoded_relative, error_max_percentage_numerical_encoded_absolute, error_max_percentage_numerical_encoded_relative );
+[ error_improv_numerical_decoded, error_percent_improv_numerical_decoded, error_mse_improv_numerical_decoded, error_mse_percent_improv_numerical_decoded, error_std_improv_numerical_decoded, error_std_percent_improv_numerical_decoded, error_min_improv_numerical_decoded, error_min_percent_improv_numerical_decoded, error_max_improv_numerical_decoded, error_max_percent_improv_numerical_decoded ] = numerical_method_utilities.compute_error_improvement_statistics( errors_numerical_decoded_absolute, errors_numerical_decoded_relative, error_percentages_numerical_decoded_absolute, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_absolute, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_absolute, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_absolute, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_absolute, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_absolute, error_min_percentage_numerical_decoded_relative, error_max_numerical_decoded_absolute, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_absolute, error_max_percentage_numerical_decoded_relative );
+
+
+%% Compute the Subnetwork Numerical Stability Information.
+
+% Define the property retrieval settings.
+as_matrix_flag = true;
+
+% Define the stability analysis timestep seed.
+dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
+
+% Retrieve the properties necessary to compute the numerical stability parameters for an absolute and relative transmission subnetwork.
+[ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_parameters( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
+[ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_parameters( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
+
+% Compute the realtive transmission steady state output.
+[ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis( Us_desired_absolute( :, 1 ), Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
+[ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis( Us_desired_relative( :, 1 ), Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
+
+% Retrieve the maximum RK4 step size.
+[ dt_max_absolute, indexes_dt_absolute ] = max( dts_absolute );
+[ dt_max_relative, indexes_dt_relative ] = max( dts_relative );
+
+% Retrieve the maximum condition number.
+[ condition_number_max_absolute, indexes_condition_number_absolute ] = max( condition_numbers_absolute );
+[ condition_number_max_relative, indexes_condition_number_relative ] = max( condition_numbers_relative );
+
+
+%% Print the Numerical Stability Information.
+
+% Print out the stability information.
+network_absolute.numerical_method_utilities.print_numerical_stability_info( As_absolute, dts_absolute, network_dt, condition_numbers_absolute );
+network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
+
+
+%% Plot the Subnetwork Steady State Response.
+
+% Define the line colors.
+color_absolute = [ 0.0000, 0.4470, 0.7410, 1.0000 ];
+color_relative = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
+
+% Define the subnetwork name.
+subnetwork_name = 'Inversion';
+
+% Create plots of the absolute and relative encoded and decoded steady state responses.
+fig_absolute_encoded_ss_response = plotting_utilities.plot_steady_state_response( Us_desired_absolute( :, 1 ), Us_desired_absolute( :, 2 ), Us_theoretical_absolute( :, 2 ), Us_numerical_absolute( :, 2 ), scale, subnetwork_name, 'Absolute', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory );
+fig_absolute_decoded_ss_response = plotting_utilities.plot_steady_state_response( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), scale, subnetwork_name, 'Absolute', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
+fig_relative_encoded_ss_response = plotting_utilities.plot_steady_state_response( Us_desired_relative( :, 1 ), Us_desired_relative( :, 2 ), Us_theoretical_relative( :, 2 ), Us_numerical_relative( :, 2 ), scale, subnetwork_name, 'Relative', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory );
+fig_relative_decoded_ss_response = plotting_utilities.plot_steady_state_response( xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), scale, subnetwork_name, 'Relative', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
+
+% Create a plot that compares the absolute and relative steady state responses using both encoded and decoded.
+fig_encoded_ss_response = plotting_utilities.plot_steady_state_response_comparison( Us_desired_absolute( :, 1 ), Us_desired_absolute( :, 2 ), Us_theoretical_absolute( :, 2 ), Us_numerical_absolute( :, 2 ), color_absolute, Us_desired_relative( :, 1 ), Us_desired_relative( :, 2 ), Us_theoretical_relative( :, 2 ), Us_numerical_relative( :, 2 ), color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory );
+fig_decoded_ss_response = plotting_utilities.plot_steady_state_response_comparison( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), color_absolute, xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), color_relative, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
+
+
+%% Plot the Subnetwork Steady State Error.
+
+% Plot the encoded and decoded steady state error.
+fig_encoded_ss_error = plotting_utilities.plot_steady_state_error_comparison( Us_theoretical_absolute( :, 1 ), errors_theoretical_encoded_absolute, errors_numerical_encoded_absolute, color_absolute, Us_theoretical_relative( :, 1 ), errors_theoretical_encoded_relative, errors_numerical_encoded_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
+fig_decoded_ss_error = plotting_utilities.plot_steady_state_error_comparison( xs_theoretical_absolute( :, 1 ), errors_theoretical_decoded_absolute, errors_numerical_decoded_absolute, color_absolute, xs_theoretical_relative( :, 1 ), errors_theoretical_decoded_relative, errors_numerical_decoded_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x', 'E', '-', save_flag, save_directory );
+
+% Plot the encoded and decoded steady state error percentage.
+fig_encoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_percentage_comparison( Us_theoretical_absolute( :, 1 ), error_percentages_theoretical_encoded_absolute, error_percentages_numerical_encoded_absolute, color_absolute, Us_theoretical_relative( :, 1 ), error_percentages_theoretical_encoded_relative, error_percentages_numerical_encoded_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
+fig_decoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_percentage_comparison( xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_absolute, error_percentages_numerical_decoded_absolute, color_absolute, xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_relative, error_percentages_numerical_decoded_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', 'E', '-', save_flag, save_directory );
+
+
+%% Plot the Subnetwork Steady State Error Difference.
+
+% Plot the encoded and decoded steady state error difference between the absolute and relative transmission formulations.
+fig_encoded_ss_error_difference = plotting_utilities.plot_steady_state_error_difference( Us_theoretical_absolute( :, 1 ), error_diff_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_diff_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
+fig_decoded_ss_error_difference = plotting_utilities.plot_steady_state_error_difference( xs_theoretical_absolute( :, 1 ), error_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_diff_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+
+% Plot the encoded and decoded steady state error percentage difference between the absolute and relative transmission formulations.
+fig_encoded_ss_error_percentage_difference = plotting_utilities.plot_steady_state_error_percentage_difference( Us_theoretical_absolute( :, 1 ), error_percent_diff_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_percent_diff_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
+fig_decoded_ss_error_percentage_difference = plotting_utilities.plot_steady_state_error_percentage_difference( xs_theoretical_absolute( :, 1 ), error_percent_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_diff_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+
+
+%% Plot the Subnetwork Steady State Error Improvement.
+
+% Plot the encoded and encoded steady state error improvement between the absolute and relative transmission formulations.
+fig_encoded_ss_error_improvement = plotting_utilities.plot_steady_state_error_improvement( Us_theoretical_absolute( :, 1 ), error_improv_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_improv_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
+fig_decoded_ss_error_improvement = plotting_utilities.plot_steady_state_error_improvement( xs_theoretical_absolute( :, 1 ), error_improv_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_improv_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+
+% Plot the encoded and decoded steady state error percentage improvement between the absolute and relative transmission formulations.
+fig_encoded_ss_error_percentage_improvement = plotting_utilities.plot_steady_state_error_percentage_improvement( Us_theoretical_absolute( :, 1 ), error_percent_improv_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_percent_improv_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
+fig_decoded_ss_error_percentage_improvement = plotting_utilities.plot_steady_state_error_percentage_improvement( xs_theoretical_absolute( :, 1 ), error_percent_improv_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_improv_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+
+
+%% Plot the Numerical Stability Information.
+
+% Plot the RK4 maximum timestep vs the encoded and decoded input.
+fig_rk4_maximum_timestep_encoded = plotting_utilities.plot_rk4_maximum_timestep( Us_desired_absolute( :, 1 ), dts_absolute, color_absolute, Us_desired_relative( :, 1 ), dts_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
+fig_rk4_maximum_timestep_decoded = plotting_utilities.plot_rk4_maximum_timestep( xs_desired_absolute( :, 1 ), dts_absolute, color_absolute, xs_desired_relative( :, 1 ), dts_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
+
+% Plot the linearized system condition numbers vs the encoded and decoded input.
+fig_condition_numbers_encoded = plotting_utilities.plot_condition_numbers( Us_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, Us_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
+fig_condition_numbers_decoded = plotting_utilities.plot_condition_numbers( xs_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, xs_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
+

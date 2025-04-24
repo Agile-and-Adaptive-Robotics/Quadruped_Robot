@@ -98,7 +98,7 @@ input_current_to_neuron_ID = 1;                     % [#] Neuron ID to Which Inp
 Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 
 
-%% Create Absolute Inversion Subnetwork.
+%% Create the Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );

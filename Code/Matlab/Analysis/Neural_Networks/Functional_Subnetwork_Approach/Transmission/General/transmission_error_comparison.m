@@ -50,20 +50,20 @@ numerical_method_utilities = numerical_method_utilities_class(  );
 plotting_utilities = plotting_utilities_class(  );
 
 
-%% Define Transmission Subnetwork Parameters.
+%% Define Subnetwork Parameters.
 
 % Define the subnetwork formulation parameters (shared by both encoding schemes).
 c = 3.0;
 x1_max = 20e-3;
 
-% Define the transmission subnetwork design parameters.
+% Define the absolute subnetwork design parameters.
 % x1max_absolute = 20e-3;                                     % [-] Maximum Encoded Input.
 Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
 Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters in a cell.
+% Store the absolute subnetwork design parameters in a cell.
 absolute_transmission_input_parameters.c = c;
 absolute_transmission_input_parameters.x1_max = x1_max;
 absolute_transmission_input_parameters.Gm1 = Gm1_absolute;
@@ -71,7 +71,7 @@ absolute_transmission_input_parameters.Gm2 = Gm2_absolute;
 absolute_transmission_input_parameters.Cm1 = Cm1_absolute;
 absolute_transmission_input_parameters.Cm2 = Cm2_absolute;
 
-% Define the transmission subnetwork design parameters.
+% Define the relative subnetwork design parameters.
 % x1max_relative = 20;                                         % [-] Maximum Encoded Input.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
@@ -80,7 +80,7 @@ Gm2_relative = 1e-6;                                         % [S] Membrane Cond
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
  
-% Store the transmission subnetwork design parameters in a cell.
+% Store the relative subnetwork design parameters in a cell.
 relative_transmission_input_parameters.c = c;
 relative_transmission_input_parameters.x1_max = x1_max;
 relative_transmission_input_parameters.R1 = R1_relative;
@@ -114,7 +114,7 @@ f_decode2_relative = @( U2 ) network_utilities.decode_relative_transmission_outp
 f_decode_relative = @( Us ) [ f_decode1_relative( Us( :, 1 ) ), f_decode2_relative( Us( :, 2 ) ) ];
 
 
-%% Define the Absolute & Relative Transmission Subnetwork Input Currents.
+%% Define the Absolute & Relative Subnetwork Input Currents.
 
 % Define the applied current ID.
 input_current_ID_absolute = 1;                                  % [#] Absolute Input Current ID.
@@ -133,7 +133,7 @@ Ias1_absolute = zeros( n_timesteps, 1 );                        % [A] Applied Cu
 Ias1_relative = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
 
 
-%% Create the Relative Transmission Subnetwork.
+%% Create the Subnetworks.
 
 % Create an instance of the network class.
 network_absolute = network_class( network_dt, network_tf );
@@ -152,7 +152,7 @@ network_relative = network_class( network_dt, network_tf );
 [ ~, ~, ~, network_relative.applied_current_manager ] = network_relative.applied_current_manager.create_applied_current( input_current_ID_relative, input_current_name_relative, input_current_to_neuron_ID_relative, ts, Ias1_relative, true, network_relative.applied_current_manager.applied_currents, true, false, network_relative.applied_current_manager.array_utilities );
 
 
-%% Print Transmission Subnetwork Information.
+%% Print Subnetwork Information.
 
 % Print absolute transmission subnetwork information.
 fprintf( '----------------------------------- ABSOLUTE TRANSMISSION SUBNETWORK -----------------------------------\n\n' )
@@ -235,7 +235,7 @@ xs_theoretical_absolute( :, 2 ) = f_decode2_absolute( Us_theoretical_absolute( :
 xs_theoretical_relative( :, 2 ) = f_decode2_relative( Us_theoretical_relative( :, 2 ) );
 
 
-%% Compute the Absolute & Relative Transmission Network Error.
+%% Compute the Absolute & Relative Subnetwork Error.
 
 % Compute the error between the encoded theoretical output and the desired output.
 [ errors_theoretical_encoded_absolute, error_percentages_theoretical_encoded_absolute, error_rmse_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_absolute, error_std_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_absolute, error_min_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_absolute, index_min_theoretical_encoded_absolute, error_max_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_absolute, index_max_theoretical_encoded_absolute, error_range_theoretical_encoded_absolute, error_range_percentage_theoretical_encoded_absolute ] = numerical_method_utilities.compute_error_statistics( Us_theoretical_absolute, Us_desired_absolute, R2_absolute );
@@ -254,7 +254,7 @@ xs_theoretical_relative( :, 2 ) = f_decode2_relative( Us_theoretical_relative( :
 [ errors_numerical_decoded_relative, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_relative, index_min_numerical_decoded_relative, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_relative, index_max_numerical_decoded_relative, error_range_numerical_decoded_relative, error_range_percentage_numerical_decoded_relative ] = numerical_method_utilities.compute_error_statistics( xs_numerical_relative, xs_desired_relative, x2max_relative );
 
 
-%% Print the Absolute & Relative Transmission Summary Statistics.
+%% Print the Absolute & Relative Subnetwork Summary Statistics.
 
 % Define the absolute header strings.
 header_str_encoded_absolute = 'Absolute Transmission Encoded Error Statistics';
@@ -301,7 +301,7 @@ network_relative.numerical_method_utilities.print_error_statistics( header_str_e
 network_relative.numerical_method_utilities.print_error_statistics( header_str_decoded_relative, unit_str_decoded, 1, error_rmse_theoretical_decoded_relative, error_rmse_percentage_theoretical_decoded_relative, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_relative, error_std_theoretical_decoded_relative, error_std_percentage_theoretical_decoded_relative, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_relative, error_min_theoretical_decoded_relative, error_min_percentage_theoretical_decoded_relative, xs_critmin_theoretical_relative, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_relative, xs_critmin_numerical_relative, error_max_theoretical_decoded_relative, error_max_percentage_theoretical_decoded_relative, xs_critmax_theoretical_relative, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_relative, xs_critmax_numerical_relative, error_range_theoretical_decoded_relative, error_range_percentage_theoretical_decoded_relative, error_range_numerical_decoded_relative, error_range_percentage_numerical_decoded_relative )
 
 
-%% Compute the Difference between the Absolute & Relative Transmission Network Errors.
+%% Compute the Difference between the Absolute & Relative Subnetwork Errors.
 
 % Compute the difference between the theoretical absolute and relative network errors.
 [ error_diff_theoretical_encoded, error_percent_diff_theoretical_encoded, error_mse_diff_theoretical_encoded, error_mse_percent_diff_theoretical_encoded, error_std_diff_theoretical_encoded, error_std_percent_diff_theoretical_encoded, error_min_diff_theoretical_encoded, error_min_percent_diff_theoretical_encoded, error_max_diff_theoretical_encoded, error_max_percent_diff_theoretical_encoded ] = numerical_method_utilities.compute_error_difference_statistics( errors_theoretical_encoded_absolute, errors_theoretical_encoded_relative, error_percentages_theoretical_encoded_absolute, error_percentages_theoretical_encoded_relative, error_rmse_theoretical_encoded_absolute, error_rmse_theoretical_encoded_relative, error_rmse_percentage_theoretical_encoded_absolute, error_rmse_percentage_theoretical_encoded_relative, error_std_theoretical_encoded_absolute, error_std_theoretical_encoded_relative, error_std_percentage_theoretical_encoded_absolute, error_std_percentage_theoretical_encoded_relative, error_min_theoretical_encoded_absolute, error_min_theoretical_encoded_relative, error_min_percentage_theoretical_encoded_absolute, error_min_percentage_theoretical_encoded_relative, error_max_theoretical_encoded_absolute, error_max_theoretical_encoded_relative, error_max_percentage_theoretical_encoded_absolute, error_max_percentage_theoretical_encoded_relative );
@@ -320,7 +320,7 @@ network_relative.numerical_method_utilities.print_error_statistics( header_str_d
 [ error_improv_numerical_decoded, error_percent_improv_numerical_decoded, error_mse_improv_numerical_decoded, error_mse_percent_improv_numerical_decoded, error_std_improv_numerical_decoded, error_std_percent_improv_numerical_decoded, error_min_improv_numerical_decoded, error_min_percent_improv_numerical_decoded, error_max_improv_numerical_decoded, error_max_percent_improv_numerical_decoded ] = numerical_method_utilities.compute_error_improvement_statistics( errors_numerical_decoded_absolute, errors_numerical_decoded_relative, error_percentages_numerical_decoded_absolute, error_percentages_numerical_decoded_relative, error_rmse_numerical_decoded_absolute, error_rmse_numerical_decoded_relative, error_rmse_percentage_numerical_decoded_absolute, error_rmse_percentage_numerical_decoded_relative, error_std_numerical_decoded_absolute, error_std_numerical_decoded_relative, error_std_percentage_numerical_decoded_absolute, error_std_percentage_numerical_decoded_relative, error_min_numerical_decoded_absolute, error_min_numerical_decoded_relative, error_min_percentage_numerical_decoded_absolute, error_min_percentage_numerical_decoded_relative, error_max_numerical_decoded_absolute, error_max_numerical_decoded_relative, error_max_percentage_numerical_decoded_absolute, error_max_percentage_numerical_decoded_relative );
 
 
-%% Compute the Transmission Subnetwork Numerical Stability Information.
+%% Compute the Subnetwork Numerical Stability Information.
 
 % Define the property retrieval settings.
 as_matrix_flag = true;
@@ -352,7 +352,7 @@ network_absolute.numerical_method_utilities.print_numerical_stability_info( As_a
 network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
 
 
-%% Plot the Transmission Steady State Response.
+%% Plot the Subnetwork Steady State Response.
 
 % Define the membrane voltage plotting scale factor.
 scale = 10^3;
@@ -375,7 +375,7 @@ fig_encoded_ss_response = plotting_utilities.plot_steady_state_response_comparis
 fig_decoded_ss_response = plotting_utilities.plot_steady_state_response_comparison( xs_desired_absolute( :, 1 ), xs_desired_absolute( :, 2 ), xs_theoretical_absolute( :, 2 ), xs_numerical_absolute( :, 2 ), color_absolute, xs_desired_relative( :, 1 ), xs_desired_relative( :, 2 ), xs_theoretical_relative( :, 2 ), xs_numerical_relative( :, 2 ), color_relative, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', save_flag, save_directory );
 
 
-%% Plot the Transmission Steady State Error.
+%% Plot the Subnetwork Steady State Error.
 
 % Plot the encoded and decoded steady state error.
 fig_encoded_ss_error = plotting_utilities.plot_steady_state_error_comparison( Us_theoretical_absolute( :, 1 ), errors_theoretical_encoded_absolute, errors_numerical_encoded_absolute, color_absolute, Us_theoretical_relative( :, 1 ), errors_theoretical_encoded_relative, errors_numerical_encoded_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
@@ -386,7 +386,7 @@ fig_encoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_per
 fig_decoded_ss_error_percentage = plotting_utilities.plot_steady_state_error_percentage_comparison( xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_absolute, error_percentages_numerical_decoded_absolute, color_absolute, xs_theoretical_absolute( :, 1 ), error_percentages_theoretical_decoded_relative, error_percentages_numerical_decoded_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', 'E', '-', save_flag, save_directory );
 
 
-%% Plot the Transmission Steady State Error Difference.
+%% Plot the Subnetwork Steady State Error Difference.
 
 % Plot the encoded and decoded steady state error difference between the absolute and relative transmission formulations.
 fig_encoded_ss_error_difference = plotting_utilities.plot_steady_state_error_difference( Us_theoretical_absolute( :, 1 ), error_diff_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_diff_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
@@ -397,7 +397,7 @@ fig_encoded_ss_error_percentage_difference = plotting_utilities.plot_steady_stat
 fig_decoded_ss_error_percentage_difference = plotting_utilities.plot_steady_state_error_percentage_difference( xs_theoretical_absolute( :, 1 ), error_percent_diff_theoretical_decoded, xs_numerical_absolute( :, 1 ), error_percent_diff_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
 
 
-%% Plot the Transmission Steady State Error Improvement.
+%% Plot the Subnetwork Steady State Error Improvement.
 
 % Plot the encoded and encoded steady state error improvement between the absolute and relative transmission formulations.
 fig_encoded_ss_error_improvement = plotting_utilities.plot_steady_state_error_improvement( Us_theoretical_absolute( :, 1 ), error_improv_theoretical_encoded, Us_numerical_absolute( :, 1 ), error_improv_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
@@ -417,4 +417,4 @@ fig_rk4_maximum_timestep_decoded = plotting_utilities.plot_rk4_maximum_timestep(
 % Plot the linearized system condition numbers vs the encoded and decoded input.
 fig_condition_numbers_encoded = plotting_utilities.plot_condition_numbers( Us_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, Us_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
 fig_condition_numbers_decoded = plotting_utilities.plot_condition_numbers( xs_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, xs_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
-    
+  
