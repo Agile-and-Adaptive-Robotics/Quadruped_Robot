@@ -45,7 +45,6 @@ network_utilities = network_utilities_class(  );
 
 % Define the transmission subnetwork design parameters.
 c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
-% c1 = 40e-6;                                         % [-] Subnetwork Gain 1.
 c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
 delta = 1e-3;                                       % [V] Minimum Decoded Output.
 x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
@@ -70,10 +69,12 @@ inversion_input_parameters.Cm2 = Cm2;
 % Define the encoding maps.
 f_encode1 = @( x1 ) network_utilities.encode_absolute_inversion_input( x1 );
 f_encode2 = @( x2 ) network_utilities.encode_absolute_inversion_output( x2 );
+f_encode = @( Xs ) [ f_encode1( Xs( :, 1 ) ), f_encode2( Xs( :, 2 ) ) ];
 
 % Define the decoding maps.
 f_decode1 = @( U1 ) network_utilities.decode_absolute_inversion_input( U1 );
 f_decode2 = @( U2 ) network_utilities.decode_absolute_inversion_output( U2 );
+f_decode = @( Us ) [ f_decode1( Us( :, 1 ) ), f_decode2( Us( :, 2 ) ) ];
 
 
 %% Define the Desired Input Signal.

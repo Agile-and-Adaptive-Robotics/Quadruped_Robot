@@ -159,7 +159,7 @@ Us_achieved_theoretical = [ U1s, U2s_achieved_theoretical ];
 network.numerical_method_utilities.print_numerical_stability_info( As, dts, network_dt, condition_numbers );
 
 
-%% Decode the Desired & Theoreticall Achieved Absolute Transmission Subnetwork Results.
+%% Decode the Desired & Theoretically Achieved Subnetwork Results.
 
 % Compute the decoded desired result.
 xs1_desired = f_decode1( Us_desired( :, 1 ) );
@@ -172,44 +172,47 @@ xs2_achieved_theoretical = f_decode2( Us_achieved_theoretical( :, 2 ) );
 Xs_achieved_theoretical = [ xs1_achieved_theoretical, xs2_achieved_theoretical ];
 
 
-%% Plot the Desired and Achieved Absolute Transmission Formulation Results.
+%% Plot the Desired and Achieved Formulation Results.
+
+% Define a scaling factor.
+scale = 1e3;
 
 % Plot the encoded desired and achieved absolute transmission formulation results.
-fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Desired & Achieved (Theory) SS Behavior' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Membrane Voltage 2 (Output), U2 [mV]' ), title( 'AT: Encoded Desired & Achieved (Theory) SS Behavior' )
-plot( Us_desired( :, 1 )*( 10^3 ), Us_desired( :, 2 )*( 10^3 ), '-', 'Linewidth', 3 )
-plot( Us_achieved_theoretical( :, 1 )*( 10^3 ), Us_achieved_theoretical( :, 2 )*( 10^3 ), '--', 'Linewidth', 3 )
+fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Desired & Achieved (Theory) SS Behavior' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Output, U2 [mV]' ), title( 'AT: Encoded Desired & Achieved (Theory) SS Behavior' )
+plot( scale*Us_desired( :, 1 ), scale*Us_desired( :, 2 ), '-', 'Linewidth', 3 )
+plot( scale*Us_achieved_theoretical( :, 1 ), scale*Us_achieved_theoretical( :, 2 ), '--', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved (Theory)' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_desired_achieved_theory_encoded' ] )
 
 % Plot the decoded desired and achieved absolute transmission formulation results.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Desired & Achieved (Theory) SS Behavior' ); hold on, grid on, xlabel( 'Decoded Input, x [-]' ), ylabel( 'Decoded Output, y [-]' ), title( 'AT: Decoded Desired & Achieved (Theory) SS Behavior' )
-plot( Xs_desired( :, 1 ), Xs_desired( :, 2 ), '-', 'Linewidth', 3 )
-plot( Xs_achieved_theoretical( :, 1 ), Xs_achieved_theoretical( :, 2 ), '--', 'Linewidth', 3 )
+plot( scale*Xs_desired( :, 1 ), scale*Xs_desired( :, 2 ), '-', 'Linewidth', 3 )
+plot( scale*Xs_achieved_theoretical( :, 1 ), scale*Xs_achieved_theoretical( :, 2 ), '--', 'Linewidth', 3 )
 legend( 'Desired', 'Achieved (Theory)' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_desired_achieved_theory_decoded' ] )
 
 % Plot the RK4 maximum timestep vs the encoded input.
-fig = figure( 'Color', 'w', 'Name', 'AT: RK4 Maximum Timestep vs Encoded Input' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'AT: RK4 Maximum Timestep vs Encoded Input' )
-plot( Us_desired( :, 1 )*( 10^3 ), dts, '-', 'Linewidth', 3 )
+fig = figure( 'Color', 'w', 'Name', 'AT: RK4 Maximum Timestep vs Encoded Input' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'AT: RK4 Maximum Timestep vs Encoded Input' )
+plot( scale*Us_desired( :, 1 ), dts, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_rk4_maximum_timestep_encoded' ] )
 
 % Plot the RK4 maximum timestep vs the decoded input.
 fig = figure( 'Color', 'w', 'Name', 'AT: RK4 Maximum Timestep vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input, x [-]' ), ylabel( 'RK4 Maximum Timestep, dt [s]' ), title( 'AT: RK4 Maximum Timestep vs Decoded Input' )
-plot( Xs_desired( :, 1 ), dts, '-', 'Linewidth', 3 )
+plot( scale*Xs_desired( :, 1 ), dts, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_rk4_maximum_timestep_decoded' ] )
 
 % Plot the linearized system condition numbers vs the encoded input.
-fig = figure( 'Color', 'w', 'Name', 'AT: Condition Numbers vs Encoded Input' ); hold on, grid on, xlabel( 'Membrane Voltage 1 (Input), U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'AT: Condition Number vs Encoded Input' )
-plot( Us_desired( :, 1 )*( 10^3 ), condition_numbers, '-', 'Linewidth', 3 )
+fig = figure( 'Color', 'w', 'Name', 'AT: Condition Numbers vs Encoded Input' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Condition Number [-]' ), title( 'AT: Condition Number vs Encoded Input' )
+plot( scale*Us_desired( :, 1 ), condition_numbers, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_condition_numbers_encoded' ] )
 
 % Plot the linearized system condition numbers vs the decoded input.
 fig = figure( 'Color', 'w', 'Name', 'AT: Condition Numbers vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input, x [-]' ), ylabel( 'Condition Number [-]' ), title( 'AT: Condition Number vs Decoded Input' )
-plot( Xs_desired( :, 1 ), condition_numbers, '-', 'Linewidth', 3 )
+plot( scale*Xs_desired( :, 1 ), condition_numbers, '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_condition_numbers_decoded' ] )
 
 
-%% Simulate the Absolute Transmission Network.
+%% Simulate the Subnetwork.
 
 % Set additional simulation properties.
 filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
@@ -272,7 +275,7 @@ else                % Otherwise... ( We must want to load data from an existing 
 end
 
 
-%% Compute the Absolute Transmission Desired & Achieved (Theory) Network Output.
+%% Compute the Desired & Achieved (Theory) Subnetwork Output.
 
 % Compute the encoded desired and achieved (theory) result output.
 Us2_desired = network.compute_encoded_desired_absolute_transmission_sso( Us_achieved_numerical( :, 1 ), c, network.network_utilities );
@@ -293,7 +296,7 @@ xs2_achieved_theoretical = f_decode2( Us_achieved_theoretical( :, 2 ) );
 Xs_achieved_theoretical = [ xs1_achieved_theoretical, xs2_achieved_theoretical ];
 
 
-%% Compute the Absolute Transmission Network Error.
+%% Compute the Subnetwork Error.
 
 % Compute the error between the encoded theoretical output and the desired output.
 [ errors_theoretical_encoded, error_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_theoretical, Us_desired, Rs( 2 ) );
@@ -308,7 +311,7 @@ Xs_achieved_theoretical = [ xs1_achieved_theoretical, xs2_achieved_theoretical ]
 [ errors_numerical_decoded, error_percentages_numerical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_numerical_decoded, error_min_percentage_numerical_decoded, index_min_numerical_decoded, error_max_numerical_decoded, error_max_percentage_numerical_decoded, index_max_numerical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_achieved_numerical, Xs_desired, x2_max );
 
 
-%% Print the Absolute Tranmission Summary Statistics.
+%% Print the Subnetwork Summary Statistics.
 
 % Define the header strings.
 header_str_encoded = 'Absolute Transmission Encoded Summary Statistics\n';
@@ -331,83 +334,83 @@ ys_critmax_achieved_theoretical_steady = f_decode( Us_critmax_achieved_theoretic
 ys_critmax_achieved_numerical_steady = f_decode( Us_critmax_achieved_numerical_steady );
 
 % Print the absolute transmission encoded summary statistics.
-network.numerical_method_utilities.print_error_statistics( header_str_encoded, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, Us_critmin_achieved_theoretical_steady, error_min_numerical_encoded, error_min_percentage_numerical_encoded, Us_critmin_achieved_numerical_steady, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, Us_critmax_achieved_theoretical_steady, error_max_numerical_encoded, error_max_percentage_numerical_encoded, Us_critmax_achieved_numerical_steady, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded )    
-network.numerical_method_utilities.print_error_statistics( header_str_decoded, unit_str_decoded, 1, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, ys_critmin_achieved_theoretical_steady, error_min_numerical_decoded, error_min_percentage_numerical_decoded, ys_critmin_achieved_numerical_steady, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, ys_critmax_achieved_theoretical_steady, error_max_numerical_decoded, error_max_percentage_numerical_decoded, ys_critmax_achieved_numerical_steady, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded )    
+network.numerical_method_utilities.print_error_statistics( header_str_encoded, unit_str_encoded, 1/scale, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, Us_critmin_achieved_theoretical_steady, error_min_numerical_encoded, error_min_percentage_numerical_encoded, Us_critmin_achieved_numerical_steady, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, Us_critmax_achieved_theoretical_steady, error_max_numerical_encoded, error_max_percentage_numerical_encoded, Us_critmax_achieved_numerical_steady, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded )    
+network.numerical_method_utilities.print_error_statistics( header_str_decoded, unit_str_decoded, 1/scale, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, ys_critmin_achieved_theoretical_steady, error_min_numerical_decoded, error_min_percentage_numerical_decoded, ys_critmin_achieved_numerical_steady, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, ys_critmax_achieved_theoretical_steady, error_max_numerical_decoded, error_max_percentage_numerical_decoded, ys_critmax_achieved_numerical_steady, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded )    
 
 
 %% Plot the Absolute Transmission Network Results.
 
 % Create a plot of the encoded desired network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Input Neuron Membrane Voltage, U1 [mV]' ), ylabel( 'Output Neuron Membrane Voltage, U2 [mV]' ), title( 'AT: Encoded Steady State Response (Desired)' )
-plot( Us_desired( :, 1 )*( 10^3 ), Us_desired( :, 2 )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( scale*Us_desired( :, 1 ), scale*Us_desired( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_desired_encoded' ] )
 
 % Create a plot of the decoded desired network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'AT: Decoded Steady State Response (Desired)' )
-plot( Xs_desired( :, 1 ), Xs_desired( :, 2 ), '-', 'Linewidth', 3 )
+plot( scale*Xs_desired( :, 1 ), scale*Xs_desired( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_desired_decoded' ] )
 
 % Create a plot of the encoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, xlabel( 'Input Neuron Membrane Voltage, U1 [mV]' ), ylabel( 'Output Neuron Membrane Voltage, U2 [mV]' ), title( 'AT: Encoded Steady State Response (Achieved Theoretical)' )
-plot( Us_achieved_theoretical( :, 1 )*( 10^3 ), Us_achieved_theoretical( :, 2 )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( scale*Us_achieved_theoretical( :, 1 ), scale*Us_achieved_theoretical( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_achieved_theoretical_encoded' ] )
 
 % Create a plot of the decoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'AT: Decoded Steady State Response (Achieved Theoretical)' )
-plot( Xs_achieved_theoretical( :, 1 ), Xs_achieved_theoretical( :, 2 ), '-', 'Linewidth', 3 )
+plot( scale*Xs_achieved_theoretical( :, 1 ), scale*Xs_achieved_theoretical( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_achieved_theoretical_decoded' ] )
 
 % Create a plot of the encoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Steady State Response (Achieved Numerical)' ); hold on, grid on, xlabel( 'Input Neuron Membrane Voltage, U1 [mV]' ), ylabel( 'Output Neuron Membrane Voltage, U2 [mV]' ), title( 'AT: Encoded Steady State Response (Achieved Numerical)' )
-plot( Us_achieved_numerical( :, 1 )*( 10^3 ), Us_achieved_numerical( :, 2 )*( 10^3 ), '-', 'Linewidth', 3 )
+plot( scale*Us_achieved_numerical( :, 1 ), scale*Us_achieved_numerical( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_achieved_numerical_encoded' ] )
 
 % Create a plot of the decoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Steady State Response (Achieved Numerical)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'AT: Decoded Steady State Response (Achieved Numerical)' )
-plot( Xs_achieved_numerical( :, 1 ), Xs_achieved_numerical( :, 2 ), '-', 'Linewidth', 3 )
+plot( scale*Xs_achieved_numerical( :, 1 ), scale*Xs_achieved_numerical( :, 2 ), '-', 'Linewidth', 3 )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_achieved_numerical_decoded' ] )
 
 % Create a plot of the encoded desired, achieved (theory), and achieved (numerical) network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Input Neuron Membrane Voltage, U1 [mV]' ), ylabel( 'Output Neuron Membrane Voltage, U2 [mV]' ), title( 'AT: Encoded Steady State Response (Comparison)' )
-h1 = plot( Us_desired( :, 1 )*( 10^3 ), Us_desired( :, 2 )*( 10^3 ), '-', 'Linewidth', 3 );
-h2 = plot( Us_achieved_theoretical( :, 1 )*( 10^3 ), Us_achieved_theoretical( :, 2 )*( 10^3 ), '-.', 'Linewidth', 3 );
-h3 = plot( Us_achieved_numerical( :, 1 )*( 10^3 ), Us_achieved_numerical( :, 2 )*( 10^3 ), '--', 'Linewidth', 3 );
+h1 = plot( scale*Us_desired( :, 1 ), scale*Us_desired( :, 2 ), '-', 'Linewidth', 3 );
+h2 = plot( scale*Us_achieved_theoretical( :, 1 ), scale*Us_achieved_theoretical( :, 2 ), '-.', 'Linewidth', 3 );
+h3 = plot( scale*Us_achieved_numerical( :, 1 ), scale*Us_achieved_numerical( :, 2 ), '--', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_comparison_encoded' ] )
 
 % Create a plot of the decoded desired, achieved (theory), and achieved (numerical) network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Output, y [-]' ), title( 'AT: Decoded Steady State Response (Comparison)' )
-h1 = plot( Xs_desired( :, 1 ), Xs_desired( :, 2 ), '-', 'Linewidth', 3 );
-h2 = plot( Xs_achieved_theoretical( :, 1 ), Xs_achieved_theoretical( :, 2 ), '-.', 'Linewidth', 3 );
-h3 = plot( Xs_achieved_numerical( :, 1 ), Xs_achieved_numerical( :, 2 ), '--', 'Linewidth', 3 );
+h1 = plot( scale*Xs_desired( :, 1 ), scale*Xs_desired( :, 2 ), '-', 'Linewidth', 3 );
+h2 = plot( scale*Xs_achieved_theoretical( :, 1 ), scale*Xs_achieved_theoretical( :, 2 ), '-.', 'Linewidth', 3 );
+h3 = plot( scale*Xs_achieved_numerical( :, 1 ), scale*Xs_achieved_numerical( :, 2 ), '--', 'Linewidth', 3 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_comparison_decoded' ] )
 
 % Create a plot of the encoded theoretical and numerical error.
 fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Steady State Error' ); hold on, grid on, xlabel( 'Input Neuron Membrane Voltage, U1 [mV]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'AT: Encoded Steady State Error' )
-plot( Us_achieved_theoretical( :, 1 )*( 10^3 ), errors_theoretical_encoded*( 10^3 ), '-', 'Linewidth', 3 )
-plot( Us_achieved_numerical( :, 1 )*( 10^3 ), errors_numerical_encoded*( 10^3 ), '--', 'Linewidth', 3 )
+plot( scale*Us_achieved_theoretical( :, 1 ), errors_theoretical_encoded, '-', 'Linewidth', 3 )
+plot( scale*Us_achieved_numerical( :, 1 ), errors_numerical_encoded, '--', 'Linewidth', 3 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_error_encoded' ] )
 
 % Create a plot of the decoded theoretical and numerical error.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Steady State Error' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'AT: Decoded Steady State Error' )
-plot( Xs_achieved_theoretical( :, 1 ), errors_theoretical_decoded, '-', 'Linewidth', 3 )
-plot( Xs_achieved_numerical( :, 2 ), errors_numerical_decoded, '--', 'Linewidth', 3 )
+plot( scale*Xs_achieved_theoretical( :, 1 ), errors_theoretical_decoded, '-', 'Linewidth', 3 )
+plot( scale*Xs_achieved_numerical( :, 2 ), errors_numerical_decoded, '--', 'Linewidth', 3 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_error_decoded' ] )
 
 % Create a plot of the encoded theoretical and numerical percentage error.
 fig = figure( 'Color', 'w', 'Name', 'AT: Encoded Steady State Error Percentage' ); hold on, grid on, xlabel( 'Input Neuron Membrane Voltage, U1 [mV]' ), ylabel( 'Encoded Error Percentage, E [%]' ), title( 'AT: Encoded Steady State Error Percentage' )
-plot( Us_achieved_theoretical( :, 1 ), error_percentages_theoretical_encoded, '-', 'Linewidth', 3 )
-plot( Us_achieved_numerical( :, 1 ), error_percentages_numerical_encoded, '--', 'Linewidth', 3 )
+plot( scale*Us_achieved_theoretical( :, 1 ), error_percentages_theoretical_encoded, '-', 'Linewidth', 3 )
+plot( scale*Us_achieved_numerical( :, 1 ), error_percentages_numerical_encoded, '--', 'Linewidth', 3 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_error_percentage_encoded' ] )
 
 % Create a plot of the decoded theoretical and numerical percentage error.
 fig = figure( 'Color', 'w', 'Name', 'AT: Decoded Steady State Error Percentage' ); hold on, grid on, xlabel( 'Input, x [-]' ), ylabel( 'Decoded Error Percentage, E [%]' ), title( 'AT: Decoded Steady State Error Percentage' )
-plot( Xs_achieved_theoretical( :, 1 ), error_percentages_theoretical_decoded, '-', 'Linewidth', 3 )
-plot( Xs_achieved_numerical( :, 2 ), error_percentages_numerical_decoded, '--', 'Linewidth', 3 )
+plot( scale*Xs_achieved_theoretical( :, 1 ), error_percentages_theoretical_decoded, '-', 'Linewidth', 3 )
+plot( scale*Xs_achieved_numerical( :, 2 ), error_percentages_numerical_decoded, '--', 'Linewidth', 3 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
 saveas( fig, [ save_directory, '\', 'absolute_transmission_ss_response_error_percentage_decoded' ] )
 
