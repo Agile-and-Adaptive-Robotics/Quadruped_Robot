@@ -79,7 +79,7 @@ f_decode1 = @( U1 ) network_utilities.decode_relative_inversion_input( U1, x1_ma
 f_decode2 = @( U2 ) network_utilities.decode_relative_inversion_output( U2, c1, c3, R2 );
 
 
-%% Define the Desired Input Signal.
+%% Define the Decoded Input Signal.
 
 % Define the desired input signal.
 xs1_desired = 0*ones( n_timesteps, 1 );
