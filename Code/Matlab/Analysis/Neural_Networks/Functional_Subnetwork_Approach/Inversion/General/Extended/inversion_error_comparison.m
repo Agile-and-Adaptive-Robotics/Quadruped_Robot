@@ -53,8 +53,10 @@ plotting_utilities = plotting_utilities_class(  );
 %% Define Subnetwork Parameters.
 
 % Define the formulation parameters.
-c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+% c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+c1 = 40e-6;                                         % [-] Subnetwork Gain 1.
 c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
+% c3 = 5e-4;                                          % [-] Subnetwork Gain 3.
 delta = 1e-3;                                       % [V] Minimum Decoded Output.
 x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 
@@ -81,7 +83,7 @@ Gm1_relative = 1e-6;                                         % [S] Membrane Cond
 Gm2_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 2).
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
- 
+
 % Store the relative subnetwork design parameters.
 relative_inversion_input_parameters.c1 = c1;
 relative_inversion_input_parameters.c3 = c3;
