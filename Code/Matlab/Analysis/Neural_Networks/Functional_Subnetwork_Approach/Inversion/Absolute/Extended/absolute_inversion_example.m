@@ -17,8 +17,8 @@ verbose_flag = true;                             	% [T/F] Printing Flag.
 undetected_option = 'error';                        % [str] Undetected Option.
 
 % Define the network integration step size.
-% network_dt = 1e-3;                                  % [s] Simulation Timestep.
-network_dt = 1e-4;                            	% [s] Simulation Timestep.
+% network_dt = 1e-3;                               	% [s] Simulation Timestep.
+network_dt = 1e-4;                                  % [s] Simulation Timestep.
 
 % Define the network simulation duration.
 network_tf = 0.5;                                 	% [s] Simulation Duration.
@@ -43,7 +43,7 @@ network_utilities = network_utilities_class(  );
 
 %% Define Subnetwork Design Parameters.
 
-% Define the transmission subnetwork design parameters.
+% Define the subnetwork design parameters.
 c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
 c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
 delta = 1e-3;                                       % [V] Minimum Decoded Output.
@@ -53,7 +53,7 @@ Gm2 = 1e-6;                                       	% [S] Membrane Conductance (N
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters in a structure.
+% Store the subnetwork design parameters in a structure.
 inversion_input_parameters.c1 = c1;
 inversion_input_parameters.c3 = c3;
 inversion_input_parameters.delta = delta;
@@ -87,7 +87,7 @@ xs1_desired = x1_max*ones( n_timesteps, 1 );
 Us1_desired = f_encode1( xs1_desired );
 
 
-%% Define the Absolute Inversion Subnetwork Input Current Parameters.
+%% Define the Subnetwork Input Current Parameters.
 
 % Define the current identification properties.
 input_current_ID = 1;                               % [#] Input Current ID.
@@ -119,13 +119,13 @@ network.applied_current_manager.applied_currents( 1 ) = network.applied_current_
 network.applied_current_manager.applied_currents( 2 ) = temporary_applied_current;
 
 
-%% Print Absolute Inversion Subnetwork Parameters.
+%% Print Subnetwork Parameters.
 
 % Print inversion subnetwork information.
 network.print( network.neuron_manager, network.synapse_manager, network.applied_current_manager, verbose_flag );
 
 
-%% Compute Absolute Inversion Numerical Stability Analysis Parameters.
+%% Compute Numerical Stability Analysis Parameters.
 
 % Define the property retrieval settings.
 as_matrix_flag = true;
@@ -151,7 +151,7 @@ dt0 = 1e-6;                                                                     
 network.numerical_method_utilities.print_numerical_stability_info( As, dts, network_dt, condition_numbers );
 
 
-%% Simulate the Absolute Inversion Subnetwork.
+%% Simulate the Subnetwork.
 
 % Set additional simulation properties.
 filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
@@ -169,7 +169,7 @@ tic
 toc
 
 
-%% Decode the Absolute Inversion Subnetwork Output.
+%% Decode the Subnetwork Output.
 
 % Decode the network input.
 xs1 = f_decode1( Us( 1, : ) );
@@ -181,7 +181,7 @@ xs2 = f_decode2( Us( 2, : ) );
 Xs = [ xs1; xs2 ];
 
 
-%% Plot the Absolute Inversion Subnetwork Results.
+%% Plot the Subnetwork Results.
 
 % Retrieve the neuron IDs.
 neuron_IDs = network.neuron_manager.get_all_neuron_IDs( network.neuron_manager.neurons );

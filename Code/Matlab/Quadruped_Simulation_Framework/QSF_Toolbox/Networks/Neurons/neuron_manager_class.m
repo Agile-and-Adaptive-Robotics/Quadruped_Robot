@@ -1406,7 +1406,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_inversion_Gnas( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_inversion_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -3197,7 +3197,7 @@ classdef neuron_manager_class
 
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, inversion_parameters = {  }; end                                                                  	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 2, inversion_parameters = struct( [  ] ); end                                                          	% [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the parameters cell.
             if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
@@ -3254,30 +3254,29 @@ classdef neuron_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
                 
-        % Implement a function to process the reduced inversion subnetwork output activation domain parameters.
-        function reduced_inversion_R2_parameters = process_reduced_inversion_R2_parameters( self, reduced_inversion_R2_parameters, encoding_scheme )
+        % Implement a function to process the reduced inversion subnetwork input activation domain parameters.
+        function reduced_inversion_R1_parameters = process_reduced_inversion_R1_parameters( self, reduced_inversion_R1_parameters, encoding_scheme )
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end         	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, reduced_inversion_R2_parameters = struct( [  ] ); end                 	% [cell] Reduced Inversion R2 Parameters Cell.
+            if nargin < 2, reduced_inversion_R1_parameters = struct( [  ] ); end        % [struct] Inversion R2 Parameters Structure.
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the parameters.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( reduced_inversion_R2_parameters )                         	% If no parameters were provided...
+                if isempty( reduced_inversion_R1_parameters )                           % If no parameters were provided...
                     
                     % Set the default input and output voltage offsets.
-                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                    % [-] Subnetwork Gain 1.
-                    c2 = self.c2_reduced_absolute_inversion_DEFAULT;                    % [-] Subnetwork Gain 2.
+                    x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;            	% [-] Absolute Inversion Gain 1.
                     
-                    % Store the required parameters in a cell.
-                    reduced_inversion_R2_parameters = { c1, c2 };
+                    % Store the required parameters.
+                    reduced_inversion_R1_parameters.x1_max = x1_max;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( reduced_inversion_R2_parameters ) ~= 2                 	% If there is anything other than three parameter entries...
+                    % Determine whether the parameters has a valid number of entries.
+                    if length( fieldnames( reduced_inversion_R1_parameters ) ) ~= 1    	% If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
@@ -3288,12 +3287,17 @@ classdef neuron_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( reduced_inversion_R2_parameters )                        	% If the parameters cell is not empty...
+                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
+                if isempty( reduced_inversion_R1_parameters )                          	% If no parameters were provided...
                     
+                    % Store the required parameters.
+                    reduced_inversion_R1_parameters = struct( [  ] );
+                    
+                else                                                                    % Otherwise...
+
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
-                    
+                                            
                 end
                 
             else                                                                        % Otherwise...
@@ -3306,42 +3310,94 @@ classdef neuron_manager_class
         end
         
         
-        % Implement a function to process the reduced inversion parameters.
-        function reduced_inversion_parameters = process_reduced_inversion_parameters( self, reduced_inversion_parameters, encoding_scheme )
-        % function reduced_inversion_parameters = process_reduced_inversion_parameters( self, reduced_inversion_parameters, encoding_scheme, neurons, undetected_option )
-    
-            % Set the default input arguments.
-            % if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                           	% [-] Undetected Option.
-            % if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, reduced_inversion_parameters = {  }; end                                                          	% [cell] Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+        % Implement a function to process the reduced inversion subnetwork output activation domain parameters.
+        function reduced_inversion_R2_parameters = process_reduced_inversion_R2_parameters( self, reduced_inversion_R2_parameters, encoding_scheme )
             
-            % Determine how to create the parameters cell.
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_inversion_R2_parameters = struct( [  ] ); end              	% [struct] Inversion R2 Parameters.
+            
+            % Determine how to create the parameters.
+            if strcmpi( encoding_scheme, 'absolute' )                                           % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the parameters given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_inversion_R2_parameters )                                	% If no parameters were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                            % [-] Reduced Absolute Inversion Gain 1.
+                    delta = self.delta_reduced_absolute_inversion_DEFAULT;                      % [-] Minimum Decoded Output.
+                    x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;                     % [-] Maximum Decoded Input.
+                    
+                    % Store the required parameters.
+                    reduced_inversion_R2_parameters.c1 = c1;
+                    reduced_inversion_R2_parameters.delta = delta;
+                    reduced_inversion_R2_parameters.x1_max = x1_max;
+                    
+                else                                                                            % Otherwise...
+                    
+                    % Determine whether the parameters has a valid number of entries.
+                    if length( fieldnames( reduced_inversion_R2_parameters ) ) ~= 3           	% If there is anything other than three parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid parameters detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                       % If this operation uses a relative encoding scheme...
+                
+                % Determine how to create the parameters given that this operation is using a relative encoding scheme.
+                if isempty( reduced_inversion_R2_parameters )                                	% If no parameters were provided...
+                    
+                    % Store the required parameters.
+                    reduced_inversion_R2_parameters = struct( [  ] );
+                    
+                else                                                                            % Otherwise...
+
+                    % Throw an error.
+                    error( 'Invalid parameters detected.' )
+                                            
+                end
+                
+            else                                                                        % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the reduced inversion subnetwork parameters.
+        function reduced_inversion_parameters = process_reduced_inversion_parameters( self, reduced_inversion_parameters, encoding_scheme )
+
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_inversion_parameters = struct( [  ] ); end                                               	% [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            
+            % Determine how to create the parameters.
             if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( reduced_inversion_parameters )                                                                   	% If no parameters were provided...
+                % Determine how to create the parameters given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_inversion_parameters )                                                                    	% If no parameters were provided...
                                                           
                     % Set the default parameter values.
-                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
-                    c2 = self.c2_reduced_absolute_inversion_DEFAULT;                                                            % [-] Subnetwork Gain 2.
-                    % delta = self.delta_reduced_absolute_inversion_DEFAULT;                                                   	% [V] Bifurcation Parameter.
-                    % R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );          % [V] Maximum Membrane Voltage 1.
-                    % Gm1 = self.get_neuron_property( neurons( 1 ).ID, 'Gm', true, neurons, undetected_option );        % [S] Membrane Conductance 1.
-                    % Gm2 = self.get_neuron_property( neurons( 2 ).ID, 'Gm', true, neurons, undetected_option );        % [S] Membrane Conductance 2.
-                    % Cm1 = self.get_neuron_property( neurons( 1 ).ID, 'Cm', true, neurons, undetected_option );        % [F] Membrane Capacitance 1.
-                    % Cm2 = self.get_neuron_property( neurons( 2 ).ID, 'Cm', true, neurons, undetected_option );        % [F] Membrane Capacitance 2.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                           	% [-] Subnetwork Gain 1.
+                    delta = self.delta_reduced_absolute_inversion_DEFAULT;                                                   	% [-] Minimum Decoded Output.
+                    x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;                                                    	% [-] Maximum Decoded Input.
                     
-                    % Store the required parameters in a cell.
-                    reduced_inversion_parameters = { c1, c2 };
-                    % reduced_inversion_parameters = { c1, delta, R1, Gm1, Gm2, Cm1, Cm2 };
+                    % Store the required parameters.
+                    reduced_inversion_parameters.c1 = c1;
+                    reduced_inversion_parameters.delta = delta;
+                    reduced_inversion_parameters.x1_max = x1_max;
 
                 else                                                                                                         	% Otherwise...
                     
                     % Determine whether the parameters cell has a valid number of entries.
-                    if length( reduced_inversion_parameters ) ~= 2                                                           	% If there is anything other than the required number of parameter entries...
-                    % if length( reduced_inversion_parameters ) ~= 7                                                           	% If there is anything other than the required number of parameter entries...
-  
+                    if length( fieldnames( reduced_inversion_parameters ) ) ~= 3                                               	% If there is anything other than the required number of parameter entries...
+
                         % Throw an error.
                         error( 'Invalid parameters detected.' )
                         
@@ -3351,15 +3407,20 @@ classdef neuron_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
                 
-                % Determine whether parameters cell is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( reduced_inversion_parameters )                                                                     % If the parameters cell is not empty...
+                % Determine how to create the parameters given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_inversion_parameters )                                                                    	% If no parameters were provided...
+                                                          
+                    % Store the required parameters.
+                    reduced_inversion_parameters = struct( [  ] );
+
+                else                                                                                                         	% Otherwise...
                     
                     % Throw an error.
                     error( 'Invalid parameters detected.' )
-                    
+                                            
                 end
                 
-            else                                                                                                             	% Otherwise...
+            else                                                                                                              	% Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
@@ -9826,31 +9887,69 @@ classdef neuron_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
-        % Implement a function to design the neurons for an inversion subnetwork.
-        function [ Gnas, R2, neurons, self ] = design_reduced_inversion_neurons( self, neuron_IDs, reduced_inversion_parameters, encoding_scheme, neurons, set_flag, undetected_option )
+        % Implement a function to design the neurons for a reduced inversion subnetwork.
+        function [ neuron_output_parameters, neurons, self ] = design_reduced_inversion_neurons( self, neuron_IDs, neuron_input_parameters, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_inversion_parameters = {  }; end                      	% [cell] Reduced Inversion Parameters Cell.
+            if nargin < 3, neuron_input_parameters = struct( [  ] ); end                    % [struct] Inversion Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [#] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
-            % Process the reduced inversion parameters.
-            reduced_inversion_parameters = self.process_reduced_inversion_parameters( reduced_inversion_parameters, encoding_scheme, neurons, undetected_option );
-            
+            % Process the inversion parameters.
+            neuron_input_parameters = self.process_reduced_inversion_parameters( neuron_input_parameters, encoding_scheme );
+
             % Compute the sodium channel conductance of the inversion subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_reduced_inversion_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
+                  
+            % Determine whether to compute the maximum encoded input and output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Convert the neuron input parameters to R1 parameters.
+                R1_parameters = self.reduced_inversion_parameters2R1_parameters( neuron_input_parameters, encoding_scheme );
+                R2_parameters = self.reduced_inversion_parameters2R2_parameters( neuron_input_parameters, encoding_scheme );
+                
+                % Compute the maximum encoded input and output.
+                [ R1, neurons, neuron_manager ] = neuron_manager.compute_reduced_inversion_R1( neuron_IDs, R1_parameters, encoding_scheme, neurons, true, undetected_option );
+                [ R2, neurons, neuron_manager ] = neuron_manager.compute_reduced_inversion_R2( neuron_IDs, R2_parameters, encoding_scheme, neurons, true, undetected_option );
+                                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
-            % Convert the reduced inversion parameters to reduced inversion R2 parameters.
-            reduced_inversion_R2_parameters = self.reduced_inversion_parameters2reduced_inversion_R2_parameters( reduced_inversion_parameters, encoding_scheme, neurons, undetected_option );
-            
-            % Compute the activation domain of the inversion subnetwork neurons.
-            [ R2, neurons, neuron_manager ] = neuron_manager.compute_reduced_inversion_R2( neuron_IDs, reduced_inversion_R2_parameters, encoding_scheme, neurons, true, undetected_option );
+            % Determine how to create the neuron output parameters.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Store the neuron output parameters.
+                neuron_output_parameters.R1 = R1;
+                neuron_output_parameters.R2 = R2;
+                neuron_output_parameters.Gna1 = Gnas( 1 );
+                neuron_output_parameters.Gna2 = Gnas( 2 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                                
+                % Store the neuron output parameters.
+                neuron_output_parameters.Gna1 = Gnas( 1 );
+                neuron_output_parameters.Gna2 = Gnas( 2 );
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end    
