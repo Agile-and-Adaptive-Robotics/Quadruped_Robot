@@ -18634,6 +18634,8 @@ classdef network_class
         
         %% Network Linearization Functions
         
+        % ---------- General Linearization Functions ----------
+        
         % Implement a function to compute the linearized system matrix for this neural network about a given operating point.  (This method is only valid for neural networks WITHOUT sodium channels.)
         function A = compute_linearized_system_matrix( self, Cms, Gms, Rs, gs, dEs, Us0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
@@ -18756,6 +18758,8 @@ classdef network_class
         end
             
         
+        % ---------- Transmission Functions ----------
+        
         % Implement a function to perform RK4 stability analysis on a transmission subnetwork.
         function [ U2s, As, dts, condition_numbers ] = achieved_transmission_RK4_stability_analysis( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
         
@@ -18785,6 +18789,8 @@ classdef network_class
             
         end
         
+        
+        % ---------- Addition Functions ----------
         
         % Implement a function to perform RK4 stability analysis on an addition subnetwork.
         function [ U3s, As, dts, condition_numbers ] = achieved_addition_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
@@ -18816,6 +18822,8 @@ classdef network_class
         end
         
         
+        % ---------- Subtraction Functions ----------
+        
         % Implement a function to perform RK4 stability analysis on a subtraction subnetwork.
         function [ U3s, As, dts, condition_numbers ] = achieved_subtraction_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
             
@@ -18846,8 +18854,10 @@ classdef network_class
         end
         
         
-        % Implement a function to perform RK4 stability analysis on an inversion subnetwork.
-        function [ U2s, As, dts, condition_numbers ] = achieved_inversion_RK4_stability_analysis( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        % ---------- Inversion Functions ----------
+        
+        % Implement a function to perform RK4 stability analysis on an inversion subnetwork given encoded inputs.
+        function [ U2s, As, dts, condition_numbers ] = achieved_inversion_RK4_stability_analysis_encoded( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
             if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
@@ -18874,6 +18884,49 @@ classdef network_class
             
         end
         
+    
+        % Implement a function to perform RK4 stability analysis on an inversion subnetwork given decoded inputs.
+        function [ x2s, As, dts, condition_numbers ] = achieved_inversion_RK4_stability_analysis_decoded( self, x1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 12, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 11, f_decode_output = @( xs ) zeros( size( xs ) ); end
+            if nargin < 10, f_encode_input = @( xs ) zeros( size( xs ) ); end
+            if nargin < 9, dt0 = self.dt_DEFAULT; end
+            if nargin < 8, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 6, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, x1s = zeros( 1, 1 ); end
+            
+            % Compute the encoded input signals.
+            U1s = f_encode_input( x1s );
+            
+            % Compute the achieved inversion steady state output at each of the provided inputs.
+            U2s = self.compute_encoded_achieved_inversion_sso( U1s, Rs( 1 ), Gms( 2 ), gs( 2, 1 ), dEs( 2, 1 ), Ias( 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
+            
+            % Decoded the output signals.
+            x2s = f_decode_output( U2s );
+            
+        end
+        
+        
+        % ---------- Reduced Inversion Functions ----------
+        
+        
+        % ---------- Division Functions ----------
+
             
         % Implement a function to perform RK4 stability analysis on a division subnetwork.
         function [ U3s, As, dts, condition_numbers ] = achieved_division_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
@@ -18905,6 +18958,19 @@ classdef network_class
         end
         
         
+        % ---------- Reduced Division Functions ----------
+
+        
+        % ---------- Division After Inversion Functions ----------
+
+        
+        
+        % ---------- Reduced Division After Inversion Functions ----------
+
+        
+        % ---------- Multiplication Functions ----------
+
+        
         % Implement a function to perform RK4 stability analysis on a multiplication subnetwork.
         function [ U4s, U3s, As, dts, condition_numbers ] = achieved_multiplication_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
            
@@ -18934,6 +19000,13 @@ classdef network_class
             
         end
         
+        
+        % ---------- Reduced Multiplication Functions ----------
+
+        
+        
+        % ---------- Linear Combination Functions ----------
+
         
         % Implement a function to perform RK4 stability analysis on a linear combination subnetwork.
         function [ Us_outputs, As, dts, condition_numbers ] = achieved_linear_combination_RK4_stability_analysis( self, Us_inputs, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
@@ -20269,13 +20342,13 @@ classdef network_class
         
         
         % Implement a function to decode the absolute inversion output.
-        function x2 = decode_absolute_inversion_output( ~, U2, network_utilities )
+        function x2 = decode_reduced_absolute_inversion_output( ~, U2, network_utilities )
             
             % Set the default input arguments.
             if nargin < 3, network_utilities = self.network_utilities; end
             
             % Decode the output.
-            x2 = network_utilities.decode_absolute_inversion_output( U2 );
+            x2 = network_utilities.decode_reduced_absolute_inversion_output( U2 );
             
         end
         
@@ -20602,7 +20675,7 @@ classdef network_class
         
         
         % Implement a function to simulate steady state network results for multiple sets of input signals.
-        function Us_numerical = compute_steady_state_simulation( self, dt, tf, integration_method, input_current_ID, applied_current_magnitudes, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
+        function Us_numerical = compute_steady_state_simulation( self, dts, tfs, integration_method, input_current_ID, applied_current_magnitudes, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
 
             % Set the default simulation duration.
             if nargin < 14, network_utilities = self.network_utilities; end                                                                                                                                         % [class] Network Utilities Class.
@@ -20616,11 +20689,13 @@ classdef network_class
             if nargin < 6, applied_current_magnitudes = zeros( 1, 1 ); end                                                                                                                                          % [A] Applied Current Magnitudes.
             if nargin < 5, input_current_ID = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
             if nargin < 4, integration_method = 'RK4'; end                                                                                                                                                          % [str] Integration Method.
-            if nargin < 3, tf = self.tf; end                                                                                                                                                                        % [s] Simulation Duration.
-            if nargin < 2, dt = self.dt; end                                                                                                                                                                        % [s] Simulation Time Step.
+            if nargin < 3, tfs = self.tf; end                                                                                                                                                                        % [s] Simulation Duration.
+            if nargin < 2, dts = self.dt; end                                                                                                                                                                        % [s] Simulation Time Step.
             
-            % Compute the number of input signals.
+            % Compute the number of input signals, simulation timesteps, and simulation durations.
             num_input_signals = size( applied_current_magnitudes, 1 );
+            num_durations = length( tfs );
+            num_step_sizes = length( dts );
             
             % Retrieve the number of neurons.
             num_neurons = self.neuron_manager.num_neurons;
@@ -20628,14 +20703,50 @@ classdef network_class
             % Create a matrix to store the membrane voltages.
             Us_numerical = zeros( num_input_signals, num_neurons );
             
+            % Ensure that the simulation duration array is of appropriate length.
+            if num_durations ~= num_input_signals       % If the number of durations does not match the number of input signals...
+               
+                % Determine whether to modify the simulation duration or throw an error.
+                if num_durations == 1                   % If the number of durations is one...
+                   
+                    % Repeat the simulation duration a number of times equal to the number of steady state input signals.
+                    tfs = tfs*ones( num_input_signals, 1 );
+                    
+                else                                    % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'The number of simulation durations must either: (1) be equal to the number of steady state input signals, or (2) be equal to 1.' )
+                    
+                end
+                
+            end
+                
+           % Ensure that the simulation step size array is of appropriate length.
+            if num_step_sizes ~= num_input_signals       % If the number of step sizes does not match the number of input signals...
+               
+                % Determine whether to modify the simulation step sizes or throw an error.
+                if num_step_sizes == 1                   % If the number of step sizes is one...
+                   
+                    % Repeat the simulation step sizes a number of times equal to the number of steady state input signals.
+                    dts = dts*ones( num_input_signals, 1 );
+                    
+                else                                    % Otherwise...
+                    
+                    % Throw an error.
+                    error( 'The number of simulation step sizes must either: (1) be equal to the number of steady state input signals, or (2) be equal to 1.' )
+                    
+                end
+                
+            end
+                            
             % Simulate the network for each of the applied current combinations.
             for k = 1:num_input_signals         	% Iterate through each of the currents applied to the input neuron...
-
+                
                 % Create applied currents.
                 [ ~, applied_current_manager ] = applied_current_manager.set_applied_current_property( input_current_ID, applied_current_magnitudes( k ), 'Ias', applied_current_manager.applied_currents, true );
 
                 % Simulate the network.
-                [ ~, Us, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~ ] = self.compute_simulation( dt, tf, integration_method, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, false, process_option, undetected_option, network_utilities );
+                [ ~, Us, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~ ] = self.compute_simulation( dts( k ), tfs( k ), integration_method, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, false, process_option, undetected_option, network_utilities );
 
                 % Retrieve the final membrane voltages.
                 Us_numerical( k, : ) = Us( :, end );
@@ -20700,7 +20811,7 @@ classdef network_class
                         
             % Compute the encoded input signals.
             Us_numerical_input = f_encode_input( xs_numerical_input );
-            
+                        
             % Compute the encoded steady state simulation results.
             [ Us_numerical, Ias_magnitude ] = self.compute_steady_state_simulation_encoded( dt, tf, integration_method, input_current_ID, Us_numerical_input, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities );
             

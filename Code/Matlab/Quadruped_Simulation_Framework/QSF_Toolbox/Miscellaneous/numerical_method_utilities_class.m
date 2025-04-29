@@ -351,7 +351,7 @@ classdef numerical_method_utilities_class
         function print_numerical_stability_info( ~, As, dts, network_dt, condition_numbers )
         
             % Retrieve the maximum step size.
-            [ dt_max, index ] = max( dts );
+            [ dt_max, index ] = min( dts );
             
             % Retrieve the maximum condition number.
             condition_number_max = max( condition_numbers );

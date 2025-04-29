@@ -71,6 +71,29 @@ c3s = linspace( c3_min, c3_max, num_c3s );                                      
 deltas = linspace( delta_min, delta_max, num_deltas );                                % [-] Subnetwork Offset.
 
 
+%% Debugging
+
+[ C1s, C3s ] = ndgrid( c1s, c3s );
+
+X2_maxs = C1s./C3s;
+
+[ row_maxs, row_max_indexes ] = max( X2_maxs );
+[ true_max, col_max_index ] = max( row_maxs );
+
+c1_max = C1s( row_max_indexes( col_max_index ), col_max_index );
+c3_max = C3s( row_max_indexes( col_max_index ), col_max_index );
+
+[ row_mins, row_min_indexes ] = min( X2_maxs );
+[ true_min, col_min_index ] = min( row_mins );
+
+c1_min = C1s( row_min_indexes( col_min_index ), col_min_index );
+c3_min = C3s( row_min_indexes( col_min_index ), col_min_index );
+
+fprintf( 'Maximum: x2_max = %0.3e when c1 = %0.3e and c3 = %0.3e.\n', true_max, c1_max, c3_max )
+fprintf( 'Minimum: x2_max = %0.3e when c1 = %0.3e and c3 = %0.3e.\n', true_min, c1_min, c3_min )
+
+
+
 %% Define the Constant Subnetwork Parameters.
 
 % Define the subnetwork formulation parameters (shared by both encoding schemes).

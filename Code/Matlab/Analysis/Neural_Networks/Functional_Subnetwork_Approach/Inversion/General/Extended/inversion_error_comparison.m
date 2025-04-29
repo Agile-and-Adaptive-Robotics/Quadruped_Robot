@@ -18,22 +18,23 @@ simulate_flag = true;                             	% [T/F] Simulation Flag. (Det
 verbose_flag = true;                            	% [T/F] Printing Flag. (Determines whether to print out information.)
 
 % Define the undetected option.
-undetected_option = 'Error';                        % [str] Undetected Option.
+undetected_option = 'Ignore';                        % [str] Undetected Option.
 
 % Define the network simulation time step.
-% network_dt = 1e-3;                               	% [s] Simulation Time Step.
-network_dt = 1e-4;                                  % [s] Simulation Timestep.
+network_dt = 1e-3;                               	% [s] Simulation Timestep.
+% network_dt = 1e-4;                                  % [s] Simulation Timestep.
+% network_dt = 4e-5;                                  % [s] Simulation Timestep.
 
 % Define the network simulation duration.
 network_tf = 0.5;                                 	% [s] Simulation Duration.
 % network_tf = 1;                                 	% [s] Simulation Duration.
 % network_tf = 3;                                 	% [s] Simulation Duration.
 
-% Compute the number of simulation timesteps.
-n_timesteps = floor( network_tf / network_dt ) + 1; % [#] Number of Simulation Timesteps.
-
 % Construct the simulation times associated with the input currents.
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
+
+% Compute the number of simulation timesteps.
+n_timesteps = length( ts ); % [#] Number of Simulation Timesteps.
 
 % Define the integration method.
 integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
@@ -44,6 +45,9 @@ n_input_signals = 20;                               % [#] Number of Input Signal
 % Define whether to save the figures.
 save_flag = true;                                   % [T/F] Save Flag.
 
+% Define whether to adapt the simulation step sizes.
+adapt_step_size_flag = true;                        % [T/F] Adapt Step Size Flag.
+
 % Create an instance of the network utilities class.
 network_utilities = network_utilities_class(  );
 numerical_method_utilities = numerical_method_utilities_class(  );
@@ -52,31 +56,43 @@ plotting_utilities = plotting_utilities_class(  );
 
 %% Define Subnetwork Parameters.
 
-% Define the formulation parameters.
-% c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
-c1 = 40e-6;                                         % [-] Subnetwork Gain 1.
-c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
-% c3 = 5e-4;                                          % [-] Subnetwork Gain 3.
+% % Define the formulation params.
+% % c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+% c1 = 40e-6;                                         % [-] Subnetwork Gain 1.
+% % c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
+% c3 = 0.25e-3;                                          % [-] Subnetwork Gain 3.
+% delta = 1e-3;                                       % [V] Minimum Decoded Output.
+% x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
+
+% Define the formulation params. (Maximum x2_max) (Worst case for step size.)
+c1 = 80e-6;                                         % [-] Subnetwork Gain 1.
+c3 = 0.25e-3;                                          % [-] Subnetwork Gain 3.
 delta = 1e-3;                                       % [V] Minimum Decoded Output.
 x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 
-% Define the absolute subnetwork design parameters.
+% % Define the formulation params. (Minimum x2_min) (Best case for step size.)
+% c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+% c3 = 1.0e-3;                                          % [-] Subnetwork Gain 3.
+% delta = 1e-3;                                       % [V] Minimum Decoded Output.
+% x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
+
+% Define the absolute subnetwork design params.
 Gm1_absolute = 1e-6;                              	% [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                              	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                               	% [F] Membrane Capacitance (Neuron 1).
 Cm2_absolute = 5e-9;                               	% [F] Membrane Capacitance (Neuron 2).
 
-% Store the absolute subnetwork design parameters in a structure.
-absolute_inversion_input_parameters.c1 = c1;
-absolute_inversion_input_parameters.c3 = c3;
-absolute_inversion_input_parameters.delta = delta;
-absolute_inversion_input_parameters.x1_max = x1_max;
-absolute_inversion_input_parameters.Gm1 = Gm1_absolute;
-absolute_inversion_input_parameters.Gm2 = Gm2_absolute;
-absolute_inversion_input_parameters.Cm1 = Cm1_absolute;
-absolute_inversion_input_parameters.Cm2 = Cm2_absolute;
+% Store the absolute subnetwork design params in a structure.
+absolute_inversion_input_params.c1 = c1;
+absolute_inversion_input_params.c3 = c3;
+absolute_inversion_input_params.delta = delta;
+absolute_inversion_input_params.x1_max = x1_max;
+absolute_inversion_input_params.Gm1 = Gm1_absolute;
+absolute_inversion_input_params.Gm2 = Gm2_absolute;
+absolute_inversion_input_params.Cm1 = Cm1_absolute;
+absolute_inversion_input_params.Cm2 = Cm2_absolute;
 
-% Define the relative subnetwork design parameters.
+% Define the relative subnetwork design params.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -84,17 +100,17 @@ Gm2_relative = 1e-6;                                         % [S] Membrane Cond
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the relative subnetwork design parameters.
-relative_inversion_input_parameters.c1 = c1;
-relative_inversion_input_parameters.c3 = c3;
-relative_inversion_input_parameters.delta = delta;
-relative_inversion_input_parameters.x1_max = x1_max;
-relative_inversion_input_parameters.R1 = R1_relative;
-relative_inversion_input_parameters.R2 = R2_relative;
-relative_inversion_input_parameters.Gm1 = Gm1_relative;
-relative_inversion_input_parameters.Gm2 = Gm2_relative;
-relative_inversion_input_parameters.Cm1 = Cm1_relative;
-relative_inversion_input_parameters.Cm2 = Cm2_relative;
+% Store the relative subnetwork design params.
+relative_inversion_input_params.c1 = c1;
+relative_inversion_input_params.c3 = c3;
+relative_inversion_input_params.delta = delta;
+relative_inversion_input_params.x1_max = x1_max;
+relative_inversion_input_params.R1 = R1_relative;
+relative_inversion_input_params.R2 = R2_relative;
+relative_inversion_input_params.Gm1 = Gm1_relative;
+relative_inversion_input_params.Gm2 = Gm2_relative;
+relative_inversion_input_params.Cm1 = Cm1_relative;
+relative_inversion_input_params.Cm2 = Cm2_relative;
 
 
 %% Define the Encoding & Decoding Operations.
@@ -134,7 +150,7 @@ input_current_name_relative = 'Applied Current 1 (Relative)';  	% [str] Relative
 input_current_to_neuron_ID_absolute = 1;                        % [#] Absolute Neuron ID to Which Input Current is Applied.
 input_current_to_neuron_ID_relative = 1;                        % [#] Relative Neuron ID to Which Input Current is Applied.
 
-% Define the applied current magnitudes.
+% Define dummy applied current magnitudes.
 Ias1_absolute = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
 Ias1_relative = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
 
@@ -146,12 +162,12 @@ network_absolute = network_class( network_dt, network_tf );
 network_relative = network_class( network_dt, network_tf );
 
 % Create an inversion subnetwork.
-[ absolute_inversion_output_parameters, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_inversion_subnetwork( absolute_inversion_input_parameters, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
-[ relative_inversion_output_parameters, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_inversion_subnetwork( relative_inversion_input_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
+[ absolute_inversion_output_params, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_inversion_subnetwork( absolute_inversion_input_params, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
+[ relative_inversion_output_params, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_inversion_subnetwork( relative_inversion_input_params, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
 
-% Unpack the subnetwork output parameters.
-[ c2_absolute, x2max_absolute, R1_absolute, R2_absolute, Gna1_absolute, Gna2_absolute, dEs21_absolute, gs21_absolute, Ia2_absolute ] = network_absolute.unpack_absolute_inversion_output_parameters( absolute_inversion_output_parameters, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
-[ c2_relative, x2max_relative, Gna1_relative, Gna2_relative, dEs21_relative, gs21_relative, Ia2_relative ] = network_relative.unpack_relative_inversion_output_parameters( relative_inversion_output_parameters, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
+% Unpack the subnetwork output params.
+[ c2_absolute, x2max_absolute, R1_absolute, R2_absolute, Gna1_absolute, Gna2_absolute, dEs21_absolute, gs21_absolute, Ia2_absolute ] = network_absolute.unpack_absolute_inversion_output_params( absolute_inversion_output_params, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+[ c2_relative, x2max_relative, Gna1_relative, Gna2_relative, dEs21_relative, gs21_relative, Ia2_relative ] = network_relative.unpack_relative_inversion_output_params( relative_inversion_output_params, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
 
 % Update the input current ID and name.
 [ ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.set_applied_current_property( network_absolute.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network_absolute.applied_current_manager.applied_currents, true );
@@ -187,23 +203,89 @@ network_relative.print( network_relative.neuron_manager, network_relative.synaps
 fprintf( '---------------------------------------------------------------------------------------------------------\n\n\n' )
 
 
-%% Simulate the Subnetwork.
+%% Compute the Subnetwork Numerical Stability Information.
 
-% Set additional simulation properties.
-filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
-set_flag = true;                            % [T/F] Set Flag.
-process_option = 'None';                    % [str] Process Option.
-undetected_option = 'Ignore';               % [str] Undetected Option.
+% Define the decoded input signals.
+xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
+
+% Define the property retrieval settings.
+as_matrix_flag = true;
+
+% Define the stability analysis timestep seed.
+dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
+
+% Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
+[ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
+[ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
+
+% Compute the relative inversion steady state output.
+[ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
+[ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, f_encode1_relative, f_decode2_relative, network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
+
+% Retrieve the maximum RK4 step size.
+[ dt_max_absolute, indexes_dt_absolute ] = min( dts_absolute );
+[ dt_max_relative, indexes_dt_relative ] = min( dts_relative );
+
+% Retrieve the maximum condition number.
+[ condition_number_max_absolute, indexes_condition_number_absolute ] = max( condition_numbers_absolute );
+[ condition_number_max_relative, indexes_condition_number_relative ] = max( condition_numbers_relative );
+
+
+%% Print the Numerical Stability Information.
+
+% Print out the stability information.
+network_absolute.numerical_method_utilities.print_numerical_stability_info( As_absolute, dts_absolute, network_dt, condition_numbers_absolute );
+network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
+
+
+%% Process Simulation Step Sizes.
+
+% Define the simulation step size threshold.
+epsilon = 0.80;
+
+% Create an array to store the step sizes.
+network_dts_absolute = network_dt*ones( n_input_signals, 1 );
+network_dts_relative = network_dt*ones( n_input_signals, 1 );
+
+% Determine whether to adapt the simulation step sizes.
+if adapt_step_size_flag                                                 % If we want to adapt the step size...
+
+    % Adapt the simulation step sizes as necessary.
+    for k = 1:n_input_signals                                         % Iterate through each of the input signals...
+
+        % Determine whether to adapt the absolute step size.
+        if network_dts_absolute( k ) > epsilon*dts_absolute( k )        % If the step size is greater than the recommended threshold...
+            
+            % Set the step size to be at the recommended threshold.
+            network_dts_absolute( k ) = epsilon*dts_absolute( k );
+            
+        end
+        
+        % Determine whether to adapt the relative step size.
+        if network_dts_relative( k ) > epsilon*dts_relative( k )        % If the step size is greater than the recommended threshold...
+            
+            % Set the step size to be at the recommended threshold.
+            network_dts_relative( k ) = epsilon*dts_relative( k );
+            
+        end
+
+    end
+
+end
+
+
+%% Simulate the Subnetwork.
 
 % Determine whether to simulate the network.
 if simulate_flag                            % If we want to simulate the network...
 
-    % Define the decoded input signals.
-    xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
-
+    % Set additional simulation properties.
+    filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
+    process_option = 'None';                    % [str] Process Option.
+    
     % Compute the decoded steady state simulation results.
-    [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
-    [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, f_decode2_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
+    [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dts_absolute, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
+    [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dts_relative, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, f_decode2_relative, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
 
     % Save the simulation results.
     save( [ save_directory, '\', 'absolute_inversion_subnetwork_error' ], 'Ias_magnitude_absolute', 'Us_numerical_absolute', 'xs_numerical_absolute' )
@@ -347,34 +429,34 @@ network_relative.numerical_method_utilities.print_error_statistics( header_str_d
 
 %% Compute the Subnetwork Numerical Stability Information.
 
-% Define the property retrieval settings.
-as_matrix_flag = true;
-
-% Define the stability analysis timestep seed.
-dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
-
-% Retrieve the properties necessary to compute the numerical stability parameters for an absolute and relative transmission subnetwork.
-[ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_parameters( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
-[ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_parameters( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
-
-% Compute the realtive transmission steady state output.
-[ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis( Us_desired_absolute( :, 1 ), Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
-[ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis( Us_desired_relative( :, 1 ), Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
-
-% Retrieve the maximum RK4 step size.
-[ dt_max_absolute, indexes_dt_absolute ] = max( dts_absolute );
-[ dt_max_relative, indexes_dt_relative ] = max( dts_relative );
-
-% Retrieve the maximum condition number.
-[ condition_number_max_absolute, indexes_condition_number_absolute ] = max( condition_numbers_absolute );
-[ condition_number_max_relative, indexes_condition_number_relative ] = max( condition_numbers_relative );
+% % Define the property retrieval settings.
+% as_matrix_flag = true;
+% 
+% % Define the stability analysis timestep seed.
+% dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
+% 
+% % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
+% [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
+% [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
+% 
+% % Compute the relative inversion steady state output.
+% [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis( Us_desired_absolute( :, 1 ), Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
+% [ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis( Us_desired_relative( :, 1 ), Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
+% 
+% % Retrieve the maximum RK4 step size.
+% [ dt_max_absolute, indexes_dt_absolute ] = min( dts_absolute );
+% [ dt_max_relative, indexes_dt_relative ] = min( dts_relative );
+% 
+% % Retrieve the maximum condition number.
+% [ condition_number_max_absolute, indexes_condition_number_absolute ] = max( condition_numbers_absolute );
+% [ condition_number_max_relative, indexes_condition_number_relative ] = max( condition_numbers_relative );
 
 
 %% Print the Numerical Stability Information.
 
-% Print out the stability information.
-network_absolute.numerical_method_utilities.print_numerical_stability_info( As_absolute, dts_absolute, network_dt, condition_numbers_absolute );
-network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
+% % Print out the stability information.
+% network_absolute.numerical_method_utilities.print_numerical_stability_info( As_absolute, dts_absolute, network_dt, condition_numbers_absolute );
+% network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
 
 
 %% Plot the Subnetwork Steady State Response.

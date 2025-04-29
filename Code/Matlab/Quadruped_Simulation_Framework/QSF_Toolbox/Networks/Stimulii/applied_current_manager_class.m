@@ -21,7 +21,7 @@ classdef applied_current_manager_class
     % Define private, constant class properties.
     properties ( Access = private, Constant = true )
         
-        % Define the neuron parameters.
+        % Define the neuron params.
         R_DEFAULT = 20e-3;                                                                                  	% [V] Activation Domain.
         Gm_DEFAULT = 1e-6;                                                                                   	% [S] Membrane Conductance.
         to_neuron_ID_DEFAULT = -1;                                                                            	% [#] Neuron ID.
@@ -43,7 +43,7 @@ classdef applied_current_manager_class
         ts_DEFAULT = 0;                                                                                         % [s] Applied Current Times.
         Ias_DEFAULT = 0;                                                                                        % [A] Applied Current Magnitudes.
 
-        % Define the simulation parameters.
+        % Define the simulation params.
         dt_DEFAULT = 1e-3;                                                                                  	% [s] Simulation Time Step.
         tf_DEFAULT = 1;                                                                                        	% [s] Simulation Duration.
         
@@ -1123,36 +1123,36 @@ classdef applied_current_manager_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
-        % Implement a function to process inversion Ias2 parameters.
-        function parameters = process_inversion_Ias2_parameters( self, parameters, encoding_scheme )
+        % Implement a function to process inversion Ias2 params.
+        function params = process_inversion_Ias2_params( self, params, encoding_scheme )
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = struct( [  ] ); end
+            if nargin < 2, params = struct( [  ] ); end
            
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_DEFAULT;
                     c3 = self.c3_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;
                     
-                    % Store the required parameters.
-                    parameters.c1 = c1;
-                    parameters.c3 = c3;
-                    parameters.Gm2 = Gm2;
+                    % Store the required params.
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.Gm2 = Gm2;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( fieldnames( parameters ) ) ~= 3                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 3                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1160,24 +1160,24 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     R2 = self.R_DEFAULT;                           
                     Gm2 = self.Gm_DEFAULT;
                     
-                    % Store the required parameters.
-                    parameters.R2 = R2;
-                    parameters.Gm2 = Gm2;
+                    % Store the required params.
+                    params.R2 = R2;
+                    params.Gm2 = Gm2;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( fieldnames( parameters ) ) ~= 2                        	% If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                        	% If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1195,33 +1195,33 @@ classdef applied_current_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
-        % Implement a function to process reduced inversion Ias2 parameters.
-        function parameters = process_reduced_inversion_Ias2_parameters( self, parameters, encoding_scheme )
+        % Implement a function to process reduced inversion Ias2 params.
+        function params = process_reduced_inversion_Ias2_params( self, params, encoding_scheme )
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm2 = self.Gm_DEFAULT;
                     R2 = self.R_DEFAULT;                           
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm2, R2 };
+                    % Store the required params in a cell.
+                    params = { Gm2, R2 };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1229,23 +1229,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm2 = self.Gm_DEFAULT;
                     R2 = self.R_DEFAULT;                           
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm2, R2 };
+                    % Store the required params in a cell.
+                    params = { Gm2, R2 };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1263,37 +1263,37 @@ classdef applied_current_manager_class
         
         % ---------- Multiplication Subnetwork Functions ----------
         
-        % Implement a function to process multiplication Ias3 parameters.
-        function parameters = process_multiplication_Ias3_parameters( self, parameters, encoding_scheme, applied_currents )
+        % Implement a function to process multiplication Ias3 params.
+        function params = process_multiplication_Ias3_params( self, params, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm3, R3 };
+                    % Store the required params in a cell.
+                    params = { Gm3, R3 };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1301,23 +1301,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm3, R3 };
+                    % Store the required params in a cell.
+                    params = { Gm3, R3 };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1335,37 +1335,37 @@ classdef applied_current_manager_class
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
-        % Implement a function to process reduced multiplication Ias3 parameters.
-        function parameters = process_reduced_multiplication_Ias3_parameters( self, parameters, encoding_scheme, applied_currents )
+        % Implement a function to process reduced multiplication Ias3 params.
+        function params = process_reduced_multiplication_Ias3_params( self, params, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm3, R3 };
+                    % Store the required params in a cell.
+                    params = { Gm3, R3 };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1373,23 +1373,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm3, R3 };
+                    % Store the required params in a cell.
+                    params = { Gm3, R3 };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1407,37 +1407,37 @@ classdef applied_current_manager_class
         
         % ---------- Integration Subnetwork Functions ----------
 
-        % Implement a function to process integration Ias parameters.
-        function parameters = process_integration_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
+        % Implement a function to process integration Ias params.
+        function params = process_integration_Ias_params( self, params, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1445,23 +1445,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1477,37 +1477,37 @@ classdef applied_current_manager_class
         end
 
         
-        % Implement a function to process voltage based integration Ias parameters.
-        function parameters = process_vbi_Ias_parameters( self, parameters, encoding_scheme, applied_currents )
+        % Implement a function to process voltage based integration Ias params.
+        function params = process_vbi_Ias_params( self, params, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1515,23 +1515,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1547,37 +1547,37 @@ classdef applied_current_manager_class
         end
         
         
-        % Implement a function to process split voltage based integration Ias parameters.
-        function parameters = process_svbi_Ias1_parameters( self, parameters, encoding_scheme, applied_currents )
+        % Implement a function to process split voltage based integration Ias params.
+        function params = process_svbi_Ias1_params( self, params, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1585,23 +1585,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1617,37 +1617,37 @@ classdef applied_current_manager_class
         end
         
         
-        % Implement a function to process split voltage based integration Ias parameters.
-        function parameters = process_svbi_Ias2_parameters( self, parameters, encoding_scheme, applied_currents )
+        % Implement a function to process split voltage based integration Ias params.
+        function params = process_svbi_Ias2_params( self, params, encoding_scheme, applied_currents )
         
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, parameters = {  }; end
+            if nargin < 2, params = {  }; end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the parameters cell.
+            % Determine how to create the params cell.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using an absolute encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1655,23 +1655,23 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the parameters cell given that this operation is using a relative encoding scheme.
-                if isempty( parameters )                                                % If no parameters were provided...
+                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required parameters in a cell.
-                    parameters = { Gm, R };
+                    % Store the required params in a cell.
+                    params = { Gm, R };
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the parameters cell has a valid number of entries.
-                    if length( parameters ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params cell has a valid number of entries.
+                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid parameters detected.' )
+                        error( 'Invalid params detected.' )
                         
                     end
                     
@@ -1773,27 +1773,27 @@ classdef applied_current_manager_class
         % ---------- Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of the inversion subnetwork output applied currents.
-        function [ Ias2, applied_currents, self ] = compute_inversion_Ias2( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias2, applied_currents, self ] = compute_inversion_Ias2( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                	% [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = struct( [  ] ); end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                 % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.
-            parameters = self.process_inversion_Ias2_parameters( parameters, encoding_scheme );
+            % Process the params.
+            params = self.process_inversion_Ias2_params( params, encoding_scheme );
             
             % Retrieve the index associated with the output applied current.
             applied_current_index = self.get_applied_current_index( applied_current_IDs( end ), applied_currents, undetected_option );
 
             % Compute the magnitude for the output applied current.            
-            [ Ias2, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_inversion_Ias2( parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+            [ Ias2, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_inversion_Ias2( params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
             
             % Determine whether to update the applied current manager.
             if set_flag, self.applied_currents = applied_currents; end
@@ -1804,27 +1804,27 @@ classdef applied_current_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to compute the magnitude of the reduced inversion subnetwork output applied currents.
-        function [ Ias2, applied_currents, self ] = compute_reduced_inversion_Ias2( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias2, applied_currents, self ] = compute_reduced_inversion_Ias2( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.
-            parameters = self.process_reduced_inversion_Ias2_parameters( parameters, encoding_scheme );
+            % Process the params.
+            params = self.process_reduced_inversion_Ias2_params( params, encoding_scheme );
             
             % Retrieve the index associated with the output applied current.
             applied_current_index = self.get_applied_current_index( applied_current_IDs( end ), applied_currents, undetected_option );
 
             % Compute the magnitude for the output applied current.
-            [ Ias2, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_reduced_inversion_Ias2( parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+            [ Ias2, applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_reduced_inversion_Ias2( params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
             
             % Determine whether to update the applied current manager.
             if set_flag, self.applied_currents = applied_currents; end
@@ -1943,21 +1943,21 @@ classdef applied_current_manager_class
         % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of multiplication subnetwork applied currents.
-        function [ Ias3, applied_currents, self ] = compute_multiplication_Ias3( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias3, applied_currents, self ] = compute_multiplication_Ias3( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.            
-            parameters = self.process_multiplication_Ias3_parameters( parameters, encoding_scheme, applied_currents );
+            % Process the params.            
+            params = self.process_multiplication_Ias3_params( params, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -1968,14 +1968,14 @@ classdef applied_current_manager_class
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
-                % Retrieve the parameters associated with this applied current.
-                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                % Retrieve the params associated with this applied current.
+                these_params = { params{ 1 }{ k }, params{ 2 }{ k } };
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias3( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_multiplication_Ias3( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias3( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_multiplication_Ias3( these_params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -1988,21 +1988,21 @@ classdef applied_current_manager_class
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to compute the magnitude of reduced multiplication subnetwork applied currents.
-        function [ Ias3, applied_currents, self ] = compute_reduced_multiplication_Ias3( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias3, applied_currents, self ] = compute_reduced_multiplication_Ias3( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.            
-            parameters = self.process_reduced_multiplication_Ias3_parameters( parameters, encoding_scheme, applied_currents );
+            % Process the params.            
+            params = self.process_reduced_multiplication_Ias3_params( params, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -2013,14 +2013,14 @@ classdef applied_current_manager_class
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
-                % Retrieve the parameters associated with this applied current.
-                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                % Retrieve the params associated with this applied current.
+                these_params = { params{ 1 }{ k }, params{ 2 }{ k } };
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias3( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_reduced_multiplication_Ias3( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias3( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_reduced_multiplication_Ias3( these_params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -2072,21 +2072,21 @@ classdef applied_current_manager_class
         % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of integration subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_integration_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = compute_integration_Ias( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.
-            parameters = self.process_integration_Ias_parameters( parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            params = self.process_integration_Ias_params( params, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -2097,14 +2097,14 @@ classdef applied_current_manager_class
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
-                % Retrieve the parameters associated with this applied current.
-                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                % Retrieve the params associated with this applied current.
+                these_params = { params{ 1 }{ k }, params{ 2 }{ k } };
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_integration_Ias( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_integration_Ias( these_params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -2115,21 +2115,21 @@ classdef applied_current_manager_class
         
         
         % Implement a function to compute the magnitude of voltage based integration subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_vbi_Ias( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = compute_vbi_Ias( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.
-            parameters = self.process_vbi_Ias_parameters( parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            params = self.process_vbi_Ias_params( params, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -2140,14 +2140,14 @@ classdef applied_current_manager_class
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
-                % Retrieve the parameters associated with this applied current.
-                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                % Retrieve the params associated with this applied current.
+                these_params = { params{ 1 }{ k }, params{ 2 }{ k } };
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_vbi_Ias( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_vbi_Ias( these_params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -2158,21 +2158,21 @@ classdef applied_current_manager_class
         
         
         % Implement a function to compute the first magnitude of split voltage based integration subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_svbi_Ias1( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = compute_svbi_Ias1( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.
-            parameters = self.process_svbi_Ias1_parameters( parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            params = self.process_svbi_Ias1_params( params, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -2183,14 +2183,14 @@ classdef applied_current_manager_class
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
-                % Retrieve the parameters associated with this applied current.
-                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                % Retrieve the params associated with this applied current.
+                these_params = { params{ 1 }{ k }, params{ 2 }{ k } };
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_svbi_Ias1( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_svbi_Ias1( these_params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -2201,21 +2201,21 @@ classdef applied_current_manager_class
         
         
         % Implement a function to compute the second magnitude of split voltage based integration subnetwork applied currents.
-        function [ Ias, applied_currents, self ] = compute_svbi_Ias2( self, applied_current_IDs, parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = compute_svbi_Ias2( self, applied_current_IDs, params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, parameters = {  }; end
+            if nargin < 3, params = {  }; end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
             applied_current_IDs = self.validate_applied_current_IDs( applied_current_IDs, applied_currents );
             
-            % Process the parameters.
-            parameters = self.process_svbi_Ias2_parameters( parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            params = self.process_svbi_Ias2_params( params, encoding_scheme, applied_currents );
             
             % Determine how many applied currents to which we are going to apply the given method.
             num_applied_currents_to_evaluate = length( applied_current_IDs );
@@ -2226,14 +2226,14 @@ classdef applied_current_manager_class
             % Evaluate the given applied current method for each neuron.
             for k = 1:num_applied_currents_to_evaluate               % Iterate through each of the applied currents of interest...
                 
-                % Retrieve the parameters associated with this applied current.
-                these_parameters = { parameters{ 1 }{ k }, parameters{ 2 }{ k } };
+                % Retrieve the params associated with this applied current.
+                these_params = { params{ 1 }{ k }, params{ 2 }{ k } };
                 
                 % Retrieve the index associated with this applied current ID.
                 applied_current_index = self.get_applied_current_index( applied_current_IDs( k ), applied_currents, undetected_option );
                 
                 % Compute the magnitude for this applied current.
-                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_svbi_Ias2( these_parameters, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
+                [ Ias( k ), applied_currents( applied_current_index ) ] = applied_currents( applied_current_index ).compute_svbi_Ias2( these_params, encoding_scheme, true, applied_currents( applied_current_index ).applied_current_utilities );
                 
             end
             
@@ -2443,7 +2443,7 @@ classdef applied_current_manager_class
             if nargin < 4, names = repmat( { '' }, 1, n_applied_currents ); end
             if nargin < 3, IDs = self.generate_unique_applied_current_IDs( n_applied_currents, applied_currents, array_utilities ); end
             
-            % Convert the applied current parameters from cells to arrays as appropriate.
+            % Convert the applied current params from cells to arrays as appropriate.
             enabled_flags = array_utilities.cell2array( enabled_flags );
             Ias = array_utilities.cell2array( Ias );
             ts = array_utilities.cell2array( ts );
@@ -2534,140 +2534,140 @@ classdef applied_current_manager_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
-        % Implement a function to pack the parameters for an absolute inversion subnetwork.
-        function inversion_parameters = pack_absolute_inversion_parameters( self, c1, c3, Gm2 )
+        % Implement a function to pack the params for an absolute inversion subnetwork.
+        function inversion_params = pack_absolute_inversion_params( self, c1, c3, Gm2 )
             
             % Set the default input arguments.
             if nargin < 4, Gm2 = self.Gm_DEFAULT; end
             if nargin < 3, c3 = self.c3_DEFAULT; end
             if nargin < 2, c1 = self.c1_DEFAULT; end
             
-            % Pack the parameters.
-            inversion_parameters.c1 = c1;
-            inversion_parameters.c3 = c3;
-            inversion_parameters.Gm2 = Gm2;            
+            % Pack the params.
+            inversion_params.c1 = c1;
+            inversion_params.c3 = c3;
+            inversion_params.Gm2 = Gm2;            
             
         end
         
         
-        % Implement a function to pack the parameters for a relative inversion subnetwork.
-        function inversion_parameters = pack_relative_inversion_parameters( self, R2, Gm2 )
+        % Implement a function to pack the params for a relative inversion subnetwork.
+        function inversion_params = pack_relative_inversion_params( self, R2, Gm2 )
             
             % Set the default input arguments.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
             
-            % Pack the parameters.
-            inversion_parameters.R2 = R2;
-            inversion_parameters.Gm2 = Gm2;            
+            % Pack the params.
+            inversion_params.R2 = R2;
+            inversion_params.Gm2 = Gm2;            
             
         end
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
-        % Implement a function to pack the parameters for a reduced absolute inversion subnetwork.
-        function reduced_inversion_parameters = pack_reduced_absolute_inversion_parameters( self, R2, Gm2 )
+        % Implement a function to pack the params for a reduced absolute inversion subnetwork.
+        function reduced_inversion_params = pack_reduced_absolute_inversion_params( self, R2, Gm2 )
             
             % Set the default input arguments.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            reduced_inversion_parameters = cell( 1, 2 );
+            % Preallocate a cell array to store the params.
+            reduced_inversion_params = cell( 1, 2 );
             
-            % Pack the parameters.
-            reduced_inversion_parameters{ 1 } = R2;
-            reduced_inversion_parameters{ 2 } = Gm2;            
+            % Pack the params.
+            reduced_inversion_params{ 1 } = R2;
+            reduced_inversion_params{ 2 } = Gm2;            
             
         end
         
         
-        % Implement a function to pack the parameters for a reduced relative inversion subnetwork.
-        function reduced_inversion_parameters = pack_reduced_relative_inversion_parameters( self, R2, Gm2 )
+        % Implement a function to pack the params for a reduced relative inversion subnetwork.
+        function reduced_inversion_params = pack_reduced_relative_inversion_params( self, R2, Gm2 )
             
             % Set the default input arguments.
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            reduced_inversion_parameters = cell( 1, 2 );
+            % Preallocate a cell array to store the params.
+            reduced_inversion_params = cell( 1, 2 );
             
-            % Pack the parameters.
-            reduced_inversion_parameters{ 1 } = R2;
-            reduced_inversion_parameters{ 2 } = Gm2;            
+            % Pack the params.
+            reduced_inversion_params{ 1 } = R2;
+            reduced_inversion_params{ 2 } = Gm2;            
             
         end
         
         
         % ---------- Multiplication Subnetwork Functions ----------
         
-        % Implement a function to pack the parameters for an absolute multiplication subnetwork.
-        function multiplication_parameters = pack_absolute_multiplication_parameters( self, R3, Gm3 )
+        % Implement a function to pack the params for an absolute multiplication subnetwork.
+        function multiplication_params = pack_absolute_multiplication_params( self, R3, Gm3 )
             
             % Set the default input arguments.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            multiplication_parameters = cell( 1, 2 );
+            % Preallocate a cell array to store the params.
+            multiplication_params = cell( 1, 2 );
             
-            % Pack the parameters.
-            multiplication_parameters{ 1 } = R3;
-            multiplication_parameters{ 2 } = Gm3;            
+            % Pack the params.
+            multiplication_params{ 1 } = R3;
+            multiplication_params{ 2 } = Gm3;            
             
         end
         
         
-        % Implement a function to pack the parameters for a relative multiplication subnetwork.
-        function multiplication_parameters = pack_relative_multiplication_parameters( self, R3, Gm3 )
+        % Implement a function to pack the params for a relative multiplication subnetwork.
+        function multiplication_params = pack_relative_multiplication_params( self, R3, Gm3 )
             
             % Set the default input arguments.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            multiplication_parameters = cell( 1, 2 );
+            % Preallocate a cell array to store the params.
+            multiplication_params = cell( 1, 2 );
             
-            % Pack the parameters.
-            multiplication_parameters{ 1 } = R3;
-            multiplication_parameters{ 2 } = Gm3;            
+            % Pack the params.
+            multiplication_params{ 1 } = R3;
+            multiplication_params{ 2 } = Gm3;            
             
         end
         
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
         
-        % Implement a function to pack the parameters for a reduced absolute multiplication subnetwork.
-        function reduced_multiplication_parameters = pack_reduced_absolute_multiplication_parameters( self, R3, Gm3 )
+        % Implement a function to pack the params for a reduced absolute multiplication subnetwork.
+        function reduced_multiplication_params = pack_reduced_absolute_multiplication_params( self, R3, Gm3 )
             
             % Set the default input arguments.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            reduced_multiplication_parameters = cell( 1, 2 );
+            % Preallocate a cell array to store the params.
+            reduced_multiplication_params = cell( 1, 2 );
             
-            % Pack the parameters.
-            reduced_multiplication_parameters{ 1 } = R3;
-            reduced_multiplication_parameters{ 2 } = Gm3;            
+            % Pack the params.
+            reduced_multiplication_params{ 1 } = R3;
+            reduced_multiplication_params{ 2 } = Gm3;            
             
         end
         
         
-        % Implement a function to pack the parameters for a reduced relative multiplication subnetwork.
-        function reduced_multiplication_parameters = pack_reduced_relative_multiplication_parameters( self, R3, Gm3 )
+        % Implement a function to pack the params for a reduced relative multiplication subnetwork.
+        function reduced_multiplication_params = pack_reduced_relative_multiplication_params( self, R3, Gm3 )
             
             % Set the default input arguments.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the parameters.
-            reduced_multiplication_parameters = cell( 1, 2 );
+            % Preallocate a cell array to store the params.
+            reduced_multiplication_params = cell( 1, 2 );
             
-            % Pack the parameters.
-            reduced_multiplication_parameters{ 1 } = R3;
-            reduced_multiplication_parameters{ 2 } = Gm3;            
+            % Pack the params.
+            reduced_multiplication_params{ 1 } = R3;
+            reduced_multiplication_params{ 2 } = Gm3;            
             
         end
         
@@ -2676,58 +2676,58 @@ classdef applied_current_manager_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
-        % Implement a function to unpack absolute inversion subnetwork parameters.
-        function [ R2, Gm2 ] = unpack_absolute_inversion_parameters( self, inversion_parameters )
+        % Implement a function to unpack absolute inversion subnetwork params.
+        function [ R2, Gm2 ] = unpack_absolute_inversion_params( self, inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = {  }; end                                                      	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_params = {  }; end                                                      	% [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( inversion_parameters )                                                                      % If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( inversion_params )                                                                      % If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( inversion_parameters ) == 2                                                              % If there are a specific number of parameters...
+            elseif length( inversion_params ) == 2                                                              % If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R2 = inversion_parameters{ 1 };                                                                     % [V] Activation Domain.
-                Gm2 = inversion_parameters{ 2 };                                                                    % [S] Membrane Conductance.
+                % Unpack the params.
+                R2 = inversion_params{ 1 };                                                                     % [V] Activation Domain.
+                Gm2 = inversion_params{ 2 };                                                                    % [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
         end
         
         
-        % Implement a function to unpack relative inversion subnetwork parameters.
-        function [ R2, Gm2 ] = unpack_relative_inversion_parameters( self, inversion_parameters )
+        % Implement a function to unpack relative inversion subnetwork params.
+        function [ R2, Gm2 ] = unpack_relative_inversion_params( self, inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, inversion_parameters = {  }; end                                                      	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_params = {  }; end                                                      	% [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( inversion_parameters )                                                                      % If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( inversion_params )                                                                      % If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( inversion_parameters ) == 2                                                              % If there are a specific number of parameters...
+            elseif length( inversion_params ) == 2                                                              % If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R2 = inversion_parameters{ 1 };                                                                     % [V] Activation Domain.
-                Gm2 = inversion_parameters{ 2 };                                                                    % [S] Membrane Conductance.
+                % Unpack the params.
+                R2 = inversion_params{ 1 };                                                                     % [V] Activation Domain.
+                Gm2 = inversion_params{ 2 };                                                                    % [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
@@ -2736,58 +2736,58 @@ classdef applied_current_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
-        % Implement a function to unpack reduced absolute inversion subnetwork parameters.
-        function [ R2, Gm2 ] = unpack_reduced_absolute_inversion_parameters( self, reduced_inversion_parameters )
+        % Implement a function to unpack reduced absolute inversion subnetwork params.
+        function [ R2, Gm2 ] = unpack_reduced_absolute_inversion_params( self, reduced_inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_inversion_parameters = {  }; end                                                      	% [-] Input Parameters Cell.
+            if nargin < 2, reduced_inversion_params = {  }; end                                                      	% [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( reduced_inversion_parameters )                                                                      % If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( reduced_inversion_params )                                                                      % If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( reduced_inversion_parameters ) == 2                                                              % If there are a specific number of parameters...
+            elseif length( reduced_inversion_params ) == 2                                                              % If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R2 = reduced_inversion_parameters{ 1 };                                                                     % [V] Activation Domain.
-                Gm2 = reduced_inversion_parameters{ 2 };                                                                    % [S] Membrane Conductance.
+                % Unpack the params.
+                R2 = reduced_inversion_params{ 1 };                                                                     % [V] Activation Domain.
+                Gm2 = reduced_inversion_params{ 2 };                                                                    % [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
         end
         
         
-        % Implement a function to unpack reduced relative inversion subnetwork parameters.
-        function [ R2, Gm2 ] = unpack_reduced_relative_inversion_parameters( self, reduced_inversion_parameters )
+        % Implement a function to unpack reduced relative inversion subnetwork params.
+        function [ R2, Gm2 ] = unpack_reduced_relative_inversion_params( self, reduced_inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_inversion_parameters = {  }; end                                              	% [-] Input Parameters Cell.
+            if nargin < 2, reduced_inversion_params = {  }; end                                              	% [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( reduced_inversion_parameters )                                                           	% If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( reduced_inversion_params )                                                           	% If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( reduced_inversion_parameters ) == 2                                                     	% If there are a specific number of parameters...
+            elseif length( reduced_inversion_params ) == 2                                                     	% If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R2 = reduced_inversion_parameters{ 1 };                                                            	% [V] Activation Domain.
-                Gm2 = reduced_inversion_parameters{ 2 };                                                          	% [S] Membrane Conductance.
+                % Unpack the params.
+                R2 = reduced_inversion_params{ 1 };                                                            	% [V] Activation Domain.
+                Gm2 = reduced_inversion_params{ 2 };                                                          	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
@@ -2796,58 +2796,58 @@ classdef applied_current_manager_class
         
         % ---------- Multiplication Subnetwork Functions ----------
         
-        % Implement a function to unpack absolute multiplication subnetwork parameters.
-        function [ R3, Gm3 ] = unpack_absolute_multiplication_parameters( self, multiplication_parameters )
+        % Implement a function to unpack absolute multiplication subnetwork params.
+        function [ R3, Gm3 ] = unpack_absolute_multiplication_params( self, multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, multiplication_parameters = {  }; end                                                 	% [-] Input Parameters Cell.
+            if nargin < 2, multiplication_params = {  }; end                                                 	% [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( multiplication_parameters )                                                                	% If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( multiplication_params )                                                                	% If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R3 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( multiplication_parameters ) == 2                                                       	% If there are a specific number of parameters...
+            elseif length( multiplication_params ) == 2                                                       	% If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R3 = multiplication_parameters{ 1 };                                                              	% [V] Activation Domain.
-                Gm3 = multiplication_parameters{ 2 };                                                             	% [S] Membrane Conductance.
+                % Unpack the params.
+                R3 = multiplication_params{ 1 };                                                              	% [V] Activation Domain.
+                Gm3 = multiplication_params{ 2 };                                                             	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
         end
         
         
-        % Implement a function to unpack relative multiplication subnetwork parameters.
-         function [ R3, Gm3 ] = unpack_relative_multiplication_parameters( self, multiplication_parameters )
+        % Implement a function to unpack relative multiplication subnetwork params.
+         function [ R3, Gm3 ] = unpack_relative_multiplication_params( self, multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, multiplication_parameters = {  }; end                                                 	% [-] Input Parameters Cell.
+            if nargin < 2, multiplication_params = {  }; end                                                 	% [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( multiplication_parameters )                                                                	% If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( multiplication_params )                                                                	% If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R3 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( multiplication_parameters ) == 2                                                       	% If there are a specific number of parameters...
+            elseif length( multiplication_params ) == 2                                                       	% If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R3 = multiplication_parameters{ 1 };                                                              	% [V] Activation Domain.
-                Gm3 = multiplication_parameters{ 2 };                                                             	% [S] Membrane Conductance.
+                % Unpack the params.
+                R3 = multiplication_params{ 1 };                                                              	% [V] Activation Domain.
+                Gm3 = multiplication_params{ 2 };                                                             	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
@@ -2856,58 +2856,58 @@ classdef applied_current_manager_class
         
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
-        % Implement a function to unpack reduced absolute multiplication subnetwork parameters.
-        function [ R3, Gm3 ] = unpack_reduced_absolute_multiplication_parameters( self, reduced_multiplication_parameters )
+        % Implement a function to unpack reduced absolute multiplication subnetwork params.
+        function [ R3, Gm3 ] = unpack_reduced_absolute_multiplication_params( self, reduced_multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_multiplication_parameters = {  }; end                                            % [-] Input Parameters Cell.
+            if nargin < 2, reduced_multiplication_params = {  }; end                                            % [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( reduced_multiplication_parameters )                                                       	% If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( reduced_multiplication_params )                                                       	% If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R3 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( reduced_multiplication_parameters ) == 2                                               	% If there are a specific number of parameters...
+            elseif length( reduced_multiplication_params ) == 2                                               	% If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R3 = reduced_multiplication_parameters{ 1 };                                                       	% [V] Activation Domain.
-                Gm3 = reduced_multiplication_parameters{ 2 };                                                   	% [S] Membrane Conductance.
+                % Unpack the params.
+                R3 = reduced_multiplication_params{ 1 };                                                       	% [V] Activation Domain.
+                Gm3 = reduced_multiplication_params{ 2 };                                                   	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
         end
         
         
-        % Implement a function to unpack reduced relative multiplication subnetwork parameters.
-        function [ R3, Gm3 ] = unpack_reduced_relative_multiplication_parameters( self, reduced_multiplication_parameters )
+        % Implement a function to unpack reduced relative multiplication subnetwork params.
+        function [ R3, Gm3 ] = unpack_reduced_relative_multiplication_params( self, reduced_multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_multiplication_parameters = {  }; end                                            % [-] Input Parameters Cell.
+            if nargin < 2, reduced_multiplication_params = {  }; end                                            % [-] Input Parameters Cell.
             
-            % Determine how to set the parameters.
-            if isempty( reduced_multiplication_parameters )                                                       	% If the parameters are empty...
+            % Determine how to set the params.
+            if isempty( reduced_multiplication_params )                                                       	% If the params are empty...
             
-                % Set the parameters to default values.
+                % Set the params to default values.
                 R3 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( reduced_multiplication_parameters ) == 2                                               	% If there are a specific number of parameters...
+            elseif length( reduced_multiplication_params ) == 2                                               	% If there are a specific number of params...
                 
-                % Unpack the parameters.
-                R3 = reduced_multiplication_parameters{ 1 };                                                       	% [V] Activation Domain.
-                Gm3 = reduced_multiplication_parameters{ 2 };                                                   	% [S] Membrane Conductance.
+                % Unpack the params.
+                R3 = reduced_multiplication_params{ 1 };                                                       	% [V] Activation Domain.
+                Gm3 = reduced_multiplication_params{ 2 };                                                   	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
-                error( 'Unable to unpack parameters.' )
+                error( 'Unable to unpack params.' )
                 
             end 
             
@@ -3717,7 +3717,7 @@ classdef applied_current_manager_class
         % ---------- Transmission Subnetwork Functions ----------
         
         % Implement a function to design the applied currents for a transmission subnetwork.
-        function applied_current_output_parameters = design_transmission_applied_current( self, encoding_scheme, applied_currents, array_utilities )
+        function applied_current_output_params = design_transmission_applied_current( self, encoding_scheme, applied_currents, array_utilities )
         
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                              % [class] Array Utilities Class Object.
@@ -3727,8 +3727,8 @@ classdef applied_current_manager_class
             % Compute the applied current magnitudes of this subnetwork.            
             Ia2 = self.compute_transmission_Ias2( encoding_scheme, applied_currents, array_utilities );
             
-            % Store the applied current magnitudes in the output parameters cell.
-            applied_current_output_parameters.Ia2 = Ia2;
+            % Store the applied current magnitudes in the output params cell.
+            applied_current_output_params.Ia2 = Ia2;
             
         end
         
@@ -3768,7 +3768,7 @@ classdef applied_current_manager_class
         % ---------- Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for an inversion subnetwork.
-        function [ applied_current_output_parameters, applied_currents, self ] = design_inversion_applied_current( self, neuron_IDs, inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ applied_current_output_params, applied_currents, self ] = design_inversion_applied_current( self, neuron_IDs, inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.n_inversion_neurons_DEFAULT;
@@ -3778,20 +3778,20 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, inversion_parameters = struct( [  ] ); end
+            if nargin < 3, inversion_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs( 2 ), applied_currents, undetected_option );
             
-            % Process the parameters.
-            inversion_parameters = self.process_inversion_Ias2_parameters( inversion_parameters, encoding_scheme );
+            % Process the params.
+            inversion_params = self.process_inversion_Ias2_params( inversion_params, encoding_scheme );
             
             % Compute the inversion applied current magnitude outputs.
-            [ Ia2, applied_currents, self ] = self.compute_inversion_Ias2( applied_current_IDs, inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ia2, applied_currents, self ] = self.compute_inversion_Ias2( applied_current_IDs, inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option );
             
-            % Store the applied current magnitudes in the output parameters cell.
-            applied_current_output_parameters.Ia2 = Ia2;
+            % Store the applied current magnitudes in the output params cell.
+            applied_current_output_params.Ia2 = Ia2;
             
         end
         
@@ -3799,7 +3799,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a reduced inversion subnetwork.
-        function [ Ias2, applied_currents, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, reduced_inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias2, applied_currents, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.num_reduced_inversion_neurons;
@@ -3809,17 +3809,17 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, reduced_inversion_parameters = {  }; end
+            if nargin < 3, reduced_inversion_params = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Process the parameters.
-            reduced_inversion_parameters = self.process_reduced_inversion_Ias2_parameters( reduced_inversion_parameters, encoding_scheme );
+            % Process the params.
+            reduced_inversion_params = self.process_reduced_inversion_Ias2_params( reduced_inversion_params, encoding_scheme );
             
             % Compute the inversion applied current magnitude outputs.
-            [ Ias2, applied_currents, self ] = self.compute_reduced_inversion_Ias2( applied_current_IDs, reduced_inversion_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ias2, applied_currents, self ] = self.compute_reduced_inversion_Ias2( applied_current_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
@@ -3891,7 +3891,7 @@ classdef applied_current_manager_class
         % ---------- Multiplication Subnetwork Functions ----------
         
         % Implement a function to design the applied currents for a multiplication subnetwork.
-        function [ Ias3, applied_currents, self ] = design_multiplication_applied_current( self, neuron_IDs, multiplication_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias3, applied_currents, self ] = design_multiplication_applied_current( self, neuron_IDs, multiplication_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of multiplication neurons.
             n_neurons = self.num_multiplication_neurons_DEFAULT;
@@ -3901,17 +3901,17 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, multiplication_parameters = {  }; end
+            if nargin < 3, multiplication_params = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Process the parameters.
-            multiplication_parameters = self.process_multiplication_Ias3_parameters( multiplication_parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            multiplication_params = self.process_multiplication_Ias3_params( multiplication_params, encoding_scheme, applied_currents );
             
             % Compute the multiplication applied current magnitude outputs.
-            [ Ias3, applied_currents, self ] = self.compute_multiplication_Ias3( applied_current_IDs, multiplication_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ias3, applied_currents, self ] = self.compute_multiplication_Ias3( applied_current_IDs, multiplication_params, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
@@ -3919,7 +3919,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Multiplication Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a reduced multiplication subnetwork.
-        function [ Ias3, applied_currents, self ] = design_reduced_multiplication_applied_current( self, neuron_IDs, reduced_multiplication_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias3, applied_currents, self ] = design_reduced_multiplication_applied_current( self, neuron_IDs, reduced_multiplication_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of reduced multiplication neurons.
             n_neurons = self.num_reduced_multiplication_neurons_DEFAULT;
@@ -3929,17 +3929,17 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, reduced_multiplication_parameters = {  }; end
+            if nargin < 3, reduced_multiplication_params = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
-            % Process the parameters.
-            reduced_multiplication_parameters = self.process_reduced_multiplication_Ias3_parameters( reduced_multiplication_parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            reduced_multiplication_params = self.process_reduced_multiplication_Ias3_params( reduced_multiplication_params, encoding_scheme, applied_currents );
             
             % Compute the multiplication applied current magnitude outputs.
-            [ Ias3, applied_currents, self ] = self.compute_reduced_multiplication_Ias3( applied_current_IDs, reduced_multiplication_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ias3, applied_currents, self ] = self.compute_reduced_multiplication_Ias3( applied_current_IDs, reduced_multiplication_params, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
@@ -3947,7 +3947,7 @@ classdef applied_current_manager_class
         % ---------- Integration Subnetwork Functions ----------
         
         % Implement a function to design the applied currents for an integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_integration_applied_currents( self, neuron_IDs, integration_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = design_integration_applied_currents( self, neuron_IDs, integration_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
@@ -3957,23 +3957,23 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, integration_parameters = {  }; end
+            if nargin < 3, integration_params = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the parameters.
-            integration_parameters = self.process_integration_Ias_parameters( integration_parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            integration_params = self.process_integration_Ias_params( integration_params, encoding_scheme, applied_currents );
             
             % Get the applied current IDs that comprise this integration subnetwork.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute the applied current magnitudes associated with this subnetwork.
-            [ Ias, applied_currents, self ] = self.compute_integration_Ias( applied_current_IDs, integration_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ias, applied_currents, self ] = self.compute_integration_Ias( applied_current_IDs, integration_params, encoding_scheme, applied_currents, set_flag, undetected_option );
             
         end
         
         
         % Implement a function to design the applied currents for a voltage based integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_vbi_applied_currents( self, neuron_IDs, vbi_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = design_vbi_applied_currents( self, neuron_IDs, vbi_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.num_vbi_neurons_DEFAULT;
@@ -3983,23 +3983,23 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, vbi_parameters = {  }; end
+            if nargin < 3, vbi_params = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the parameters.
-            vbi_parameters = self.process_vbi_Ias_parameters( vbi_parameters, encoding_scheme, applied_currents );
+            % Process the params.
+            vbi_params = self.process_vbi_Ias_params( vbi_params, encoding_scheme, applied_currents );
             
             % Get the applied current IDs that comprise this voltage based integration subnetwork.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
             
             % Compute the applied current magnitudes associated with this subnetwork.
-            [ Ias, applied_currents, self ] = self.compute_vbi_Ias( applied_current_IDs, vbi_parameters, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ias, applied_currents, self ] = self.compute_vbi_Ias( applied_current_IDs, vbi_params, encoding_scheme, applied_currents, set_flag, undetected_option );
            
         end
         
         
         % Implement a function to design the applied currents for a split voltage based integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_svbi_applied_currents( self, neuron_IDs, svbi_parameters, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = design_svbi_applied_currents( self, neuron_IDs, svbi_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
              % Compute the number of neurons.
             n_neurons = self.num_svbi_neurons_DEFAULT;
@@ -4009,12 +4009,12 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, svbi_parameters = {  }; end
+            if nargin < 3, svbi_params = {  }; end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
-            % Process the parameters.
-            parameters_Ias1 = self.process_svbi_Ias1_parameters( svbi_parameters{ 1 }, encoding_scheme, applied_currents );
-            parameters_Ias2 = self.process_svbi_Ias2_parameters( svbi_parameters{ 2 }, encoding_scheme, applied_currents );
+            % Process the params.
+            params_Ias1 = self.process_svbi_Ias1_params( svbi_params{ 1 }, encoding_scheme, applied_currents );
+            params_Ias2 = self.process_svbi_Ias2_params( svbi_params{ 2 }, encoding_scheme, applied_currents );
 
             % Get the applied current IDs that comprise this split voltage based integration subnetwork.
             applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
@@ -4024,8 +4024,8 @@ classdef applied_current_manager_class
             applied_current_IDs_Ias2 = applied_current_IDs( 3 );
 
             % Compute the applied current magnitudes associated with this subnetwork.
-            [ Ias1, applied_currents, applied_current_manager ] = self.compute_svbi_Ias1( applied_current_IDs_Ias1, parameters_Ias1, encoding_scheme, applied_currents, true, undetected_option );
-            [ Ias2, applied_currents, applied_current_manager ] = applied_current_manager.compute_svbi_Ias2( applied_current_IDs_Ias2, parameters_Ias2, encoding_scheme, applied_currents, true, undetected_option );
+            [ Ias1, applied_currents, applied_current_manager ] = self.compute_svbi_Ias1( applied_current_IDs_Ias1, params_Ias1, encoding_scheme, applied_currents, true, undetected_option );
+            [ Ias2, applied_currents, applied_current_manager ] = applied_current_manager.compute_svbi_Ias2( applied_current_IDs_Ias2, params_Ias2, encoding_scheme, applied_currents, true, undetected_option );
             
             % Concatenate the applied current magnitudes.
             Ias = [ Ias1, Ias2 ];
