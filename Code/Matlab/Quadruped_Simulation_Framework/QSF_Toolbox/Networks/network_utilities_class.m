@@ -366,6 +366,7 @@ classdef network_utilities_class
         
         % ---------- Transmission Subnetwork Functions ----------
         
+        %{
 %         % Implement a function to compute the gain of a relative transmission subnetwork.
 %         function c = compute_relative_transmission_c( ~ )
 %         
@@ -373,7 +374,7 @@ classdef network_utilities_class
 %             c = 1.0;                      % [-] Subnetwork Gain.
 %             
 %         end
-        
+        %}
         
         % Implement a function to compute the maximum decoded output of an absolute transmission subnetwork.
         function x2_max = compute_absolute_transmission_x2max( self, c, x1_max )
@@ -3155,6 +3156,54 @@ classdef network_utilities_class
         end      
         
         
+        %% Step Size Functions.
+        
+        % Implement a function to adapt propsed step sizes.
+        function dts = adapt_step_sizes( self, dts, dts_max, epsilon )
+           
+            % Set the default input arguments.
+            if nargin < 3, epsilon = self.epsilon_DEFAULT; end
+            if nargin < 2, dts = ones( 1, 1 ); end
+            
+            % Retrieve the number of step sizes.
+            num_step_sizes = length( dts );
+            num_step_sizes_max = length( dts_max );
+
+            % Determine whether to agument the number of steps sizes.
+            if num_step_sizes ~= num_step_sizes_max                 % If the number of step sizes is not equal to the number of maximum step sizes...
+               
+                % Determine how to update the number of step sizes.
+                if num_step_sizes == 1                              % If the number of step sizes is one...
+                    
+                    % Repeat the number of step sizes the desired number of times.
+                    dts = dts*ones( num_step_sizes_max, 1 );
+                    
+                else                                                % Otherwise...
+                   
+                    % Throw an error.
+                    error( 'The number of step sizes must either: (1) be equal to the number of provided maximum step sizes or (2) equal to one.' )
+                    
+                end
+                
+                
+            end
+            
+            % Adapt the simulation step sizes as necessary.
+            for k = 1:num_step_sizes                                            % Iterate through each of the input signals...
+
+                % Determine whether to adapt the absolute step size.
+                if dts( k ) > epsilon*dts_max( k )        % If the step size is greater than the recommended threshold...
+
+                    % Set the step size to be at the recommended threshold.
+                    dts( k ) = epsilon*dts_max( k );
+
+                end
+
+            end
+            
+        end
+        
+        
         %% Simulation Functions.
         
         % Implement a function to perform a single simulation step.
@@ -3679,6 +3728,37 @@ classdef network_utilities_class
             
         end
         
+        
+        %% Printing Functions.
+        
+        % Implement a function to print out the first part of a two part status message.
+        function local_start_time = print_starting_status_message( ~, message )
+        
+            % Retrieve the local start time.
+            local_start_time = tic;
+
+            % Print the status message.
+            fprintf( message )
+
+        end
+        
+        
+        % Implement a function to print out the second part of a two part status message.
+        function local_duration = print_ending_status_message( ~, message, local_start_time )
+            
+            % Compute the duration of this portion of the code.
+            local_duration = toc( local_start_time );
+            
+            % Create a duration string.
+            duration_string = sprintf( 'Elapsed Time: %0.2e seconds = %0.2e minutes = %0.2e hours = %0.2e days', local_duration, local_duration/60, local_duration/( 60*60 ), local_duration/( 60*60*24 ) );
+            
+            % Concatenate the complete message.
+            message = [ message, ' (', duration_string, ')\n\n' ];
+            
+            % Print out the message.
+            fprintf( message )
+                
+        end
         
     end
 end

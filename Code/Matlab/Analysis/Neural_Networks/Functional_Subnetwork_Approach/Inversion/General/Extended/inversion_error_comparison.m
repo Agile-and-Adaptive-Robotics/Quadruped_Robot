@@ -21,7 +21,8 @@ verbose_flag = true;                            	% [T/F] Printing Flag. (Determi
 undetected_option = 'Ignore';                        % [str] Undetected Option.
 
 % Define the network simulation time step.
-network_dt = 1e-3;                               	% [s] Simulation Timestep.
+network_dt = 1e-2;                               	% [s] Simulation Timestep.
+% network_dt = 1e-3;                               	% [s] Simulation Timestep.
 % network_dt = 1e-4;                                  % [s] Simulation Timestep.
 % network_dt = 4e-5;                                  % [s] Simulation Timestep.
 
@@ -64,17 +65,17 @@ plotting_utilities = plotting_utilities_class(  );
 % delta = 1e-3;                                       % [V] Minimum Decoded Output.
 % x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 
-% Define the formulation params. (Maximum x2_max) (Worst case for step size.)
-c1 = 80e-6;                                         % [-] Subnetwork Gain 1.
-c3 = 0.25e-3;                                          % [-] Subnetwork Gain 3.
-delta = 1e-3;                                       % [V] Minimum Decoded Output.
-x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
-
-% % Define the formulation params. (Minimum x2_min) (Best case for step size.)
-% c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
-% c3 = 1.0e-3;                                          % [-] Subnetwork Gain 3.
+% % Define the formulation params. (Maximum x2_max) (Worst case for step size.)
+% c1 = 80e-6;                                         % [-] Subnetwork Gain 1.
+% c3 = 0.25e-3;                                          % [-] Subnetwork Gain 3.
 % delta = 1e-3;                                       % [V] Minimum Decoded Output.
 % x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
+
+% Define the formulation params. (Minimum x2_min) (Best case for step size.)
+c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+c3 = 1.0e-3;                                          % [-] Subnetwork Gain 3.
+delta = 1e-3;                                       % [V] Minimum Decoded Output.
+x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 
 % Define the absolute subnetwork design params.
 Gm1_absolute = 1e-6;                              	% [S] Membrane Conductance (Neuron 1).
@@ -208,15 +209,12 @@ fprintf( '----------------------------------------------------------------------
 % Define the decoded input signals.
 xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
 
-% Define the property retrieval settings.
-as_matrix_flag = true;
-
 % Define the stability analysis timestep seed.
 dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
 
 % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
-[ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
-[ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
+[ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, true, undetected_option );
+[ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, true, undetected_option );
 
 % Compute the relative inversion steady state output.
 [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
@@ -247,29 +245,12 @@ epsilon = 0.80;
 network_dts_absolute = network_dt*ones( n_input_signals, 1 );
 network_dts_relative = network_dt*ones( n_input_signals, 1 );
 
-% Determine whether to adapt the simulation step sizes.
-if adapt_step_size_flag                                                 % If we want to adapt the step size...
-
-    % Adapt the simulation step sizes as necessary.
-    for k = 1:n_input_signals                                         % Iterate through each of the input signals...
-
-        % Determine whether to adapt the absolute step size.
-        if network_dts_absolute( k ) > epsilon*dts_absolute( k )        % If the step size is greater than the recommended threshold...
-            
-            % Set the step size to be at the recommended threshold.
-            network_dts_absolute( k ) = epsilon*dts_absolute( k );
-            
-        end
-        
-        % Determine whether to adapt the relative step size.
-        if network_dts_relative( k ) > epsilon*dts_relative( k )        % If the step size is greater than the recommended threshold...
-            
-            % Set the step size to be at the recommended threshold.
-            network_dts_relative( k ) = epsilon*dts_relative( k );
-            
-        end
-
-    end
+% Determine whether to adapt the step sizes.
+if adapt_step_size_flag                     % If we want to adapt the step sizes...
+    
+    % Adapt the step sizes.
+    network_dts_absolute = network_utilities.adapt_step_sizes( network_dts_absolute, dts_absolute, epsilon );
+    network_dts_relative = network_utilities.adapt_step_sizes( network_dts_relative, dts_relative, epsilon );
 
 end
 

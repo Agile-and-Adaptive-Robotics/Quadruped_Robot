@@ -10,15 +10,6 @@ clear, close( 'all' ), clc
 save_directory = '.\Save';                         	% [str] Save Directory.
 load_directory = '.\Load';                        	% [str] Load Directory.
 
-% Set a flag to determine whether to simulate.
-% simulate_flag = false;                            % [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
-
-% Set the level of verbosity.
-verbose_flag = true;                            	% [T/F] Printing Flag. (Determines whether to print out information.)
-
-% Define the undetected option.
-undetected_option = 'Error';                        % [str] Undetected Option.
-
 % Define the network simulation time step.
 % network_dt = 1e-3;                                 	% [s] Simulation Time Step.
 % network_dt = 1e-4;                             	% [s] Simulation Timestep.
@@ -29,6 +20,9 @@ network_dt = 5e-5;                             	% [s] Simulation Timestep.
 network_tf = 0.5;                                 	% [s] Simulation Duration.
 % network_tf = 1;                                 	% [s] Simulation Duration.
 % network_tf = 3;                                 	% [s] Simulation Duration.
+
+% Define the step size adaptation threshold.
+epsilon = 0.80;                                     % [0-1] Adapted Step Size Threshold (Detemines how close to the maximum acceptable simulation step size an adapted step size can be made.)
 
 % Construct the simulation times associated with the input currents.
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
@@ -46,6 +40,12 @@ n_input_signals = 20;                               % [#] Number of Input Signal
 simulate_flag = true;                             	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
 save_flag = true;                                   % [T/F] Save Flag.  (Determine whether to save simulation data.
 verbose_flag = true;                            	% [T/F] Printing Flag. (Determines whether to print out information.)
+adapt_step_size_flag = true;                        % [T/F] Adapt Step Size Flag.
+
+% Set additional simulation properties.
+filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
+process_option = 'None';                    % [str] Process Option.
+undetected_option = 'Ignore';                        % [str] Undetected Option.
 
 % Create an instance of the network utilities class.
 network_utilities = network_utilities_class(  );
@@ -60,7 +60,7 @@ num_c1s = 5;
 num_c3s = 5;
 num_deltas = 5;
 
-% Define the minimum and maximum formulation parameters.
+% Define the minimum and maximum formulation params.
 c1_min = 20e-6; c1_max = 80e-6;
 c3_min = 0.25e-3; c3_max = 1e-3;
 delta_min = 1e-4; delta_max = 1e-3;
@@ -73,46 +73,45 @@ deltas = linspace( delta_min, delta_max, num_deltas );                          
 
 %% Debugging
 
-[ C1s, C3s ] = ndgrid( c1s, c3s );
-
-X2_maxs = C1s./C3s;
-
-[ row_maxs, row_max_indexes ] = max( X2_maxs );
-[ true_max, col_max_index ] = max( row_maxs );
-
-c1_max = C1s( row_max_indexes( col_max_index ), col_max_index );
-c3_max = C3s( row_max_indexes( col_max_index ), col_max_index );
-
-[ row_mins, row_min_indexes ] = min( X2_maxs );
-[ true_min, col_min_index ] = min( row_mins );
-
-c1_min = C1s( row_min_indexes( col_min_index ), col_min_index );
-c3_min = C3s( row_min_indexes( col_min_index ), col_min_index );
-
-fprintf( 'Maximum: x2_max = %0.3e when c1 = %0.3e and c3 = %0.3e.\n', true_max, c1_max, c3_max )
-fprintf( 'Minimum: x2_max = %0.3e when c1 = %0.3e and c3 = %0.3e.\n', true_min, c1_min, c3_min )
-
+% [ C1s, C3s ] = ndgrid( c1s, c3s );
+% 
+% X2_maxs = C1s./C3s;
+% 
+% [ row_maxs, row_max_indexes ] = max( X2_maxs );
+% [ true_max, col_max_index ] = max( row_maxs );
+% 
+% c1_max = C1s( row_max_indexes( col_max_index ), col_max_index );
+% c3_max = C3s( row_max_indexes( col_max_index ), col_max_index );
+% 
+% [ row_mins, row_min_indexes ] = min( X2_maxs );
+% [ true_min, col_min_index ] = min( row_mins );
+% 
+% c1_min = C1s( row_min_indexes( col_min_index ), col_min_index );
+% c3_min = C3s( row_min_indexes( col_min_index ), col_min_index );
+% 
+% fprintf( 'Maximum: x2_max = %0.3e when c1 = %0.3e and c3 = %0.3e.\n', true_max, c1_max, c3_max )
+% fprintf( 'Minimum: x2_max = %0.3e when c1 = %0.3e and c3 = %0.3e.\n', true_min, c1_min, c3_min )
 
 
 %% Define the Constant Subnetwork Parameters.
 
-% Define the subnetwork formulation parameters (shared by both encoding schemes).
+% Define the subnetwork formulation params (shared by both encoding schemes).
 x1_max = 20e-3;
 
-% Define the transmission subnetwork design parameters.
+% Define the transmission subnetwork design params.
 Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
 Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters.
-absolute_inversion_input_parameters.x1_max = x1_max;
-absolute_inversion_input_parameters.Gm1 = Gm1_absolute;
-absolute_inversion_input_parameters.Gm2 = Gm2_absolute;
-absolute_inversion_input_parameters.Cm1 = Cm1_absolute;
-absolute_inversion_input_parameters.Cm2 = Cm2_absolute;
+% Store the transmission subnetwork design params.
+absolute_inversion_input_params.x1_max = x1_max;
+absolute_inversion_input_params.Gm1 = Gm1_absolute;
+absolute_inversion_input_params.Gm2 = Gm2_absolute;
+absolute_inversion_input_params.Cm1 = Cm1_absolute;
+absolute_inversion_input_params.Cm2 = Cm2_absolute;
 
-% Define the transmission subnetwork design parameters.
+% Define the transmission subnetwork design params.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -120,14 +119,14 @@ Gm2_relative = 1e-6;                                         % [S] Membrane Cond
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters.
-relative_inversion_input_parameters.x1_max = x1_max;
-relative_inversion_input_parameters.R1 = R1_relative;
-relative_inversion_input_parameters.R2 = R2_relative;
-relative_inversion_input_parameters.Gm1 = Gm1_relative;
-relative_inversion_input_parameters.Gm2 = Gm2_relative;
-relative_inversion_input_parameters.Cm1 = Cm1_relative;
-relative_inversion_input_parameters.Cm2 = Cm2_relative;
+% Store the transmission subnetwork design params.
+relative_inversion_input_params.x1_max = x1_max;
+relative_inversion_input_params.R1 = R1_relative;
+relative_inversion_input_params.R2 = R2_relative;
+relative_inversion_input_params.Gm1 = Gm1_relative;
+relative_inversion_input_params.Gm2 = Gm2_relative;
+relative_inversion_input_params.Cm1 = Cm1_relative;
+relative_inversion_input_params.Cm2 = Cm2_relative;
 
 
 %% Define the Encoding & Decoding Operations.
@@ -151,15 +150,6 @@ f_encode_relative = @( Xs, c1, c3 ) [ f_encode1_relative( Xs( :, 1 ) ), f_encode
 f_decode1_relative = @( U1 ) network_utilities.decode_relative_inversion_input( U1, x1_max, R1_relative );
 f_decode2_relative = @( U2, c1, c3 ) network_utilities.decode_relative_inversion_output( U2, c1, c3, R2_relative );
 f_decode_relative = @( Us, c1, c3 ) [ f_decode1_relative( Us( :, 1 ) ), f_decode2_relative( Us( :, 2 ), c1, c3 ) ];
-
-
-%% Define Simulation Parameters.
-
-% Set additional simulation properties.
-filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
-set_flag = true;                            % [T/F] Set Flag.
-process_option = 'None';                    % [str] Process Option.
-undetected_option = 'Ignore';               % [str] Undetected Option.
 
 
 %% Preallocate Arrays to Store Simulation Data.
@@ -383,7 +373,7 @@ dts_max_relative = zeros( num_c1s, num_c3s, num_deltas );
 condition_numbers_max_absolute = zeros( num_c1s, num_c3s, num_deltas );
 condition_numbers_max_relative = zeros( num_c1s, num_c3s, num_deltas );
 
-% Create arrays to store the network parameters.
+% Create arrays to store the network params.
 c2s_absolute = zeros( num_c1s, num_c3s, num_deltas );
 x2maxs_absolute = zeros( num_c1s, num_c3s, num_deltas );
 R1s_absolute = zeros( num_c1s, num_c3s, num_deltas );
@@ -402,30 +392,57 @@ dEs21s_relative = zeros( num_c1s, num_c3s, num_deltas );
 gs21s_relative = zeros( num_c1s, num_c3s, num_deltas );
 Ia2s_relative = zeros( num_c1s, num_c3s, num_deltas );
 
+% Compute the total number of simulations.
+num_simulations = num_c1s*num_c3s*num_deltas;
+
+% Define an aggregate loop counter.
+k = 1;
+
+% Print out header information.
+fprintf( '\n---------- INVERSION SUBNETWORK ERROR COMPARISON ----------\n\n' )
+
 % Perform the following analysis given each gain value.
 for k1 = 1:num_c1s                          % Iterate through each of the c1s...
     for k2 = 1:num_c3s                      % Iterate through each of the c3s...
         for k3 = 1:num_deltas               % Iterate through each of the deltas...
             
+            % Start the timer for this iteration.
+            start_time = tic;
+            
+            
+            %% Print Out Simulation Progress.
+            
+            % Print out a status update.
+            fprintf( 'Running simulation %0.0f of %0.0f (%0.2f%% Complete)...\n\n', k, num_simulations, 100*( k/num_simulations ) )
+            
             
             %% Define the Variable Subnetwork Formulation Parameters.
             
-            % Retrieve the variable subnetwork formulation parameters (shared by both encoding schemes).
+            % Determine whether to print a status message.  
+            if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tDefining formulation parameters...\n' ); end
+            
+            % Retrieve the variable subnetwork formulation params (shared by both encoding schemes).
             c1 = c1s( k1 );
             c3 = c3s( k2 );
             delta = deltas( k3 );
             
-            % Store the variable subnetwork formulation parameters.
-            absolute_inversion_input_parameters.c1 = c1;
-            absolute_inversion_input_parameters.c3 = c3;
-            absolute_inversion_input_parameters.delta = delta;
+            % Store the variable subnetwork formulation params.
+            absolute_inversion_input_params.c1 = c1;
+            absolute_inversion_input_params.c3 = c3;
+            absolute_inversion_input_params.delta = delta;
             
-            relative_inversion_input_parameters.c1 = c1;
-            relative_inversion_input_parameters.c3 = c3;
-            relative_inversion_input_parameters.delta = delta;
+            relative_inversion_input_params.c1 = c1;
+            relative_inversion_input_params.c3 = c3;
+            relative_inversion_input_params.delta = delta;
+            
+            % Determine whether to print additional information.
+            if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tDefining formulation parameters... Done!', local_start_time ); end
             
             
             %% Define the Absolute & Relative Subnetwork Input Currents.
+            
+            % Determine whether to print out a status message.
+            if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tCreating subnetwork...\n' ); end
             
             % Define the applied current ID.
             input_current_ID_absolute = 1;                                  % [#] Absolute Input Current ID.
@@ -444,19 +461,19 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             Ias1_relative = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
             
             
-            %% Create the Relative Transmission Subnetwork.
+            %% Create the Subnetwork.
             
             % Create an instance of the network class.
             network_absolute = network_class( network_dt, network_tf );
             network_relative = network_class( network_dt, network_tf );
 
             % Create an inversion subnetwork.
-            [ absolute_inversion_output_parameters, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_inversion_subnetwork( absolute_inversion_input_parameters, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
-            [ relative_inversion_output_parameters, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_inversion_subnetwork( relative_inversion_input_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
+            [ absolute_inversion_output_params, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_inversion_subnetwork( absolute_inversion_input_params, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
+            [ relative_inversion_output_params, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_inversion_subnetwork( relative_inversion_input_params, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
 
-            % Unpack the subnetwork output parameters.
-            [ c2s_absolute( k1, k2, k3 ), x2maxs_absolute( k1, k2, k3 ), R1s_absolute( k1, k2, k3 ), R2s_absolute( k1, k2, k3 ), Gna1s_absolute( k1, k2, k3 ), Gna2s_absolute( k1, k2, k3 ), dEs21s_absolute( k1, k2, k3 ), gs21s_absolute( k1, k2, k3 ), Ia2s_absolute( k1, k2, k3 ) ] = network_absolute.unpack_absolute_inversion_output_parameters( absolute_inversion_output_parameters, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
-            [ c2s_relative( k1, k2, k3 ), x2maxs_relative( k1, k2, k3 ), Gna1s_relative( k1, k2, k3 ), Gna2s_relative( k1, k2, k3 ), dEs21s_relative( k1, k2, k3 ), gs21s_relative( k1, k2, k3 ), Ia2s_relative( k1, k2, k3 ) ] = network_relative.unpack_relative_inversion_output_parameters( relative_inversion_output_parameters, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
+            % Unpack the subnetwork output params.
+            [ c2s_absolute( k1, k2, k3 ), x2maxs_absolute( k1, k2, k3 ), R1s_absolute( k1, k2, k3 ), R2s_absolute( k1, k2, k3 ), Gna1s_absolute( k1, k2, k3 ), Gna2s_absolute( k1, k2, k3 ), dEs21s_absolute( k1, k2, k3 ), gs21s_absolute( k1, k2, k3 ), Ia2s_absolute( k1, k2, k3 ) ] = network_absolute.unpack_absolute_inversion_output_params( absolute_inversion_output_params, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+            [ c2s_relative( k1, k2, k3 ), x2maxs_relative( k1, k2, k3 ), Gna1s_relative( k1, k2, k3 ), Gna2s_relative( k1, k2, k3 ), dEs21s_relative( k1, k2, k3 ), gs21s_relative( k1, k2, k3 ), Ia2s_relative( k1, k2, k3 ) ] = network_relative.unpack_relative_inversion_output_params( relative_inversion_output_params, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
 
             % Update the input current ID and name.
             [ ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.set_applied_current_property( network_absolute.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network_absolute.applied_current_manager.applied_currents, true );
@@ -478,6 +495,9 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             network_relative.applied_current_manager.applied_currents( 1 ) = network_relative.applied_current_manager.applied_currents( 2 );
             network_relative.applied_current_manager.applied_currents( 2 ) = temporary_applied_current;
             
+            % Determine whether to print out a status message.
+            if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tCreating subnetwork... Done!', local_start_time ); end
+
             
             %% Print Subnetwork Information.
             
@@ -492,20 +512,88 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             %     fprintf( '---------------------------------------------------------------------------------------------------------\n\n\n' )
             
             
+            %% Compute the Subnetwork Numerical Stability Information.
+
+            % Determine whether to print a status update.
+            if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tAnalyzing subnetwork numerical stability...\n' ); end
+            
+            % Define the decoded input signals.
+            xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
+
+            % Define the stability analysis timestep seed.
+            dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
+
+            % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
+            [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, true, undetected_option );
+            [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, true, undetected_option );
+
+            % Compute the relative inversion steady state output.
+            [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
+            [ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, f_encode1_relative, @( xs ) f_decode2_relative( xs, c1, c3 ), network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
+
+            % Retrieve the maximum RK4 step size.
+            [ dts_max_absolute( k1, k2, k3 ), indexes_dt_absolute ] = min( dts_absolute );
+            [ dts_max_relative( k1, k2, k3 ), indexes_dt_relative ] = min( dts_relative );
+
+            % Retrieve the maximum condition number.
+            [ condition_numbers_max_absolute( k1, k2, k3 ), indexes_condition_number_absolute ] = max( condition_numbers_absolute );
+            [ condition_numbers_max_relative( k1, k2, k3 ), indexes_condition_number_relative ] = max( condition_numbers_relative );
+
+
+            %% Print the Numerical Stability Information.
+
+%             % Print out the stability information.
+%             network_absolute.numerical_method_utilities.print_numerical_stability_info( As_absolute, dts_absolute, network_dt, condition_numbers_absolute );
+%             network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
+
+
+            %% Process Simulation Step Sizes.
+
+            % Create an array to store the step sizes.
+            network_dts_absolute = network_dt*ones( n_input_signals, 1 );
+            network_dts_relative = network_dt*ones( n_input_signals, 1 );
+
+            % Determine whether to adapt the step sizes.
+            if adapt_step_size_flag                     % If we want to adapt the step sizes...
+
+                % Adapt the step sizes.
+                network_dts_absolute = network_utilities.adapt_step_sizes( network_dts_absolute, dts_absolute, epsilon );
+                network_dts_relative = network_utilities.adapt_step_sizes( network_dts_relative, dts_relative, epsilon );
+
+            end
+            
+            % Determine whether to print out a status message.            
+            if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tAnalyzing subnetwork numerical stability... Done!', local_start_time ); end
+            
+            
             %% Simulate the Subnetwork.
             
             % Determine whether to simulate the network.
             if simulate_flag                            % If we want to simulate the network...
+
+                % Determine whether to print a status message.
+                if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tSimulating absolute subnetwork...\n' ); end
+
+                % Compute the decoded steady state simulation for the absolute subnetwork.
+                [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dts_absolute, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
                 
-                % Define the decoded input signals.
-                xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
+                % Determine whether to print a status message.
+                if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tSimulating absolute subnetwork... Done!', local_start_time ); end
+
+                % Determine whether to print a status message.
+                if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tSimulating relative subnetwork...\n' ); end
                 
-                % Compute the decoded steady state simulation results.
-                [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, network_absolute.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_absolute.network_utilities );
-                [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dt, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, @( xs ) f_decode2_relative( xs, c1, c3 ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
+                % Compute the decoded steady state simulation for the relative subnetwork.
+                [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.compute_steady_state_simulation_decoded( network_dts_relative, network_tf, integration_method, input_current_ID_absolute, xs_numerical_input, f_encode1_relative, @( xs ) f_decode2_relative( xs, c1, c3 ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, network_relative.applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_relative.network_utilities );
                 
+                % Determine whether to print a status message.
+                if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tSimulating relative subnetwork... Done!', local_start_time ); end
+
                 % Determine whether to save the simulation data.
                 if save_flag                    % If we want to save the simulation data...
+                    
+                    % Determine whether to print a status message.
+                    if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tSaving simulation data...\n' ); end
                     
                     data_absolute.Ias_magnitude = Ias_magnitude_absolute;
                     data_absolute.Us_numerical = Us_numerical_absolute;
@@ -523,10 +611,16 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
                     save( [ save_directory, '\', file_name_absolute ], 'data_absolute' )
                     save( [ save_directory, '\', file_name_relative ], 'data_relative' )
                     
+                    % Determine whether to print a status message.
+                    if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tSaving simulation data... Done!', local_start_time ); end
+                    
                 end
                 
             else                % Otherwise... ( We must want to load data from an existing simulation... )
                 
+                % Determine whether to print a status message.
+                if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tLoading simulation data...\n' ); end
+
                 % Define the load file names.
                 file_name_absolute = sprintf( 'absolute_inversion_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
                 file_name_relative = sprintf( 'relative_inversion_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
@@ -539,10 +633,16 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
                 [ xs_numerical_absolute, Us_numerical_absolute, Ias_magnitude_absolute ] = network_absolute.unpack_steady_state_simulation_data( data_absolute.data_absolute );
                 [ xs_numerical_relative, Us_numerical_relative, Ias_magnitude_relative ] = network_relative.unpack_steady_state_simulation_data( data_relative.data_relative );
                 
+                % Determine whether to print a status message.
+                if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tLoading simulation data... Done!', local_start_time ); end
+                
             end
             
             
             %% Compute the Absolute & Relative Desired & Achieved (Theory) Subnetwork Output.
+            
+            % Determine whether to print a status message.
+            if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tComputing error statistics...\n' ); end
             
             % Initialize the desired decoded steady state response.
             xs_desired_absolute = [ xs_numerical_absolute( :, 1 ), zeros( size( xs_numerical_absolute, 1 ), 1 ) ];
@@ -681,43 +781,29 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             % Compute the improvement between the numerical absolute and relative network errors.
             [ errors_improv_numerical_encoded( :, k1, k2, k3 ), errors_percent_improv_numerical_encoded( :, k1, k2, k3 ), errors_mse_improv_numerical_encoded( k1, k2, k3 ), errors_mse_percent_improv_numerical_encoded( k1, k2, k3 ), errors_std_improv_numerical_encoded( k1, k2, k3 ), errors_std_percent_improv_numerical_encoded( k1, k2, k3 ), errors_min_improv_numerical_encoded( k1, k2, k3 ), errors_min_percent_improv_numerical_encoded( k1, k2, k3 ), errors_max_improv_numerical_encoded( k1, k2, k3 ), errors_max_percent_improv_numerical_encoded( k1, k2, k3 ) ] = numerical_method_utilities.compute_error_improvement_statistics( errors_numerical_encoded_absolute( :, k1, k2, k3 ), errors_numerical_encoded_relative( :, k1, k2, k3 ), errors_percentage_numerical_encoded_absolute( :, k1, k2, k3 ), errors_percentage_numerical_encoded_relative( :, k1, k2, k3 ), errors_rmse_numerical_encoded_absolute( k1, k2, k3 ), errors_rmse_numerical_encoded_relative( k1, k2, k3 ), errors_rmse_percentage_numerical_encoded_absolute( k1, k2, k3 ), errors_rmse_percentage_numerical_encoded_relative( k1, k2, k3 ), errors_std_numerical_encoded_absolute( k1, k2, k3 ), errors_std_numerical_encoded_relative( k1, k2, k3 ), errors_std_percentage_numerical_encoded_absolute( k1, k2, k3 ), errors_std_percentage_numerical_encoded_relative( k1, k2, k3 ), errors_min_numerical_encoded_absolute( k1, k2, k3 ), errors_min_numerical_encoded_relative( k1, k2, k3 ), errors_min_percentage_numerical_encoded_absolute( k1, k2, k3 ), errors_min_percentage_numerical_encoded_relative( k1, k2, k3 ), errors_max_numerical_encoded_absolute( k1, k2, k3 ), errors_max_numerical_encoded_relative( k1, k2, k3 ), errors_max_percentage_numerical_encoded_absolute( k1, k2, k3 ), errors_max_percentage_numerical_encoded_relative( k1, k2, k3 ) );
             [ errors_improv_numerical_decoded( :, k1, k2, k3 ), errors_percent_improv_numerical_decoded( :, k1, k2, k3 ), errors_mse_improv_numerical_decoded( k1, k2, k3 ), errors_mse_percent_improv_numerical_decoded( k1, k2, k3 ), errors_std_improv_numerical_decoded( k1, k2, k3 ), errors_std_percent_improv_numerical_decoded( k1, k2, k3 ), errors_min_improv_numerical_decoded( k1, k2, k3 ), errors_min_percent_improv_numerical_decoded( k1, k2, k3 ), errors_max_improv_numerical_decoded( k1, k2, k3 ), errors_max_percent_improv_numerical_decoded( k1, k2, k3 ) ] = numerical_method_utilities.compute_error_improvement_statistics( errors_numerical_decoded_absolute( :, k1, k2, k3 ), errors_numerical_decoded_relative( :, k1, k2, k3 ), errors_percentage_numerical_decoded_absolute( :, k1, k2, k3 ), errors_percentage_numerical_decoded_relative( :, k1, k2, k3 ), errors_rmse_numerical_decoded_absolute( k1, k2, k3 ), errors_rmse_numerical_decoded_relative( k1, k2, k3 ), errors_rmse_percentage_numerical_decoded_absolute( k1, k2, k3 ), errors_rmse_percentage_numerical_decoded_relative( k1, k2, k3 ), errors_std_numerical_decoded_absolute( k1, k2, k3 ), errors_std_numerical_decoded_relative( k1, k2, k3 ), errors_std_percentage_numerical_decoded_absolute( k1, k2, k3 ), errors_std_percentage_numerical_decoded_relative( k1, k2, k3 ), errors_min_numerical_decoded_absolute( k1, k2, k3 ), errors_min_numerical_decoded_relative( k1, k2, k3 ), errors_min_percentage_numerical_decoded_absolute( k1, k2, k3 ), errors_min_percentage_numerical_decoded_relative( k1, k2, k3 ), errors_max_numerical_decoded_absolute( k1, k2, k3 ), errors_max_numerical_decoded_relative( k1, k2, k3 ), errors_max_percentage_numerical_decoded_absolute( k1, k2, k3 ), errors_max_percentage_numerical_decoded_relative( k1, k2, k3 ) );
+                    
+            % Print a status message.
+            if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tComputing error statistics... Done!', local_start_time ); end
+
             
+            %% Print Out a Status Message.
             
-            %% Compute the Subnetwork Numerical Stability Information.
+            % Retrieve the duration of this iteration.
+            duration = toc( start_time );
             
-            % Define the property retrieval settings.
-            as_matrix_flag = true;
+            % Print out a message at the end of a simulation.
+            fprintf( 'Running simulation %0.0f of %0.0f (%0.2f%% Complete)... Done. (Elapsed Time: %0.2e seconds = %0.2e minutes = %0.2e hours = %0.2e days)\n\n\n', k, num_simulations, 100*( k/num_simulations ), duration, duration/60, duration/( 60*60 ), duration/( 60*60*24 ) )
             
-            % Define the stability analysis timestep seed.
-            dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
-            
-            % Retrieve the properties necessary to compute the numerical stability parameters for an absolute and relative transmission subnetwork.
-            [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_parameters( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
-            [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_parameters( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
-            
-            % Compute the realtive transmission steady state output.
-            [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_transmission_RK4_stability_analysis( Us_desired_absolute( :, 1 ), Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
-            [ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_transmission_RK4_stability_analysis( Us_desired_relative( :, 1 ), Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
-            
-            % Retrieve the maximum RK4 step size.
-            [ dts_max_absolute( k1, k2, k3 ), indexes_dt_absolute ] = max( dts_absolute );
-            [ dts_max_relative( k1, k2, k3 ), indexes_dt_relative ] = max( dts_relative );
-            
-            % Retrieve the maximum condition number.
-            [ condition_numbers_max_absolute( k1, k2, k3 ), indexes_condition_number_absolute ] = max( condition_numbers_absolute );
-            [ condition_numbers_max_relative( k1, k2, k3 ), indexes_condition_number_relative ] = max( condition_numbers_relative );
-            
-            
-            %% Print the Numerical Stability Information.
-            
-            % % Print out the stability information.
-            % network_absolute.numerical_method_utilities.print_numerical_stability_info( As_absolute, dts_absolute, network_dt, condition_numbers_absolute );
-            % network_relative.numerical_method_utilities.print_numerical_stability_info( As_relative, dts_relative, network_dt, condition_numbers_relative );
+            % Advance the aggregate loop counter.
+            k = k + 1;
             
             
         end
     end
 end
+
+% Print out footer information.
+fprintf( '-----------------------------------------------------------\n\n' )
 
 
 %% Define Plotting Parameters.
@@ -746,8 +832,8 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % x2 vs x1 @ specific c1, c3, & delta (median of each fixed parameter).
 
 
-% U2 vs U1, where U2 is averaged over c1, c3, & delta (also add curve where U2 is minimized over the fixed parameters, and where U2 is maximized over the fixed parameters).
-% x2 vs x1, where U2 is averaged over c1, c3, & delta (also add curve where U2 is minimized over the fixed parameters, and where U2 is maximized over the fixed parameters).
+% U2 vs U1, where U2 is averaged over c1, c3, & delta (also add curve where U2 is minimized over the fixed params, and where U2 is maximized over the fixed params).
+% x2 vs x1, where U2 is averaged over c1, c3, & delta (also add curve where U2 is minimized over the fixed params, and where U2 is maximized over the fixed params).
 
 
 % U2 vs U1 & c1 @ specific c3 & delta (median of each fixed parameter).
@@ -759,13 +845,13 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % x2 vs x1 & delta @ specific c1 & c3 (median of each fixed parameter).
 
 
-% U2 vs U1 & c1, where U2 is averaged over c3 & delta (also add curve where U2 is minimized over the fixed parameters, and where U2 is maximized over the fixed parameters).
-% U2 vs U1 & c3, where U2 is averaged over c1 & delta (also add curve where U2 is minimized over the fixed parameters, and where U2 is maximized over the fixed parameters).
-% U2 vs U1 & delta, where U2 is averaged over c1 & c3 (also add curve where U2 is minimized over the fixed parameters, and where U2 is maximized over the fixed parameters).
+% U2 vs U1 & c1, where U2 is averaged over c3 & delta (also add curve where U2 is minimized over the fixed params, and where U2 is maximized over the fixed params).
+% U2 vs U1 & c3, where U2 is averaged over c1 & delta (also add curve where U2 is minimized over the fixed params, and where U2 is maximized over the fixed params).
+% U2 vs U1 & delta, where U2 is averaged over c1 & c3 (also add curve where U2 is minimized over the fixed params, and where U2 is maximized over the fixed params).
 
-% x2 vs x1 & c1, where x2 is averaged over c3 & delta (also add curve where x2 is minimized over the fixed parameters, and where x2 is maximized over the fixed parameters).
-% x2 vs x1 & c3, where x2 is averaged over c1 & delta (also add curve where x2 is minimized over the fixed parameters, and where x2 is maximized over the fixed parameters).
-% x2 vs x1 & delta, where x2 is averaged over c1 & c3 (also add curve where x2 is minimized over the fixed parameters, and where x2 is maximized over the fixed parameters).
+% x2 vs x1 & c1, where x2 is averaged over c3 & delta (also add curve where x2 is minimized over the fixed params, and where x2 is maximized over the fixed params).
+% x2 vs x1 & c3, where x2 is averaged over c1 & delta (also add curve where x2 is minimized over the fixed params, and where x2 is maximized over the fixed params).
+% x2 vs x1 & delta, where x2 is averaged over c1 & c3 (also add curve where x2 is minimized over the fixed params, and where x2 is maximized over the fixed params).
 
 
 % ---------- Error Plots ----------
@@ -774,8 +860,8 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % E vs x1 @ specific c1, c3, & delta (median of each fixed parameter).
 
 
-% E vs U1, where E is averaged over c1, c3, & delta (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
-% E vs x1, where E is averaged over c1, c3, & delta (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
+% E vs U1, where E is averaged over c1, c3, & delta (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
+% E vs x1, where E is averaged over c1, c3, & delta (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
 
 
 % E vs U1 & c1 @ specific c3 & delta (median of each fixed parameter).
@@ -787,13 +873,13 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % E vs x1 & delta @ specific c1 & c3 (median of each fixed parameter).
 
 
-% E vs U1 & c1, where E is averaged over c3 & delta (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
-% E vs U1 & c3, where E is averaged over c1 & delta (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
-% E vs U1 & delta, where E is averaged over c1 & c3 (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
+% E vs U1 & c1, where E is averaged over c3 & delta (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
+% E vs U1 & c3, where E is averaged over c1 & delta (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
+% E vs U1 & delta, where E is averaged over c1 & c3 (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
 
-% E vs x1 & c1, where E is averaged over c3 & delta (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
-% E vs x1 & c3, where E is averaged over c1 & delta (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
-% E vs x1 & delta, where E is averaged over c1 & c3 (also add curve where E is minimized over the fixed parameters, and where E is maximized over the fixed parameters).
+% E vs x1 & c1, where E is averaged over c3 & delta (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
+% E vs x1 & c3, where E is averaged over c1 & delta (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
+% E vs x1 & delta, where E is averaged over c1 & c3 (also add curve where E is minimized over the fixed params, and where E is maximized over the fixed params).
 
 
 % E vs c1 @ specific c3 & delta (median of each fixed parameter) where E is averaged over U1 (& E is minimized over U1 & E is maximized over U1).
@@ -812,8 +898,8 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % dE vs x1 @ specific c1, c3, & delta (median of each fixed parameter).
 
 
-% dE vs U1, where E is averaged over c1, c3, & delta (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
-% dE vs x1, where E is averaged over c1, c3, & delta (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
+% dE vs U1, where E is averaged over c1, c3, & delta (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
+% dE vs x1, where E is averaged over c1, c3, & delta (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
 
 
 % dE vs U1 & c1 @ specific c3 & delta (median of each fixed parameter).
@@ -825,13 +911,13 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % dE vs x1 & delta @ specific c1 & c3 (median of each fixed parameter).
 
 
-% dE vs U1 & c1, where dE is averaged over c3 & delta (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
-% dE vs U1 & c3, where dE is averaged over c1 & delta (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
-% dE vs U1 & delta, where dE is averaged over c1 & c3 (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
+% dE vs U1 & c1, where dE is averaged over c3 & delta (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
+% dE vs U1 & c3, where dE is averaged over c1 & delta (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
+% dE vs U1 & delta, where dE is averaged over c1 & c3 (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
 
-% dE vs x1 & c1, where dE is averaged over c3 & delta (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
-% dE vs x1 & c3, where dE is averaged over c1 & delta (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
-% dE vs x1 & delta, where dE is averaged over c1 & c3 (also add curve where dE is minimized over the fixed parameters, and where dE is maximized over the fixed parameters).
+% dE vs x1 & c1, where dE is averaged over c3 & delta (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
+% dE vs x1 & c3, where dE is averaged over c1 & delta (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
+% dE vs x1 & delta, where dE is averaged over c1 & c3 (also add curve where dE is minimized over the fixed params, and where dE is maximized over the fixed params).
 
 
 % dE vs c1 @ specific c3 & delta (median of each fixed parameter) where dE is averaged over U1 (& dE is minimized over U1 & dE is maximized over U1).
@@ -850,8 +936,8 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % |dE| vs x1 @ specific c1, c3, & delta (median of each fixed parameter).
 
 
-% |dE| vs U1, where E is averaged over c1, c3, & delta (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
-% |dE| vs x1, where E is averaged over c1, c3, & delta (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
+% |dE| vs U1, where E is averaged over c1, c3, & delta (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
+% |dE| vs x1, where E is averaged over c1, c3, & delta (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
 
 
 % |dE| vs U1 & c1 @ specific c3 & delta (median of each fixed parameter).
@@ -863,13 +949,13 @@ color2 = [ 0.8500, 0.3250, 0.0980, 1.0000 ];
 % |dE| vs x1 & delta @ specific c1 & c3 (median of each fixed parameter).
 
 
-% |dE| vs U1 & c1, where |dE| is averaged over c3 & delta (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
-% |dE| vs U1 & c3, where |dE| is averaged over c1 & delta (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
-% |dE| vs U1 & delta, where |dE| is averaged over c1 & c3 (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
+% |dE| vs U1 & c1, where |dE| is averaged over c3 & delta (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
+% |dE| vs U1 & c3, where |dE| is averaged over c1 & delta (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
+% |dE| vs U1 & delta, where |dE| is averaged over c1 & c3 (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
 
-% |dE| vs x1 & c1, where |dE| is averaged over c3 & delta (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
-% |dE| vs x1 & c3, where |dE| is averaged over c1 & delta (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
-% |dE| vs x1 & delta, where |dE| is averaged over c1 & c3 (also add curve where |dE| is minimized over the fixed parameters, and where |dE| is maximized over the fixed parameters).
+% |dE| vs x1 & c1, where |dE| is averaged over c3 & delta (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
+% |dE| vs x1 & c3, where |dE| is averaged over c1 & delta (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
+% |dE| vs x1 & delta, where |dE| is averaged over c1 & c3 (also add curve where |dE| is minimized over the fixed params, and where |dE| is maximized over the fixed params).
 
 
 % |dE| vs c1 @ specific c3 & delta (median of each fixed parameter) where |dE| is averaged over U1 (& |dE| is minimized over U1 & |dE| is maximized over U1).
