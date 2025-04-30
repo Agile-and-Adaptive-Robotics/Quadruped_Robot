@@ -60,29 +60,29 @@ n_gains = 10;
 c_min = 1;
 c_max = 8;
 
-% Define the transmission subnetwork parameters.
+% Define the transmission subnetwork params.
 cs = linspace( c_min, c_max, n_gains );                                            % [-] Subnetwork Gain.
 
 
 %% Define the Constant Transmission Subnetwork Parameters.
 
-% Define the subnetwork formulation parameters (shared by both encoding schemes).
+% Define the subnetwork formulation params (shared by both encoding schemes).
 x1_max = 20e-3;
 
-% Define the transmission subnetwork design parameters.
+% Define the transmission subnetwork design params.
 Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
 Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters in a cell.
-absolute_transmission_input_parameters.x1_max = x1_max;
-absolute_transmission_input_parameters.Gm1 = Gm1_absolute;
-absolute_transmission_input_parameters.Gm2 = Gm2_absolute;
-absolute_transmission_input_parameters.Cm1 = Cm1_absolute;
-absolute_transmission_input_parameters.Cm2 = Cm2_absolute;
+% Store the transmission subnetwork design params in a cell.
+absolute_transmission_input_params.x1_max = x1_max;
+absolute_transmission_input_params.Gm1 = Gm1_absolute;
+absolute_transmission_input_params.Gm2 = Gm2_absolute;
+absolute_transmission_input_params.Cm1 = Cm1_absolute;
+absolute_transmission_input_params.Cm2 = Cm2_absolute;
 
-% Define the transmission subnetwork design parameters.
+% Define the transmission subnetwork design params.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -90,14 +90,14 @@ Gm2_relative = 1e-6;                                         % [S] Membrane Cond
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design parameters in a cell.
-relative_transmission_input_parameters.x1_max = x1_max;
-relative_transmission_input_parameters.R1 = R1_relative;
-relative_transmission_input_parameters.R2 = R2_relative;
-relative_transmission_input_parameters.Gm1 = Gm1_relative;
-relative_transmission_input_parameters.Gm2 = Gm2_relative;
-relative_transmission_input_parameters.Cm1 = Cm1_relative;
-relative_transmission_input_parameters.Cm2 = Cm2_relative;
+% Store the transmission subnetwork design params in a cell.
+relative_transmission_input_params.x1_max = x1_max;
+relative_transmission_input_params.R1 = R1_relative;
+relative_transmission_input_params.R2 = R2_relative;
+relative_transmission_input_params.Gm1 = Gm1_relative;
+relative_transmission_input_params.Gm2 = Gm2_relative;
+relative_transmission_input_params.Cm1 = Cm1_relative;
+relative_transmission_input_params.Cm2 = Cm2_relative;
 
 
 %% Define the Encoding & Decoding Operations.
@@ -353,7 +353,7 @@ dts_max_relative = zeros( n_gains, 1 );
 condition_numbers_max_absolute = zeros( n_gains, 1 );
 condition_numbers_max_relative = zeros( n_gains, 1 );
 
-% Create arrays to store the network parameters.
+% Create arrays to store the network params.
 x2maxs_absolute = zeros( n_gains, 1 );
 R1s_absolute = zeros( n_gains, 1 );
 R2s_absolute = zeros( n_gains, 1 );
@@ -376,12 +376,12 @@ for k = 1:n_gains               % Iterate through each of the gains...
     
     %% Define the Variable Transmission Subnetwork Parameters.
 
-    % Define the subnetwork formulation parameters (shared by both encoding schemes).
+    % Define the subnetwork formulation params (shared by both encoding schemes).
     c = cs( k );
 
     % Store the transmission subnetwork gain.
-    absolute_transmission_input_parameters.c = c;
-    relative_transmission_input_parameters.c = c;
+    absolute_transmission_input_params.c = c;
+    relative_transmission_input_params.c = c;
     
     
     %% Define the Absolute & Relative Transmission Subnetwork Input Currents.
@@ -410,12 +410,12 @@ for k = 1:n_gains               % Iterate through each of the gains...
     network_relative = network_class( network_dt, network_tf );
     
     % Create a transmission subnetwork.
-    [ absolute_transmission_output_parameters, neurons_absolute, synapses_absolute, neuron_manager_absolute, synapse_manager_absolute, network_absolute ] = network_absolute.create_transmission_subnetwork( absolute_transmission_input_parameters, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
-    [ relative_transmission_output_parameters, neurons_relative, synapses_relative, neuron_manager_relative, synapse_manager_relative, network_relative ] = network_relative.create_transmission_subnetwork( relative_transmission_input_parameters, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
+    [ absolute_transmission_output_params, neurons_absolute, synapses_absolute, neuron_manager_absolute, synapse_manager_absolute, network_absolute ] = network_absolute.create_transmission_subnetwork( absolute_transmission_input_params, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
+    [ relative_transmission_output_params, neurons_relative, synapses_relative, neuron_manager_relative, synapse_manager_relative, network_relative ] = network_relative.create_transmission_subnetwork( relative_transmission_input_params, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
 
-    % Unpack the transmission subnetwork output parameters.
-    [ x2maxs_absolute( k ), R1s_absolute( k ), R2s_absolute( k ), Gna1s_absolute( k ), Gna2s_absolute( k ), dEs21s_absolute( k ), gs21s_absolute( k ), Ia2s_absolute( k ) ] = network_absolute.unpack_absolute_transmission_output_parameters( absolute_transmission_output_parameters, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
-    [ x2maxs_relative( k ), Gna1s_relative( k ), Gna2s_relative( k ), dEs21s_relative( k ), gs21s_relative( k ), Ia2s_relative( k ) ] = network_relative.unpack_relative_transmission_output_parameters( relative_transmission_output_parameters, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );    
+    % Unpack the transmission subnetwork output params.
+    [ x2maxs_absolute( k ), R1s_absolute( k ), R2s_absolute( k ), Gna1s_absolute( k ), Gna2s_absolute( k ), dEs21s_absolute( k ), gs21s_absolute( k ), Ia2s_absolute( k ) ] = network_absolute.unpack_absolute_transmission_output_params( absolute_transmission_output_params, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+    [ x2maxs_relative( k ), Gna1s_relative( k ), Gna2s_relative( k ), dEs21s_relative( k ), gs21s_relative( k ), Ia2s_relative( k ) ] = network_relative.unpack_relative_transmission_output_params( relative_transmission_output_params, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );    
 
     % Create the input applied current.
     [ ~, ~, ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.create_applied_current( input_current_ID_absolute, input_current_name_absolute, input_current_to_neuron_ID_absolute, ts, Ias1_absolute, true, network_absolute.applied_current_manager.applied_currents, true, false, network_absolute.applied_current_manager.array_utilities );
@@ -638,9 +638,9 @@ for k = 1:n_gains               % Iterate through each of the gains...
     % Define the stability analysis timestep seed.
     dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
     
-    % Retrieve the properties necessary to compute the numerical stability parameters for an absolute and relative transmission subnetwork.
-    [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_parameters( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
-    [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_parameters( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
+    % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
+    [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, as_matrix_flag, undetected_option );
+    [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, as_matrix_flag, undetected_option );
     
     % Compute the realtive transmission steady state output.
     [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_transmission_RK4_stability_analysis( Us_desired_absolute( :, 1 ), Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
