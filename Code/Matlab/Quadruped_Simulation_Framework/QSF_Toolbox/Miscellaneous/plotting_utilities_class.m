@@ -133,6 +133,53 @@ classdef plotting_utilities_class
         end
         
         
+        % Implement a function to create a surface plot of the steady state response of a subnetwork for a specific encoding scheme and gain.
+        function fig = surf_steady_state_response( ~, Xs, Ys, Zs_desired, Zs_theoretical, Zs_numerical, scale, viewing_angle, subnetwork_name, encoding_scheme, encoded_string, variable_strings, units, title_tag, save_flag, save_directory, save_tag  )
+            
+            % Set the default input arguments.
+            if nargin < 17, save_tag = ''; end
+            if nargin < 16, save_directory = './'; end
+            if nargin < 15, save_flag = true; end
+            if nargin < 14, title_tag = ''; end
+            if nargin < 13, units = { '-', 'mV', 'mV' }; end
+            if nargin < 12, variable_strings = { 'c1', 'U1', 'U2' }; end
+            if nargin < 11, encoded_string = 'Encoded'; end
+            if nargin < 10, encoding_scheme = 'Absolute'; end
+            if nargin < 9, subnetwork_name = 'Transmission'; end
+            if nargin < 8, viewing_angle = [ 145, 15 ]; end
+            if nargin < 7, scale = 1; end
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s %s: %s Steady State Response %s', encoding_scheme, subnetwork_name, encoded_string, title_tag );
+            xlabel_string = sprintf( 'Gain, %s [%s]', variable_strings{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variable_strings{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variable_strings{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
+            
+            % Plot the desired, theoretical, and numerical responses.
+            surf( Xs, scale*Ys, scale*Zs_desired, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+            surf( Xs, scale*Ys, scale*Zs_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( Xs, scale*Ys, scale*Zs_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+            
+            % Add a legend to the figure.
+            legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_%s_ssr_%s.png', lower( encoding_scheme ), lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
         % Implement a function to plot the steady state response of a subnetwork for a specific encoding scheme and gain, including upper and lower boundaries.
         function fig = plot_steady_state_response_patch( self, xs, ys_mean, ys_min, ys_max, color, scale, subnetwork_name, encoding_scheme, encoded_string, input_variable_string, output_variable_string, unit, save_flag, save_directory, save_tag )
             
@@ -255,6 +302,61 @@ classdef plotting_utilities_class
             end
             
         end
+        
+        
+        % Implement a function to create a surface plot of the steady state reponse of a subnetwork for a specific gain.
+        function fig = surf_steady_state_response_comparison( ~, Xs_absolute, Ys_absolute, Zs_desired_absolute, Zs_theoretical_absolute, Zs_numerical_absolute, Xs_relative, Ys_relative, Zs_desired_relative, Zs_theoretical_relative, Zs_numerical_relative, scale, viewing_angle, subnetwork_name, encoded_string, variable_strings, units, title_tag, save_flag, save_directory, save_tag  )
+            
+            % Set the default input arguments.
+            if nargin < 21, save_tag = ''; end
+            if nargin < 20, save_directory = './'; end
+            if nargin < 19, save_flag = true; end
+            if nargin < 18, title_tag = ''; end
+            if nargin < 17, units = { '-', 'mV', 'mV' }; end
+            if nargin < 16, variable_strings = { 'c1', 'U1', 'U2' }; end
+            if nargin < 15, encoded_string = 'Encoded'; end
+            if nargin < 14, subnetwork_name = 'Transmission'; end
+            if nargin < 13, viewing_angle = [ 145, 15 ]; end
+            if nargin < 12, scale = 1; end
+            
+            % Compute the figure labels.
+            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Response %s', subnetwork_name, encoded_string, title_tag );
+            subplot_title1 = sprintf( 'Absolute %s: %s Steady State Response %s', subnetwork_name, encoded_string, title_tag );
+            subplot_title2 = sprintf( 'Relative %s: %s Steady State Response %s', subnetwork_name, encoded_string, title_tag );
+            xlabel_string = sprintf( 'Gain, %s [%s]', variable_strings{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variable_strings{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variable_strings{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Plot the absolute desired, theoretical, and numerical steady state response.
+            subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title1 )            
+            surf( Xs_absolute, scale*Ys_absolute, scale*Zs_desired_absolute, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+            surf( Xs_absolute, scale*Ys_absolute, scale*Zs_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( Xs_absolute, scale*Ys_absolute, scale*Zs_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )            
+            legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
+            % Plot the relative desired, theoretical, and numerical steady state response.
+            subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title2 )            
+            surf( Xs_relative, scale*Ys_relative, scale*Zs_desired_relative, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+            surf( Xs_relative, scale*Ys_relative, scale*Zs_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( Xs_relative, scale*Ys_relative, scale*Zs_numerical_relative, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )            
+            legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_ssr_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
         
         
         % Implement a function to plot the steady state response of a subnetwork for a specific gain, including upper and lower boundaries.

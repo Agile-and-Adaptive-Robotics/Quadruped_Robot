@@ -1294,35 +1294,13 @@ fig_ssr_patch = plotting_utilities.plot_steady_state_response_patch_full_compari
 %% Plot the Encoded Steady State Behavior for Median Formulation Parameters (Variable c1).
 
 % Plot the encoded absolute steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Absolute Encoded Steady State Response (c1 Median)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_theoretical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_numerical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_absolute_encoded_ss_response_median_c1' ] ) 
+fig_absolute_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Absolute', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 % Plot the encoded relative steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Relative Encoded Steady State Response (c1 Median)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_theoretical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_numerical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_relative_encoded_ss_response_median_c1' ] ) 
+fig_relative_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Relative', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 % Plot the encoded steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Encoded Steady State Response (c1 Median)' );
-subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_theoretical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_numerical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_theoretical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_numerical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_encoded_ss_response_median_c1' ] )
+fig_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot the Decoded Steady State Behavior for Median Formulation Parameters (Variable c1).
