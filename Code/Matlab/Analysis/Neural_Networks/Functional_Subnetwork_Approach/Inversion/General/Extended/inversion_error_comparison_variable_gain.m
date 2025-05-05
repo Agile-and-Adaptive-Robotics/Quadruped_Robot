@@ -949,13 +949,13 @@ Us_theoretical_relative_output_median_c1 = Us_theoretical_relative_output( :, :,
 Us_numerical_relative_output_median_c1 = Us_numerical_relative_output( :, :, c3s_median_index, deltas_median_index );
 
 % Retrieve the decoded steady state outputs associated with the median formulation parameter simulations (variable c1).
-xs_desired_absolute_output_median_c1 = Xs_desired_absolute_output( :, :, c3s_median_index, deltas_median_index );
-xs_theoretical_absolute_output_median_c1 = Xs_theoretical_absolute_output( :, :, c3s_median_index, deltas_median_index );
-xs_numerical_absolute_output_median_c1 = Xs_numerical_absolute_output( :, :, c3s_median_index, deltas_median_index );
+Xs_desired_absolute_output_median_c1 = Xs_desired_absolute_output( :, :, c3s_median_index, deltas_median_index );
+Xs_theoretical_absolute_output_median_c1 = Xs_theoretical_absolute_output( :, :, c3s_median_index, deltas_median_index );
+Xs_numerical_absolute_output_median_c1 = Xs_numerical_absolute_output( :, :, c3s_median_index, deltas_median_index );
 
-xs_desired_relative_output_median_c1 = Xs_desired_relative_output( :, :, c3s_median_index, deltas_median_index );
-xs_theoretical_relative_output_median_c1 = Xs_theoretical_relative_output( :, :, c3s_median_index, deltas_median_index );
-xs_numerical_relative_output_median_c1 = Xs_numerical_relative_output( :, :, c3s_median_index, deltas_median_index );
+Xs_desired_relative_output_median_c1 = Xs_desired_relative_output( :, :, c3s_median_index, deltas_median_index );
+Xs_theoretical_relative_output_median_c1 = Xs_theoretical_relative_output( :, :, c3s_median_index, deltas_median_index );
+Xs_numerical_relative_output_median_c1 = Xs_numerical_relative_output( :, :, c3s_median_index, deltas_median_index );
 
 
 % ---------- Mean Steady State Outputs (Variable c1) ----------
@@ -972,13 +972,13 @@ Us_theoretical_relative_output_mean_c1 = mean( Us_theoretical_relative_output, [
 Us_numerical_relative_output_mean_c1 = mean( Us_numerical_relative_output, [ 3, 4 ] );
 
 % Compute the average decoded steady state outputs associated with the formulation parameters.
-xs_desired_absolute_output_mean_c1 = mean( Xs_desired_absolute_output, [ 3, 4 ] );
-xs_theoretical_absolute_output_mean_c1 = mean( Xs_theoretical_absolute_output, [ 3, 4 ] );
-xs_numerical_absolute_output_mean_c1 = mean( Xs_numerical_absolute_output, [ 3, 4 ] );
+Xs_desired_absolute_output_mean_c1 = mean( Xs_desired_absolute_output, [ 3, 4 ] );
+Xs_theoretical_absolute_output_mean_c1 = mean( Xs_theoretical_absolute_output, [ 3, 4 ] );
+Xs_numerical_absolute_output_mean_c1 = mean( Xs_numerical_absolute_output, [ 3, 4 ] );
 
-xs_desired_relative_output_mean_c1 = mean( Xs_desired_relative_output, [ 3, 4 ] );
-xs_theoretical_relative_output_mean_c1 = mean( Xs_theoretical_relative_output, [ 3, 4 ] );
-xs_numerical_relative_output_mean_c1 = mean( Xs_numerical_relative_output, [ 3, 4 ] );
+Xs_desired_relative_output_mean_c1 = mean( Xs_desired_relative_output, [ 3, 4 ] );
+Xs_theoretical_relative_output_mean_c1 = mean( Xs_theoretical_relative_output, [ 3, 4 ] );
+Xs_numerical_relative_output_mean_c1 = mean( Xs_numerical_relative_output, [ 3, 4 ] );
 
 
 % ---------- Min Steady State Outputs (Variable c1) ----------
@@ -993,13 +993,13 @@ Us_theoretical_relative_output_min_c1 = min( Us_theoretical_relative_output, [  
 Us_numerical_relative_output_min_c1 = min( Us_numerical_relative_output, [  ], [ 3, 4 ] );
 
 % Compute the average decoded steady state outputs associated with the formulation parameters.
-xs_desired_absolute_output_min_c1 = min( Xs_desired_absolute_output, [  ], [ 3, 4 ] );
-xs_theoretical_absolute_output_min_c1 = min( Xs_theoretical_absolute_output, [  ], [ 3, 4 ] );
-xs_numerical_absolute_output_min_c1 = min( Xs_numerical_absolute_output, [  ], [ 3, 4 ] );
+Xs_desired_absolute_output_min_c1 = min( Xs_desired_absolute_output, [  ], [ 3, 4 ] );
+Xs_theoretical_absolute_output_min_c1 = min( Xs_theoretical_absolute_output, [  ], [ 3, 4 ] );
+Xs_numerical_absolute_output_min_c1 = min( Xs_numerical_absolute_output, [  ], [ 3, 4 ] );
 
-xs_desired_relative_output_min_c1 = min( Xs_desired_relative_output, [  ], [ 3, 4 ] );
-xs_theoretical_relative_output_min_c1 = min( Xs_theoretical_relative_output, [  ], [ 3, 4 ] );
-xs_numerical_relative_output_min_c1 = min( Xs_numerical_relative_output, [  ], [ 3, 4 ] );
+Xs_desired_relative_output_min_c1 = min( Xs_desired_relative_output, [  ], [ 3, 4 ] );
+Xs_theoretical_relative_output_min_c1 = min( Xs_theoretical_relative_output, [  ], [ 3, 4 ] );
+Xs_numerical_relative_output_min_c1 = min( Xs_numerical_relative_output, [  ], [ 3, 4 ] );
 
 
 % ---------- Max Steady State Outputs (Variable c1) ----------
@@ -1014,13 +1014,13 @@ Us_theoretical_relative_output_max_c1 = max( Us_theoretical_relative_output, [  
 Us_numerical_relative_output_max_c1 = max( Us_numerical_relative_output, [  ], [ 3, 4 ] );
 
 % Compute the average decoded steady state outputs associated with the formulation parameters.
-xs_desired_absolute_output_max_c1 = max( Xs_desired_absolute_output, [  ], [ 3, 4 ] );
-xs_theoretical_absolute_output_max_c1 = max( Xs_theoretical_absolute_output, [  ], [ 3, 4 ] );
-xs_numerical_absolute_output_max_c1 = max( Xs_numerical_absolute_output, [  ], [ 3, 4 ] );
+Xs_desired_absolute_output_max_c1 = max( Xs_desired_absolute_output, [  ], [ 3, 4 ] );
+Xs_theoretical_absolute_output_max_c1 = max( Xs_theoretical_absolute_output, [  ], [ 3, 4 ] );
+Xs_numerical_absolute_output_max_c1 = max( Xs_numerical_absolute_output, [  ], [ 3, 4 ] );
 
-xs_desired_relative_output_max_c1 = max( Xs_desired_relative_output, [  ], [ 3, 4 ] );
-xs_theoretical_relative_output_max_c1 = max( Xs_theoretical_relative_output, [  ], [ 3, 4 ] );
-xs_numerical_relative_output_max_c1 = max( Xs_numerical_relative_output, [  ], [ 3, 4 ] );
+Xs_desired_relative_output_max_c1 = max( Xs_desired_relative_output, [  ], [ 3, 4 ] );
+Xs_theoretical_relative_output_max_c1 = max( Xs_theoretical_relative_output, [  ], [ 3, 4 ] );
+Xs_numerical_relative_output_max_c1 = max( Xs_numerical_relative_output, [  ], [ 3, 4 ] );
 
 
 % ---------- Median Steady State Outputs (Variable c3) ----------
@@ -1037,13 +1037,13 @@ Us_theoretical_relative_output_median_c3 = squeeze( Us_theoretical_relative_outp
 Us_numerical_relative_output_median_c3 = squeeze( Us_numerical_relative_output( :, c1s_median_index, :, deltas_median_index ) );
 
 % Retrieve the decoded steady state outputs associated with the median formulation parameter simulations (variable c3).
-xs_desired_absolute_output_median_c3 = squeeze( Xs_desired_absolute_output( :, c1s_median_index, :, deltas_median_index ) );
-xs_theoretical_absolute_output_median_c3 = squeeze( Xs_theoretical_absolute_output( :, c1s_median_index, :, deltas_median_index ) );
-xs_numerical_absolute_output_median_c3 = squeeze( Xs_numerical_absolute_output( :, c1s_median_index, :, deltas_median_index ) );
+Xs_desired_absolute_output_median_c3 = squeeze( Xs_desired_absolute_output( :, c1s_median_index, :, deltas_median_index ) );
+Xs_theoretical_absolute_output_median_c3 = squeeze( Xs_theoretical_absolute_output( :, c1s_median_index, :, deltas_median_index ) );
+Xs_numerical_absolute_output_median_c3 = squeeze( Xs_numerical_absolute_output( :, c1s_median_index, :, deltas_median_index ) );
 
-xs_desired_relative_output_median_c3 = squeeze( Xs_desired_relative_output( :, c1s_median_index, :, deltas_median_index ) );
-xs_theoretical_relative_output_median_c3 = squeeze( Xs_theoretical_relative_output( :, c1s_median_index, :, deltas_median_index ) );
-xs_numerical_relative_output_median_c3 = squeeze( Xs_numerical_relative_output( :, c1s_median_index, :, deltas_median_index ) );
+Xs_desired_relative_output_median_c3 = squeeze( Xs_desired_relative_output( :, c1s_median_index, :, deltas_median_index ) );
+Xs_theoretical_relative_output_median_c3 = squeeze( Xs_theoretical_relative_output( :, c1s_median_index, :, deltas_median_index ) );
+Xs_numerical_relative_output_median_c3 = squeeze( Xs_numerical_relative_output( :, c1s_median_index, :, deltas_median_index ) );
 
 
 
@@ -1300,226 +1300,125 @@ fig_absolute_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_respon
 fig_relative_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Relative', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 % Plot the encoded steady state behavior for the median formulation parameters (variable c1).
-fig_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+fig_encoded_ssr_median_c1_compact = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
+fig_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot the Decoded Steady State Behavior for Median Formulation Parameters (Variable c1).
 
 % Plot the decoded absolute steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Absolute Decoded Steady State Response (c1 Median)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Absolute Decoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_theoretical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_numerical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_absolute_decoded_ss_response_median_c1' ] ) 
+fig_absolute_decoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Absolute', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 % Plot the decoded relative steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Relative Decoded Steady State Response (c1 Median)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Relative Decoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_theoretical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_numerical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_relative_decoded_ss_response_median_c1' ] )
+fig_relative_decoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, scale, [ 145, 15 ], 'Inversion', 'Relative', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 % Plot the decoded steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Decoded Steady State Response (c1 Median)' );
-subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Absolute Decoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_theoretical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_numerical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Relative Decoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_theoretical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_numerical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_decoded_ss_response_median_c1' ] )
+fig_decoded_ssr_median_c1_compact = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
+fig_decoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot the Steady State Behavior for Median Formulation Parameters (Variable c1).
 
 % Plot the steady state behavior for the median formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Steady State Response (c1 Median)' );
-subplot( 2, 2, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_theoretical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_numerical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-subplot( 2, 2, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_theoretical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_numerical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-subplot( 2, 2, 3 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Absolute Decoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_theoretical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_numerical_absolute_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-subplot( 2, 2, 4 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Relative Decoded Steady State Response (c1 Median)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_theoretical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_numerical_relative_output_median_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'inversion_ss_response_median_c1' ] )
+fig_ssr_median_c1_compact = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, scale, [ 145, 15 ], 'Inversion', { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
+fig_ssr_median_c1 = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, scale, [ 145, 15 ], 'Inversion', { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot a Summary of the Encoded Steady State Behavior Over the Formulation Parameters (Variable c1).
 
-% Create the patch data.
-xs_patch_xlower = c1s( 1 )*ones( 2*n_input_signals, 1 );
-xs_patch_xupper = c1s( end )*ones( 2*n_input_signals, 1 );
-xs_patch_ylower = [ c1s, fliplr( c1s ) ]';
-xs_patch_yupper = [ c1s, fliplr( c1s ) ]';
-xs_patch_zlower = [ c1s( 1 )*ones( n_input_signals, 1 ); c1s'; c1s( end )*ones( n_input_signals, 1 ); flipud( c1s' ) ];
-xs_patch_zupper = [ c1s( 1 )*ones( n_input_signals, 1 ); c1s'; c1s( end )*ones( n_input_signals, 1 ); flipud( c1s' ) ];
-
-ys_patch_xlower_encoded = [ Us_numerical_input; flipud( Us_numerical_input ) ];
-ys_patch_xupper_encoded = [ Us_numerical_input; flipud( Us_numerical_input ) ];
-ys_patch_ylower_encoded = Us_numerical_input( 1 )*ones( 2*num_c1s, 1 );
-ys_patch_yupper_encoded = Us_numerical_input( end )*ones( 2*num_c1s, 1 );
-ys_patch_zlower_encoded = [ Us_numerical_input; Us_numerical_input( end )*ones( num_c1s, 1 ); flipud( Us_numerical_input ); Us_numerical_input( 1 )*ones( num_c1s, 1 ) ];
-ys_patch_zupper_encoded = [ Us_numerical_input; Us_numerical_input( end )*ones( num_c1s, 1 ); flipud( Us_numerical_input ); Us_numerical_input( 1 )*ones( num_c1s, 1 ) ];
-
-zs_patch_xlower_encoded_absolute = [ Us_desired_absolute_output_max_c1( :, 1 ); flipud( Us_desired_absolute_output_min_c1( :, 1 ) ) ];
-zs_patch_xupper_encoded_absolute = [ Us_desired_absolute_output_max_c1( :, end ); flipud( Us_desired_absolute_output_min_c1( :, end ) ) ];
-zs_patch_ylower_encoded_absolute = [ Us_desired_absolute_output_max_c1( 1, : ), fliplr( Us_desired_absolute_output_min_c1( 1, : ) ) ]';
-zs_patch_yupper_encoded_absolute = [ Us_desired_absolute_output_max_c1( end, : ), fliplr( Us_desired_absolute_output_min_c1( end, : ) ) ]';
-zs_patch_zlower_encoded_absolute = [ Us_desired_absolute_output_max_c1( :, 1 ); Us_desired_absolute_output_max_c1( end, : )'; flipud( Us_desired_absolute_output_max_c1( :, end ) ); flipud( Us_desired_absolute_output_max_c1( 1, : )' ) ];
-zs_patch_zupper_encoded_absolute = [ Us_desired_absolute_output_min_c1( :, 1 ); Us_desired_absolute_output_min_c1( end, : )'; flipud( Us_desired_absolute_output_min_c1( :, end ) ); flipud( Us_desired_absolute_output_min_c1( 1, : )' ) ];
-
-zs_patch_xlower_encoded_relative = [ Us_desired_relative_output_max_c1( :, 1 ); flipud( Us_desired_relative_output_min_c1( :, 1 ) ) ];
-zs_patch_xupper_encoded_relative = [ Us_desired_relative_output_max_c1( :, end ); flipud( Us_desired_relative_output_min_c1( :, end ) ) ];
-zs_patch_ylower_encoded_relative = [ Us_desired_relative_output_max_c1( 1, : ), fliplr( Us_desired_relative_output_min_c1( 1, : ) ) ]';
-zs_patch_yupper_encoded_relative = [ Us_desired_relative_output_max_c1( end, : ), fliplr( Us_desired_relative_output_min_c1( end, : ) ) ]';
-zs_patch_zlower_encoded_relative = [ Us_desired_relative_output_max_c1( :, 1 ); Us_desired_relative_output_max_c1( end, : )'; flipud( Us_desired_relative_output_max_c1( :, end ) ); flipud( Us_desired_relative_output_max_c1( 1, : )' ) ];
-zs_patch_zupper_encoded_relative = [ Us_desired_relative_output_min_c1( :, 1 ); Us_desired_relative_output_min_c1( end, : )'; flipud( Us_desired_relative_output_min_c1( :, end ) ); flipud( Us_desired_relative_output_min_c1( 1, : )' ) ];
-
 % Plot a summary of the absolute encoded steady state behavior over the formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
-% surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_min_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_max_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_encoded, scale*zs_patch_xlower_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_encoded, scale*zs_patch_xupper_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_encoded, scale*zs_patch_ylower_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_encoded, scale*zs_patch_yupper_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_encoded, scale*zs_patch_zlower_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_encoded, scale*zs_patch_zupper_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-saveas( fig, [ save_directory, '\', 'inversion_absolute_encoded_ss_response_summary_c1' ] ) 
+fig_absolute_encoded_srr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Us_input_c1, Us_desired_absolute_output_mean_c1, Us_desired_absolute_output_min_c1, Us_desired_absolute_output_max_c1, color1, scale, [ 145, 15 ], 'Inversion', 'Absolute', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 
 % Plot a summary of the relative encoded steady state behavior over the formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Relative Encoded Steady State Response (c1 Summary)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
-% surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_min_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_max_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_encoded, scale*zs_patch_xlower_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_encoded, scale*zs_patch_xupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_encoded, scale*zs_patch_ylower_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_encoded, scale*zs_patch_yupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_encoded, scale*zs_patch_zlower_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_encoded, scale*zs_patch_zupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-saveas( fig, [ save_directory, '\', 'inversion_relative_encoded_ss_response_summary_c1' ] )
+fig_relative_encoded_srr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Us_input_c1, Us_desired_relative_output_mean_c1, Us_desired_relative_output_min_c1, Us_desired_relative_output_max_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Relative', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 
 % Plot a summary of the encoded steady state behavior over the fomrualtion aprameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Encoded Steady State Response (c1 Summary)' );
-subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_encoded, scale*zs_patch_xlower_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_encoded, scale*zs_patch_xupper_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_encoded, scale*zs_patch_ylower_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_encoded, scale*zs_patch_yupper_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_encoded, scale*zs_patch_zlower_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_encoded, scale*zs_patch_zupper_encoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-
-subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
-surf( C1s_input, scale*Us_input_c1, scale*Us_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_encoded, scale*zs_patch_xlower_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_encoded, scale*zs_patch_xupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_encoded, scale*zs_patch_ylower_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_encoded, scale*zs_patch_yupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_encoded, scale*zs_patch_zlower_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_encoded, scale*zs_patch_zupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-saveas( fig, [ save_directory, '\', 'inversion_encoded_ss_response_summary_c1' ] )
+fig_encoded_srr_summary_c1_compact = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_mean_c1, Us_desired_absolute_output_min_c1, Us_desired_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_mean_c1, Us_desired_relative_output_min_c1, Us_desired_relative_output_max_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
+fig_encoded_srr_summary_c1 = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_mean_c1, Us_desired_absolute_output_min_c1, Us_desired_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_mean_c1, Us_desired_relative_output_min_c1, Us_desired_relative_output_max_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
 
 
 %% Plot a Summary of the Decoded Steady State Behavior Over the Formulation Parameters (Variable c1).
 
-% Create the patch data.
-ys_patch_xlower_decoded = [ xs_numerical_input; flipud( xs_numerical_input ) ];
-ys_patch_xupper_decoded = [ xs_numerical_input; flipud( xs_numerical_input ) ];
-ys_patch_ylower_decoded = xs_numerical_input( 1 )*ones( 2*num_c1s, 1 );
-ys_patch_yupper_decoded = xs_numerical_input( end )*ones( 2*num_c1s, 1 );
-ys_patch_zlower_decoded = [ xs_numerical_input; xs_numerical_input( end )*ones( num_c1s, 1 ); flipud( xs_numerical_input ); xs_numerical_input( 1 )*ones( num_c1s, 1 ) ];
-ys_patch_zupper_decoded = [ xs_numerical_input; xs_numerical_input( end )*ones( num_c1s, 1 ); flipud( xs_numerical_input ); xs_numerical_input( 1 )*ones( num_c1s, 1 ) ];
-
-zs_patch_xlower_decoded_absolute = [ xs_desired_absolute_output_max_c1( :, 1 ); flipud( xs_desired_absolute_output_min_c1( :, 1 ) ) ];
-zs_patch_xupper_decoded_absolute = [ xs_desired_absolute_output_max_c1( :, end ); flipud( xs_desired_absolute_output_min_c1( :, end ) ) ];
-zs_patch_ylower_decoded_absolute = [ xs_desired_absolute_output_max_c1( 1, : ), fliplr( xs_desired_absolute_output_min_c1( 1, : ) ) ]';
-zs_patch_yupper_decoded_absolute = [ xs_desired_absolute_output_max_c1( end, : ), fliplr( xs_desired_absolute_output_min_c1( end, : ) ) ]';
-zs_patch_zlower_decoded_absolute = [ xs_desired_absolute_output_max_c1( :, 1 ); xs_desired_absolute_output_max_c1( end, : )'; flipud( xs_desired_absolute_output_max_c1( :, end ) ); flipud( xs_desired_absolute_output_max_c1( 1, : )' ) ];
-zs_patch_zupper_decoded_absolute = [ xs_desired_absolute_output_min_c1( :, 1 ); xs_desired_absolute_output_min_c1( end, : )'; flipud( xs_desired_absolute_output_min_c1( :, end ) ); flipud( xs_desired_absolute_output_min_c1( 1, : )' ) ];
-
-zs_patch_xlower_decoded_relative = [ xs_desired_relative_output_max_c1( :, 1 ); flipud( xs_desired_relative_output_min_c1( :, 1 ) ) ];
-zs_patch_xupper_decoded_relative = [ xs_desired_relative_output_max_c1( :, end ); flipud( xs_desired_relative_output_min_c1( :, end ) ) ];
-zs_patch_ylower_decoded_relative = [ xs_desired_relative_output_max_c1( 1, : ), fliplr( xs_desired_relative_output_min_c1( 1, : ) ) ]';
-zs_patch_yupper_decoded_relative = [ xs_desired_relative_output_max_c1( end, : ), fliplr( xs_desired_relative_output_min_c1( end, : ) ) ]';
-zs_patch_zlower_decoded_relative = [ xs_desired_relative_output_max_c1( :, 1 ); xs_desired_relative_output_max_c1( end, : )'; flipud( xs_desired_relative_output_max_c1( :, end ) ); flipud( xs_desired_relative_output_max_c1( 1, : )' ) ];
-zs_patch_zupper_decoded_relative = [ xs_desired_relative_output_min_c1( :, 1 ); xs_desired_relative_output_min_c1( end, : )'; flipud( xs_desired_relative_output_min_c1( :, end ) ); flipud( xs_desired_relative_output_min_c1( 1, : )' ) ];
+% % Create the patch data.
+% ys_patch_xlower_decoded = [ xs_numerical_input; flipud( xs_numerical_input ) ];
+% ys_patch_xupper_decoded = [ xs_numerical_input; flipud( xs_numerical_input ) ];
+% ys_patch_ylower_decoded = xs_numerical_input( 1 )*ones( 2*num_c1s, 1 );
+% ys_patch_yupper_decoded = xs_numerical_input( end )*ones( 2*num_c1s, 1 );
+% ys_patch_zlower_decoded = [ xs_numerical_input; xs_numerical_input( end )*ones( num_c1s, 1 ); flipud( xs_numerical_input ); xs_numerical_input( 1 )*ones( num_c1s, 1 ) ];
+% ys_patch_zupper_decoded = [ xs_numerical_input; xs_numerical_input( end )*ones( num_c1s, 1 ); flipud( xs_numerical_input ); xs_numerical_input( 1 )*ones( num_c1s, 1 ) ];
+% 
+% zs_patch_xlower_decoded_absolute = [ Xs_desired_absolute_output_max_c1( :, 1 ); flipud( Xs_desired_absolute_output_min_c1( :, 1 ) ) ];
+% zs_patch_xupper_decoded_absolute = [ Xs_desired_absolute_output_max_c1( :, end ); flipud( Xs_desired_absolute_output_min_c1( :, end ) ) ];
+% zs_patch_ylower_decoded_absolute = [ Xs_desired_absolute_output_max_c1( 1, : ), fliplr( Xs_desired_absolute_output_min_c1( 1, : ) ) ]';
+% zs_patch_yupper_decoded_absolute = [ Xs_desired_absolute_output_max_c1( end, : ), fliplr( Xs_desired_absolute_output_min_c1( end, : ) ) ]';
+% zs_patch_zlower_decoded_absolute = [ Xs_desired_absolute_output_max_c1( :, 1 ); Xs_desired_absolute_output_max_c1( end, : )'; flipud( Xs_desired_absolute_output_max_c1( :, end ) ); flipud( Xs_desired_absolute_output_max_c1( 1, : )' ) ];
+% zs_patch_zupper_decoded_absolute = [ Xs_desired_absolute_output_min_c1( :, 1 ); Xs_desired_absolute_output_min_c1( end, : )'; flipud( Xs_desired_absolute_output_min_c1( :, end ) ); flipud( Xs_desired_absolute_output_min_c1( 1, : )' ) ];
+% 
+% zs_patch_xlower_decoded_relative = [ Xs_desired_relative_output_max_c1( :, 1 ); flipud( Xs_desired_relative_output_min_c1( :, 1 ) ) ];
+% zs_patch_xupper_decoded_relative = [ Xs_desired_relative_output_max_c1( :, end ); flipud( Xs_desired_relative_output_min_c1( :, end ) ) ];
+% zs_patch_ylower_decoded_relative = [ Xs_desired_relative_output_max_c1( 1, : ), fliplr( Xs_desired_relative_output_min_c1( 1, : ) ) ]';
+% zs_patch_yupper_decoded_relative = [ Xs_desired_relative_output_max_c1( end, : ), fliplr( Xs_desired_relative_output_min_c1( end, : ) ) ]';
+% zs_patch_zlower_decoded_relative = [ Xs_desired_relative_output_max_c1( :, 1 ); Xs_desired_relative_output_max_c1( end, : )'; flipud( Xs_desired_relative_output_max_c1( :, end ) ); flipud( Xs_desired_relative_output_max_c1( 1, : )' ) ];
+% zs_patch_zupper_decoded_relative = [ Xs_desired_relative_output_min_c1( :, 1 ); Xs_desired_relative_output_min_c1( end, : )'; flipud( Xs_desired_relative_output_min_c1( :, end ) ); flipud( Xs_desired_relative_output_min_c1( 1, : )' ) ];
+% 
+% % Plot a summary of the absolute decoded steady state behavior over the formulation parameters (variable c1).
+% fig = figure( 'Color', 'w', 'Name', 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
+% % surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+% % surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_min_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+% % surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_max_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+% surf( C1s_input, scale*Xs_input_c1, scale*Xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
+% patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% saveas( fig, [ save_directory, '\', 'inversion_absolute_decoded_ss_response_summary_c1' ] ) 
+% 
+% % Plot a summary of the relative decoded steady state behavior over the formulation parameters (variable c1).
+% fig = figure( 'Color', 'w', 'Name', 'Inversion: Relative Encoded Steady State Response (c1 Summary)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
+% % surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+% % surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_min_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+% % surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_max_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+% surf( C1s_input, scale*Xs_input_c1, scale*Xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
+% patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% saveas( fig, [ save_directory, '\', 'inversion_relative_decoded_ss_response_summary_c1' ] )
+% 
+% % Plot a summary of the decoded steady state behavior over the fomrualtion aprameters (variable c1).
+% fig = figure( 'Color', 'w', 'Name', 'Inversion: Encoded Steady State Response (c1 Summary)' );
+% subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
+% surf( C1s_input, scale*Xs_input_c1, scale*Xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
+% patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% 
+% subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
+% surf( C1s_input, scale*Xs_input_c1, scale*Xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
+% patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+% saveas( fig, [ save_directory, '\', 'inversion_decoded_ss_response_summary_c1' ] )
 
 % Plot a summary of the absolute decoded steady state behavior over the formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
-% surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_min_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_max_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-saveas( fig, [ save_directory, '\', 'inversion_absolute_decoded_ss_response_summary_c1' ] ) 
+fig_absolute_decoded_srr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Xs_input_c1, Xs_desired_absolute_output_mean_c1, Xs_desired_absolute_output_min_c1, Xs_desired_absolute_output_max_c1, color1, scale, [ 145, 15 ], 'Inversion', 'Absolute', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 
 % Plot a summary of the relative decoded steady state behavior over the formulation parameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Relative Encoded Steady State Response (c1 Summary)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
-% surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_min_c1, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-% surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_max_c1, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-saveas( fig, [ save_directory, '\', 'inversion_relative_decoded_ss_response_summary_c1' ] )
+fig_relative_decoded_srr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Xs_input_c1, Xs_desired_relative_output_mean_c1, Xs_desired_relative_output_min_c1, Xs_desired_relative_output_max_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Relative', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 
 % Plot a summary of the decoded steady state behavior over the fomrualtion aprameters (variable c1).
-fig = figure( 'Color', 'w', 'Name', 'Inversion: Encoded Steady State Response (c1 Summary)' );
-subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-
-subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
-patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_yupper, scale*ys_patch_yupper_decoded, scale*zs_patch_yupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-saveas( fig, [ save_directory, '\', 'inversion_decoded_ss_response_summary_c1' ] )
+fig_decoded_srr_summary_c1_compact = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Xs_input_c1, Xs_desired_absolute_output_mean_c1, Xs_desired_absolute_output_min_c1, Xs_desired_absolute_output_max_c1, color1, C1s_input, Xs_input_c1, Xs_desired_relative_output_mean_c1, Xs_desired_relative_output_min_c1, Xs_desired_relative_output_max_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
+fig_decoded_srr_summary_c1 = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Xs_input_c1, Xs_desired_absolute_output_mean_c1, Xs_desired_absolute_output_min_c1, Xs_desired_absolute_output_max_c1, color1, C1s_input, Xs_input_c1, Xs_desired_relative_output_mean_c1, Xs_desired_relative_output_min_c1, Xs_desired_relative_output_max_c1, color2, scale, [ 145, 15 ], 'Inversion', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
 
 
 %% Plot a Summary of the Steady State Behavior Over the Formulation Parameters (Variable c1).
@@ -1545,7 +1444,7 @@ patch( xs_patch_zlower, scale*ys_patch_zlower_encoded, scale*zs_patch_zlower_enc
 patch( xs_patch_zupper, scale*ys_patch_zupper_encoded, scale*zs_patch_zupper_encoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
 
 subplot( 2, 2, 3 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Absolute Encoded Steady State Response (c1 Summary)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
+surf( C1s_input, scale*Xs_input_c1, scale*Xs_desired_absolute_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color1( 1:end - 1 ), 'Facealpha', 0.90 )
 patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
 patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
 patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
@@ -1554,7 +1453,7 @@ patch( xs_patch_zlower, scale*ys_patch_zlower_decoded, scale*zs_patch_zlower_dec
 patch( xs_patch_zupper, scale*ys_patch_zupper_decoded, scale*zs_patch_zupper_decoded_absolute, color1( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
 
 subplot( 2, 2, 4 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c1 [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Inversion: Relative Encoded Steady State Response (c1 Summary)' )
-surf( C1s_input, scale*Xs_input_c1, scale*xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
+surf( C1s_input, scale*Xs_input_c1, scale*Xs_desired_relative_output_mean_c1, 'Edgecolor', 'None', 'Facecolor', color2( 1:end - 1 ), 'Facealpha', 0.90 )
 patch( xs_patch_xlower, scale*ys_patch_xlower_decoded, scale*zs_patch_xlower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
 patch( xs_patch_xupper, scale*ys_patch_xupper_decoded, scale*zs_patch_xupper_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
 patch( xs_patch_ylower, scale*ys_patch_ylower_decoded, scale*zs_patch_ylower_decoded_relative, color2( 1:end - 1 ), 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
@@ -1602,32 +1501,32 @@ saveas( fig, [ save_directory, '\', 'inversion_encoded_ss_response_median_c3' ] 
 
 % Plot the decoded absolute steady state behavior for the median formulation parameters (variable c3).
 fig = figure( 'Color', 'w', 'Name', 'Inversion: Absolute Decoded Steady State Response (c3 Median)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c3 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Absolute Decoded Steady State Response (c3 Median)' )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_desired_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_theoretical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_numerical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_desired_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_theoretical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_numerical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'inversion_absolute_decoded_ss_response_median_c3' ] ) 
 
 % Plot the decoded relative steady state behavior for the median formulation parameters (variable c3).
 fig = figure( 'Color', 'w', 'Name', 'Inversion: Relative Decoded Steady State Response (c3 Median)' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c3 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Relative Decoded Steady State Response (c3 Median)' )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_desired_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_theoretical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_numerical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_desired_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_theoretical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_numerical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'inversion_relative_decoded_ss_response_median_c3' ] )
 
 % Plot the decoded steady state behavior for the median formulation parameters (variable c3).
 fig = figure( 'Color', 'w', 'Name', 'Inversion: Decoded Steady State Response (c3 Median)' );
 subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c3 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Absolute Decoded Steady State Response (c3 Median)' )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_desired_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_theoretical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_numerical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_desired_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_theoretical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_numerical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 
 subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c3 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Relative Decoded Steady State Response (c3 Median)' )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_desired_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_theoretical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_numerical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_desired_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_theoretical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_numerical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'inversion_decoded_ss_response_median_c3' ] )
 
@@ -1649,15 +1548,15 @@ surf( C1s_input, scale*Us_input_c3, scale*Us_numerical_relative_output_median_c3
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 
 subplot( 2, 2, 3 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c3 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Absolute Decoded Steady State Response (c3 Median)' )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_desired_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_theoretical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_numerical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_desired_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_theoretical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_numerical_absolute_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 
 subplot( 2, 2, 4 ), hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c3 [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Inversion: Relative Decoded Steady State Response (c3 Median)' )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_desired_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_theoretical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( C1s_input, scale*Xs_input_c3, scale*xs_numerical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_desired_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_theoretical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+surf( C1s_input, scale*Xs_input_c3, scale*Xs_numerical_relative_output_median_c3, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
 legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'inversion_ss_response_median_c3' ] )
 
