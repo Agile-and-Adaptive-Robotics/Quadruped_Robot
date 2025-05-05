@@ -160,6 +160,8 @@ classdef plotting_utilities_class
         end
                 
         
+        %% Steady State Response Plotting Functions.
+        
         % Implement a function to plot the steady state response of a subnetwork for a specific encoding scheme and gain.
         function fig = plot_steady_state_response( ~, xs, ys_desired, ys_theoretical, ys_numerical, scale, subnetwork_name, encoding_scheme, encoded_string, input_variable_string, output_variable_string, unit, save_flag, save_directory, save_tag )
             
@@ -1025,44 +1027,141 @@ classdef plotting_utilities_class
         
         
         % Implement a function to create a surface plot of the steady state response for a subnetwork that compares absolute & relative schemes before and after encoding/decoding, including upper and lower boundaries.
-        
-        
-        
-        % Implement a function to plot the steady state error of a subnetwork for a specific gain.
-        function fig = plot_steady_state_error_comparison( ~, xs_absolute, errors_theoretical_absolute, errors_numerical_absolute, color_absolute, xs_relative, errors_theoretical_relative, errors_numerical_relative, color_relative, scale, subnetwork_name, encoded_string, input_variable_string, output_variable_string, unit, save_flag, save_directory )
+        function fig = surf_steady_state_response_patch_full_comparison( self, Xs_absolute_encoded, Ys_absolute_encoded, Zs_absolute_encoded, Zs_lower_absolute_encoded, Zs_upper_absolute_encoded, Xs_absolute_decoded, Ys_absolute_decoded, Zs_absolute_decoded, Zs_lower_absolute_decoded, Zs_upper_absolute_decoded, color_absolute, Xs_relative_encoded, Ys_relative_encoded, Zs_relative_encoded, Zs_lower_relative_encoded, Zs_upper_relative_encoded, Xs_relative_decoded, Ys_relative_decoded, Zs_relative_decoded, Zs_lower_relative_decoded, Zs_upper_relative_decoded, color_relative, scale_encoded, scale_decoded, viewing_angle, subnetwork_name, variable_strings_encoded, variable_strings_decoded, units_encoded, units_decoded, title_tag, compact_flag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 17, save_directory = './'; end
-            if nargin < 16, save_flag = true; end
-            if nargin < 15, unit = 'mV'; end
-            if nargin < 14, output_variable_string = 'dU'; end
-            if nargin < 13, input_variable_string = 'U1'; end
-            if nargin < 12, encoded_string = 'Encoded'; end
-            if nargin < 11, subnetwork_name = 'Transmission'; end
-            if nargin < 10, scale = 1; end
+            if nargin < 36, save_tag = ''; end
+            if nargin < 35, save_directory = './'; end
+            if nargin < 34, save_flag = true; end
+            if nargin < 33, compact_flag = true; end
+            if nargin < 32, title_tag = '.'; end
+            if nargin < 31, units_decoded = '-'; end
+            if nargin < 30, units_encoded = 'mV'; end
+            if nargin < 29, variable_strings_decoded = 'x1'; end
+            if nargin < 28, variable_strings_encoded = 'U1'; end
+            if nargin < 27, subnetwork_name = 'Transmission'; end
+            if nargin < 26, viewing_angle = [ 145, 15 ]; end
+            if nargin < 25, scale_decoded = 1; end
+            if nargin < 24, scale_encoded = 1; end
             
-            % Compute the figure labels.
-            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error', subnetwork_name, encoded_string );
-            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, input_variable_string, unit );
-            ylabel_string = sprintf( '%s Error, %s [%s]', encoded_string, output_variable_string, unit );
+            % Generate the patch data.
+            [ ps_patch_xlower_absolute_encoded, ps_patch_xupper_absolute_encoded, ps_patch_ylower_absolute_encoded, ps_patch_yupper_absolute_encoded, ps_patch_zlower_absolute_encoded, ps_patch_zupper_absolute_encoded ] = self.generate_3D_patch_data( Xs_absolute_encoded, Ys_absolute_encoded, Zs_lower_absolute_encoded, Zs_upper_absolute_encoded );
+            [ ps_patch_xlower_absolute_decoded, ps_patch_xupper_absolute_decoded, ps_patch_ylower_absolute_decoded, ps_patch_yupper_absolute_decoded, ps_patch_zlower_absolute_decoded, ps_patch_zupper_absolute_decoded ] = self.generate_3D_patch_data( Xs_absolute_decoded, Ys_absolute_decoded, Zs_lower_absolute_decoded, Zs_upper_absolute_decoded );
+            [ ps_patch_xlower_relative_encoded, ps_patch_xupper_relative_encoded, ps_patch_ylower_relative_encoded, ps_patch_yupper_relative_encoded, ps_patch_zlower_relative_encoded, ps_patch_zupper_relative_encoded ] = self.generate_3D_patch_data( Xs_relative_encoded, Ys_relative_encoded, Zs_lower_relative_encoded, Zs_upper_relative_encoded );
+            [ ps_patch_xlower_relative_decoded, ps_patch_xupper_relative_decoded, ps_patch_ylower_relative_decoded, ps_patch_yupper_relative_decoded, ps_patch_zlower_relative_decoded, ps_patch_zupper_relative_decoded ] = self.generate_3D_patch_data( Xs_relative_decoded, Ys_relative_decoded, Zs_lower_relative_decoded, Zs_upper_relative_decoded );
+            
+            % Create the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: Encoded vs Decoded Steady State Response %s', subnetwork_name, title_tag );
 
-            % Create the figure.
-            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+            % Compute the figure labels.
+            xlabel_string_encoded = sprintf( 'Gain, %s [%s]', variable_strings_encoded{ 1 }, units_encoded{ 1 } );
+            ylabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variable_strings_encoded{ 2 }, units_encoded{ 2 } );
+            zlabel_string_encoded = sprintf( 'Encoded Output, %s [%s]', variable_strings_encoded{ 3 }, units_encoded{ 3 } );
+            xlabel_string_decoded = sprintf( 'Gain, %s [%s]', variable_strings_decoded{ 1 }, units_decoded{ 1 } );
+            ylabel_string_decoded = sprintf( 'Decoded Input, %s [%s]', variable_strings_decoded{ 2 }, units_decoded{ 2 } );
+            zlabel_string_decoded = sprintf( 'Decoded Output, %s [%s]', variable_strings_decoded{ 3 }, units_decoded{ 3 } );
             
-            % Plot the absolute and relative theoretical and numerical errors.
-            plot( scale*xs_absolute, scale*errors_theoretical_absolute, '-.', 'Color', color_absolute, 'Linewidth', 3 )
-            plot( scale*xs_absolute, scale*errors_numerical_absolute, '--', 'Color', color_absolute, 'Linewidth', 3 )
-            plot( scale*xs_relative, scale*errors_theoretical_relative, '-.', 'Color', color_relative, 'Linewidth', 3 )
-            plot( scale*xs_relative, scale*errors_numerical_relative, '--', 'Color', color_relative, 'Linewidth', 3 )
+            % Create a figure to store the data.
+            fig = figure( 'Color', 'w', 'Name', title_string );
             
-            % Add a legend to the figure.
-            legend( { 'Absolute Theoretical', 'Absolute Numerical', 'Relative Theoretical', 'Relative Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-            
+            % Determine whether to compare the absolute and relative encoding schemes on a single subplot or multiple.
+            if compact_flag                   % If we want to make multiple subplots...
+                
+                % Create the subplot titles.
+                subplot_title_encoded = sprintf( 'Absolute %s: Encoded Steady State Response', subnetwork_name );
+                subplot_title_decoded = sprintf( 'Relative %s: Decoded Steady State Response', subnetwork_name );
+
+                % Create the first subplot.
+                subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_encoded )            
+                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Zs_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Zs_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_relative_encoded( :, 1 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 2 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+                % Create the second subplot.
+                subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_decoded )            
+                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Zs_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Zs_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_relative_decoded( :, 1 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 2 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                                
+            else                                % Otherwise...
+                
+                % Create the subplot titles.
+                subplot_title_absolute_encoded = sprintf( 'Absolute %s: Encoded Steady State Response', subnetwork_name );
+                subplot_title_relative_encoded = sprintf( 'Relative %s: Encoded Steady State Response', subnetwork_name );
+                subplot_title_absolute_decoded = sprintf( 'Absolute %s: Decoded Steady State Response', subnetwork_name );
+                subplot_title_relative_decoded = sprintf( 'Relative %s: Decoded Steady State Response', subnetwork_name );
+
+                % Create the first subplot.
+                subplot( 2, 2, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_absolute_encoded )            
+                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Zs_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+                % Create the second subplot.
+                subplot( 2, 2, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_absolute_decoded )            
+                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Zs_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+                % Create the third subplot.
+                subplot( 2, 2, 3 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_relative_encoded )            
+                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Zs_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_relative_encoded( :, 1 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 2 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+                % Create the fourth subplot.
+                subplot( 2, 2, 4 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_relative_decoded )            
+                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Zs_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
+                patch( ps_patch_xlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_xupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_ylower_relative_decoded( :, 1 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 2 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_yupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                patch( ps_patch_zupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                
+            end
+                
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
                     
                 % Define the file name.
-                file_name = sprintf( '%s_%s_steady_state_error.png', lower( subnetwork_name ), lower( encoded_string ) );
+                file_name = sprintf( '%s_ssr_%s.png', lower( subnetwork_name ), save_tag );
                 
                 % Save the figure.
                 saveas( fig, [ save_directory, '\', file_name ] ) 
@@ -1072,6 +1171,751 @@ classdef plotting_utilities_class
         end
         
         
+        
+        %% Steady State Error Plotting Functions.
+        
+        % Implement a function to plot the steady state error of a subnetwork for a specific encoding scheme and gain.
+        function fig = plot_steady_state_error( ~, xs, es_theoretical, es_numerical, scale, subnetwork_name, encoding_scheme, encoded_string, variables_string, units_string, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 13, save_tag = ''; end
+            if nargin < 12, save_directory = './'; end
+            if nargin < 11, save_flag = true; end
+            if nargin < 10, units_string = { 'mV', 'mV' }; end
+            if nargin < 9, variables_string = { 'U1', 'E' }; end
+            if nargin < 8, encoded_string = 'Encoded'; end
+            if nargin < 7, encoding_scheme = 'Absolute'; end
+            if nargin < 6, subnetwork_name = 'Transmission'; end
+            if nargin < 5, scale = 1; end
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s %s: %s Steady State Error', encoding_scheme, subnetwork_name, encoded_string );
+            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variables_string{ 2 }, units_string{ 2 } );
+
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+            
+            % Plot the theoretical and numerical steady state errors.
+            plot( scale*xs, es_theoretical, '-.', 'Linewidth', 3 )
+            plot( scale*xs, es_numerical, '--', 'Linewidth', 3 )
+            
+            % Add a legend to the figure.
+            legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_%s_sse_%s.png', lower( encoding_scheme ), lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+
+        % Implement a function to create a surface plot of the steady state response of a subnetwork for a specific encoding scheme and gain.
+        function fig = surf_steady_state_error( ~, Xs, Ys, Es_theoretical, Es_numerical, scale, viewing_angle, subnetwork_name, encoding_scheme, encoded_string, variable_strings, units, title_tag, save_flag, save_directory, save_tag  )
+            
+            % Set the default input arguments.
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, title_tag = ''; end
+            if nargin < 12, units = { '-', 'mV', 'mV' }; end
+            if nargin < 11, variable_strings = { 'c1', 'U1', 'U2' }; end
+            if nargin < 10, encoded_string = 'Encoded'; end
+            if nargin < 9, encoding_scheme = 'Absolute'; end
+            if nargin < 8, subnetwork_name = 'Transmission'; end
+            if nargin < 7, viewing_angle = [ 145, 15 ]; end
+            if nargin < 6, scale = 1; end
+            
+            % Generate the figure title.
+            title_string = sprintf( '%s %s: %s Steady State Error %s', encoding_scheme, subnetwork_name, encoded_string, title_tag );
+            
+            % Compute the figure labels.
+            xlabel_string = sprintf( 'Gain, %s [%s]', variable_strings{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variable_strings{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variable_strings{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
+            
+            % Plot the desired, theoretical, and numerical responses.
+            surf( Xs, scale*Ys, scale*Es_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( Xs, scale*Ys, scale*Es_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+            
+            % Add a legend to the figure.
+            legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_%s_sse_%s.png', lower( encoding_scheme ), lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the steady state error of a subnetwork for a specific encoding scheme and gain, including upper and lower boundaries.
+        function fig = plot_steady_state_error_patch( self, xs, es_mean, es_min, es_max, color, scale, subnetwork_name, encoding_scheme, encoded_string, variables_string, units_string, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 15, save_tag = ''; end
+            if nargin < 14, save_directory = './'; end
+            if nargin < 13, save_flag = true; end
+            if nargin < 12, units_string = { 'mV', 'mV' }; end
+            if nargin < 11, variables_string = { 'U1', 'E' }; end
+            if nargin < 10, encoded_string = 'Encoded'; end
+            if nargin < 9, encoding_scheme = 'Absolute'; end
+            if nargin < 8, subnetwork_name = 'Transmission'; end
+            if nargin < 7, scale = 1; end
+            
+            % Generate the patch data.
+            [ xs_patch, ys_patch ] = self.generate_2D_patch_data( xs, es_min, es_max );
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s %s: %s Steady State Response Summary', encoding_scheme, subnetwork_name, encoded_string );
+            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variables_string{ 2 }, units_string{ 2 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )            
+            
+            % Plot a summary of the absolute encoded steady state behavior over the formulation parameters.
+            patch( scale*xs_patch, scale*ys_patch, color, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+            plot( scale*xs, scale*es_mean, '-', 'Color', color, 'Linewidth', 3 )
+            plot( scale*xs, scale*es_min, '--', 'Color', color, 'Linewidth', 1 )
+            plot( scale*xs, scale*es_max, '--', 'Color', color, 'Linewidth', 1 )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_%s_sse_%s.png', lower( encoding_scheme ), lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to create a surface plot of the steady state error of a subnetwork for a specific encoding scheme and gain, including upper and lower boundaries.
+        function fig = surf_steady_state_error_patch( self, Xs, Ys, Zs, Zs_lower, Zs_upper, color, scale, viewing_angle, subnetwork_name, encoding_scheme, encoded_string, variable_strings, units, title_tag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 18, save_tag = ''; end
+            if nargin < 17, save_directory = './'; end
+            if nargin < 16, save_flag = true; end
+            if nargin < 15, title_tag = ''; end
+            if nargin < 14, units = { '-', 'mV', 'mV' }; end
+            if nargin < 13, variable_strings = { 'c1', 'U1', 'U2' }; end
+            if nargin < 12, encoded_string = 'Encoded'; end
+            if nargin < 11, encoding_scheme = 'Absolute'; end
+            if nargin < 10, subnetwork_name = 'Transmission'; end
+            if nargin < 9, viewing_angle = [ 145, 15 ]; end
+            if nargin < 8, scale = 1; end
+            if nargin < 7, color = [ 0.0000, 0.4470, 0.7410 ]; end
+            
+            % Generate the patch data.
+            [ ps_patch_xlower, ps_patch_xupper, ps_patch_ylower, ps_patch_yupper, ps_patch_zlower, ps_patch_zupper ] = self.generate_3D_patch_data( Xs, Ys, Zs_lower, Zs_upper );
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s %s: %s Steady State Error %s', encoding_scheme, subnetwork_name, encoded_string, title_tag );
+            xlabel_string = sprintf( 'Gain, %s [%s]', variable_strings{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variable_strings{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variable_strings{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
+                        
+            % Plot the surface data.
+            surf( Xs, scale*Ys, scale*Zs, 'Edgecolor', 'None', 'Facecolor', color, 'Facealpha', 0.90 )
+            
+            % Plot the patches.
+            patch( ps_patch_xlower( :, 1 ), scale*ps_patch_xlower( :, 2 ), scale*ps_patch_xlower( :, 3 ), color, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            patch( ps_patch_xupper( :, 1 ), scale*ps_patch_xupper( :, 2 ), scale*ps_patch_xupper( :, 3 ), color, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            patch( ps_patch_ylower( :, 1 ), scale*ps_patch_ylower( :, 2 ), scale*ps_patch_ylower( :, 3 ), color, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            patch( ps_patch_yupper( :, 1 ), scale*ps_patch_yupper( :, 2 ), scale*ps_patch_yupper( :, 3 ), color, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            patch( ps_patch_zlower( :, 1 ), scale*ps_patch_zlower( :, 2 ), scale*ps_patch_zlower( :, 3 ), color, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            patch( ps_patch_zupper( :, 1 ), scale*ps_patch_zupper( :, 2 ), scale*ps_patch_zupper( :, 3 ), color, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                        
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_%s_sse_%s.png', lower( encoding_scheme ), lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the steady state error of a subnetwork for a specific gain.
+        function fig = plot_steady_state_error_comparison( ~, xs_absolute, es_theoretical_absolute, es_numerical_absolute, color_absolute, xs_relative, es_theoretical_relative, es_numerical_relative, color_relative, scale, subnetwork_name, encoded_string, variables_string, units_string, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 18, save_tag = ''; end
+            if nargin < 17, save_directory = './'; end
+            if nargin < 16, save_flag = true; end
+            if nargin < 15, compact_flag = true; end
+            if nargin < 14, units_string = { 'mV', 'mV' }; end
+            if nargin < 13, variables_string = { 'U1', 'E' }; end
+            if nargin < 12, encoded_string = 'Encoded'; end
+            if nargin < 11, subnetwork_name = 'Transmission'; end
+            if nargin < 10, scale = 1; end
+            
+            % Compute the figure labels.
+            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error', subnetwork_name, encoded_string );
+            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variables_string{ 2 }, units_string{ 2 } );
+
+            % Create a figure to store the data.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to compare the absolute and relative encoding schemes on a single subplot or multiple.
+            if compact_flag                   % If we want to make multiple subplots...
+                
+                % Format the figure.
+                hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+
+                % Plot the absolute theoretical and numerical steady state errors.
+                plot( scale*xs_absolute, es_theoretical_absolute, '-.', 'Color', [ color_absolute, 2/3 ], 'Linewidth', 3 )
+                plot( scale*xs_absolute, es_numerical_absolute, '--', 'Color', [ color_absolute, 1 ], 'Linewidth', 3 )
+
+                % Plot the relative theoretical and numerical steady state errors.
+                plot( scale*xs_relative, es_theoretical_relative, '-.', 'Color', [ color_relative, 2/3 ], 'Linewidth', 3 )
+                plot( scale*xs_relative, es_numerical_relative, '--', 'Color', [ color_relative, 1 ], 'Linewidth', 3 )
+
+                % Add a legend to the figure.
+                legend( { 'Absolute Theoretical Error', 'Absolute Numerical Error', 'Relative Theoretical Error', 'Relative Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+            else                                % Otherwise...
+                
+                % Create the subplot titles.
+                subplot_title1 = sprintf( 'Absolute %s: %s Steady State Response', subnetwork_name, encoded_string );
+                subplot_title2 = sprintf( 'Relative %s: %s Steady State Response', subnetwork_name, encoded_string );
+
+                % Create the first subplot.
+                subplot( 2, 1, 1 ), hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( subplot_title1 )
+                plot( scale*xs_absolute, es_theoretical_absolute, '-.', 'Color', [ color_absolute, 2/3 ], 'Linewidth', 3 )
+                plot( scale*xs_absolute, es_numerical_absolute, '--', 'Color', [ color_absolute, 1 ], 'Linewidth', 3 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+
+                % Create the second subplot.
+                subplot( 2, 1, 2 ), hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( subplot_title2 )
+                plot( scale*xs_relative, es_theoretical_relative, '-.', 'Color', [ color_relative, 2/3 ], 'Linewidth', 3 )
+                plot( scale*xs_relative, es_numerical_relative, '--', 'Color', [ color_relative, 1 ], 'Linewidth', 3 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+            end
+                
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_sse_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to create a surface plot of the steady state error of a subnetwork for a specific gain.
+        function fig = surf_steady_state_error_comparison( ~, Xs_absolute, Ys_absolute, Es_theoretical_absolute, Es_numerical_absolute, color_absolute, Xs_relative, Ys_relative, Es_theoretical_relative, Es_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variable_strings, units, title_tag, compact_flag, save_flag, save_directory, save_tag  )
+            
+            % Set the default input arguments.
+            if nargin < 22, save_tag = ''; end
+            if nargin < 21, save_directory = './'; end
+            if nargin < 20, save_flag = true; end
+            if nargin < 19, compact_flag = true; end
+            if nargin < 18, title_tag = ''; end
+            if nargin < 17, units = { '-', 'mV', 'mV' }; end
+            if nargin < 16, variable_strings = { 'c1', 'U1', 'U2' }; end
+            if nargin < 15, encoded_string = 'Encoded'; end
+            if nargin < 14, subnetwork_name = 'Transmission'; end
+            if nargin < 13, viewing_angle = [ 145, 15 ]; end
+            if nargin < 12, scale = 1; end
+            
+            % Create the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error %s', subnetwork_name, encoded_string, title_tag );
+            
+            % Create the figure labels.
+            xlabel_string = sprintf( 'Gain, %s [%s]', variable_strings{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variable_strings{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variable_strings{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to create a compact plot.
+            if compact_flag                 % If we want to create a compact plot...
+                
+                % Format the figure.
+                hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )            
+
+                % Plot the absolute theoretical and numerical steady state errors.
+                surf( Xs_absolute, scale*Ys_absolute, scale*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( Xs_absolute, scale*Ys_absolute, scale*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 ) 
+
+                % Plot the relative theoretical and numerical steady state errors.
+                surf( Xs_relative, scale*Ys_relative, scale*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( Xs_relative, scale*Ys_relative, scale*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 ) 
+
+                % Add a legend to the figure.
+                legend( { 'Absolute Theoretical Error', 'Absolute Numerical Error', 'Relative Theoretical Error', 'Relative Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+            else                            % Otherwise...
+            
+                % Create the subplot titles.
+                subplot_title1 = sprintf( 'Absolute %s: %s Steady State Error %s', subnetwork_name, encoded_string, title_tag );
+                subplot_title2 = sprintf( 'Relative %s: %s Steady State Error %s', subnetwork_name, encoded_string, title_tag );
+
+                % Create the first subplot.
+                subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title1 )            
+                surf( Xs_absolute, scale*Ys_absolute, scale*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( Xs_absolute, scale*Ys_absolute, scale*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+                % Create the second subplot.
+                subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title2 )            
+                surf( Xs_relative, scale*Ys_relative, scale*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( Xs_relative, scale*Ys_relative, scale*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+            end
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_sse_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the steady state error of a subnetwork for a specific encoding scheme and gain, including upper and lower boundaries.
+        function fig = plot_steady_state_error_patch_comparison( self, xs, es_mean_absolute, es_min_absolute, es_max_absolute, color_absolute, es_mean_relative, es_min_relative, es_max_relative, color_relative, scale, subnetwork_name, encoded_string, variables_string, units_string, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 19, save_tag = ''; end
+            if nargin < 18, save_directory = './'; end
+            if nargin < 17, save_flag = true; end
+            if nargin < 16, compact_flag = truel; end
+            if nargin < 15, units_string = { 'mV', 'mV' }; end
+            if nargin < 14, variables_string = { 'U1', 'E' }; end
+            if nargin < 13, encoded_string = 'Encoded'; end
+            if nargin < 12, subnetwork_name = 'Transmission'; end
+            if nargin < 11, scale = 1; end
+            
+            % Generate the patch data.
+            [ xs_patch, ys_patch_absolute ] = self.generate_2D_patch_data( xs, es_min_absolute, es_max_absolute );
+            [ ~, ys_patch_relative ] = self.generate_2D_patch_data( xs, es_min_relative, es_max_relative );
+            
+            % Compute the figure labels.
+            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Response Summary', subnetwork_name, encoded_string );
+            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s Output, %s [%s]', encoded_string, variables_string{ 2 }, units_string{ 2 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine how to create the subplots.
+            if compact_flag                 % If we want to plot in a compact manner...
+            
+                % Format the figure.
+                hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )            
+
+                % Plot a summary of the absolute steady state behavior.
+                patch( scale*xs_patch, scale*ys_patch_absolute, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale*xs, scale*es_mean_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
+                plot( scale*xs, scale*es_min_absolute, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                plot( scale*xs, scale*es_max_absolute, '--', 'Color', color_absolute, 'Linewidth', 1 )
+
+                % Plot a summary of the relative steady state behavior.
+                patch( scale*xs_patch, scale*ys_patch_relative, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale*xs, scale*es_mean_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
+                plot( scale*xs, scale*es_min_relative, '--', 'Color', color_relative, 'Linewidth', 1 )
+                plot( scale*xs, scale*es_max_relative, '--', 'Color', color_relative, 'Linewidth', 1 )
+                            
+            else                            % Otherwise...
+                
+                % Create the subplot titles.
+                subplot_title1 = sprintf( 'Absolute %s: %s Steady State Response', subnetwork_name, encoded_string );
+                subplot_title2 = sprintf( 'Relative %s: %s Steady State Response', subnetwork_name, encoded_string );
+                
+                % Create the first subplot.
+                subplot( 2, 1, 1 ), hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( subplot_title1 )
+                patch( scale*xs_patch, scale*ys_patch_absolute, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale*xs, scale*es_mean_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
+                plot( scale*xs, scale*es_min_absolute, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                plot( scale*xs, scale*es_max_absolute, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                
+                % Create the second subplot.
+                subplot( 2, 1, 2 ), hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( subplot_title2 )
+                patch( scale*xs_patch, scale*ys_patch_relative, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale*xs, scale*es_mean_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
+                plot( scale*xs, scale*es_min_relative, '--', 'Color', color_relative, 'Linewidth', 1 )
+                plot( scale*xs, scale*es_max_relative, '--', 'Color', color_relative, 'Linewidth', 1 )
+                
+            end
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_sse_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the steady state error for a subnetwork that compares absolute & relative schemes before and after encoding/decoding.
+        function fig = plot_steady_state_error_full_comparison( ~, xs_absolute_encoded, es_theoretical_absolute_encoded, es_numerical_absolute_encoded, xs_absolute_decoded, es_theoretical_absolute_decoded, es_numerical_absolute_decoded, color_absolute, xs_relative_encoded, es_theoretical_relative_encoded, es_numerical_relative_encoded, xs_relative_decoded, es_theoretical_relative_decoded, es_numerical_relative_decoded, color_relative, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_encoded, units_decoded, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 26, save_tag = ''; end
+            if nargin < 25, save_directory = './'; end
+            if nargin < 24, save_flag = true; end
+            if nargin < 23, compact_flag = true; end
+            if nargin < 22, units_decoded = { '-', '-' }; end
+            if nargin < 21, units_encoded = { 'mV', 'mV' }; end
+            if nargin < 20, variables_string_decoded = { 'x1', 'E' }; end
+            if nargin < 19, variables_string_encoded = { 'U1', 'E' }; end
+            if nargin < 18, subnetwork_name = 'Transmission'; end
+            if nargin < 17, scale_decoded = 1; end
+            if nargin < 16, scale_encoded = 1; end
+            
+            % Generate the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: Encoded vs Decoded Steady State Error', subnetwork_name );
+            
+            % Generate the figure labels.
+            xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_encoded{ 1 } );
+            ylabel_string_encoded = sprintf( 'Encoded Output, %s [%s]', variables_string_encoded{ 2 }, units_encoded{ 2 } );
+            xlabel_string_decoded = sprintf( 'Decoded Input, %s [%s]', variables_string_decoded{ 1 }, units_decoded{ 1 } );
+            ylabel_string_decoded = sprintf( 'Decoded Output, %s [%s]', variables_string_decoded{ 2 }, units_decoded{ 2 } );
+            
+            % Create a figure to store the data.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to compare the absolute and relative encoding schemes on a single subplot or multiple.
+            if compact_flag                   % If we want to make multiple subplots...
+                
+                % Create the subplot titles.
+                subplot_title_encoded = sprintf( 'Absolute %s: Encoded Steady State Error', subnetwork_name );
+                subplot_title_decoded = sprintf( 'Relative %s: Decoded Steady State Error', subnetwork_name );
+
+                % Create the first subplot.
+                subplot( 1, 2, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_encoded )
+                plot( scale_encoded*xs_absolute_encoded, es_theoretical_absolute_encoded, '-.', 'Color', [ color_absolute, 2/3 ], 'Linewidth', 3 )
+                plot( scale_encoded*xs_absolute_encoded, es_numerical_absolute_encoded, '--', 'Color', [ color_absolute, 1 ], 'Linewidth', 3 )
+                plot( scale_encoded*xs_relative_encoded, es_theoretical_relative_encoded, '-.', 'Color', [ color_relative, 2/3 ], 'Linewidth', 3 )
+                plot( scale_encoded*xs_relative_encoded, es_numerical_relative_encoded, '--', 'Color', [ color_relative, 1 ], 'Linewidth', 3 )
+                legend( { 'Absolute Theoretical Error', 'Absolute Numerical Error', 'Relative Theoretical Error', 'Relative Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+                % Create the second subplot.
+                subplot( 1, 2, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_decoded )
+                plot( scale_decoded*xs_absolute_decoded, es_theoretical_absolute_decoded, '-.', 'Color', [ color_absolute, 2/3 ], 'Linewidth', 3 )
+                plot( scale_decoded*xs_absolute_decoded, es_numerical_absolute_decoded, '--', 'Color', [ color_absolute, 1 ], 'Linewidth', 3 )
+                plot( scale_decoded*xs_relative_decoded, es_theoretical_relative_decoded, '-.', 'Color', [ color_relative, 2/3 ], 'Linewidth', 3 )
+                plot( scale_decoded*xs_relative_decoded, es_numerical_relative_decoded, '--', 'Color', [ color_relative, 1 ], 'Linewidth', 3 )
+                legend( { 'Absolute Theoretical Error', 'Absolute Numerical Error', 'Relative Theoretical Error', 'Relative Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+                
+            else                                % Otherwise...
+                
+                % Create the subplot titles.
+                subplot_title_absolute_encoded = sprintf( 'Absolute %s: Encoded Steady State Error', subnetwork_name );
+                subplot_title_relative_encoded = sprintf( 'Relative %s: Encoded Steady State Error', subnetwork_name );
+                subplot_title_absolute_decoded = sprintf( 'Absolute %s: Decoded Steady State Error', subnetwork_name );
+                subplot_title_relative_decoded = sprintf( 'Relative %s: Decoded Steady State Error', subnetwork_name );
+
+                % Create the first subplot.
+                subplot( 2, 2, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_absolute_encoded )
+                plot( scale_encoded*xs_absolute_encoded, es_theoretical_absolute_encoded, '-.', 'Color', [ color_absolute, 2/3 ], 'Linewidth', 3 )
+                plot( scale_encoded*xs_absolute_encoded, es_numerical_absolute_encoded, '--', 'Color', [ color_absolute, 1 ], 'Linewidth', 3 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+                % Create the second subplot.
+                subplot( 2, 2, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_absolute_decoded )
+                plot( scale_decoded*xs_absolute_decoded, es_theoretical_absolute_decoded, '-.', 'Color', [ color_absolute, 2/3 ], 'Linewidth', 3 )
+                plot( scale_decoded*xs_absolute_decoded, es_numerical_absolute_decoded, '--', 'Color', [ color_absolute, 1 ], 'Linewidth', 3 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+                % Create the third subplot.
+                subplot( 2, 2, 3 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_relative_encoded )
+                plot( scale_encoded*xs_relative_encoded, es_theoretical_relative_encoded, '-.', 'Color', [ color_relative, 2/3 ], 'Linewidth', 3 )
+                plot( scale_encoded*xs_relative_encoded, es_numerical_relative_encoded, '--', 'Color', [ color_relative, 1 ], 'Linewidth', 3 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+
+                % Create the fourth subplot.
+                subplot( 2, 2, 4 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_relative_decoded )
+                plot( scale_decoded*xs_relative_decoded, es_theoretical_relative_decoded, '-.', 'Color', [ color_relative, 2/3 ], 'Linewidth', 3 )
+                plot( scale_decoded*xs_relative_decoded, es_numerical_relative_decoded, '--', 'Color', [ color_relative, 1 ], 'Linewidth', 3 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+
+            end
+                
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_sse_%s.png', lower( subnetwork_name ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+                
+        
+        % Implement a function to create a surface plot of the steady state error for a subnetwork that compares absolute & relative schemes before and after encoding/decoding.
+        function fig = surf_steady_state_error_full_comparison( ~, Xs_absolute_encoded, Ys_absolute_encoded, Es_theoretical_absolute_encoded, Es_numerical_absolute_encoded, Xs_absolute_decoded, Ys_absolute_decoded, Es_theoretical_absolute_decoded, Es_numerical_absolute_decoded, color_absolute, Xs_relative_encoded, Ys_relative_encoded, Es_theoretical_relative_encoded, Es_numerical_relative_encoded, Xs_relative_decoded, Ys_relative_decoded, Es_theoretical_relative_decoded, Es_numerical_relative_decoded, color_relative, scale_encoded, scale_decoded, viewing_angle, subnetwork_name, variable_strings_encoded, variable_strings_decoded, units_encoded, units_decoded, title_tag, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 32, save_tag = ''; end
+            if nargin < 31, save_directory = './'; end
+            if nargin < 30, save_flag = true; end
+            if nargin < 29, compact_flag = true; end
+            if nargin < 28, title_tag = ''; end
+            if nargin < 27, units_decoded = { '-', '-', '-' }; end
+            if nargin < 26, units_encoded = { '-', 'mV', 'mV' }; end
+            if nargin < 25, variable_strings_decoded = { 'c1', 'x1', 'x2' }; end
+            if nargin < 24, variable_strings_encoded = { 'c1', 'U1', 'U2' }; end
+            if nargin < 23, subnetwork_name = 'Transmission'; end
+            if nargin < 22, viewing_angle = [ 145, 15 ]; end
+            if nargin < 21, scale_decoded = 1; end
+            if nargin < 20, scale_encoded = 1; end
+            
+            % Define the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: Steady State Error %s', subnetwork_name, title_tag );
+            
+            % Define the figure labels.
+            xlabel_string_encoded = sprintf( 'Gain, %s [%s]', variable_strings_encoded{ 1 }, units_encoded{ 1 } );
+            ylabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variable_strings_encoded{ 2 }, units_encoded{ 2 } );
+            zlabel_string_encoded = sprintf( 'Encoded Output, %s [%s]', variable_strings_encoded{ 3 }, units_encoded{ 3 } );
+            
+            xlabel_string_decoded = sprintf( 'Gain, %s [%s]', variable_strings_decoded{ 1 }, units_decoded{ 1 } );
+            ylabel_string_decoded = sprintf( 'Decoded Input, %s [%s]', variable_strings_decoded{ 2 }, units_decoded{ 2 } );
+            zlabel_string_decoded = sprintf( 'Decoded Output, %s [%s]', variable_strings_decoded{ 3 }, units_decoded{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to plot in a compact fashion.
+            if compact_flag                 % If we want to create a compact plot...
+                
+                % Create the subplot titles.
+                subplot_title_encoded = sprintf( 'Absolute %s: Encoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_decoded = sprintf( 'Relative %s: Decoded Steady State Error %s', subnetwork_name, title_tag );
+
+                % Create the first subplot.
+                subplot( 1, 2, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_encoded )            
+                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_theoretical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_numerical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
+                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_theoretical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_numerical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
+                legend( { 'Absolute Theoretical Error', 'Absolute Numerical Error', 'Relative Theoretical Error', 'Relative Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
+                % Create the second subplot.
+                subplot( 1, 2, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_decoded )            
+                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_theoretical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_numerical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
+                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_theoretical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_numerical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )
+                legend( { 'Absolute Theoretical Error', 'Absolute Numerical Error', 'Relative Theoretical Error', 'Relative Numerical Error' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+            else                            % Otherwise...
+                
+                % Create the subplot titles.
+                subplot_title_absolute_encoded = sprintf( 'Absolute %s: Encoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_relative_encoded = sprintf( 'Relative %s: Encoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_absolute_decoded = sprintf( 'Absolute %s: Decoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_relative_decoded = sprintf( 'Relative %s: Decoded Steady State Error %s', subnetwork_name, title_tag );
+
+                % Create the first subplot.
+                subplot( 2, 2, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_absolute_encoded ) 
+                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_theoretical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_numerical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )                 
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+                % Create the second subplot.
+                subplot( 2, 2, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_absolute_decoded )
+                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_theoretical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_numerical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )  
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+                % Create the third subplot.
+                subplot( 2, 2, 3 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_relative_encoded )
+                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_theoretical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1/3 )
+                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_numerical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+
+                % Create the fourth subplot.
+                subplot( 2, 2, 4 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_relative_decoded )
+                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_theoretical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1/3 )
+                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_numerical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )
+                legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+            end
+                
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_sse_%s.png', lower( subnetwork_name ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the steady state error for a subnetwork that compares absolute & relative schemes before and after encoding/decoding, including upper and lower boundaries.
+        function fig = plot_steady_state_error_patch_full_comparison( self, xs_encoded, es_mean_absolute_encoded, es_min_absolute_encoded, es_max_absolute_encoded, xs_decoded, es_mean_absolute_decoded, es_min_absolute_decoded, es_max_absolute_decoded, color_absolute, es_mean_relative_encoded, es_min_relative_encoded, es_max_relative_encoded, es_mean_relative_decoded, es_min_relative_decoded, es_max_relative_decoded, color_relative, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 28, save_tag = ''; end
+            if nargin < 27, save_directory = './'; end
+            if nargin < 26, save_flag = true; end
+            if nargin < 25, compact_flag = true; end
+            if nargin < 24, units_string_decoded = { '-', '-' }; end
+            if nargin < 23, units_string_encoded = { 'mV', 'mV' }; end
+            if nargin < 22, variables_string_decoded = { 'x1', 'E' }; end
+            if nargin < 21, variables_string_encoded = { 'U1', 'E' }; end
+            if nargin < 20, subnetwork_name = 'Transmission'; end
+            if nargin < 19, scale_decoded = 1; end
+            if nargin < 18, scale_encoded = 1; end
+            
+            % Generate the patch data.
+            [ xs_patch_encoded, ys_patch_absolute_encoded ] = self.generate_2D_patch_data( xs_encoded, es_min_absolute_encoded, es_max_absolute_encoded );
+            [ ~, ys_patch_relative_encoded ] = self.generate_2D_patch_data( xs_encoded, es_min_relative_encoded, es_max_relative_encoded );
+            [ xs_patch_decoded, ys_patch_absolute_decoded ] = self.generate_2D_patch_data( xs_decoded, es_min_absolute_decoded, es_max_absolute_decoded );
+            [ ~, ys_patch_relative_decoded ] = self.generate_2D_patch_data( xs_decoded, es_min_relative_decoded, es_max_relative_decoded );
+            
+            % Compute the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: Encoded vs Decoded Steady State Error Summary', subnetwork_name );
+            
+            % Compute the figure labels.
+            xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_string_encoded{ 1 } );
+            ylabel_string_encoded = sprintf( 'Encoded Output, %s [%s]', variables_string_encoded{ 2 }, units_string_encoded{ 2 } );
+            xlabel_string_decoded = sprintf( 'Decoded Input, %s [%s]', variables_string_decoded{ 1 }, units_string_decoded{ 1 } );
+            ylabel_string_decoded = sprintf( 'Decoded Output, %s [%s]', variables_string_decoded{ 2 }, units_string_decoded{ 2 } );
+            
+            % Create a figure to store the data.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to compare the absolute and relative encoding schemes on a single subplot or multiple.
+            if compact_flag                   % If we want to make multiple subplots...
+                
+                % Create the subplot titles.
+                subplot_title_encoded = sprintf( 'Absolute %s: Encoded Steady State Error', subnetwork_name );
+                subplot_title_decoded = sprintf( 'Relative %s: Decoded Steady State Error', subnetwork_name );
+
+                % Create the first subplot.
+                subplot( 1, 2, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_encoded )
+                patch( scale_encoded*xs_patch_encoded, scale_encoded*ys_patch_absolute_encoded, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_mean_absolute_encoded, '-', 'Color', color_absolute, 'Linewidth', 3 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_min_absolute_encoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_max_absolute_encoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                patch( scale_encoded*xs_patch_encoded, scale_encoded*ys_patch_relative_encoded, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_mean_relative_encoded, '-', 'Color', color_relative, 'Linewidth', 3 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_min_relative_encoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_max_relative_encoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+                
+                % Create the second subplot.
+                subplot( 1, 2, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_decoded )
+                patch( scale_decoded*xs_patch_decoded, scale_decoded*ys_patch_absolute_decoded, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_mean_absolute_decoded, '-', 'Color', color_absolute, 'Linewidth', 3 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_min_absolute_decoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_max_absolute_decoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                patch( scale_decoded*xs_patch_decoded, scale_decoded*ys_patch_relative_decoded, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_mean_relative_decoded, '-', 'Color', color_relative, 'Linewidth', 3 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_min_relative_decoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_max_relative_decoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+                
+            else                                % Otherwise...
+                
+                % Create the subplot titles.
+                subplot_title_absolute_encoded = sprintf( 'Absolute %s: Encoded Steady State Error', subnetwork_name );
+                subplot_title_relative_encoded = sprintf( 'Relative %s: Encoded Steady State Error', subnetwork_name );
+                subplot_title_absolute_decoded = sprintf( 'Absolute %s: Decoded Steady State Error', subnetwork_name );
+                subplot_title_relative_decoded = sprintf( 'Relative %s: Decoded Steady State Error', subnetwork_name );
+
+                % Create the first subplot.
+                subplot( 2, 2, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_absolute_encoded )
+                patch( scale_encoded*xs_patch_encoded, scale_encoded*ys_patch_absolute_encoded, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_mean_absolute_encoded, '-', 'Color', color_absolute, 'Linewidth', 3 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_min_absolute_encoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_max_absolute_encoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                
+                % Create the second subplot.
+                subplot( 2, 2, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_absolute_decoded )
+                patch( scale_decoded*xs_patch_decoded, scale_decoded*ys_patch_absolute_decoded, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_mean_absolute_decoded, '-', 'Color', color_absolute, 'Linewidth', 3 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_min_absolute_decoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_max_absolute_decoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
+                
+                % Create the third subplot.
+                subplot( 2, 2, 3 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_relative_encoded )
+                patch( scale_encoded*xs_patch_encoded, scale_encoded*ys_patch_relative_encoded, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_mean_relative_encoded, '-', 'Color', color_relative, 'Linewidth', 3 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_min_relative_encoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+                plot( scale_encoded*xs_encoded, scale_encoded*es_max_relative_encoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+
+                % Create the fourth subplot.
+                subplot( 2, 2, 4 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_relative_decoded )
+                patch( scale_decoded*xs_patch_decoded, scale_decoded*ys_patch_relative_decoded, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_mean_relative_decoded, '-', 'Color', color_relative, 'Linewidth', 3 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_min_relative_decoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+                plot( scale_decoded*xs_decoded, scale_decoded*es_max_relative_decoded, '--', 'Color', color_relative, 'Linewidth', 1 )
+
+            end
+                
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_sse_%s.png', lower( subnetwork_name ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        
+        %% Steady State Error Percentage Plotting Functions.
+
         % Implement a function to plot the steady state error percentage of a subnetwork for a specific gain.
         function fig = plot_steady_state_error_percentage_comparison( ~, xs_absolute, error_percentages_theoretical_absolute, error_percentages_numerical_absolute, color_absolute, xs_relative, error_percentages_theoretical_relative, error_percentages_numerical_relative, color_relative, scale, subnetwork_name, encoded_string, input_variable_string, output_variable_string, unit, save_flag, save_directory )
             
@@ -1283,6 +2127,8 @@ classdef plotting_utilities_class
             
         end
         
+        
+        %% Numerical Stability Plotting Functions.
         
         % Implement a function to plot the maximum rk4 step size for a specific gain.
         function fig = plot_rk4_maximum_timestep( ~, xs_absolute, dts_absolute, color_absolute, xs_relative, dts_relative, color_relative, scale, subnetwork_name, encoded_string, input_variable_string, unit, save_flag, save_directory )

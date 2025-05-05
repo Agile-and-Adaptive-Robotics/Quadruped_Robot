@@ -181,6 +181,23 @@ classdef numerical_method_utilities_class
         end
         
         
+        %% Statistics Methods.
+        
+        % Implement a function to compute the mean, min, and max of a provided data set.
+        function [ xs_mean, xs_min, xs_max ] = compute_mean_min_max( ~, xs, dims )
+            
+            % Compute the mean.
+            xs_mean = squeeze( mean( xs, dims ) );
+            
+            % Compute the minimum.
+            xs_min = squeeze( min( xs, [  ], dims ) );
+            
+            % Compute the maximum.
+            xs_max = squeeze( max( xs, [  ], dims ) );
+            
+        end
+        
+        
         %% Numerical Differentiation Methods.
         
         
