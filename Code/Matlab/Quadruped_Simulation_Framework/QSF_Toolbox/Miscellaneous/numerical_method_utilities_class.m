@@ -201,6 +201,61 @@ classdef numerical_method_utilities_class
         %% Numerical Differentiation Methods.
         
         
+        %% Grid Functions.
+        
+        % Implement a function to retrieve specific slices of a grid.
+        function [ Xs1, Xs2, Xs3 ] = get_3D_grid_slices( ~, Xs, indexes, transpose_flag )
+           
+            % Set the default input arguments.
+            if nargin < 4, transpose_flag = false; end
+            
+            % Retrieve the grid slice with a fixed first dimension.
+            Xs1 = squeeze( Xs( indexes( 1 ), :, : ) );
+            
+            % Retrieve the grid slice with a fixed second dimension.
+            Xs2 = squeeze( Xs( :, indexes( 2 ), : ) );
+            
+            % Retrieve the grid slice with a fixed third dimension.
+            Xs3 = Xs( :, :, indexes( 3 ) );
+
+            % Determine whether to transpose the grid slices.
+            if transpose_flag           % If we want to transpose the data...
+                
+                % Tranpose the grid slices.
+                Xs1 = Xs1'; Xs2 = Xs2'; Xs3 = Xs3';
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to retrieve mean, min, and max slices of a grid.
+        function [ Xs1_mean, Xs1_min, Xs1_max, Xs2_mean, Xs2_min, Xs2_max, Xs3_mean, Xs3_min, Xs3_max ] = compute_3D_grid_mean_min_max_slices( self, Xs, transpose_flag )
+        
+            % Set the default input arguments.
+            if nargin < 3, transpose_flag = false; end
+            
+            % Retrieve the mean, min, and max of the grid with respect to the one dimension.
+            [ Xs1_mean, Xs1_min, Xs1_max ] = self.compute_mean_min_max( Xs, 1 );
+            
+            % Retrieve the mean, min, and max of the grid with respect to the two dimension.
+            [ Xs2_mean, Xs2_min, Xs2_max ] = self.compute_mean_min_max( Xs, 2 );
+            
+            % Retrieve the mean, min, and max of the grid with respect to the third dimension.
+            [ Xs3_mean, Xs3_min, Xs3_max ] = self.compute_mean_min_max( Xs, 3 );
+
+            % Determine whether to transpose the grid slices.
+            if transpose_flag           % If we want to transpose the data...
+
+                Xs1_mean = Xs1_mean'; Xs1_min = Xs1_min'; Xs1_max = Xs1_max';
+                Xs2_mean = Xs2_mean'; Xs2_min = Xs2_min'; Xs2_max = Xs2_max';
+                Xs3_mean = Xs3_mean'; Xs3_min = Xs3_min'; Xs3_max = Xs3_max';
+
+            end
+            
+        end
+        
+        
         %% Error Functions.
         
         % Implement a function that computes error statistics given desired and achieved outputs.

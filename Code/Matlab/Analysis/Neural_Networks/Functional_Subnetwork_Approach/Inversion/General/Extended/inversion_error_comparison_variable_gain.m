@@ -27,8 +27,8 @@ epsilon = 0.80;                                     % [0-1] Adapted Step Size Th
 % Construct the simulation times associated with the input currents.
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
 
-% Compute the number of simulation timesteps.
-n_timesteps = length( ts );                         % [#] Number of Simulation Timesteps.
+% Compute the number of simulation step_sizes.
+n_step_sizes = length( ts );                         % [#] Number of Simulation Timesteps.
 
 % Define the integration method.
 integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
@@ -463,8 +463,8 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             input_current_to_neuron_ID_relative = 1;                        % [#] Relative Neuron ID to Which Input Current is Applied.
             
             % Define the applied current magnitudes.
-            Ias1_absolute = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
-            Ias1_relative = zeros( n_timesteps, 1 );                        % [A] Applied Current Magnitude.
+            Ias1_absolute = zeros( n_step_sizes, 1 );                        % [A] Applied Current Magnitude.
+            Ias1_relative = zeros( n_step_sizes, 1 );                        % [A] Applied Current Magnitude.
             
             
             %% Create the Subnetwork.
@@ -526,7 +526,7 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             % Define the decoded input signals.
             xs_numerical_input = linspace( 0, x1_max, n_input_signals )';
 
-            % Define the stability analysis timestep seed.
+            % Define the stability analysis step_size seed.
             dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
 
             % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
@@ -862,6 +862,10 @@ deltas_median_index = find( deltas == deltas_median );
 [ C1s_grid_delta, C3s_grid_delta ] = meshgrid( c1s, c3s );
 [ C1s_grid_c3, Deltas_grid_c3 ] = meshgrid( c1s, deltas );
 [ C3s_grid_c1, Deltas_grid_c1 ] = meshgrid( c3s, deltas );
+
+% [ C3s_grid_delta, C1s_grid_delta ] = meshgrid( c3s, c1s );
+% [ Deltas_grid_c3, C1s_grid_c3 ] = meshgrid( deltas, c1s );
+% [ Deltas_grid_c1, C3s_grid_c1] = meshgrid( deltas, c3s );
 
 % Construct the relative R1 and R2 parameter matrices.
 R1s_relative = R1_relative*ones( size( R1s_absolute ) );
@@ -1400,348 +1404,174 @@ errors_improv_numerical_decoded_median_delta = squeeze( errors_improv_numerical_
 
 % ---------- Median Maximum RK4 Step Size ----------
 
-% Retrieve the median maximum RK4 step size given the median delta value.
-dTs_max_absolute_median_delta = dts_max_absolute( :, :, deltas_median_index );
-dTs_max_relative_median_delta = dts_max_relative( :, :, deltas_median_index );
-
-% Retrieve the median maximum RK4 step size given the median c3 value.
-dTs_max_absolute_median_c3 = squeeze( dts_max_absolute( :, c3s_median_index, : ) );
-dTs_max_relative_median_c3 = squeeze( dts_max_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median maximum RK4 step size given the median c1 value.
-dTs_max_absolute_median_c1 = squeeze( dts_max_absolute( c1s_median_index, :, : ) );
-dTs_max_relative_median_c1 = squeeze( dts_max_relative( c1s_median_index, :, : ) );
+% Retrieve the median maximum RK4 step sizes given the median parameter values.
+[ dTs_max_absolute_median_c1, dTs_max_absolute_median_c3, dTs_max_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( dts_max_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ dTs_max_relative_median_c1, dTs_max_relative_median_c3, dTs_max_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( dts_max_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean Maximum RK4 Step Size ----------
 
-% Retrieve the mean, min, and max maximum RK4 step size averaged over delta.
-[ dTs_max_absolute_mean_delta, dTs_max_absolute_min_delta, dTs_max_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( dts_max_absolute, 3 );
-[ dTs_max_relative_mean_delta, dTs_max_relative_min_delta, dTs_max_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( dts_max_relative, 3 );
-
-% Retrieve the mean, min, and max maximum RK4 step size averaged over c3.
-[ dTs_max_absolute_mean_c3, dTs_max_absolute_min_c3, dTs_max_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( dts_max_absolute, 2 );
-[ dTs_max_relative_mean_c3, dTs_max_relative_min_c3, dTs_max_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( dts_max_relative, 2 );
-
-% Retrieve the mean, min, and max maximum RK4 step size averaged over c1.
-[ dTs_max_absolute_mean_c1, dTs_max_absolute_min_c1, dTs_max_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( dts_max_absolute, 1 );
-[ dTs_max_relative_mean_c1, dTs_max_relative_min_c1, dTs_max_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( dts_max_relative, 1 );
+% Retrieve the mean, min, and max maximum RK4 step size averaged over each of the parameters.
+[ dTs_max_absolute_mean_c1, dTs_max_absolute_min_c1, dTs_max_absolute_max_c1, dTs_max_absolute_mean_c3, dTs_max_absolute_min_c3, dTs_max_absolute_max_c3, dTs_max_absolute_mean_delta, dTs_max_absolute_min_delta, dTs_max_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( dts_max_absolute, true );
+[ dTs_max_relative_mean_c1, dTs_max_relative_min_c1, dTs_max_relative_max_c1, dTs_max_relative_mean_c3, dTs_max_relative_min_c3, dTs_max_relative_max_c3, dTs_max_relative_mean_delta, dTs_max_relative_min_delta, dTs_max_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( dts_max_relative, true );
 
 
 %% Process Maximum Condition Number Data.
 
 % ---------- Median Maximum Condition Number ----------
 
-% Retrieve the median maximum condition number given the median delta value.
-dKs_max_absolute_median_delta = condition_numbers_max_absolute( :, :, deltas_median_index );
-dKs_max_relative_median_delta = condition_numbers_max_relative( :, :, deltas_median_index );
-
-% Retrieve the median maximum condition number given the median c3 value.
-dKs_max_absolute_median_c3 = squeeze( condition_numbers_max_absolute( :, c3s_median_index, : ) );
-dKs_max_relative_median_c3 = squeeze( condition_numbers_max_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median maximum condition number given the median c1 value.
-dKs_max_absolute_median_c1 = squeeze( condition_numbers_max_absolute( c1s_median_index, :, : ) );
-dKs_max_relative_median_c1 = squeeze( condition_numbers_max_relative( c1s_median_index, :, : ) );
+% Retrieve the median maximum condition number given the median parameter values.
+[ dKs_max_absolute_median_c1, dKs_max_absolute_median_c3, dKs_max_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( condition_numbers_max_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ dKs_max_relative_median_c1, dKs_max_relative_median_c3, dKs_max_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( condition_numbers_max_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean Maximum Condition Number ----------
 
-% Retrieve the mean, min, and max maximum condition number averaged over delta.
-[ dKs_max_absolute_mean_delta, dKs_max_absolute_min_delta, dKs_max_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( condition_numbers_max_absolute, 3 );
-[ dKs_max_relative_mean_delta, dKs_max_relative_min_delta, dKs_max_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( condition_numbers_max_relative, 3 );
-
-% Retrieve the mean, min, and max maximum condition number averaged over c3.
-[ dKs_max_absolute_mean_c3, dKs_max_absolute_min_c3, dKs_max_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( condition_numbers_max_absolute, 2 );
-[ dKs_max_relative_mean_c3, dKs_max_relative_min_c3, dKs_max_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( condition_numbers_max_relative, 2 );
-
-% Retrieve the mean, min, and max maximum condition number averaged over c1.
-[ dKs_max_absolute_mean_c1, dKs_max_absolute_min_c1, dKs_max_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( condition_numbers_max_absolute, 1 );
-[ dKs_max_relative_mean_c1, dKs_max_relative_min_c1, dKs_max_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( condition_numbers_max_relative, 1 );
+% Retrieve the mean, min, and max maximum condition number averaged over each of the parameters.
+[ dKs_max_absolute_mean_c1, dKs_max_absolute_min_c1, dKs_max_absolute_max_c1, dKs_max_absolute_mean_c3, dKs_max_absolute_min_c3, dKs_max_absolute_max_c3, dKs_max_absolute_mean_delta, dKs_max_absolute_min_delta, dKs_max_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( condition_numbers_max_absolute, true );
+[ dKs_max_relative_mean_c1, dKs_max_relative_min_c1, dKs_max_relative_max_c1, dKs_max_relative_mean_c3, dKs_max_relative_min_c3, dKs_max_relative_max_c3, dKs_max_relative_mean_delta, dKs_max_relative_min_delta, dKs_max_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( condition_numbers_max_relative, true );
 
 
 %% Process c2 Parameter Data.
 
 % ---------- Median c2 Parameter ----------
 
-% Retrieve the median c2 parameter given the median delta value.
-C2s_absolute_median_delta = c2s_absolute( :, :, deltas_median_index );
-C2s_relative_median_delta = c2s_relative( :, :, deltas_median_index );
-
-% Retrieve the median c2 parameter given the median c3 value.
-C2s_absolute_median_c3 = squeeze( c2s_absolute( :, c3s_median_index, : ) );
-C2s_relative_median_c3 = squeeze( c2s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median c2 parameter given the median c1 value.
-C2s_absolute_median_c1 = squeeze( c2s_absolute( c1s_median_index, :, : ) );
-C2s_relative_median_c1 = squeeze( c2s_relative( c1s_median_index, :, : ) );
+% Retrieve the median c2 parameter given the median parameter values.
+[ C2s_absolute_median_c1, C2s_absolute_median_c3, C2s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( c2s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ C2s_relative_median_c1, C2s_relative_median_c3, C2s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( c2s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean c2 Parameter ----------
 
-% Retrieve the mean, min, and max c2 parameter averaged over delta.
-[ C2s_absolute_mean_delta, C2s_absolute_min_delta, C2s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( c2s_absolute, 3 );
-[ C2s_max_relative_mean_delta, C2s_relative_min_delta, C2s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( c2s_relative, 3 );
-
-% Retrieve the mean, min, and max c2 parameter averaged over c3.
-[ C2s_max_absolute_mean_c3, C2s_absolute_min_c3, C2s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( c2s_absolute, 2 );
-[ C2s_max_relative_mean_c3, C2s_relative_min_c3, C2s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( c2s_relative, 2 );
-
-% Retrieve the mean, min, and max c2 parameter averaged over c1.
-[ C2s_max_absolute_mean_c1, C2s_absolute_min_c1, C2s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( c2s_absolute, 1 );
-[ C2s_max_relative_mean_c1, C2s_relative_min_c1, C2s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( c2s_relative, 1 );
+% Retrieve the mean, min, and max c2 parameter averaged over each of the parameters.
+[ C2s_absolute_mean_c1, C2s_absolute_min_c1, C2s_absolute_max_c1, C2s_absolute_mean_c3, C2s_absolute_min_c3, C2s_absolute_max_c3, C2s_absolute_mean_delta, C2s_absolute_min_delta, C2s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( c2s_absolute, true );
+[ C2s_relative_mean_c1, C2s_relative_min_c1, C2s_relative_max_c1, C2s_relative_mean_c3, C2s_relative_min_c3, C2s_relative_max_c3, C2s_relative_mean_delta, C2s_relative_min_delta, C2s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( c2s_relative, true );
 
 
 %% Process x2_max Parameter Data.
 
 % ---------- Median x2_max Parameter ----------
 
-% Retrieve the median c2 parameter given the median delta value.
-X2maxs_absolute_median_delta = x2maxs_absolute( :, :, deltas_median_index );
-X2maxs_relative_median_delta = x2maxs_relative( :, :, deltas_median_index );
-
-% Retrieve the median c2 parameter given the median c3 value.
-X2maxs_absolute_median_c3 = squeeze( x2maxs_absolute( :, c3s_median_index, : ) );
-X2maxs_relative_median_c3 = squeeze( x2maxs_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median c2 parameter given the median c1 value.
-X2maxs_absolute_median_c1 = squeeze( x2maxs_absolute( c1s_median_index, :, : ) );
-X2maxs_relative_median_c1 = squeeze( x2maxs_relative( c1s_median_index, :, : ) );
+% Retrieve the median x2_max parameter given the median parameter values.
+[ X2maxs_absolute_median_c1, X2maxs_absolute_median_c3, X2maxs_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( x2maxs_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ X2maxs_relative_median_c1, X2maxs_relative_median_c3, X2maxs_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( x2maxs_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean x2_max Parameter ----------
 
-% Retrieve the mean, min, and max c2 parameter averaged over delta.
-[ X2maxs_absolute_mean_delta, X2maxs_absolute_min_delta, X2maxs_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( x2maxs_absolute, 3 );
-[ X2maxs_max_relative_mean_delta, X2maxs_relative_min_delta, X2maxs_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( x2maxs_relative, 3 );
-
-% Retrieve the mean, min, and max c2 parameter averaged over c3.
-[ X2maxs_max_absolute_mean_c3, X2maxs_absolute_min_c3, X2maxs_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( x2maxs_absolute, 2 );
-[ X2maxs_max_relative_mean_c3, X2maxs_relative_min_c3, X2maxs_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( x2maxs_relative, 2 );
-
-% Retrieve the mean, min, and max c2 parameter averaged over c1.
-[ X2maxs_max_absolute_mean_c1, X2maxs_absolute_min_c1, X2maxs_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( x2maxs_absolute, 1 );
-[ X2maxs_max_relative_mean_c1, X2maxs_relative_min_c1, X2maxs_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( x2maxs_relative, 1 );
+% Retrieve the mean, min, and max x2_max parameter averaged over each of the parameters.
+[ X2maxs_absolute_mean_c1, X2maxs_absolute_min_c1, X2maxs_absolute_max_c1, X2maxs_absolute_mean_c3, X2maxs_absolute_min_c3, X2maxs_absolute_max_c3, X2maxs_absolute_mean_delta, X2maxs_absolute_min_delta, X2maxs_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( x2maxs_absolute, true );
+[ X2maxs_relative_mean_c1, X2maxs_relative_min_c1, X2maxs_relative_max_c1, X2maxs_relative_mean_c3, X2maxs_relative_min_c3, X2maxs_relative_max_c3, X2maxs_relative_mean_delta, X2maxs_relative_min_delta, X2maxs_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( x2maxs_relative, true );
 
 
 %% Process R1 & R2 Parameter Data.
 
 % ---------- Median R1 Parameter ----------
 
-% Retrieve the median R1 parameter given the median delta value.
-R1s_absolute_median_delta = R1s_absolute( :, :, deltas_median_index );
-R1s_relative_median_delta = R1s_relative( :, :, deltas_median_index );
-
-% Retrieve the median R1 parameter given the median c3 value.
-R1s_absolute_median_c3 = squeeze( R1s_absolute( :, c3s_median_index, : ) );
-R1s_relative_median_c3 = squeeze( R1s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median R1 parameter given the median c1 value.
-R1s_absolute_median_c1 = squeeze( R1s_absolute( c1s_median_index, :, : ) );
-R1s_relative_median_c1 = squeeze( R1s_relative( c1s_median_index, :, : ) );
+% Retrieve the median R1 parameter given the median parameter values.
+[ R1s_absolute_median_c1, R1s_absolute_median_c3, R1s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( R1s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ R1s_relative_median_c1, R1s_relative_median_c3, R1s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( R1s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean R1 Parameter ----------
 
-% Retrieve the mean, min, and max R1 parameter averaged over delta.
-[ R1s_absolute_mean_delta, R1s_absolute_min_delta, R1s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( R1s_absolute, 3 );
-[ R1s_relative_mean_delta, R1s_relative_min_delta, R1s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( R1s_relative, 3 );
-
-% Retrieve the mean, min, and max R1 parameter averaged over c3.
-[ R1s_absolute_mean_c3, R1s_absolute_min_c3, R1s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( R1s_absolute, 2 );
-[ R1s_relative_mean_c3, R1s_relative_min_c3, R1s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( R1s_relative, 2 );
-
-% Retrieve the mean, min, and max R1 parameter averaged over c1.
-[ R1s_absolute_mean_c1, R1s_absolute_min_c1, R1s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( R1s_absolute, 1 );
-[ R1s_relative_mean_c1, R1s_relative_min_c1, R1s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( R1s_relative, 1 );
+% Retrieve the mean, min, and max R1 parameter averaged over each of the parameters.
+[ R1s_absolute_mean_c1, R1s_absolute_min_c1, R1s_absolute_max_c1, R1s_absolute_mean_c3, R1s_absolute_min_c3, R1s_absolute_max_c3, R1s_absolute_mean_delta, R1s_absolute_min_delta, R1s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( R1s_absolute, true );
+[ R1s_relative_mean_c1, R1s_relative_min_c1, R1s_relative_max_c1, R1s_relative_mean_c3, R1s_relative_min_c3, R1s_relative_max_c3, R1s_relative_mean_delta, R1s_relative_min_delta, R1s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( R1s_relative, true );
 
 
 % ---------- Median R2 Parameter ----------
 
-% Retrieve the median R2 parameter given the median delta value.
-R2s_absolute_median_delta = R2s_absolute( :, :, deltas_median_index );
-R2s_relative_median_delta = R2s_relative( :, :, deltas_median_index );
-
-% Retrieve the median R2 parameter given the median c3 value.
-R2s_absolute_median_c3 = squeeze( R2s_absolute( :, c3s_median_index, : ) );
-R2s_relative_median_c3 = squeeze( R2s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median R2 parameter given the median c1 value.
-R2s_absolute_median_c1 = squeeze( R2s_absolute( c1s_median_index, :, : ) );
-R2s_relative_median_c1 = squeeze( R2s_relative( c1s_median_index, :, : ) );
+% Retrieve the median R2 parameter given the median parameter values.
+[ R2s_absolute_median_c1, R2s_absolute_median_c3, R2s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( R2s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ R2s_relative_median_c1, R2s_relative_median_c3, R2s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( R2s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean R2 Parameter ----------
 
-% Retrieve the mean, min, and max R2 parameter averaged over delta.
-[ R2s_absolute_mean_delta, R2s_absolute_min_delta, R2s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( R2s_absolute, 3 );
-[ R2s_relative_mean_delta, R2s_relative_min_delta, R2s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( R2s_relative, 3 );
-
-% Retrieve the mean, min, and max R2 parameter averaged over c3.
-[ R2s_absolute_mean_c3, R2s_absolute_min_c3, R2s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( R2s_absolute, 2 );
-[ R2s_relative_mean_c3, R2s_relative_min_c3, R2s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( R2s_relative, 2 );
-
-% Retrieve the mean, min, and max R2 parameter averaged over c1.
-[ R2s_absolute_mean_c1, R2s_absolute_min_c1, R2s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( R2s_absolute, 1 );
-[ R2s_relative_mean_c1, R2s_relative_min_c1, R2s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( R2s_relative, 1 );
+% Retrieve the mean, min, and max R2 parameter averaged over each of the parameters.
+[ R2s_absolute_mean_c1, R2s_absolute_min_c1, R2s_absolute_max_c1, R2s_absolute_mean_c3, R2s_absolute_min_c3, R2s_absolute_max_c3, R2s_absolute_mean_delta, R2s_absolute_min_delta, R2s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( R2s_absolute, true );
+[ R2s_relative_mean_c1, R2s_relative_min_c1, R2s_relative_max_c1, R2s_relative_mean_c3, R2s_relative_min_c3, R2s_relative_max_c3, R2s_relative_mean_delta, R2s_relative_min_delta, R2s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( R2s_relative, true );
 
 
 %% Process Gna1 & Gna2 Parameter Data.
 
 % ---------- Median Gna1 Parameter ----------
 
-% Retrieve the median Gna1 parameter given the median delta value.
-Gna1s_absolute_median_delta = Gna1s_absolute( :, :, deltas_median_index );
-Gna1s_relative_median_delta = Gna1s_relative( :, :, deltas_median_index );
-
-% Retrieve the median Gna1 parameter given the median c3 value.
-Gna1s_absolute_median_c3 = squeeze( Gna1s_absolute( :, c3s_median_index, : ) );
-Gna1s_relative_median_c3 = squeeze( Gna1s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median Gna1 parameter given the median c1 value.
-Gna1s_absolute_median_c1 = squeeze( Gna1s_absolute( c1s_median_index, :, : ) );
-Gna1s_relative_median_c1 = squeeze( Gna1s_relative( c1s_median_index, :, : ) );
+% Retrieve the median Gna1 parameter given the median parameter values.
+[ Gna1s_absolute_median_c1, Gna1s_absolute_median_c3, Gna1s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( Gna1s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ Gna1s_relative_median_c1, Gna1s_relative_median_c3, Gna1s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( Gna1s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean Gna1 Parameter ----------
 
-% Retrieve the mean, min, and max Gna1 parameter averaged over delta.
-[ Gna1s_absolute_mean_delta, Gna1s_absolute_min_delta, Gna1s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( Gna1s_absolute, 3 );
-[ Gna1s_relative_mean_delta, Gna1s_relative_min_delta, Gna1s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( Gna1s_relative, 3 );
-
-% Retrieve the mean, min, and max Gna1 parameter averaged over c3.
-[ Gna1s_absolute_mean_c3, Gna1s_absolute_min_c3, Gna1s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( Gna1s_absolute, 2 );
-[ Gna1s_relative_mean_c3, Gna1s_relative_min_c3, Gna1s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( Gna1s_relative, 2 );
-
-% Retrieve the mean, min, and max Gna1 parameter averaged over c1.
-[ Gna1s_absolute_mean_c1, Gna1s_absolute_min_c1, Gna1s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( Gna1s_absolute, 1 );
-[ Gna1s_relative_mean_c1, Gna1s_relative_min_c1, Gna1s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( Gna1s_relative, 1 );
+% Retrieve the mean, min, and max Gna1 parameter averaged over each of the parameters.
+[ Gna1s_absolute_mean_c1, Gna1s_absolute_min_c1, Gna1s_absolute_max_c1, Gna1s_absolute_mean_c3, Gna1s_absolute_min_c3, Gna1s_absolute_max_c3, Gna1s_absolute_mean_delta, Gna1s_absolute_min_delta, Gna1s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( Gna1s_absolute, true );
+[ Gna1s_relative_mean_c1, Gna1s_relative_min_c1, Gna1s_relative_max_c1, Gna1s_relative_mean_c3, Gna1s_relative_min_c3, Gna1s_relative_max_c3, Gna1s_relative_mean_delta, Gna1s_relative_min_delta, Gna1s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( Gna1s_relative, true );
 
 
 % ---------- Median Gna2 Parameter ----------
 
-% Retrieve the median Gna2 parameter given the median delta value.
-Gna2s_absolute_median_delta = Gna2s_absolute( :, :, deltas_median_index );
-Gna2s_relative_median_delta = Gna2s_relative( :, :, deltas_median_index );
-
-% Retrieve the median Gna2 parameter given the median c3 value.
-Gna2s_absolute_median_c3 = squeeze( Gna2s_absolute( :, c3s_median_index, : ) );
-Gna2s_relative_median_c3 = squeeze( Gna2s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median Gna2 parameter given the median c1 value.
-Gna2s_absolute_median_c1 = squeeze( Gna2s_absolute( c1s_median_index, :, : ) );
-Gna2s_relative_median_c1 = squeeze( Gna2s_relative( c1s_median_index, :, : ) );
+% Retrieve the median Gna2 parameter given the median parameter values.
+[ Gna2s_absolute_median_c1, Gna2s_absolute_median_c3, Gna2s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( Gna2s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ Gna2s_relative_median_c1, Gna2s_relative_median_c3, Gna2s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( Gna2s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean Gna2 Parameter ----------
 
-% Retrieve the mean, min, and max Gna2 parameter averaged over delta.
-[ Gna2s_absolute_mean_delta, Gna2s_absolute_min_delta, Gna2s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( Gna2s_absolute, 3 );
-[ Gna2s_relative_mean_delta, Gna2s_relative_min_delta, Gna2s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( Gna2s_relative, 3 );
+% Retrieve the mean, min, and max Gna2 parameter averaged over each of the parameters.
+[ Gna2s_absolute_mean_c1, Gna2s_absolute_min_c1, Gna2s_absolute_max_c1, Gna2s_absolute_mean_c3, Gna2s_absolute_min_c3, Gna2s_absolute_max_c3, Gna2s_absolute_mean_delta, Gna2s_absolute_min_delta, Gna2s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( Gna2s_absolute, true );
+[ Gna2s_relative_mean_c1, Gna2s_relative_min_c1, Gna2s_relative_max_c1, Gna2s_relative_mean_c3, Gna2s_relative_min_c3, Gna2s_relative_max_c3, Gna2s_relative_mean_delta, Gna2s_relative_min_delta, Gna2s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( Gna2s_relative, true );
 
-% Retrieve the mean, min, and max Gna2 parameter averaged over c3.
-[ Gna2s_absolute_mean_c3, Gna2s_absolute_min_c3, Gna2s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( Gna2s_absolute, 2 );
-[ Gna2s_max_relative_mean_c3, Gna2s_relative_min_c3, Gna2s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( Gna2s_relative, 2 );
-
-% Retrieve the mean, min, and max Gna2 parameter averaged over c1.
-[ Gna2s_absolute_mean_c1, Gna2s_absolute_min_c1, Gna2s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( Gna2s_absolute, 1 );
-[ Gna2s_relative_mean_c1, Gna2s_relative_min_c1, Gna2s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( Gna2s_relative, 1 );
 
 
 %% Process dEs21 Parameter Data.
 
 % ---------- Median dEs21 Parameter ----------
 
-% Retrieve the median dEs21 parameter given the median delta value.
-dEs21s_absolute_median_delta = dEs21s_absolute( :, :, deltas_median_index );
-dEs21s_relative_median_delta = dEs21s_relative( :, :, deltas_median_index );
-
-% Retrieve the median dEs21 parameter given the median c3 value.
-dEs21s_absolute_median_c3 = squeeze( dEs21s_absolute( :, c3s_median_index, : ) );
-dEs21s_relative_median_c3 = squeeze( dEs21s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median dEs21 parameter given the median c1 value.
-dEs21s_absolute_median_c1 = squeeze( dEs21s_absolute( c1s_median_index, :, : ) );
-dEs21s_relative_median_c1 = squeeze( dEs21s_relative( c1s_median_index, :, : ) );
+% Retrieve the median dEs21 parameter given the median parameter values.
+[ dEs21s_absolute_median_c1, dEs21s_absolute_median_c3, dEs21s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( dEs21s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ dEs21s_relative_median_c1, dEs21s_relative_median_c3, dEs21s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( dEs21s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean dEs21 Parameter ----------
 
-% Retrieve the mean, min, and max dEs21 parameter averaged over delta.
-[ dEs21s_absolute_mean_delta, dEs21s_absolute_min_delta, dEs21s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( dEs21s_absolute, 3 );
-[ dEs21s_relative_mean_delta, dEs21s_relative_min_delta, dEs21s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( dEs21s_relative, 3 );
+% Retrieve the mean, min, and max dEs21 parameter averaged over each of the parameters.
+[ dEs21s_absolute_mean_c1, dEs21s_absolute_min_c1, dEs21s_absolute_max_c1, dEs21s_absolute_mean_c3, dEs21s_absolute_min_c3, dEs21s_absolute_max_c3, dEs21s_absolute_mean_delta, dEs21s_absolute_min_delta, dEs21s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( dEs21s_absolute, true );
+[ dEs21s_relative_mean_c1, dEs21s_relative_min_c1, dEs21s_relative_max_c1, dEs21s_relative_mean_c3, dEs21s_relative_min_c3, dEs21s_relative_max_c3, dEs21s_relative_mean_delta, dEs21s_relative_min_delta, dEs21s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( dEs21s_relative, true );
 
-% Retrieve the mean, min, and max dEs21 parameter averaged over c3.
-[ dEs21s_absolute_mean_c3, dEs21s_absolute_min_c3, dEs21s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( dEs21s_absolute, 2 );
-[ dEs21s_relative_mean_c3, dEs21s_relative_min_c3, dEs21s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( dEs21s_relative, 2 );
-
-% Retrieve the mean, min, and max dEs21 parameter averaged over c1.
-[ dEs21s_absolute_mean_c1, dEs21s_absolute_min_c1, dEs21s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( dEs21s_absolute, 1 );
-[ dEs21s_relative_mean_c1, dEs21s_relative_min_c1, dEs21s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( dEs21s_relative, 1 );
 
 
 %% Process gs21 Parameter Data.
 
 % ---------- Median gs21 Parameter ----------
 
-% Retrieve the median gs21 parameter given the median delta value.
-gs21s_absolute_median_delta = gs21s_absolute( :, :, deltas_median_index );
-gs21s_relative_median_delta = gs21s_relative( :, :, deltas_median_index );
-
-% Retrieve the median gs21 parameter given the median c3 value.
-gs21s_absolute_median_c3 = squeeze( gs21s_absolute( :, c3s_median_index, : ) );
-gs21s_relative_median_c3 = squeeze( gs21s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median gs21 parameter given the median c1 value.
-gs21s_absolute_median_c1 = squeeze( gs21s_absolute( c1s_median_index, :, : ) );
-gs21s_relative_median_c1 = squeeze( gs21s_relative( c1s_median_index, :, : ) );
+% Retrieve the median gs21 parameter given the median parameter values.
+[ gs21s_absolute_median_c1, gs21s_absolute_median_c3, gs21s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( gs21s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ gs21s_relative_median_c1, gs21s_relative_median_c3, gs21s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( gs21s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean gs21 Parameter ----------
 
-% Retrieve the mean, min, and max gs21 parameter averaged over delta.
-[ gs21s_absolute_mean_delta, gs21s_absolute_min_delta, gs21s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( gs21s_absolute, 3 );
-[ gs21s_relative_mean_delta, gs21s_relative_min_delta, gs21s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( gs21s_relative, 3 );
-
-% Retrieve the mean, min, and max gs21 parameter averaged over c3.
-[ gs21s_absolute_mean_c3, gs21s_absolute_min_c3, gs21s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( gs21s_absolute, 2 );
-[ gs21s_relative_mean_c3, gs21s_relative_min_c3, gs21s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( gs21s_relative, 2 );
-
-% Retrieve the mean, min, and max gs21 parameter averaged over c1.
-[ gs21s_absolute_mean_c1, gs21s_absolute_min_c1, gs21s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( gs21s_absolute, 1 );
-[ gs21s_relative_mean_c1, gs21s_relative_min_c1, gs21s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( gs21s_relative, 1 );
+% Retrieve the mean, min, and max gs21 parameter averaged over each of the parameters.
+[ gs21s_absolute_mean_c1, gs21s_absolute_min_c1, gs21s_absolute_max_c1, gs21s_absolute_mean_c3, gs21s_absolute_min_c3, gs21s_absolute_max_c3, gs21s_absolute_mean_delta, gs21s_absolute_min_delta, gs21s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( gs21s_absolute, true );
+[ gs21s_relative_mean_c1, gs21s_relative_min_c1, gs21s_relative_max_c1, gs21s_relative_mean_c3, gs21s_relative_min_c3, gs21s_relative_max_c3, gs21s_relative_mean_delta, gs21s_relative_min_delta, gs21s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( gs21s_relative, true );
 
 
 %% Process Ia2 Parameter Data.
 
 % ---------- Median Ia2 Parameter ----------
 
-% Retrieve the median Ia2 parameter given the median delta value.
-Ia2s_absolute_median_delta = Ia2s_absolute( :, :, deltas_median_index );
-Ia2s_relative_median_delta = Ia2s_relative( :, :, deltas_median_index );
-
-% Retrieve the median Ia2 parameter given the median c3 value.
-Ia2s_absolute_median_c3 = squeeze( Ia2s_absolute( :, c3s_median_index, : ) );
-Ia2s_relative_median_c3 = squeeze( Ia2s_relative( :, c3s_median_index, : ) );
-
-% Retrieve the median Ia2 parameter given the median c1 value.
-Ia2s_absolute_median_c1 = squeeze( Ia2s_absolute( c1s_median_index, :, : ) );
-Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
+% Retrieve the median Ia2 parameter given the median parameter values.
+[ Ia2s_absolute_median_c1, Ia2s_absolute_median_c3, Ia2s_absolute_median_delta ] = numerical_method_utilities.get_3D_grid_slices( Ia2s_absolute, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
+[ Ia2s_relative_median_c1, Ia2s_relative_median_c3, Ia2s_relative_median_delta ] = numerical_method_utilities.get_3D_grid_slices( Ia2s_relative, [ c1s_median_index, c3s_median_index, deltas_median_index ], true );
 
 
 % ---------- Mean Ia2 Parameter ----------
 
-% Retrieve the mean, min, and max Ia2 parameter averaged over delta.
-[ Ia2s_absolute_mean_delta, Ia2s_absolute_min_delta, Ia2s_absolute_max_delta ] = numerical_method_utilities.compute_mean_min_max( Ia2s_absolute, 3 );
-[ Ia2s_relative_mean_delta, Ia2s_relative_min_delta, Ia2s_relative_max_delta ] = numerical_method_utilities.compute_mean_min_max( Ia2s_relative, 3 );
-
-% Retrieve the mean, min, and max Ia2 parameter averaged over c3.
-[ Ia2s_absolute_mean_c3, Ia2s_absolute_min_c3, Ia2s_absolute_max_c3 ] = numerical_method_utilities.compute_mean_min_max( Ia2s_absolute, 2 );
-[ Ia2s_relative_mean_c3, Ia2s_relative_min_c3, Ia2s_relative_max_c3 ] = numerical_method_utilities.compute_mean_min_max( Ia2s_relative, 2 );
-
-% Retrieve the mean, min, and max Ia2 parameter averaged over c1.
-[ Ia2s_absolute_mean_c1, Ia2s_absolute_min_c1, Ia2s_absolute_max_c1 ] = numerical_method_utilities.compute_mean_min_max( Ia2s_absolute, 1 );
-[ Ia2s_relative_mean_c1, Ia2s_relative_min_c1, Ia2s_relative_max_c1 ] = numerical_method_utilities.compute_mean_min_max( Ia2s_relative, 1 );
+% Retrieve the mean, min, and max Ia2 parameter averaged over each of the parameters.
+[ Ia2s_absolute_mean_c1, Ia2s_absolute_min_c1, Ia2s_absolute_max_c1, Ia2s_absolute_mean_c3, Ia2s_absolute_min_c3, Ia2s_absolute_max_c3, Ia2s_absolute_mean_delta, Ia2s_absolute_min_delta, Ia2s_absolute_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( Ia2s_absolute, true );
+[ Ia2s_relative_mean_c1, Ia2s_relative_min_c1, Ia2s_relative_max_c1, Ia2s_relative_mean_c3, Ia2s_relative_min_c3, Ia2s_relative_max_c3, Ia2s_relative_mean_delta, Ia2s_relative_min_delta, Ia2s_relative_max_delta ] = numerical_method_utilities.compute_3D_grid_mean_min_max_slices( Ia2s_relative, true );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Behavior for Median Formulation Parameters.
@@ -1757,29 +1587,29 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_decoded_ssr_median = plotting_utilities.plot_steady_state_response( xs_numerical_input, xs_desired_relative_output_median, xs_theoretical_relative_output_median, xs_numerical_relative_output_median, scale, subnetwork_name, 'Relative', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory, 'median' );
 % fig_decoded_ssr_median_compact = plotting_utilities.plot_steady_state_response_comparison( xs_numerical_input, xs_desired_absolute_output_median, xs_theoretical_absolute_output_median, xs_numerical_absolute_output_median, color1, xs_numerical_input, xs_desired_relative_output_median, xs_theoretical_relative_output_median, xs_numerical_relative_output_median, color2, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', true, save_flag, save_directory, 'median_compact' );
 % fig_decoded_ssr_median = plotting_utilities.plot_steady_state_response_comparison( xs_numerical_input, xs_desired_absolute_output_median, xs_theoretical_absolute_output_median, xs_numerical_absolute_output_median, color1, xs_numerical_input, xs_desired_relative_output_median, xs_theoretical_relative_output_median, xs_numerical_relative_output_median, color2, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', false, save_flag, save_directory, 'median' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters.
+
+% Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters.
 % fig_ssr_median_compact = plotting_utilities.plot_steady_state_response_full_comparison( Us_numerical_input, Us_desired_absolute_output_median, Us_theoretical_absolute_output_median, Us_numerical_absolute_output_median, xs_numerical_input, xs_desired_absolute_output_median, xs_theoretical_absolute_output_median, xs_numerical_absolute_output_median, color1, Us_numerical_input, Us_desired_relative_output_median, Us_theoretical_relative_output_median, Us_numerical_relative_output_median, xs_numerical_input, xs_desired_relative_output_median, xs_theoretical_relative_output_median, xs_numerical_relative_output_median, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', true, save_flag, save_directory, 'median_compact' );
-% fig_ssr_median = plotting_utilities.plot_steady_state_response_full_comparison( Us_numerical_input, Us_desired_absolute_output_median, Us_theoretical_absolute_output_median, Us_numerical_absolute_output_median, xs_numerical_input, xs_desired_absolute_output_median, xs_theoretical_absolute_output_median, xs_numerical_absolute_output_median, color1, Us_numerical_input, Us_desired_relative_output_median, Us_theoretical_relative_output_median, Us_numerical_relative_output_median, xs_numerical_input, xs_desired_relative_output_median, xs_theoretical_relative_output_median, xs_numerical_relative_output_median, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', false, save_flag, save_directory, 'median' );
+fig_ssr_median = plotting_utilities.plot_steady_state_response_full_comparison( Us_numerical_input, Us_desired_absolute_output_median, Us_theoretical_absolute_output_median, Us_numerical_absolute_output_median, xs_numerical_input, xs_desired_absolute_output_median, xs_theoretical_absolute_output_median, xs_numerical_absolute_output_median, color1, Us_numerical_input, Us_desired_relative_output_median, Us_theoretical_relative_output_median, Us_numerical_relative_output_median, xs_numerical_input, xs_desired_relative_output_median, xs_theoretical_relative_output_median, xs_numerical_relative_output_median, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', '(Median)', false, save_flag, save_directory, 'median' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Behavior Over the Formulation Parameters.
 
 % % Plot a summary of the encoded absolute and relative steady state behavior over the formulation parameters.
-% fig_absolute_encoded_ssr_patch = plotting_utilities.plot_steady_state_response_patch( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, color1, scale, subnetwork_name, 'Absolute', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory, 'patch' );
-% fig_relative_encoded_ssr_patch = plotting_utilities.plot_steady_state_response_patch( Us_numerical_input, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, color2, scale, subnetwork_name, 'Relative', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory, 'patch' );
-% fig_encoded_ssr_patch_compact = plotting_utilities.plot_steady_state_response_patch_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, color2, scale, subnetwork_name, 'Encoded', 'U1', 'U2', 'mV', true, save_flag, save_directory, 'patch_compact' );
-% fig_encoded_ssr_patch = plotting_utilities.plot_steady_state_response_patch_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, color2, scale, subnetwork_name, 'Encoded', 'U1', 'U2', 'mV', false, save_flag, save_directory, 'patch' );
+% fig_absolute_encoded_ssr_summary = plotting_utilities.plot_steady_state_response_patch( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, color1, scale, subnetwork_name, 'Absolute', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory, 'summary' );
+% fig_relative_encoded_ssr_summary = plotting_utilities.plot_steady_state_response_patch( Us_numerical_input, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, color2, scale, subnetwork_name, 'Relative', 'Encoded', 'U1', 'U2', 'mV', save_flag, save_directory, 'summary' );
+% fig_encoded_ssr_summary_compact = plotting_utilities.plot_steady_state_response_patch_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, color2, scale, subnetwork_name, 'Encoded', 'U1', 'U2', 'mV', true, save_flag, save_directory, 'summary_compact' );
+% fig_encoded_ssr_summary = plotting_utilities.plot_steady_state_response_patch_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, color2, scale, subnetwork_name, 'Encoded', 'U1', 'U2', 'mV', false, save_flag, save_directory, 'summary' );
 % 
 % % Plot a summary of the decoded absolute and relative steady state behavior over the formulation parameters.
-% fig_absolute_decoded_ssr_patch = plotting_utilities.plot_steady_state_response_patch( xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, scale, subnetwork_name, 'Absolute', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory, 'patch' );
-% fig_relative_decoded_ssr_patch = plotting_utilities.plot_steady_state_response_patch( xs_numerical_input, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, subnetwork_name, 'Relative', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory, 'patch' );
-% fig_decoded_ssr_patch_compact = plotting_utilities.plot_steady_state_response_patch_comparison( xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', true, save_flag, save_directory, 'patch_compact' );
-% fig_decoded_ssr_patch = plotting_utilities.plot_steady_state_response_patch_comparison( xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', false, save_flag, save_directory, 'patch' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters.
-% fig_ssr_patch_compact = plotting_utilities.plot_steady_state_response_patch_full_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', true, save_flag, save_directory, 'patch_compact' );
-% fig_ssr_patch = plotting_utilities.plot_steady_state_response_patch_full_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', false, save_flag, save_directory, 'patch' );
+% fig_absolute_decoded_ssr_summary = plotting_utilities.plot_steady_state_response_patch( xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, scale, subnetwork_name, 'Absolute', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory, 'summary' );
+% fig_relative_decoded_ssr_summary = plotting_utilities.plot_steady_state_response_patch( xs_numerical_input, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, subnetwork_name, 'Relative', 'Decoded', 'x1', 'x2', '-', save_flag, save_directory, 'summary' );
+% fig_decoded_ssr_summary_compact = plotting_utilities.plot_steady_state_response_patch_comparison( xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', true, save_flag, save_directory, 'summary_compact' );
+% fig_decoded_ssr_summary = plotting_utilities.plot_steady_state_response_patch_comparison( xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, subnetwork_name, 'Decoded', 'x1', 'x2', '-', false, save_flag, save_directory, 'summary' );
+
+% Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters.
+% fig_ssr_summary_compact = plotting_utilities.plot_steady_state_response_patch_full_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', true, save_flag, save_directory, 'summary_compact' );
+fig_ssr_summary = plotting_utilities.plot_steady_state_response_patch_full_comparison( Us_numerical_input, Us_numerical_absolute_output_mean, Us_numerical_absolute_output_min, Us_numerical_absolute_output_max, xs_numerical_input, xs_numerical_absolute_output_mean, xs_numerical_absolute_output_min, xs_numerical_absolute_output_max, color1, Us_numerical_relative_output_mean, Us_numerical_relative_output_min, Us_numerical_relative_output_max, xs_numerical_relative_output_mean, xs_numerical_relative_output_min, xs_numerical_relative_output_max, color2, scale, scale, subnetwork_name, 'U1', 'x1', 'U2', 'x2', 'mV', '-', '(Summary)', false, save_flag, save_directory, 'summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Behavior for Median Formulation Parameters (Variable c1).
@@ -1789,16 +1619,16 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 % fig_encoded_ssr_median_c1_compact = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
 % fig_encoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
-% 
+
 % % Plot the decoded absolute and relative steady state behavior for the median formulation parameters (variable c1).
 % fig_absolute_decoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 % fig_relative_decoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response( C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 % fig_decoded_ssr_median_c1_compact = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
 % fig_decoded_ssr_median_c1 = plotting_utilities.surf_steady_state_response_comparison( C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters (variable c1).
+
+% Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters (variable c1).
 % fig_ssr_median_c1_compact = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
-% fig_ssr_median_c1 = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
+fig_ssr_median_c1 = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c1, Us_desired_absolute_output_median_c1, Us_theoretical_absolute_output_median_c1, Us_numerical_absolute_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_absolute_output_median_c1, Xs_theoretical_absolute_output_median_c1, Xs_numerical_absolute_output_median_c1, color1, C1s_input, Us_input_c1, Us_desired_relative_output_median_c1, Us_theoretical_relative_output_median_c1, Us_numerical_relative_output_median_c1, C1s_input, Xs_input_c1, Xs_desired_relative_output_median_c1, Xs_theoretical_relative_output_median_c1, Xs_numerical_relative_output_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Behavior Over the Formulation Parameters (Variable c1).
@@ -1808,16 +1638,16 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_encoded_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Us_input_c1, Us_numerical_relative_output_mean_c1, Us_numerical_relative_output_min_c1, Us_numerical_relative_output_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 % fig_encoded_ssr_summary_c1_compact = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Us_input_c1, Us_numerical_absolute_output_mean_c1, Us_numerical_absolute_output_min_c1, Us_numerical_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_numerical_relative_output_mean_c1, Us_numerical_relative_output_min_c1, Us_numerical_relative_output_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
 % fig_encoded_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Us_input_c1, Us_numerical_absolute_output_mean_c1, Us_numerical_absolute_output_min_c1, Us_numerical_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_numerical_relative_output_mean_c1, Us_numerical_relative_output_min_c1, Us_numerical_relative_output_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
-% 
+
 % % Plot a summary of the decoded absolute and relative steady state behavior over the formulation parameters (variable c1).
 % fig_absolute_decoded_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Xs_input_c1, Xs_numerical_absolute_output_mean_c1, Xs_numerical_absolute_output_min_c1, Xs_numerical_absolute_output_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 % fig_relative_decoded_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch( C1s_input, Xs_input_c1, Xs_numerical_relative_output_mean_c1, Xs_numerical_relative_output_min_c1, Xs_numerical_relative_output_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 % fig_decoded_ssr_summary_c1_compact = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Xs_input_c1, Xs_numerical_absolute_output_mean_c1, Xs_numerical_absolute_output_min_c1, Xs_numerical_absolute_output_max_c1, color1, C1s_input, Xs_input_c1, Xs_numerical_relative_output_mean_c1, Xs_numerical_relative_output_min_c1, Xs_numerical_relative_output_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
 % fig_decoded_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch_comparison( C1s_input, Xs_input_c1, Xs_numerical_absolute_output_mean_c1, Xs_numerical_absolute_output_min_c1, Xs_numerical_absolute_output_max_c1, color1, C1s_input, Xs_input_c1, Xs_numerical_relative_output_mean_c1, Xs_numerical_relative_output_min_c1, Xs_numerical_relative_output_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters (variable c1).
+
+% Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters (variable c1).
 % fig_ssr_summary_c1_compact = plotting_utilities.surf_steady_state_response_patch_full_comparison( C1s_input, Us_input_c1, Us_numerical_absolute_output_mean_c1, Us_numerical_absolute_output_min_c1, Us_numerical_absolute_output_max_c1, C1s_input, Xs_input_c1, Xs_numerical_absolute_output_mean_c1, Xs_numerical_absolute_output_min_c1, Xs_numerical_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_numerical_relative_output_mean_c1, Us_numerical_relative_output_min_c1, Us_numerical_relative_output_max_c1, C1s_input, Xs_input_c1, Xs_numerical_relative_output_mean_c1, Xs_numerical_relative_output_min_c1, Xs_numerical_relative_output_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
-% fig_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch_full_comparison( C1s_input, Us_input_c1, Us_numerical_absolute_output_mean_c1, Us_numerical_absolute_output_min_c1, Us_numerical_absolute_output_max_c1, C1s_input, Xs_input_c1, Xs_numerical_absolute_output_mean_c1, Xs_numerical_absolute_output_min_c1, Xs_numerical_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_numerical_relative_output_mean_c1, Us_numerical_relative_output_min_c1, Us_numerical_relative_output_max_c1, C1s_input, Xs_input_c1, Xs_numerical_relative_output_mean_c1, Xs_numerical_relative_output_min_c1, Xs_numerical_relative_output_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
+fig_ssr_summary_c1 = plotting_utilities.surf_steady_state_response_patch_full_comparison( C1s_input, Us_input_c1, Us_numerical_absolute_output_mean_c1, Us_numerical_absolute_output_min_c1, Us_numerical_absolute_output_max_c1, C1s_input, Xs_input_c1, Xs_numerical_absolute_output_mean_c1, Xs_numerical_absolute_output_min_c1, Xs_numerical_absolute_output_max_c1, color1, C1s_input, Us_input_c1, Us_numerical_relative_output_mean_c1, Us_numerical_relative_output_min_c1, Us_numerical_relative_output_max_c1, C1s_input, Xs_input_c1, Xs_numerical_relative_output_mean_c1, Xs_numerical_relative_output_min_c1, Xs_numerical_relative_output_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'U2' }, { 'c1', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Behavior for Median Formulation Parameters (Variable c3).
@@ -1833,10 +1663,10 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_decoded_ssr_median_c3 = plotting_utilities.surf_steady_state_response( C3s_input, Xs_input_c3, Xs_desired_relative_output_median_c3, Xs_theoretical_relative_output_median_c3, Xs_numerical_relative_output_median_c3, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
 % fig_decoded_ssr_median_c3_compact = plotting_utilities.surf_steady_state_response_comparison( C3s_input, Xs_input_c3, Xs_desired_absolute_output_median_c3, Xs_theoretical_absolute_output_median_c3, Xs_numerical_absolute_output_median_c3, color1, C3s_input, Xs_input_c3, Xs_desired_relative_output_median_c3, Xs_theoretical_relative_output_median_c3, Xs_numerical_relative_output_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
 % fig_decoded_ssr_median_c3 = plotting_utilities.surf_steady_state_response_comparison( C3s_input, Xs_input_c3, Xs_desired_absolute_output_median_c3, Xs_theoretical_absolute_output_median_c3, Xs_numerical_absolute_output_median_c3, color1, C3s_input, Xs_input_c3, Xs_desired_relative_output_median_c3, Xs_theoretical_relative_output_median_c3, Xs_numerical_relative_output_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters (variable c3).
+
+% Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters (variable c3).
 % fig_ssr_median_c3_compact = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c3, Us_desired_absolute_output_median_c3, Us_theoretical_absolute_output_median_c3, Us_numerical_absolute_output_median_c3, C1s_input, Xs_input_c3, Xs_desired_absolute_output_median_c3, Xs_theoretical_absolute_output_median_c3, Xs_numerical_absolute_output_median_c3, color1, C1s_input, Us_input_c3, Us_desired_relative_output_median_c3, Us_theoretical_relative_output_median_c3, Us_numerical_relative_output_median_c3, C1s_input, Xs_input_c3, Xs_desired_relative_output_median_c3, Xs_theoretical_relative_output_median_c3, Xs_numerical_relative_output_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'U2' }, { 'c3', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
-% fig_ssr_median_c3 = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c3, Us_desired_absolute_output_median_c3, Us_theoretical_absolute_output_median_c3, Us_numerical_absolute_output_median_c3, C1s_input, Xs_input_c3, Xs_desired_absolute_output_median_c3, Xs_theoretical_absolute_output_median_c3, Xs_numerical_absolute_output_median_c3, color1, C1s_input, Us_input_c3, Us_desired_relative_output_median_c3, Us_theoretical_relative_output_median_c3, Us_numerical_relative_output_median_c3, C1s_input, Xs_input_c3, Xs_desired_relative_output_median_c3, Xs_theoretical_relative_output_median_c3, Xs_numerical_relative_output_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'U2' }, { 'c3', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
+fig_ssr_median_c3 = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_c3, Us_desired_absolute_output_median_c3, Us_theoretical_absolute_output_median_c3, Us_numerical_absolute_output_median_c3, C1s_input, Xs_input_c3, Xs_desired_absolute_output_median_c3, Xs_theoretical_absolute_output_median_c3, Xs_numerical_absolute_output_median_c3, color1, C1s_input, Us_input_c3, Us_desired_relative_output_median_c3, Us_theoretical_relative_output_median_c3, Us_numerical_relative_output_median_c3, C1s_input, Xs_input_c3, Xs_desired_relative_output_median_c3, Xs_theoretical_relative_output_median_c3, Xs_numerical_relative_output_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'U2' }, { 'c3', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Behavior Over the Formulation Parameters (Variable c3).
@@ -1852,10 +1682,10 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_decoded_ssr_summary_c3 = plotting_utilities.surf_steady_state_response_patch( C3s_input, Xs_input_c3, Xs_numerical_relative_output_mean_c3, Xs_numerical_relative_output_min_c3, Xs_numerical_relative_output_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
 % fig_decoded_ssr_summary_c3_compact = plotting_utilities.surf_steady_state_response_patch_comparison( C3s_input, Xs_input_c3, Xs_numerical_absolute_output_mean_c3, Xs_numerical_absolute_output_min_c3, Xs_numerical_absolute_output_max_c3, color1, C3s_input, Xs_input_c3, Xs_numerical_relative_output_mean_c3, Xs_numerical_relative_output_min_c3, Xs_numerical_relative_output_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
 % fig_decoded_ssr_summary_c3 = plotting_utilities.surf_steady_state_response_patch_comparison( C3s_input, Xs_input_c3, Xs_numerical_absolute_output_mean_c3, Xs_numerical_absolute_output_min_c3, Xs_numerical_absolute_output_max_c3, color1, C3s_input, Xs_input_c3, Xs_numerical_relative_output_mean_c3, Xs_numerical_relative_output_min_c3, Xs_numerical_relative_output_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters (variable c3).
+
+% Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters (variable c3).
 % fig_ssr_summary_c3_compact = plotting_utilities.surf_steady_state_response_patch_full_comparison( C3s_input, Us_input_c3, Us_numerical_absolute_output_mean_c3, Us_numerical_absolute_output_min_c3, Us_numerical_absolute_output_max_c3, C3s_input, Xs_input_c3, Xs_numerical_absolute_output_mean_c3, Xs_numerical_absolute_output_min_c3, Xs_numerical_absolute_output_max_c3, color1, C3s_input, Us_input_c3, Us_numerical_relative_output_mean_c3, Us_numerical_relative_output_min_c3, Us_numerical_relative_output_max_c3, C3s_input, Xs_input_c3, Xs_numerical_relative_output_mean_c3, Xs_numerical_relative_output_min_c3, Xs_numerical_relative_output_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'U2' }, { 'c3', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
-% fig_ssr_summary_c3 = plotting_utilities.surf_steady_state_response_patch_full_comparison( C3s_input, Us_input_c3, Us_numerical_absolute_output_mean_c3, Us_numerical_absolute_output_min_c3, Us_numerical_absolute_output_max_c3, C3s_input, Xs_input_c3, Xs_numerical_absolute_output_mean_c3, Xs_numerical_absolute_output_min_c3, Xs_numerical_absolute_output_max_c3, color1, C3s_input, Us_input_c3, Us_numerical_relative_output_mean_c3, Us_numerical_relative_output_min_c3, Us_numerical_relative_output_max_c3, C3s_input, Xs_input_c3, Xs_numerical_relative_output_mean_c3, Xs_numerical_relative_output_min_c3, Xs_numerical_relative_output_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'U2' }, { 'c3', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
+fig_ssr_summary_c3 = plotting_utilities.surf_steady_state_response_patch_full_comparison( C3s_input, Us_input_c3, Us_numerical_absolute_output_mean_c3, Us_numerical_absolute_output_min_c3, Us_numerical_absolute_output_max_c3, C3s_input, Xs_input_c3, Xs_numerical_absolute_output_mean_c3, Xs_numerical_absolute_output_min_c3, Xs_numerical_absolute_output_max_c3, color1, C3s_input, Us_input_c3, Us_numerical_relative_output_mean_c3, Us_numerical_relative_output_min_c3, Us_numerical_relative_output_max_c3, C3s_input, Xs_input_c3, Xs_numerical_relative_output_mean_c3, Xs_numerical_relative_output_min_c3, Xs_numerical_relative_output_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'U2' }, { 'c3', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Behavior for Median Formulation Parameters (Variable delta).
@@ -1871,10 +1701,10 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_decoded_ssr_median_delta = plotting_utilities.surf_steady_state_response( Deltas_input, Xs_input_delta, Xs_desired_relative_output_median_delta, Xs_theoretical_relative_output_median_delta, Xs_numerical_relative_output_median_delta, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
 % fig_decoded_ssr_median_delta_compact = plotting_utilities.surf_steady_state_response_comparison( Deltas_input, Xs_input_delta, Xs_desired_absolute_output_median_delta, Xs_theoretical_absolute_output_median_delta, Xs_numerical_absolute_output_median_delta, color1, Deltas_input, Xs_input_delta, Xs_desired_relative_output_median_delta, Xs_theoretical_relative_output_median_delta, Xs_numerical_relative_output_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
 % fig_decoded_ssr_median_delta = plotting_utilities.surf_steady_state_response_comparison( Deltas_input, Xs_input_delta, Xs_desired_absolute_output_median_delta, Xs_theoretical_absolute_output_median_delta, Xs_numerical_absolute_output_median_delta, color1, Deltas_input, Xs_input_delta, Xs_desired_relative_output_median_delta, Xs_theoretical_relative_output_median_delta, Xs_numerical_relative_output_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters (variable delta).
+
+% Plot the encoded and decoded absolute and relative steady state behavior for the median formulation parameters (variable delta).
 % fig_ssr_median_delta_compact = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_delta, Us_desired_absolute_output_median_delta, Us_theoretical_absolute_output_median_delta, Us_numerical_absolute_output_median_delta, C1s_input, Xs_input_delta, Xs_desired_absolute_output_median_delta, Xs_theoretical_absolute_output_median_delta, Xs_numerical_absolute_output_median_delta, color1, C1s_input, Us_input_delta, Us_desired_relative_output_median_delta, Us_theoretical_relative_output_median_delta, Us_numerical_relative_output_median_delta, C1s_input, Xs_input_delta, Xs_desired_relative_output_median_delta, Xs_theoretical_relative_output_median_delta, Xs_numerical_relative_output_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'U2' }, { 'delta', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
-% fig_ssr_median_delta = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_delta, Us_desired_absolute_output_median_delta, Us_theoretical_absolute_output_median_delta, Us_numerical_absolute_output_median_delta, C1s_input, Xs_input_delta, Xs_desired_absolute_output_median_delta, Xs_theoretical_absolute_output_median_delta, Xs_numerical_absolute_output_median_delta, color1, C1s_input, Us_input_delta, Us_desired_relative_output_median_delta, Us_theoretical_relative_output_median_delta, Us_numerical_relative_output_median_delta, C1s_input, Xs_input_delta, Xs_desired_relative_output_median_delta, Xs_theoretical_relative_output_median_delta, Xs_numerical_relative_output_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'U2' }, { 'delta', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
+fig_ssr_median_delta = plotting_utilities.surf_steady_state_response_full_comparison( C1s_input, Us_input_delta, Us_desired_absolute_output_median_delta, Us_theoretical_absolute_output_median_delta, Us_numerical_absolute_output_median_delta, C1s_input, Xs_input_delta, Xs_desired_absolute_output_median_delta, Xs_theoretical_absolute_output_median_delta, Xs_numerical_absolute_output_median_delta, color1, C1s_input, Us_input_delta, Us_desired_relative_output_median_delta, Us_theoretical_relative_output_median_delta, Us_numerical_relative_output_median_delta, C1s_input, Xs_input_delta, Xs_desired_relative_output_median_delta, Xs_theoretical_relative_output_median_delta, Xs_numerical_relative_output_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'U2' }, { 'delta', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Behavior Over the Formulation Parameters (Variable delta).
@@ -1890,10 +1720,10 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_decoded_ssr_summary_delta = plotting_utilities.surf_steady_state_response_patch( C3s_input, Xs_input_delta, Xs_numerical_relative_output_mean_delta, Xs_numerical_relative_output_min_delta, Xs_numerical_relative_output_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
 % fig_decoded_ssr_summary_delta_compact = plotting_utilities.surf_steady_state_response_patch_comparison( C3s_input, Xs_input_delta, Xs_numerical_absolute_output_mean_delta, Xs_numerical_absolute_output_min_delta, Xs_numerical_absolute_output_max_delta, color1, C3s_input, Xs_input_delta, Xs_numerical_relative_output_mean_delta, Xs_numerical_relative_output_min_delta, Xs_numerical_relative_output_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
 % fig_decoded_ssr_summary_delta = plotting_utilities.surf_steady_state_response_patch_comparison( C3s_input, Xs_input_delta, Xs_numerical_absolute_output_mean_delta, Xs_numerical_absolute_output_min_delta, Xs_numerical_absolute_output_max_delta, color1, C3s_input, Xs_input_delta, Xs_numerical_relative_output_mean_delta, Xs_numerical_relative_output_min_delta, Xs_numerical_relative_output_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters (variable delta).
+
+% Plot a summary of the encoded and decoded absolute and relative steady state behavior over the formulation parameters (variable delta).
 % fig_ssr_summary_delta_compact = plotting_utilities.surf_steady_state_response_patch_full_comparison( C3s_input, Us_input_delta, Us_numerical_absolute_output_mean_delta, Us_numerical_absolute_output_min_delta, Us_numerical_absolute_output_max_delta, C3s_input, Xs_input_delta, Xs_numerical_absolute_output_mean_delta, Xs_numerical_absolute_output_min_delta, Xs_numerical_absolute_output_max_delta, color1, C3s_input, Us_input_delta, Us_numerical_relative_output_mean_delta, Us_numerical_relative_output_min_delta, Us_numerical_relative_output_max_delta, C3s_input, Xs_input_delta, Xs_numerical_relative_output_mean_delta, Xs_numerical_relative_output_min_delta, Xs_numerical_relative_output_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'U2' }, { 'delta', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
-% fig_ssr_summary_delta = plotting_utilities.surf_steady_state_response_patch_full_comparison( C3s_input, Us_input_delta, Us_numerical_absolute_output_mean_delta, Us_numerical_absolute_output_min_delta, Us_numerical_absolute_output_max_delta, C3s_input, Xs_input_delta, Xs_numerical_absolute_output_mean_delta, Xs_numerical_absolute_output_min_delta, Xs_numerical_absolute_output_max_delta, color1, C3s_input, Us_input_delta, Us_numerical_relative_output_mean_delta, Us_numerical_relative_output_min_delta, Us_numerical_relative_output_max_delta, C3s_input, Xs_input_delta, Xs_numerical_relative_output_mean_delta, Xs_numerical_relative_output_min_delta, Xs_numerical_relative_output_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'U2' }, { 'delta', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
+fig_ssr_summary_delta = plotting_utilities.surf_steady_state_response_patch_full_comparison( C3s_input, Us_input_delta, Us_numerical_absolute_output_mean_delta, Us_numerical_absolute_output_min_delta, Us_numerical_absolute_output_max_delta, C3s_input, Xs_input_delta, Xs_numerical_absolute_output_mean_delta, Xs_numerical_absolute_output_min_delta, Xs_numerical_absolute_output_max_delta, color1, C3s_input, Us_input_delta, Us_numerical_relative_output_mean_delta, Us_numerical_relative_output_min_delta, Us_numerical_relative_output_max_delta, C3s_input, Xs_input_delta, Xs_numerical_relative_output_mean_delta, Xs_numerical_relative_output_min_delta, Xs_numerical_relative_output_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'U2' }, { 'delta', 'x1', 'x2' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Error for Median Formulation Parameters.
@@ -1903,35 +1733,35 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_encoded_sse_median = plotting_utilities.plot_steady_state_error( Us_numerical_input, errors_theoretical_relative_encoded_median, errors_numerical_relative_encoded_median, scale, subnetwork_name, 'Relative', 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, save_flag, save_directory, 'median' );
 % fig_encoded_sse_median_compact = plotting_utilities.plot_steady_state_error_comparison( Us_numerical_input, errors_theoretical_absolute_encoded_median, errors_numerical_absolute_encoded_median, color1, Us_numerical_input, errors_theoretical_relative_encoded_median, errors_numerical_relative_encoded_median, color2, scale, subnetwork_name, 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, true, save_flag, save_directory, 'median_compact' );
 % fig_encoded_sse_median = plotting_utilities.plot_steady_state_error_comparison( Us_numerical_input, errors_theoretical_absolute_encoded_median, errors_numerical_absolute_encoded_median, color1, Us_numerical_input, errors_theoretical_relative_encoded_median, errors_numerical_relative_encoded_median, color2, scale, subnetwork_name, 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, false, save_flag, save_directory, 'median' );
-% 
+
 % % Plot the decoded absolute and relative steady state error for the median formulation parameters.
 % fig_absolute_decoded_sse_median = plotting_utilities.plot_steady_state_error( xs_numerical_input, errors_theoretical_absolute_decoded_median, errors_numerical_absolute_decoded_median, scale, subnetwork_name, 'Absolute', 'Decoded', { 'x1', 'E' }, { '-', '-' }, save_flag, save_directory, 'median' );
 % fig_relative_decoded_sse_median = plotting_utilities.plot_steady_state_error( xs_numerical_input, errors_theoretical_relative_decoded_median, errors_numerical_relative_decoded_median, scale, subnetwork_name, 'Relative', 'Decoded', { 'x1', 'E' }, { '-', '-' }, save_flag, save_directory, 'median' );
 % fig_decoded_sse_median_compact = plotting_utilities.plot_steady_state_error_comparison( xs_numerical_input, errors_theoretical_absolute_decoded_median, errors_numerical_absolute_decoded_median, color1, xs_numerical_input, errors_theoretical_relative_decoded_median, errors_numerical_relative_decoded_median, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'E' }, { '-', '-' }, true, save_flag, save_directory, 'median_compact' );
 % fig_decoded_sse_median = plotting_utilities.plot_steady_state_error_comparison( xs_numerical_input, errors_theoretical_absolute_decoded_median, errors_numerical_absolute_decoded_median, color1, xs_numerical_input, errors_theoretical_relative_decoded_median, errors_numerical_relative_decoded_median, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'E' }, { '-', '-' }, false, save_flag, save_directory, 'median' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters.
+
+% Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters.
 % fig_sse_median_compact = plotting_utilities.plot_steady_state_error_full_comparison( Us_numerical_input, errors_theoretical_absolute_encoded_median, errors_numerical_absolute_encoded_median, xs_numerical_input, errors_theoretical_absolute_decoded_median, errors_numerical_absolute_decoded_median, color1, Us_numerical_input, errors_theoretical_relative_encoded_median, errors_numerical_relative_encoded_median, xs_numerical_input, errors_theoretical_relative_decoded_median, errors_numerical_relative_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, true, save_flag, save_directory, 'median_compact' );
-% fig_sse_median = plotting_utilities.plot_steady_state_error_full_comparison( Us_numerical_input, errors_theoretical_absolute_encoded_median, errors_numerical_absolute_encoded_median, xs_numerical_input, errors_theoretical_absolute_decoded_median, errors_numerical_absolute_decoded_median, color1, Us_numerical_input, errors_theoretical_relative_encoded_median, errors_numerical_relative_encoded_median, xs_numerical_input, errors_theoretical_relative_decoded_median, errors_numerical_relative_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, false, save_flag, save_directory, 'median' );
+fig_sse_median = plotting_utilities.plot_steady_state_error_full_comparison( Us_numerical_input, errors_theoretical_absolute_encoded_median, errors_numerical_absolute_encoded_median, xs_numerical_input, errors_theoretical_absolute_decoded_median, errors_numerical_absolute_decoded_median, color1, Us_numerical_input, errors_theoretical_relative_encoded_median, errors_numerical_relative_encoded_median, xs_numerical_input, errors_theoretical_relative_decoded_median, errors_numerical_relative_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, '(Median)', false, save_flag, save_directory, 'median' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Error Over the Formulation Parameters.
 
 % % Plot a summary of the encoded absolute and relative steady state error over the formulation parameters.
-% fig_absolute_encoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, color1, scale, subnetwork_name, 'Absolute', 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, save_flag, save_directory, 'patch' );
-% fig_relative_encoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( Us_numerical_input, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, color1, scale, subnetwork_name, 'Absolute', 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, save_flag, save_directory, 'patch' );
-% fig_encoded_sse_patch_compact = plotting_utilities.plot_steady_state_error_patch_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, color2, scale, subnetwork_name, 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, true, save_flag, save_directory, 'patch_compact' );
-% fig_encoded_sse_patch = plotting_utilities.plot_steady_state_error_patch_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, color2, scale, subnetwork_name, 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, false, save_flag, save_directory, 'patch' );
-% 
+% fig_absolute_encoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, color1, scale, subnetwork_name, 'Absolute', 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, save_flag, save_directory, 'summary' );
+% fig_relative_encoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( Us_numerical_input, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, color1, scale, subnetwork_name, 'Absolute', 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, save_flag, save_directory, 'summary' );
+% fig_encoded_sse_patch_compact = plotting_utilities.plot_steady_state_error_patch_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, color2, scale, subnetwork_name, 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, true, save_flag, save_directory, 'summary_compact' );
+% fig_encoded_sse_patch = plotting_utilities.plot_steady_state_error_patch_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, color2, scale, subnetwork_name, 'Encoded', { 'U1', 'E' }, { 'mV', 'mV' }, false, save_flag, save_directory, 'summary' );
+
 % % Plot a summary of the decoded absolute and relative steady state error over the formulation parameters.
-% fig_absolute_decoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, scale, subnetwork_name, 'Absolute', 'Decoded', { 'x1', 'E' }, { '-', '-' }, save_flag, save_directory, 'patch' );
-% fig_relative_decoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( xs_numerical_input, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color1, scale, subnetwork_name, 'Absolute', 'Decoded', { 'x1', 'E' }, { '-', '-' }, save_flag, save_directory, 'patch' );
-% fig_decoded_sse_patch_compact = plotting_utilities.plot_steady_state_error_patch_comparison( xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'E' }, { '-', '-' }, true, save_flag, save_directory, 'patch_compact' );
-% fig_decoded_sse_patch = plotting_utilities.plot_steady_state_error_patch_comparison( xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'E' }, { '-', '-' }, false, save_flag, save_directory, 'patch' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters.
-% fig_sse_patch_compact = plotting_utilities.plot_steady_state_error_patch_full_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, true, save_flag, save_directory, 'patch_compact' );
-% fig_sse_patch = plotting_utilities.plot_steady_state_error_patch_full_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, false, save_flag, save_directory, 'patch' );
+% fig_absolute_decoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, scale, subnetwork_name, 'Absolute', 'Decoded', { 'x1', 'E' }, { '-', '-' }, save_flag, save_directory, 'summary' );
+% fig_relative_decoded_sse_patch = plotting_utilities.plot_steady_state_error_patch( xs_numerical_input, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color1, scale, subnetwork_name, 'Absolute', 'Decoded', { 'x1', 'E' }, { '-', '-' }, save_flag, save_directory, 'summary' );
+% fig_decoded_sse_patch_compact = plotting_utilities.plot_steady_state_error_patch_comparison( xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'E' }, { '-', '-' }, true, save_flag, save_directory, 'summary_compact' );
+% fig_decoded_sse_patch = plotting_utilities.plot_steady_state_error_patch_comparison( xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'E' }, { '-', '-' }, false, save_flag, save_directory, 'summary' );
+
+% Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters.
+% fig_sse_patch_compact = plotting_utilities.plot_steady_state_error_patch_full_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, true, save_flag, save_directory, 'summary_compact' );
+fig_sse_patch = plotting_utilities.plot_steady_state_error_patch_full_comparison( Us_numerical_input, errors_numerical_absolute_encoded_mean, errors_numerical_absolute_encoded_min, errors_numerical_absolute_encoded_max, xs_numerical_input, errors_numerical_absolute_decoded_mean, errors_numerical_absolute_decoded_min, errors_numerical_absolute_decoded_max, color1, errors_numerical_relative_encoded_mean, errors_numerical_relative_encoded_min, errors_numerical_relative_encoded_max, errors_numerical_relative_decoded_mean, errors_numerical_relative_decoded_min, errors_numerical_relative_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', 'E' }, { 'x1', 'E' }, { 'mV', 'mV' }, { '-', '-' }, '(Summary)', false, save_flag, save_directory, 'summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Error for Median Formulation Parameters (Variable c1).
@@ -1941,16 +1771,16 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_encoded_sse_median_c1 = plotting_utilities.surf_steady_state_error( C1s_input, Us_input_c1, errors_theoretical_relative_encoded_median_c1, errors_numerical_relative_encoded_median_c1, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c1', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 % fig_encoded_sse_median_c1_compact = plotting_utilities.surf_steady_state_error_comparison( C1s_input, Us_input_c1, errors_theoretical_absolute_encoded_median_c1, errors_numerical_absolute_encoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_encoded_median_c1, errors_numerical_relative_encoded_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
 % fig_encoded_sse_median_c1 = plotting_utilities.surf_steady_state_error_comparison( C1s_input, Us_input_c1, errors_theoretical_absolute_encoded_median_c1, errors_numerical_absolute_encoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_encoded_median_c1, errors_numerical_relative_encoded_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
-% 
+
 % % Plot the decoded absolute and relative steady state error for the median formulation parameters (variable c1).
 % fig_absolute_decoded_sse_median_c1 = plotting_utilities.surf_steady_state_error( C1s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c1, errors_numerical_absolute_decoded_median_c1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c1', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 % fig_relative_decoded_sse_median_c1 = plotting_utilities.surf_steady_state_error( C1s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c1, errors_numerical_relative_decoded_median_c1, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c1', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 % fig_decoded_sse_median_c1_compact = plotting_utilities.surf_steady_state_error_comparison( C1s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c1, errors_numerical_absolute_decoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_decoded_median_c1, errors_numerical_relative_decoded_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
 % fig_decoded_sse_median_c1 = plotting_utilities.surf_steady_state_error_comparison( C1s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c1, errors_numerical_absolute_decoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_decoded_median_c1, errors_numerical_relative_decoded_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters (variable c1).
+
+% Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters (variable c1).
 % fig_sse_median_c1_compact = plotting_utilities.surf_steady_state_error_full_comparison( C1s_input, Us_input_c1, errors_theoretical_absolute_encoded_median_c1, errors_numerical_absolute_encoded_median_c1, C1s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c1, errors_numerical_absolute_decoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_encoded_median_c1, errors_numerical_relative_encoded_median_c1, C1s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c1, errors_numerical_relative_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', true, save_flag, save_directory, 'median_variable_c1_compact' );
-% fig_sse_median_c1 = plotting_utilities.surf_steady_state_error_full_comparison( C1s_input, Us_input_c1, errors_theoretical_absolute_encoded_median_c1, errors_numerical_absolute_encoded_median_c1, C1s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c1, errors_numerical_absolute_decoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_encoded_median_c1, errors_numerical_relative_encoded_median_c1, C1s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c1, errors_numerical_relative_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
+fig_sse_median_c1 = plotting_utilities.surf_steady_state_error_full_comparison( C1s_input, Us_input_c1, errors_theoretical_absolute_encoded_median_c1, errors_numerical_absolute_encoded_median_c1, C1s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c1, errors_numerical_absolute_decoded_median_c1, color1, C1s_input, Us_input_c1, errors_theoretical_relative_encoded_median_c1, errors_numerical_relative_encoded_median_c1, C1s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c1, errors_numerical_relative_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', false, save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Error Over the Formulation Parameters (Variable c1).
@@ -1960,1156 +1790,682 @@ Ia2s_relative_median_c1 = squeeze( Ia2s_relative( c1s_median_index, :, : ) );
 % fig_relative_encoded_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch( C1s_input, Us_input_c1, errors_numerical_relative_encoded_mean_c1, errors_numerical_relative_encoded_min_c1, errors_numerical_relative_encoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c1', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 % fig_encoded_sse_summary_c1_compact = plotting_utilities.surf_steady_state_error_patch_comparison( C1s_input, Us_input_c1, errors_numerical_absolute_encoded_mean_c1, errors_numerical_absolute_encoded_min_c1, errors_numerical_absolute_encoded_max_c1, color1, C1s_input, Us_input_c1, errors_numerical_relative_encoded_mean_c1, errors_numerical_relative_encoded_min_c1, errors_numerical_relative_encoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
 % fig_encoded_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch_comparison( C1s_input, Us_input_c1, errors_numerical_absolute_encoded_mean_c1, errors_numerical_absolute_encoded_min_c1, errors_numerical_absolute_encoded_max_c1, color1, C1s_input, Us_input_c1, errors_numerical_relative_encoded_mean_c1, errors_numerical_relative_encoded_min_c1, errors_numerical_relative_encoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
-% 
+
 % % Plot a summary of the decoded absolute and relative steady state error over the formulation parameters (variable c1).
 % fig_absolute_decoded_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch( C1s_input, Xs_input_c1, errors_numerical_absolute_decoded_mean_c1, errors_numerical_absolute_decoded_min_c1, errors_numerical_absolute_decoded_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 % fig_relative_decoded_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch( C1s_input, Xs_input_c1, errors_numerical_relative_decoded_mean_c1, errors_numerical_relative_decoded_min_c1, errors_numerical_relative_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c1', 'x1', 'x2' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 % fig_decoded_sse_summary_c1_compact = plotting_utilities.surf_steady_state_error_patch_comparison( C1s_input, Xs_input_c1, errors_numerical_absolute_decoded_mean_c1, errors_numerical_absolute_decoded_min_c1, errors_numerical_absolute_decoded_max_c1, color1, C1s_input, Xs_input_c1, errors_numerical_relative_decoded_mean_c1, errors_numerical_relative_decoded_min_c1, errors_numerical_relative_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
 % fig_decoded_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch_comparison( C1s_input, Xs_input_c1, errors_numerical_absolute_decoded_mean_c1, errors_numerical_absolute_decoded_min_c1, errors_numerical_absolute_decoded_max_c1, color1, C1s_input, Xs_input_c1, errors_numerical_relative_decoded_mean_c1, errors_numerical_relative_decoded_min_c1, errors_numerical_relative_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters (variable c1).
+
+% Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters (variable c1).
 % fig_sse_summary_c1_compact = plotting_utilities.surf_steady_state_error_patch_full_comparison( C1s_input, Us_input_c1, errors_numerical_absolute_encoded_mean_c1, errors_numerical_absolute_encoded_min_c1, errors_numerical_absolute_encoded_max_c1, C1s_input, Xs_input_c1, errors_numerical_absolute_decoded_mean_c1, errors_numerical_absolute_decoded_min_c1, errors_numerical_absolute_decoded_max_c1, color1, C1s_input, Us_input_c1, errors_numerical_relative_encoded_mean_c1, errors_numerical_relative_encoded_min_c1, errors_numerical_relative_encoded_max_c1, C1s_input, Xs_input_c1, errors_numerical_relative_decoded_mean_c1, errors_numerical_relative_decoded_min_c1, errors_numerical_relative_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c1)', true, save_flag, save_directory, 'c1_summary_compact' );
-% fig_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch_full_comparison( C1s_input, Us_input_c1, errors_numerical_absolute_encoded_mean_c1, errors_numerical_absolute_encoded_min_c1, errors_numerical_absolute_encoded_max_c1, C1s_input, Xs_input_c1, errors_numerical_absolute_decoded_mean_c1, errors_numerical_absolute_decoded_min_c1, errors_numerical_absolute_decoded_max_c1, color1, C1s_input, Us_input_c1, errors_numerical_relative_encoded_mean_c1, errors_numerical_relative_encoded_min_c1, errors_numerical_relative_encoded_max_c1, C1s_input, Xs_input_c1, errors_numerical_relative_decoded_mean_c1, errors_numerical_relative_decoded_min_c1, errors_numerical_relative_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
+fig_sse_summary_c1 = plotting_utilities.surf_steady_state_error_patch_full_comparison( C1s_input, Us_input_c1, errors_numerical_absolute_encoded_mean_c1, errors_numerical_absolute_encoded_min_c1, errors_numerical_absolute_encoded_max_c1, C1s_input, Xs_input_c1, errors_numerical_absolute_decoded_mean_c1, errors_numerical_absolute_decoded_min_c1, errors_numerical_absolute_decoded_max_c1, color1, C1s_input, Us_input_c1, errors_numerical_relative_encoded_mean_c1, errors_numerical_relative_encoded_min_c1, errors_numerical_relative_encoded_max_c1, C1s_input, Xs_input_c1, errors_numerical_relative_decoded_mean_c1, errors_numerical_relative_decoded_min_c1, errors_numerical_relative_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c1)', false, save_flag, save_directory, 'c1_summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Error for Median Formulation Parameters (Variable c3).
 
-% % Plot the encoded absolute and relative steady state error for the median formulation parameters (variable c3).
-% fig_absolute_encoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_relative_encoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_encoded_sse_median_c3_compact = plotting_utilities.surf_steady_state_error_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
-% fig_encoded_sse_median_c3 = plotting_utilities.surf_steady_state_error_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
-% 
-% % Plot the decoded absolute and relative steady state error for the median formulation parameters (variable c3).
-% fig_absolute_decoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_relative_decoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_decoded_sse_median_c3_compact = plotting_utilities.surf_steady_state_error_comparison( C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
-% fig_decoded_sse_median_c3 = plotting_utilities.surf_steady_state_error_comparison( C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters (variable c3).
-% fig_sse_median_c3_compact = plotting_utilities.surf_steady_state_error_full_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
-% fig_sse_median_c3 = plotting_utilities.surf_steady_state_error_full_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
+% Plot the encoded absolute and relative steady state error for the median formulation parameters (variable c3).
+fig_absolute_encoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_relative_encoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_encoded_sse_median_c3_compact = plotting_utilities.surf_steady_state_error_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
+fig_encoded_sse_median_c3 = plotting_utilities.surf_steady_state_error_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
+
+% Plot the decoded absolute and relative steady state error for the median formulation parameters (variable c3).
+fig_absolute_decoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_relative_decoded_sse_median_c3 = plotting_utilities.surf_steady_state_error( C3s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_decoded_sse_median_c3_compact = plotting_utilities.surf_steady_state_error_comparison( C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
+fig_decoded_sse_median_c3 = plotting_utilities.surf_steady_state_error_comparison( C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
+
+% Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters (variable c3).
+fig_sse_median_c3_compact = plotting_utilities.surf_steady_state_error_full_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', true, save_flag, save_directory, 'median_variable_c3_compact' );
+fig_sse_median_c3 = plotting_utilities.surf_steady_state_error_full_comparison( C3s_input, Us_input_c3, errors_theoretical_absolute_encoded_median_c3, errors_numerical_absolute_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_c3, errors_numerical_absolute_decoded_median_c3, color1, C3s_input, Us_input_c3, errors_theoretical_relative_encoded_median_c3, errors_numerical_relative_encoded_median_c3, C3s_input, xs_numerical_input, errors_theoretical_relative_decoded_median_c3, errors_numerical_relative_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', false, save_flag, save_directory, 'median_variable_c3' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Error Over the Formulation Parameters (Variable c3).
 
-% % Plot a summary of the encoded absolute and relative steady state error over the formulation parameters (variable c3).
-% fig_absolute_encoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'c3', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_relative_encoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c3', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_encoded_sse_summary_c3_compact = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
-% fig_encoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
-% 
-% % Plot a summary of the decoded absolute and relative steady state error over the formulation parameters (variable c3).
-% fig_absolute_decoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_relative_decoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_decoded_sse_summary_c3_compact = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
-% fig_decoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters (variable c3).
-% fig_sse_summary_c3_compact = plotting_utilities.surf_steady_state_error_patch_full_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
-% fig_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch_full_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
+% Plot a summary of the encoded absolute and relative steady state error over the formulation parameters (variable c3).
+fig_absolute_encoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'c3', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_relative_encoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'c3', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_encoded_sse_summary_c3_compact = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
+fig_encoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
+
+% Plot a summary of the decoded absolute and relative steady state error over the formulation parameters (variable c3).
+fig_absolute_decoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_relative_decoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch( C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'c3', 'x1', 'x2' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_decoded_sse_summary_c3_compact = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
+fig_decoded_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch_comparison( C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
+
+% Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters (variable c3).
+fig_sse_summary_c3_compact = plotting_utilities.surf_steady_state_error_patch_full_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', true, save_flag, save_directory, 'c3_summary_compact' );
+fig_sse_summary_c3 = plotting_utilities.surf_steady_state_error_patch_full_comparison( C3s_input, Us_input_c3, errors_numerical_absolute_encoded_mean_c3, errors_numerical_absolute_encoded_min_c3, errors_numerical_absolute_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_absolute_decoded_mean_c3, errors_numerical_absolute_decoded_min_c3, errors_numerical_absolute_decoded_max_c3, color1, C3s_input, Us_input_c3, errors_numerical_relative_encoded_mean_c3, errors_numerical_relative_encoded_min_c3, errors_numerical_relative_encoded_max_c3, C3s_input, Xs_input_c3, errors_numerical_relative_decoded_mean_c3, errors_numerical_relative_decoded_min_c3, errors_numerical_relative_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable c3)', false, save_flag, save_directory, 'c3_summary' );
 
 
 %% Plot the Encoded & Decoded Absolute & Relative Steady State Error for Median Formulation Parameters (Variable delta).
 
-% % Plot the encoded absolute and relative steady state error for the median formulation parameters (variable delta).
-% fig_absolute_encoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_relative_encoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_encoded_sse_median_delta_compact = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
-% fig_encoded_sse_median_delta = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
-% 
-% % Plot the decoded absolute and relative steady state error for the median formulation parameters (variable delta).
-% fig_absolute_decoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_relative_decoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, xs_numerical_input, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_decoded_sse_median_delta_compact = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
-% fig_decoded_sse_median_delta = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
-% 
-% % Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters (variable delta).
-% fig_sse_median_delta_compact = plotting_utilities.surf_steady_state_error_full_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
-% fig_sse_median_delta = plotting_utilities.surf_steady_state_error_full_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
+% Plot the encoded absolute and relative steady state error for the median formulation parameters (variable delta).
+fig_absolute_encoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_relative_encoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_encoded_sse_median_delta_compact = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
+fig_encoded_sse_median_delta = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
+
+% Plot the decoded absolute and relative steady state error for the median formulation parameters (variable delta).
+fig_absolute_decoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_relative_decoded_sse_median_delta = plotting_utilities.surf_steady_state_error( Deltas_input, xs_numerical_input, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_decoded_sse_median_delta_compact = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
+fig_decoded_sse_median_delta = plotting_utilities.surf_steady_state_error_comparison( Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
+
+% Plot the encoded and decoded absolute and relative steady state error for the median formulation parameters (variable delta).
+fig_sse_median_delta_compact = plotting_utilities.surf_steady_state_error_full_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', true, save_flag, save_directory, 'median_variable_delta_compact' );
+fig_sse_median_delta = plotting_utilities.surf_steady_state_error_full_comparison( Deltas_input, Us_input_delta, errors_theoretical_absolute_encoded_median_delta, errors_numerical_absolute_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_absolute_decoded_median_delta, errors_numerical_absolute_decoded_median_delta, color1, Deltas_input, Us_input_delta, errors_theoretical_relative_encoded_median_delta, errors_numerical_relative_encoded_median_delta, Deltas_input, xs_numerical_input, errors_theoretical_relative_decoded_median_delta, errors_numerical_relative_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', false, save_flag, save_directory, 'median_variable_delta' );
 
 
 %% Plot a Summary of the Encoded & Decoded Absolute & Relative Steady State Error Over the Formulation Parameters (Variable delta).
 
-% % Plot a summary of the encoded absolute and relative steady state error over the formulation parameters (variable delta).
-% fig_absolute_encoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'delta', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_relative_encoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'delta', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_encoded_sse_summary_delta_compact = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
-% fig_encoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
-% 
-% % Plot a summary of the decoded absolute and relative steady state error over the formulation parameters (variable delta).
-% fig_absolute_decoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_relative_decoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_decoded_sse_summary_delta_compact = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
-% fig_decoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
-% 
-% % Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters (variable delta).
-% fig_sse_summary_delta_compact = plotting_utilities.surf_steady_state_error_patch_full_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
-% fig_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch_full_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
+% Plot a summary of the encoded absolute and relative steady state error over the formulation parameters (variable delta).
+fig_absolute_encoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Encoded', { 'delta', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_relative_encoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Encoded', { 'delta', 'U1', 'U2' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_encoded_sse_summary_delta_compact = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
+fig_encoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'E' }, { '-', 'mV', 'mV' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
+
+% Plot a summary of the decoded absolute and relative steady state error over the formulation parameters (variable delta).
+fig_absolute_decoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_relative_decoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch( Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', 'Decoded', { 'delta', 'x1', 'x2' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_decoded_sse_summary_delta_compact = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
+fig_decoded_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch_comparison( Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'E' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
+
+% Plot a summary of the encoded and decoded absolute and relative steady state error over the formulation parameters (variable delta).
+fig_sse_summary_delta_compact = plotting_utilities.surf_steady_state_error_patch_full_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', true, save_flag, save_directory, 'delta_summary_compact' );
+fig_sse_summary_delta = plotting_utilities.surf_steady_state_error_patch_full_comparison( Deltas_input, Us_input_delta, errors_numerical_absolute_encoded_mean_delta, errors_numerical_absolute_encoded_min_delta, errors_numerical_absolute_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_absolute_decoded_mean_delta, errors_numerical_absolute_decoded_min_delta, errors_numerical_absolute_decoded_max_delta, color1, Deltas_input, Us_input_delta, errors_numerical_relative_encoded_mean_delta, errors_numerical_relative_encoded_min_delta, errors_numerical_relative_encoded_max_delta, Deltas_input, Xs_input_delta, errors_numerical_relative_decoded_mean_delta, errors_numerical_relative_decoded_min_delta, errors_numerical_relative_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Summary, Variable delta)', false, save_flag, save_directory, 'delta_summary' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Difference for Median Formulation Parameters.
 
-% % Plot the encoded and decoded steady state error difference for the median formulation parameters.
-% fig_encoded_ssed_median = plotting_utilities.plot_steady_state_error_difference( Us_numerical_input, errors_diff_theoretical_encoded_median, errors_diff_numerical_encoded_median, scale, subnetwork_name, 'Encoded', { 'U1', 'dE' }, { 'mV', 'mV' }, save_flag, save_directory, 'median' );
-% fig_decoded_ssed_median = plotting_utilities.plot_steady_state_error_difference( xs_numerical_input, errors_diff_theoretical_decoded_median, errors_diff_numerical_decoded_median, scale, subnetwork_name, 'Decoded', { 'x1', 'dE' }, { '-', '-' }, save_flag, save_directory, 'median' );
-% fig_ssed_median = plotting_utilities.plot_steady_state_error_difference_comparison( Us_numerical_input, errors_diff_theoretical_encoded_median, errors_diff_numerical_encoded_median, color1, xs_numerical_input, errors_diff_theoretical_decoded_median, errors_diff_numerical_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', 'dE' }, { 'x1', 'dE' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'median' );
+% Plot the encoded and decoded steady state error difference for the median formulation parameters.
+fig_encoded_ssed_median = plotting_utilities.plot_steady_state_error_difference( Us_numerical_input, errors_diff_theoretical_encoded_median, errors_diff_numerical_encoded_median, scale, subnetwork_name, 'Encoded', { 'U1', 'dE' }, { 'mV', 'mV' }, save_flag, save_directory, 'median' );
+fig_decoded_ssed_median = plotting_utilities.plot_steady_state_error_difference( xs_numerical_input, errors_diff_theoretical_decoded_median, errors_diff_numerical_decoded_median, scale, subnetwork_name, 'Decoded', { 'x1', 'dE' }, { '-', '-' }, save_flag, save_directory, 'median' );
+fig_ssed_median = plotting_utilities.plot_steady_state_error_difference_comparison( Us_numerical_input, errors_diff_theoretical_encoded_median, errors_diff_numerical_encoded_median, color1, xs_numerical_input, errors_diff_theoretical_decoded_median, errors_diff_numerical_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', 'dE' }, { 'x1', 'dE' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'median' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Difference Over the Formulation Parameters.
 
-% % Plot a summary of the encoded and decoded steady state error difference over the formulation parameters.
-% fig_encoded_ssed_summary = plotting_utilities.plot_steady_state_error_difference_patch( Us_numerical_input, errors_diff_numerical_encoded_mean, errors_diff_numerical_encoded_min, errors_diff_numerical_encoded_max, color1, scale, subnetwork_name, 'Encoded', { 'U1', 'dE' }, { 'mV', 'mV' }, save_flag, save_directory, 'patch' );
-% fig_decoded_ssed_summary = plotting_utilities.plot_steady_state_error_difference_patch( xs_numerical_input, errors_diff_numerical_decoded_mean, errors_diff_numerical_decoded_min, errors_diff_numerical_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'dE' }, { '-', '-' }, save_flag, save_directory, 'patch' );
-% fig_ssed_summary = plotting_utilities.plot_steady_state_error_difference_patch_comparison( Us_numerical_input, errors_diff_numerical_encoded_mean, errors_diff_numerical_encoded_min, errors_diff_numerical_encoded_max, color1, xs_numerical_input, errors_diff_numerical_decoded_mean, errors_diff_numerical_decoded_min, errors_diff_numerical_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', 'dE' }, { 'x1', 'dE' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'patch' );
+% Plot a summary of the encoded and decoded steady state error difference over the formulation parameters.
+fig_encoded_ssed_summary = plotting_utilities.plot_steady_state_error_difference_patch( Us_numerical_input, errors_diff_numerical_encoded_mean, errors_diff_numerical_encoded_min, errors_diff_numerical_encoded_max, color1, scale, subnetwork_name, 'Encoded', { 'U1', 'dE' }, { 'mV', 'mV' }, save_flag, save_directory, 'patch' );
+fig_decoded_ssed_summary = plotting_utilities.plot_steady_state_error_difference_patch( xs_numerical_input, errors_diff_numerical_decoded_mean, errors_diff_numerical_decoded_min, errors_diff_numerical_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', 'dE' }, { '-', '-' }, save_flag, save_directory, 'patch' );
+fig_ssed_summary = plotting_utilities.plot_steady_state_error_difference_patch_comparison( Us_numerical_input, errors_diff_numerical_encoded_mean, errors_diff_numerical_encoded_min, errors_diff_numerical_encoded_max, color1, xs_numerical_input, errors_diff_numerical_decoded_mean, errors_diff_numerical_decoded_min, errors_diff_numerical_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', 'dE' }, { 'x1', 'dE' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'patch' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Difference for Median Formulation Parameters (Variable c1).
 
-% % Plot the steady state error difference for the median formulation parameters (variable c1).
-% fig_encoded_ssed_median_c1 = plotting_utilities.surf_steady_state_error_difference( C1s_input, Us_input_c1, errors_diff_theoretical_encoded_median_c1, errors_diff_numerical_encoded_median_c1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
-% fig_decoded_ssed_median_c1 = plotting_utilities.surf_steady_state_error_difference( C1s_input, Xs_input_c1, errors_diff_theoretical_decoded_median_c1, errors_diff_numerical_decoded_median_c1, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'dE' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
-% fig_ssed_median_c1 = plotting_utilities.surf_steady_state_error_difference_comparison( C1s_input, Us_input_c1, errors_diff_theoretical_encoded_median_c1, errors_diff_numerical_encoded_median_c1, color1, C1s_input, Xs_input_c1, errors_diff_theoretical_decoded_median_c1, errors_diff_numerical_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+% Plot the steady state error difference for the median formulation parameters (variable c1).
+fig_encoded_ssed_median_c1 = plotting_utilities.surf_steady_state_error_difference( C1s_input, Us_input_c1, errors_diff_theoretical_encoded_median_c1, errors_diff_numerical_encoded_median_c1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+fig_decoded_ssed_median_c1 = plotting_utilities.surf_steady_state_error_difference( C1s_input, Xs_input_c1, errors_diff_theoretical_decoded_median_c1, errors_diff_numerical_decoded_median_c1, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'dE' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+fig_ssed_median_c1 = plotting_utilities.surf_steady_state_error_difference_comparison( C1s_input, Us_input_c1, errors_diff_theoretical_encoded_median_c1, errors_diff_numerical_encoded_median_c1, color1, C1s_input, Xs_input_c1, errors_diff_theoretical_decoded_median_c1, errors_diff_numerical_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Difference Over the Formulation Parameters (Variable c1).
 
-% % Plot a summary of the steady state error difference over the formulation parameters (variable c1).
-% fig_encoded_ssed_summary_c1 = plotting_utilities.surf_steady_state_error_difference_patch( C1s_input, Us_input_c1, errors_diff_numerical_encoded_mean_c1, errors_diff_numerical_encoded_min_c1, errors_diff_numerical_encoded_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
-% fig_decoded_ssed_summary_c1 = plotting_utilities.surf_steady_state_error_difference_patch( C1s_input, Xs_input_c1, errors_diff_numerical_decoded_mean_c1, errors_diff_numerical_decoded_min_c1, errors_diff_numerical_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'dE' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
-% fig_ssed_summary_c1 = plotting_utilities.surf_steady_state_error_difference_patch_comparison( C1s_input, Us_input_c1, errors_diff_numerical_encoded_mean_c1, errors_diff_numerical_encoded_min_c1, errors_diff_numerical_encoded_max_c1, color1, C1s_input, Xs_input_c1, errors_diff_numerical_decoded_mean_c1, errors_diff_numerical_decoded_min_c1, errors_diff_numerical_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'dE' }, { 'c1', 'x1', 'dE' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
+% Plot a summary of the steady state error difference over the formulation parameters (variable c1).
+fig_encoded_ssed_summary_c1 = plotting_utilities.surf_steady_state_error_difference_patch( C1s_input, Us_input_c1, errors_diff_numerical_encoded_mean_c1, errors_diff_numerical_encoded_min_c1, errors_diff_numerical_encoded_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
+fig_decoded_ssed_summary_c1 = plotting_utilities.surf_steady_state_error_difference_patch( C1s_input, Xs_input_c1, errors_diff_numerical_decoded_mean_c1, errors_diff_numerical_decoded_min_c1, errors_diff_numerical_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', 'dE' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
+fig_ssed_summary_c1 = plotting_utilities.surf_steady_state_error_difference_patch_comparison( C1s_input, Us_input_c1, errors_diff_numerical_encoded_mean_c1, errors_diff_numerical_encoded_min_c1, errors_diff_numerical_encoded_max_c1, color1, C1s_input, Xs_input_c1, errors_diff_numerical_decoded_mean_c1, errors_diff_numerical_decoded_min_c1, errors_diff_numerical_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'dE' }, { 'c1', 'x1', 'dE' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Difference for Median Formulation Parameters (Variable c3).
 
-% % Plot the steady state error difference for the median formulation parameters (variable c3).
-% fig_encoded_ssed_median_c3 = plotting_utilities.surf_steady_state_error_difference( C3s_input, Us_input_c3, errors_diff_theoretical_encoded_median_c3, errors_diff_numerical_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_decoded_ssed_median_c3 = plotting_utilities.surf_steady_state_error_difference( C3s_input, Xs_input_c3, errors_diff_theoretical_decoded_median_c3, errors_diff_numerical_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'dE' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_ssed_median_c3 = plotting_utilities.surf_steady_state_error_difference_comparison( C3s_input, Us_input_c3, errors_diff_theoretical_encoded_median_c3, errors_diff_numerical_encoded_median_c3, color1, C3s_input, Xs_input_c3, errors_diff_theoretical_decoded_median_c3, errors_diff_numerical_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+% Plot the steady state error difference for the median formulation parameters (variable c3).
+fig_encoded_ssed_median_c3 = plotting_utilities.surf_steady_state_error_difference( C3s_input, Us_input_c3, errors_diff_theoretical_encoded_median_c3, errors_diff_numerical_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_decoded_ssed_median_c3 = plotting_utilities.surf_steady_state_error_difference( C3s_input, Xs_input_c3, errors_diff_theoretical_decoded_median_c3, errors_diff_numerical_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'dE' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_ssed_median_c3 = plotting_utilities.surf_steady_state_error_difference_comparison( C3s_input, Us_input_c3, errors_diff_theoretical_encoded_median_c3, errors_diff_numerical_encoded_median_c3, color1, C3s_input, Xs_input_c3, errors_diff_theoretical_decoded_median_c3, errors_diff_numerical_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Difference Over the Formulation Parameters (Variable c3).
 
-% % Plot a summary of the steady state error difference over the formulation parameters (variable c3).
-% fig_encoded_ssed_summary_c3 = plotting_utilities.surf_steady_state_error_difference_patch( C3s_input, Us_input_c3, errors_diff_numerical_encoded_mean_c3, errors_diff_numerical_encoded_min_c3, errors_diff_numerical_encoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_decoded_ssed_summary_c3 = plotting_utilities.surf_steady_state_error_difference_patch( C3s_input, Xs_input_c3, errors_diff_numerical_decoded_mean_c3, errors_diff_numerical_decoded_min_c3, errors_diff_numerical_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'dE' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_ssed_summary_c3 = plotting_utilities.surf_steady_state_error_difference_patch_comparison( C3s_input, Us_input_c3, errors_diff_numerical_encoded_mean_c3, errors_diff_numerical_encoded_min_c3, errors_diff_numerical_encoded_max_c3, color1, C3s_input, Xs_input_c3, errors_diff_numerical_decoded_mean_c3, errors_diff_numerical_decoded_min_c3, errors_diff_numerical_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'dE' }, { 'c3', 'x1', 'dE' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+% Plot a summary of the steady state error difference over the formulation parameters (variable c3).
+fig_encoded_ssed_summary_c3 = plotting_utilities.surf_steady_state_error_difference_patch( C3s_input, Us_input_c3, errors_diff_numerical_encoded_mean_c3, errors_diff_numerical_encoded_min_c3, errors_diff_numerical_encoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_decoded_ssed_summary_c3 = plotting_utilities.surf_steady_state_error_difference_patch( C3s_input, Xs_input_c3, errors_diff_numerical_decoded_mean_c3, errors_diff_numerical_decoded_min_c3, errors_diff_numerical_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', 'dE' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_ssed_summary_c3 = plotting_utilities.surf_steady_state_error_difference_patch_comparison( C3s_input, Us_input_c3, errors_diff_numerical_encoded_mean_c3, errors_diff_numerical_encoded_min_c3, errors_diff_numerical_encoded_max_c3, color1, C3s_input, Xs_input_c3, errors_diff_numerical_decoded_mean_c3, errors_diff_numerical_decoded_min_c3, errors_diff_numerical_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'dE' }, { 'c3', 'x1', 'dE' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Difference for Median Formulation Parameters (Variable delta).
 
-% % Plot the steady state error difference for the median formulation parameters (variable delta).
-% fig_encoded_ssed_median_delta = plotting_utilities.surf_steady_state_error_difference( Deltas_input, Us_input_delta, errors_diff_theoretical_encoded_median_delta, errors_diff_numerical_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_decoded_ssed_median_delta = plotting_utilities.surf_steady_state_error_difference( Deltas_input, Xs_input_delta, errors_diff_theoretical_decoded_median_delta, errors_diff_numerical_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'dE' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_ssed_median_delta = plotting_utilities.surf_steady_state_error_difference_comparison( Deltas_input, Us_input_delta, errors_diff_theoretical_encoded_median_delta, errors_diff_numerical_encoded_median_delta, color1, Deltas_input, Xs_input_delta, errors_diff_theoretical_decoded_median_delta, errors_diff_numerical_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+% Plot the steady state error difference for the median formulation parameters (variable delta).
+fig_encoded_ssed_median_delta = plotting_utilities.surf_steady_state_error_difference( Deltas_input, Us_input_delta, errors_diff_theoretical_encoded_median_delta, errors_diff_numerical_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_decoded_ssed_median_delta = plotting_utilities.surf_steady_state_error_difference( Deltas_input, Xs_input_delta, errors_diff_theoretical_decoded_median_delta, errors_diff_numerical_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'dE' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_ssed_median_delta = plotting_utilities.surf_steady_state_error_difference_comparison( Deltas_input, Us_input_delta, errors_diff_theoretical_encoded_median_delta, errors_diff_numerical_encoded_median_delta, color1, Deltas_input, Xs_input_delta, errors_diff_theoretical_decoded_median_delta, errors_diff_numerical_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Difference Over the Formulation Parameters (Variable delta).
 
-% % Plot a summary of the steady state error difference over the formulation parameters (variable delta).
-% fig_encoded_ssed_summary_delta = plotting_utilities.surf_steady_state_error_difference_patch( Deltas_input, Us_input_delta, errors_diff_numerical_encoded_mean_delta, errors_diff_numerical_encoded_min_delta, errors_diff_numerical_encoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_decoded_ssed_summary_delta = plotting_utilities.surf_steady_state_error_difference_patch( Deltas_input, Xs_input_delta, errors_diff_numerical_decoded_mean_delta, errors_diff_numerical_decoded_min_delta, errors_diff_numerical_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'dE' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_ssed_summary_delta = plotting_utilities.surf_steady_state_error_difference_patch_comparison( Deltas_input, Us_input_delta, errors_diff_numerical_encoded_mean_delta, errors_diff_numerical_encoded_min_delta, errors_diff_numerical_encoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_diff_numerical_decoded_mean_delta, errors_diff_numerical_decoded_min_delta, errors_diff_numerical_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'dE' }, { 'delta', 'x1', 'dE' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+% Plot a summary of the steady state error difference over the formulation parameters (variable delta).
+fig_encoded_ssed_summary_delta = plotting_utilities.surf_steady_state_error_difference_patch( Deltas_input, Us_input_delta, errors_diff_numerical_encoded_mean_delta, errors_diff_numerical_encoded_min_delta, errors_diff_numerical_encoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', 'dE' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_decoded_ssed_summary_delta = plotting_utilities.surf_steady_state_error_difference_patch( Deltas_input, Xs_input_delta, errors_diff_numerical_decoded_mean_delta, errors_diff_numerical_decoded_min_delta, errors_diff_numerical_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', 'dE' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_ssed_summary_delta = plotting_utilities.surf_steady_state_error_difference_patch_comparison( Deltas_input, Us_input_delta, errors_diff_numerical_encoded_mean_delta, errors_diff_numerical_encoded_min_delta, errors_diff_numerical_encoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_diff_numerical_decoded_mean_delta, errors_diff_numerical_decoded_min_delta, errors_diff_numerical_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'dE' }, { 'delta', 'x1', 'dE' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Improvement for Median Formulation Parameters.
 
-% % Plot the encoded and decoded steady state error improvement for the median formulation parameters.
-% fig_encoded_ssei_median = plotting_utilities.plot_steady_state_error_improvement( Us_numerical_input, errors_improv_theoretical_encoded_median, errors_improv_numerical_encoded_median, scale, subnetwork_name, 'Encoded', { 'U1', '|dE|' }, { 'mV', 'mV' }, save_flag, save_directory, 'median' );
-% fig_decoded_ssei_median = plotting_utilities.plot_steady_state_error_improvement( xs_numerical_input, errors_improv_theoretical_decoded_median, errors_improv_numerical_decoded_median, scale, subnetwork_name, 'Decoded', { 'x1', '|dE|' }, { '-', '-' }, save_flag, save_directory, 'median' );
-% fig_ssei_median = plotting_utilities.plot_steady_state_error_improvement_comparison( Us_numerical_input, errors_improv_theoretical_encoded_median, errors_improv_numerical_encoded_median, color1, xs_numerical_input, errors_improv_theoretical_decoded_median, errors_improv_numerical_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', '|dE|' }, { 'x1', '|dE|' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'median' );
+% Plot the encoded and decoded steady state error improvement for the median formulation parameters.
+fig_encoded_ssei_median = plotting_utilities.plot_steady_state_error_improvement( Us_numerical_input, errors_improv_theoretical_encoded_median, errors_improv_numerical_encoded_median, scale, subnetwork_name, 'Encoded', { 'U1', '|dE|' }, { 'mV', 'mV' }, save_flag, save_directory, 'median' );
+fig_decoded_ssei_median = plotting_utilities.plot_steady_state_error_improvement( xs_numerical_input, errors_improv_theoretical_decoded_median, errors_improv_numerical_decoded_median, scale, subnetwork_name, 'Decoded', { 'x1', '|dE|' }, { '-', '-' }, save_flag, save_directory, 'median' );
+fig_ssei_median = plotting_utilities.plot_steady_state_error_improvement_comparison( Us_numerical_input, errors_improv_theoretical_encoded_median, errors_improv_numerical_encoded_median, color1, xs_numerical_input, errors_improv_theoretical_decoded_median, errors_improv_numerical_decoded_median, color2, scale, scale, subnetwork_name, { 'U1', '|dE|' }, { 'x1', '|dE|' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'median' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Improvement Over the Formulation Parameters.
 
-% % Plot a summary of the encoded and decoded steady state error improvement over the formulation parameters.
-% fig_encoded_ssei_summary = plotting_utilities.plot_steady_state_error_improvement_patch( Us_numerical_input, errors_improv_numerical_encoded_mean, errors_improv_numerical_encoded_min, errors_improv_numerical_encoded_max, color1, scale, subnetwork_name, 'Encoded', { 'U1', '|dE|' }, { 'mV', 'mV' }, save_flag, save_directory, 'patch' );
-% fig_decoded_ssei_summary = plotting_utilities.plot_steady_state_error_improvement_patch( xs_numerical_input, errors_improv_numerical_decoded_mean, errors_improv_numerical_decoded_min, errors_improv_numerical_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', '|dE|' }, { '-', '-' }, save_flag, save_directory, 'patch' );
-% fig_ssei_summary = plotting_utilities.plot_steady_state_error_improvement_patch_comparison( Us_numerical_input, errors_improv_numerical_encoded_mean, errors_improv_numerical_encoded_min, errors_improv_numerical_encoded_max, color1, xs_numerical_input, errors_improv_numerical_decoded_mean, errors_improv_numerical_decoded_min, errors_improv_numerical_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', '|dE|' }, { 'x1', '|dE|' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'patch' );
+% Plot a summary of the encoded and decoded steady state error improvement over the formulation parameters.
+fig_encoded_ssei_summary = plotting_utilities.plot_steady_state_error_improvement_patch( Us_numerical_input, errors_improv_numerical_encoded_mean, errors_improv_numerical_encoded_min, errors_improv_numerical_encoded_max, color1, scale, subnetwork_name, 'Encoded', { 'U1', '|dE|' }, { 'mV', 'mV' }, save_flag, save_directory, 'patch' );
+fig_decoded_ssei_summary = plotting_utilities.plot_steady_state_error_improvement_patch( xs_numerical_input, errors_improv_numerical_decoded_mean, errors_improv_numerical_decoded_min, errors_improv_numerical_decoded_max, color2, scale, subnetwork_name, 'Decoded', { 'x1', '|dE|' }, { '-', '-' }, save_flag, save_directory, 'patch' );
+fig_ssei_summary = plotting_utilities.plot_steady_state_error_improvement_patch_comparison( Us_numerical_input, errors_improv_numerical_encoded_mean, errors_improv_numerical_encoded_min, errors_improv_numerical_encoded_max, color1, xs_numerical_input, errors_improv_numerical_decoded_mean, errors_improv_numerical_decoded_min, errors_improv_numerical_decoded_max, color2, scale, scale, subnetwork_name, { 'U1', '|dE|' }, { 'x1', '|dE|' }, { 'mV', 'mV' }, { '-', '-' }, save_flag, save_directory, 'patch' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Improvement for Median Formulation Parameters (Variable c1).
 
-% % Plot the steady state error improvement for the median formulation parameters (variable c1).
-% fig_encoded_ssei_median_c1 = plotting_utilities.surf_steady_state_error_improvement( C1s_input, Us_input_c1, errors_improv_theoretical_encoded_median_c1, errors_improv_numerical_encoded_median_c1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
-% fig_decoded_ssei_median_c1 = plotting_utilities.surf_steady_state_error_improvement( C1s_input, Xs_input_c1, errors_improv_theoretical_decoded_median_c1, errors_improv_numerical_decoded_median_c1, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', '|dE|' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
-% fig_ssei_median_c1 = plotting_utilities.surf_steady_state_error_improvement_comparison( C1s_input, Us_input_c1, errors_improv_theoretical_encoded_median_c1, errors_improv_numerical_encoded_median_c1, color1, C1s_input, Xs_input_c1, errors_improv_theoretical_decoded_median_c1, errors_improv_numerical_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+% Plot the steady state error improvement for the median formulation parameters (variable c1).
+fig_encoded_ssei_median_c1 = plotting_utilities.surf_steady_state_error_improvement( C1s_input, Us_input_c1, errors_improv_theoretical_encoded_median_c1, errors_improv_numerical_encoded_median_c1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+fig_decoded_ssei_median_c1 = plotting_utilities.surf_steady_state_error_improvement( C1s_input, Xs_input_c1, errors_improv_theoretical_decoded_median_c1, errors_improv_numerical_decoded_median_c1, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', '|dE|' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
+fig_ssei_median_c1 = plotting_utilities.surf_steady_state_error_improvement_comparison( C1s_input, Us_input_c1, errors_improv_theoretical_encoded_median_c1, errors_improv_numerical_encoded_median_c1, color1, C1s_input, Xs_input_c1, errors_improv_theoretical_decoded_median_c1, errors_improv_numerical_decoded_median_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', 'E' }, { 'c1', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c1)', save_flag, save_directory, 'median_variable_c1' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Improvement Over the Formulation Parameters (Variable c1).
 
-% % Plot a summary of the steady state error improvement over the formulation parameters (variable c1).
-% fig_encoded_ssei_summary_c1 = plotting_utilities.surf_steady_state_error_improvement_patch( C1s_input, Us_input_c1, errors_improv_numerical_encoded_mean_c1, errors_improv_numerical_encoded_min_c1, errors_improv_numerical_encoded_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
-% fig_decoded_ssei_summary_c1 = plotting_utilities.surf_steady_state_error_improvement_patch( C1s_input, Xs_input_c1, errors_improv_numerical_decoded_mean_c1, errors_improv_numerical_decoded_min_c1, errors_improv_numerical_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', '|dE|' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
-% fig_ssei_summary_c1 = plotting_utilities.surf_steady_state_error_improvement_patch_comparison( C1s_input, Us_input_c1, errors_improv_numerical_encoded_mean_c1, errors_improv_numerical_encoded_min_c1, errors_improv_numerical_encoded_max_c1, color1, C1s_input, Xs_input_c1, errors_improv_numerical_decoded_mean_c1, errors_improv_numerical_decoded_min_c1, errors_improv_numerical_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', '|dE|' }, { 'c1', 'x1', '|dE|' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
+% Plot a summary of the steady state error improvement over the formulation parameters (variable c1).
+fig_encoded_ssei_summary_c1 = plotting_utilities.surf_steady_state_error_improvement_patch( C1s_input, Us_input_c1, errors_improv_numerical_encoded_mean_c1, errors_improv_numerical_encoded_min_c1, errors_improv_numerical_encoded_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c1', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
+fig_decoded_ssei_summary_c1 = plotting_utilities.surf_steady_state_error_improvement_patch( C1s_input, Xs_input_c1, errors_improv_numerical_decoded_mean_c1, errors_improv_numerical_decoded_min_c1, errors_improv_numerical_decoded_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c1', 'x1', '|dE|' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
+fig_ssei_summary_c1 = plotting_utilities.surf_steady_state_error_improvement_patch_comparison( C1s_input, Us_input_c1, errors_improv_numerical_encoded_mean_c1, errors_improv_numerical_encoded_min_c1, errors_improv_numerical_encoded_max_c1, color1, C1s_input, Xs_input_c1, errors_improv_numerical_decoded_mean_c1, errors_improv_numerical_decoded_min_c1, errors_improv_numerical_decoded_max_c1, color2, scale, scale, viewing_angle, subnetwork_name, { 'c1', 'U1', '|dE|' }, { 'c1', 'x1', '|dE|' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c1 Summary)', save_flag, save_directory, 'c1_summary' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Improvement for Median Formulation Parameters (Variable c3).
 
-% % Plot the steady state error improvement for the median formulation parameters (variable c3).
-% fig_encoded_ssei_median_c3 = plotting_utilities.surf_steady_state_error_improvement( C3s_input, Us_input_c3, errors_improv_theoretical_encoded_median_c3, errors_improv_numerical_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_decoded_ssei_median_c3 = plotting_utilities.surf_steady_state_error_improvement( C3s_input, Xs_input_c3, errors_improv_theoretical_decoded_median_c3, errors_improv_numerical_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', '|dE|' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
-% fig_ssei_median_c3 = plotting_utilities.surf_steady_state_error_improvement_comparison( C3s_input, Us_input_c3, errors_improv_theoretical_encoded_median_c3, errors_improv_numerical_encoded_median_c3, color1, C3s_input, Xs_input_c3, errors_improv_theoretical_decoded_median_c3, errors_improv_numerical_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+% Plot the steady state error improvement for the median formulation parameters (variable c3).
+fig_encoded_ssei_median_c3 = plotting_utilities.surf_steady_state_error_improvement( C3s_input, Us_input_c3, errors_improv_theoretical_encoded_median_c3, errors_improv_numerical_encoded_median_c3, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_decoded_ssei_median_c3 = plotting_utilities.surf_steady_state_error_improvement( C3s_input, Xs_input_c3, errors_improv_theoretical_decoded_median_c3, errors_improv_numerical_decoded_median_c3, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', '|dE|' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
+fig_ssei_median_c3 = plotting_utilities.surf_steady_state_error_improvement_comparison( C3s_input, Us_input_c3, errors_improv_theoretical_encoded_median_c3, errors_improv_numerical_encoded_median_c3, color1, C3s_input, Xs_input_c3, errors_improv_theoretical_decoded_median_c3, errors_improv_numerical_decoded_median_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', 'E' }, { 'c3', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable c3)', save_flag, save_directory, 'median_variable_c3' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Improvement Over the Formulation Parameters (Variable c3).
 
-% % Plot a summary of the steady state error improvement over the formulation parameters (variable c3).
-% fig_encoded_ssei_summary_c3 = plotting_utilities.surf_steady_state_error_improvement_patch( C3s_input, Us_input_c3, errors_improv_numerical_encoded_mean_c3, errors_improv_numerical_encoded_min_c3, errors_improv_numerical_encoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_decoded_ssei_summary_c3 = plotting_utilities.surf_steady_state_error_improvement_patch( C3s_input, Xs_input_c3, errors_improv_numerical_decoded_mean_c3, errors_improv_numerical_decoded_min_c3, errors_improv_numerical_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', '|dE|' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
-% fig_ssei_summary_c3 = plotting_utilities.surf_steady_state_error_improvement_patch_comparison( C3s_input, Us_input_c3, errors_improv_numerical_encoded_mean_c3, errors_improv_numerical_encoded_min_c3, errors_improv_numerical_encoded_max_c3, color1, C3s_input, Xs_input_c3, errors_improv_numerical_decoded_mean_c3, errors_improv_numerical_decoded_min_c3, errors_improv_numerical_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', '|dE|' }, { 'c3', 'x1', '|dE|' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+% Plot a summary of the steady state error improvement over the formulation parameters (variable c3).
+fig_encoded_ssei_summary_c3 = plotting_utilities.surf_steady_state_error_improvement_patch( C3s_input, Us_input_c3, errors_improv_numerical_encoded_mean_c3, errors_improv_numerical_encoded_min_c3, errors_improv_numerical_encoded_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'c3', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_decoded_ssei_summary_c3 = plotting_utilities.surf_steady_state_error_improvement_patch( C3s_input, Xs_input_c3, errors_improv_numerical_decoded_mean_c3, errors_improv_numerical_decoded_min_c3, errors_improv_numerical_decoded_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'c3', 'x1', '|dE|' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
+fig_ssei_summary_c3 = plotting_utilities.surf_steady_state_error_improvement_patch_comparison( C3s_input, Us_input_c3, errors_improv_numerical_encoded_mean_c3, errors_improv_numerical_encoded_min_c3, errors_improv_numerical_encoded_max_c3, color1, C3s_input, Xs_input_c3, errors_improv_numerical_decoded_mean_c3, errors_improv_numerical_decoded_min_c3, errors_improv_numerical_decoded_max_c3, color2, scale, scale, viewing_angle, subnetwork_name, { 'c3', 'U1', '|dE|' }, { 'c3', 'x1', '|dE|' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(c3 Summary)', save_flag, save_directory, 'c3_summary' );
 
 
 %% Plot the Encoded & Decoded Steady State Error Improvement for Median Formulation Parameters (Variable delta).
 
-% % Plot the steady state error improvement for the median formulation parameters (variable delta).
-% fig_encoded_ssei_median_delta = plotting_utilities.surf_steady_state_error_improvement( Deltas_input, Us_input_delta, errors_improv_theoretical_encoded_median_delta, errors_improv_numerical_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_decoded_ssei_median_delta = plotting_utilities.surf_steady_state_error_improvement( Deltas_input, Xs_input_delta, errors_improv_theoretical_decoded_median_delta, errors_improv_numerical_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', '|dE|' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
-% fig_ssei_median_delta = plotting_utilities.surf_steady_state_error_improvement_comparison( Deltas_input, Us_input_delta, errors_improv_theoretical_encoded_median_delta, errors_improv_numerical_encoded_median_delta, color1, Deltas_input, Xs_input_delta, errors_improv_theoretical_decoded_median_delta, errors_improv_numerical_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+% Plot the steady state error improvement for the median formulation parameters (variable delta).
+fig_encoded_ssei_median_delta = plotting_utilities.surf_steady_state_error_improvement( Deltas_input, Us_input_delta, errors_improv_theoretical_encoded_median_delta, errors_improv_numerical_encoded_median_delta, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_decoded_ssei_median_delta = plotting_utilities.surf_steady_state_error_improvement( Deltas_input, Xs_input_delta, errors_improv_theoretical_decoded_median_delta, errors_improv_numerical_decoded_median_delta, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', '|dE|' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
+fig_ssei_median_delta = plotting_utilities.surf_steady_state_error_improvement_comparison( Deltas_input, Us_input_delta, errors_improv_theoretical_encoded_median_delta, errors_improv_numerical_encoded_median_delta, color1, Deltas_input, Xs_input_delta, errors_improv_theoretical_decoded_median_delta, errors_improv_numerical_decoded_median_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', 'E' }, { 'delta', 'x1', 'E' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(Median, Variable delta)', save_flag, save_directory, 'median_variable_delta' );
 
 
 %% Plot a Summary of the Encoded & Decoded Steady State Error Improvement Over the Formulation Parameters (Variable delta).
 
-% % Plot a summary of the steady state error improvement over the formulation parameters (variable delta).
-% fig_encoded_ssei_summary_delta = plotting_utilities.surf_steady_state_error_improvement_patch( Deltas_input, Us_input_delta, errors_improv_numerical_encoded_mean_delta, errors_improv_numerical_encoded_min_delta, errors_improv_numerical_encoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_decoded_ssei_summary_delta = plotting_utilities.surf_steady_state_error_improvement_patch( Deltas_input, Xs_input_delta, errors_improv_numerical_decoded_mean_delta, errors_improv_numerical_decoded_min_delta, errors_improv_numerical_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', '|dE|' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
-% fig_ssei_summary_delta = plotting_utilities.surf_steady_state_error_improvement_patch_comparison( Deltas_input, Us_input_delta, errors_improv_numerical_encoded_mean_delta, errors_improv_numerical_encoded_min_delta, errors_improv_numerical_encoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_improv_numerical_decoded_mean_delta, errors_improv_numerical_decoded_min_delta, errors_improv_numerical_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', '|dE|' }, { 'delta', 'x1', '|dE|' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+% Plot a summary of the steady state error improvement over the formulation parameters (variable delta).
+fig_encoded_ssei_summary_delta = plotting_utilities.surf_steady_state_error_improvement_patch( Deltas_input, Us_input_delta, errors_improv_numerical_encoded_mean_delta, errors_improv_numerical_encoded_min_delta, errors_improv_numerical_encoded_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Encoded', { 'delta', 'U1', '|dE|' }, { '-', 'mV', 'mV' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_decoded_ssei_summary_delta = plotting_utilities.surf_steady_state_error_improvement_patch( Deltas_input, Xs_input_delta, errors_improv_numerical_decoded_mean_delta, errors_improv_numerical_decoded_min_delta, errors_improv_numerical_decoded_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Decoded', { 'delta', 'x1', '|dE|' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
+fig_ssei_summary_delta = plotting_utilities.surf_steady_state_error_improvement_patch_comparison( Deltas_input, Us_input_delta, errors_improv_numerical_encoded_mean_delta, errors_improv_numerical_encoded_min_delta, errors_improv_numerical_encoded_max_delta, color1, Deltas_input, Xs_input_delta, errors_improv_numerical_decoded_mean_delta, errors_improv_numerical_decoded_min_delta, errors_improv_numerical_decoded_max_delta, color2, scale, scale, viewing_angle, subnetwork_name, { 'delta', 'U1', '|dE|' }, { 'delta', 'x1', '|dE|' }, { '-', 'mV', 'mV' }, { '-', '-', '-' }, '(delta Summary)', save_flag, save_directory, 'delta_summary' );
 
 
 %% Plot the Maximum RK4 Step Size Over for Median Formulation Parameters.
 
-% Plot the absolute & relative maximum RK4 timestep over the formulation parameters (delta fixed at median value).
-fig_absolute_rk4_max_timestep_delta = plotting_utilities.surf_rk4_maximum_timestep( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_median_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', save_flag, save_directory, 'delta' );
-fig_relative_rk4_max_timestep_delta = plotting_utilities.surf_rk4_maximum_timestep( C1s_grid_delta, C3s_grid_delta, dTs_max_relative_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', save_flag, save_directory, 'delta' );
-fig_rk4_max_timestep_delta_compact = plotting_utilities.surf_rk4_maximum_timestep_comparison( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_median_delta, dTs_max_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', true, save_flag, save_directory, 'delta_compact' );
-fig_rk4_max_timestep_delta = plotting_utilities.surf_rk4_maximum_timestep_comparison( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_median_delta, dTs_max_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', false, save_flag, save_directory, 'delta' );
+% Plot the absolute & relative maximum RK4 step_size over the formulation parameters (delta fixed at median value).
+fig_absolute_max_rk4_step_size_median_delta = plotting_utilities.surf_max_rk4_step_size( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_median_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_max_rk4_step_size_median_delta = plotting_utilities.surf_max_rk4_step_size( C1s_grid_delta, C3s_grid_delta, dTs_max_relative_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_max_rk4_step_size_median_delta_compact = plotting_utilities.surf_max_rk4_step_size_comparison( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_median_delta, dTs_max_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_max_rk4_step_size_median_delta = plotting_utilities.surf_max_rk4_step_size_comparison( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_median_delta, dTs_max_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
-% Plot the absolute & relative maximum RK4 timestep over the formulation parameters (c3 fixed at median value).
-fig_absolute_rk4_max_timestep_c3 = plotting_utilities.surf_rk4_maximum_timestep( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_median_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', save_flag, save_directory, 'c3' );
-fig_relative_rk4_max_timestep_c3 = plotting_utilities.surf_rk4_maximum_timestep( C1s_grid_c3, Deltas_grid_c3, dTs_max_relative_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', save_flag, save_directory, 'c3' );
-fig_rk4_max_timestep_c3_compact = plotting_utilities.surf_rk4_maximum_timestep_comparison( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_median_c3, dTs_max_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', true, save_flag, save_directory, 'c3_compact' );
-fig_rk4_max_timestep_c3 = plotting_utilities.surf_rk4_maximum_timestep_comparison( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_median_c3, dTs_max_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', false, save_flag, save_directory, 'c3' );
+% Plot the absolute & relative maximum RK4 step_size over the formulation parameters (c3 fixed at median value).
+fig_absolute_max_rk4_step_size_median_c3 = plotting_utilities.surf_max_rk4_step_size( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_median_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_max_rk4_step_size_median_c3 = plotting_utilities.surf_max_rk4_step_size( C1s_grid_c3, Deltas_grid_c3, dTs_max_relative_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_max_rk4_step_size_median_c3_compact = plotting_utilities.surf_max_rk4_step_size_comparison( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_median_c3, dTs_max_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_max_rk4_step_size_median_c3 = plotting_utilities.surf_max_rk4_step_size_comparison( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_median_c3, dTs_max_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
-% Plot the absolute & relative maximum RK4 timestep over the formulation parameters (c1 fixed at median value).
-fig_absolute_rk4_max_timestep_c1 = plotting_utilities.surf_rk4_maximum_timestep( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_median_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', save_flag, save_directory, 'c1' );
-fig_relative_rk4_max_timestep_c1 = plotting_utilities.surf_rk4_maximum_timestep( C3s_grid_c1, Deltas_grid_c1, dTs_max_relative_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', save_flag, save_directory, 'c1' );
-fig_rk4_max_timestep_c1_compact = plotting_utilities.surf_rk4_maximum_timestep_comparison( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_median_c1, dTs_max_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', true, save_flag, save_directory, 'c1_compact' );
-fig_rk4_max_timestep_c1 = plotting_utilities.surf_rk4_maximum_timestep_comparison( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_median_c1, dTs_max_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', false, save_flag, save_directory, 'c1' );
+% Plot the absolute & relative maximum RK4 step_size over the formulation parameters (c1 fixed at median value).
+fig_absolute_max_rk4_step_size_median_c1 = plotting_utilities.surf_max_rk4_step_size( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_median_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_max_rk4_step_size_median_c1 = plotting_utilities.surf_max_rk4_step_size( C3s_grid_c1, Deltas_grid_c1, dTs_max_relative_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_max_rk4_step_size_median_c1_compact = plotting_utilities.surf_max_rk4_step_size_comparison( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_median_c1, dTs_max_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_max_rk4_step_size_median_c1 = plotting_utilities.surf_max_rk4_step_size_comparison( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_median_c1, dTs_max_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the Maximum RK4 Step Size Over the Formulation Parameters.
 
-% Plot a summary of the absolute & relative maximum RK4 timestep averaged over delta.
+% Plot a summary of the absolute & relative maximum RK4 step_size averaged over delta.
+fig_absolute_max_rk4_step_size_summary_delta = plotting_utilities.surf_max_rk4_step_size_patch( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_mean_delta, dTs_max_absolute_min_delta, dTs_max_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_max_rk4_step_size_summary_delta = plotting_utilities.surf_max_rk4_step_size_patch( C1s_grid_delta, C3s_grid_delta, dTs_max_relative_mean_delta, dTs_max_relative_min_delta, dTs_max_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_max_rk4_step_size_summary_delta_compact = plotting_utilities.surf_max_rk4_step_size_patch_comparison( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_mean_delta, dTs_max_absolute_min_delta, dTs_max_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, dTs_max_relative_mean_delta, dTs_max_relative_min_delta, dTs_max_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_max_rk4_step_size_summary_delta = plotting_utilities.surf_max_rk4_step_size_patch_comparison( C1s_grid_delta, C3s_grid_delta, dTs_max_absolute_mean_delta, dTs_max_absolute_min_delta, dTs_max_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, dTs_max_relative_mean_delta, dTs_max_relative_min_delta, dTs_max_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dT' }, { '-', '-', 'ms' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
+% Plot a summary of the absolute & relative maximum RK4 step_size averaged over c3.
+fig_absolute_max_rk4_step_size_summary_c3 = plotting_utilities.surf_max_rk4_step_size_patch( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_mean_c3, dTs_max_absolute_min_c3, dTs_max_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_max_rk4_step_size_summary_c3 = plotting_utilities.surf_max_rk4_step_size_patch( C1s_grid_c3, Deltas_grid_c3, dTs_max_relative_mean_c3, dTs_max_relative_min_c3, dTs_max_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_max_rk4_step_size_summary_c3_compact = plotting_utilities.surf_max_rk4_step_size_patch_comparison( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_mean_c3, dTs_max_absolute_min_c3, dTs_max_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, dTs_max_relative_mean_c3, dTs_max_relative_min_c3, dTs_max_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_max_rk4_step_size_summary_c3 = plotting_utilities.surf_max_rk4_step_size_patch_comparison( C1s_grid_c3, Deltas_grid_c3, dTs_max_absolute_mean_c3, dTs_max_absolute_min_c3, dTs_max_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, dTs_max_relative_mean_c3, dTs_max_relative_min_c3, dTs_max_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
-
-% Plot a summary of the absolute & relative maximum RK4 timestep averaged over c3.
-
-
-
-% Plot a summary of the absolute & relative maximum RK4 timestep averaged over c1.
-
+% Plot a summary of the absolute & relative maximum RK4 step_size averaged over c1.
+fig_absolute_max_rk4_step_size_summary_c1 = plotting_utilities.surf_max_rk4_step_size_patch( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_mean_c1, dTs_max_absolute_min_c1, dTs_max_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_max_rk4_step_size_summary_c1 = plotting_utilities.surf_max_rk4_step_size_patch( C3s_grid_c1, Deltas_grid_c1, dTs_max_relative_mean_c1, dTs_max_relative_min_c1, dTs_max_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_max_rk4_step_size_summary_c1_compact = plotting_utilities.surf_max_rk4_step_size_patch_comparison( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_mean_c1, dTs_max_absolute_min_c1, dTs_max_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, dTs_max_relative_mean_c1, dTs_max_relative_min_c1, dTs_max_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_max_rk4_step_size_summary_c1 = plotting_utilities.surf_max_rk4_step_size_patch_comparison( C3s_grid_c1, Deltas_grid_c1, dTs_max_absolute_mean_c1, dTs_max_absolute_min_c1, dTs_max_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, dTs_max_relative_mean_c1, dTs_max_relative_min_c1, dTs_max_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dT' }, { '-', '-', 'ms' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the Maximum Condition Number Over for Median Formulation Parameters.
 
 % Plot the absolute & relative maximum condition number over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_max_condition_number_median_delta = plotting_utilities.surf_max_condition_number( C1s_grid_delta, C3s_grid_delta, dKs_max_absolute_median_delta, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dK' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_max_condition_number_median_delta = plotting_utilities.surf_max_condition_number( C1s_grid_delta, C3s_grid_delta, dKs_max_relative_median_delta, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dK' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_max_condition_number_median_delta_compact = plotting_utilities.surf_max_condition_number_comparison( C1s_grid_delta, C3s_grid_delta, dKs_max_absolute_median_delta, dKs_max_relative_median_delta, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dK' }, { '-', '-', '-' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_max_condition_number_median_delta = plotting_utilities.surf_max_condition_number_comparison( C1s_grid_delta, C3s_grid_delta, dKs_max_absolute_median_delta, dKs_max_relative_median_delta, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dK' }, { '-', '-', '-' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative maximum condition number over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_max_condition_number_median_c3 = plotting_utilities.surf_max_condition_number( C1s_grid_c3, Deltas_grid_c3, dKs_max_absolute_median_c3, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_max_condition_number_median_c3 = plotting_utilities.surf_max_condition_number( C1s_grid_c3, Deltas_grid_c3, dKs_max_relative_median_c3, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_max_condition_number_median_c3_compact = plotting_utilities.surf_max_condition_number_comparison( C1s_grid_c3, Deltas_grid_c3, dKs_max_absolute_median_c3, dKs_max_relative_median_c3, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_max_condition_number_median_c3 = plotting_utilities.surf_max_condition_number_comparison( C1s_grid_c3, Deltas_grid_c3, dKs_max_absolute_median_c3, dKs_max_relative_median_c3, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative maximum condition number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_max_condition_number_median_c1 = plotting_utilities.surf_max_condition_number( C3s_grid_c1, Deltas_grid_c1, dKs_max_absolute_median_c1, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_max_condition_number_median_c1 = plotting_utilities.surf_max_condition_number( C3s_grid_c1, Deltas_grid_c1, dKs_max_relative_median_c1, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_max_condition_number_median_c1_compact = plotting_utilities.surf_max_condition_number_comparison( C3s_grid_c1, Deltas_grid_c1, dKs_max_absolute_median_c1, dKs_max_relative_median_c1, color1, color2, 1, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_max_condition_number_median_c1 = plotting_utilities.surf_max_condition_number_comparison( C3s_grid_c1, Deltas_grid_c1, dKs_max_absolute_median_c1, dKs_max_relative_median_c1, color1, color2, 1, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the Maximum Condition Number Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative maximum condition number averaged over delta.
-
-
+fig_absolute_max_condition_number_summary_delta = plotting_utilities.surf_max_condition_number_patch( C1s_grid_delta, C3s_grid_delta, dKs_max_absolute_mean_delta, dKs_max_absolute_min_delta, dKs_max_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dK' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_max_condition_number_summary_delta = plotting_utilities.surf_max_condition_number_patch( C1s_grid_delta, C3s_grid_delta, dKs_max_relative_mean_delta, dKs_max_relative_min_delta, dKs_max_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dK' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_max_condition_number_summary_delta_compact = plotting_utilities.surf_max_condition_number_patch_comparison( C1s_grid_delta, C3s_grid_delta, dKs_max_absolute_mean_delta, dKs_max_absolute_min_delta, dKs_max_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, dKs_max_relative_mean_delta, dKs_max_relative_min_delta, dKs_max_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dK' }, { '-', '-', 'ms' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_max_condition_number_summary_delta = plotting_utilities.surf_max_condition_number_patch_comparison( C1s_grid_delta, C3s_grid_delta, dKs_max_absolute_mean_delta, dKs_max_absolute_min_delta, dKs_max_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, dKs_max_relative_mean_delta, dKs_max_relative_min_delta, dKs_max_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dK' }, { '-', '-', 'ms' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative maximum condition number averaged over c3.
-
-
+fig_absolute_max_condition_number_summary_c3 = plotting_utilities.surf_max_condition_number_patch( C1s_grid_c3, Deltas_grid_c3, dKs_max_absolute_mean_c3, dKs_max_absolute_min_c3, dKs_max_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_max_condition_number_summary_c3 = plotting_utilities.surf_max_condition_number_patch( C1s_grid_c3, Deltas_grid_c3, dKs_max_relative_mean_c3, dKs_max_relative_min_c3, dKs_max_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_max_condition_number_summary_c3_compact = plotting_utilities.surf_max_condition_number_patch_comparison( C1s_grid_c3, Deltas_grid_c3, dKs_max_absolute_mean_c3, dKs_max_absolute_min_c3, dKs_max_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, dKs_max_relative_mean_c3, dKs_max_relative_min_c3, dKs_max_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dK' }, { '-', '-', 'ms' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_max_condition_number_summary_c3 = plotting_utilities.surf_max_condition_number_patch_comparison( C1s_grid_c3, Deltas_grid_c3, dKs_max_absolute_mean_c3, dKs_max_absolute_min_c3, dKs_max_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, dKs_max_relative_mean_c3, dKs_max_relative_min_c3, dKs_max_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dK' }, { '-', '-', 'ms' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative maximum condition number averaged over c1.
-
+fig_absolute_max_condition_number_summary_c1 = plotting_utilities.surf_max_condition_number_patch( C3s_grid_c1, Deltas_grid_c1, dKs_max_absolute_mean_c1, dKs_max_absolute_min_c1, dKs_max_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_max_condition_number_summary_c1 = plotting_utilities.surf_max_condition_number_patch( C3s_grid_c1, Deltas_grid_c1, dKs_max_relative_mean_c1, dKs_max_relative_min_c1, dKs_max_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dK' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_max_condition_number_summary_c1_compact = plotting_utilities.surf_max_condition_number_patch_comparison( C3s_grid_c1, Deltas_grid_c1, dKs_max_absolute_mean_c1, dKs_max_absolute_min_c1, dKs_max_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, dKs_max_relative_mean_c1, dKs_max_relative_min_c1, dKs_max_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dK' }, { '-', '-', 'ms' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_max_condition_number_summary_c1 = plotting_utilities.surf_max_condition_number_patch_comparison( C3s_grid_c1, Deltas_grid_c1, dKs_max_absolute_mean_c1, dKs_max_absolute_min_c1, dKs_max_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, dKs_max_relative_mean_c1, dKs_max_relative_min_c1, dKs_max_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dK' }, { '-', '-', 'ms' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the c2 Parameter Over for Median Formulation Parameters.
 
 % Plot the absolute & relative c2 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_c2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, C2s_absolute_median_delta, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_c2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, C2s_relative_median_delta, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_c2_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, C2s_absolute_median_delta, C2s_relative_median_delta, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_c2_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, C2s_absolute_median_delta, C2s_relative_median_delta, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative c2 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_c2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, C2s_absolute_median_c3, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_c2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, C2s_relative_median_c3, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_c2_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, C2s_absolute_median_c3, C2s_relative_median_c3, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_c2_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, C2s_absolute_median_c3, C2s_relative_median_c3, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative c2 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_c2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, C2s_absolute_median_c1, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_c2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, C2s_relative_median_c1, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_c2_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, C2s_absolute_median_c1, C2s_relative_median_c1, color1, color2, 1, viewing_angle, subnetwork_name, { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_c2_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, C2s_absolute_median_c1, C2s_relative_median_c1, color1, color2, 1, viewing_angle, subnetwork_name, { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the c2 Parameter Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative c2 parameter averaged over delta.
-
-
+fig_absolute_c2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, C2s_absolute_mean_delta, C2s_absolute_min_delta, C2s_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_c2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, C2s_relative_mean_delta, C2s_relative_min_delta, C2s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_c2_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, C2s_absolute_mean_delta, C2s_absolute_min_delta, C2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, C2s_relative_mean_delta, C2s_relative_min_delta, C2s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_c2_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, C2s_absolute_mean_delta, C2s_absolute_min_delta, C2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, C2s_relative_mean_delta, C2s_relative_min_delta, C2s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'c2' }, { '-', '-', '-' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative c2 parameter averaged over c3.
-
-
+fig_absolute_c2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, C2s_absolute_mean_c3, C2s_absolute_min_c3, C2s_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_c2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, C2s_relative_mean_c3, C2s_relative_min_c3, C2s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_c2_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, C2s_absolute_mean_c3, C2s_absolute_min_c3, C2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, C2s_relative_mean_c3, C2s_relative_min_c3, C2s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_c2_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, C2s_absolute_mean_c3, C2s_absolute_min_c3, C2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, C2s_relative_mean_c3, C2s_relative_min_c3, C2s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative c2 parameter averaged over c1.
-
+fig_absolute_c2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, C2s_absolute_mean_c1, C2s_absolute_min_c1, C2s_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_c2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, C2s_relative_mean_c1, C2s_relative_min_c1, C2s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_c2_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, C2s_absolute_mean_c1, C2s_absolute_min_c1, C2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, C2s_relative_mean_c1, C2s_relative_min_c1, C2s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_c2_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, C2s_absolute_mean_c1, C2s_absolute_min_c1, C2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, C2s_relative_mean_c1, C2s_relative_min_c1, C2s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'c2' }, { '-', '-', '-' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the x2_max Parameter Over for Median Formulation Parameters.
 
 % Plot the absolute & relative x2_max parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_x2max_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, X2maxs_absolute_median_delta, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_x2max_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, X2maxs_relative_median_delta, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_x2max_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, X2maxs_absolute_median_delta, X2maxs_relative_median_delta, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_x2max_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, X2maxs_absolute_median_delta, X2maxs_relative_median_delta, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative x2_max parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_x2max_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, X2maxs_absolute_median_c3, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_x2max_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, X2maxs_relative_median_c3, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_x2max_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, X2maxs_absolute_median_c3, X2maxs_relative_median_c3, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_x2max_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, X2maxs_absolute_median_c3, X2maxs_relative_median_c3, color1, color2, 1, viewing_angle, subnetwork_name, { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative x2_max parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_x2max_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, X2maxs_absolute_median_c1, color1, 1, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_x2max_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, X2maxs_relative_median_c1, color2, 1, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_x2max_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, X2maxs_absolute_median_c1, X2maxs_relative_median_c1, color1, color2, 1, viewing_angle, subnetwork_name, { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_x2max_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, X2maxs_absolute_median_c1, X2maxs_relative_median_c1, color1, color2, 1, viewing_angle, subnetwork_name, { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the x2_max Parameter Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative x2_max parameter averaged over delta.
-
-
+fig_absolute_x2max_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, X2maxs_absolute_mean_delta, X2maxs_absolute_min_delta, X2maxs_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_x2max_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, X2maxs_relative_mean_delta, X2maxs_relative_min_delta, X2maxs_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_x2max_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, X2maxs_absolute_mean_delta, X2maxs_absolute_min_delta, X2maxs_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, X2maxs_relative_mean_delta, X2maxs_relative_min_delta, X2maxs_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_x2max_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, X2maxs_absolute_mean_delta, X2maxs_absolute_min_delta, X2maxs_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, X2maxs_relative_mean_delta, X2maxs_relative_min_delta, X2maxs_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'x2max' }, { '-', '-', '-' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative x2_max parameter averaged over c3.
-
-
+fig_absolute_x2max_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, X2maxs_absolute_mean_c3, X2maxs_absolute_min_c3, X2maxs_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_x2max_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, X2maxs_relative_mean_c3, X2maxs_relative_min_c3, X2maxs_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_x2max_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, X2maxs_absolute_mean_c3, X2maxs_absolute_min_c3, X2maxs_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, X2maxs_relative_mean_c3, X2maxs_relative_min_c3, X2maxs_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_x2max_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, X2maxs_absolute_mean_c3, X2maxs_absolute_min_c3, X2maxs_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, X2maxs_relative_mean_c3, X2maxs_relative_min_c3, X2maxs_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative x2_max parameter averaged over c1.
-
+fig_absolute_x2max_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, X2maxs_absolute_mean_c1, X2maxs_absolute_min_c1, X2maxs_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_x2max_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, X2maxs_relative_mean_c1, X2maxs_relative_min_c1, X2maxs_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_x2max_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, X2maxs_absolute_mean_c1, X2maxs_absolute_min_c1, X2maxs_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, X2maxs_relative_mean_c1, X2maxs_relative_min_c1, X2maxs_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_x2max_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, X2maxs_absolute_mean_c1, X2maxs_absolute_min_c1, X2maxs_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, X2maxs_relative_mean_c1, X2maxs_relative_min_c1, X2maxs_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'x2max' }, { '-', '-', '-' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the R1 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative R1 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_R1_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, R1s_absolute_median_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_R1_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, R1s_relative_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_R1_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, R1s_absolute_median_delta, R1s_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_R1_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, R1s_absolute_median_delta, R1s_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative R1 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_R1_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, R1s_absolute_median_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_R1_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, R1s_relative_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_R1_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, R1s_absolute_median_c3, R1s_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_R1_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, R1s_absolute_median_c3, R1s_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative R1 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_R1_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, R1s_absolute_median_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_R1_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, R1s_relative_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_R1_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, R1s_absolute_median_c1, R1s_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_R1_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, R1s_absolute_median_c1, R1s_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the R1 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative R1 parameter averaged over delta.
-
-
+fig_absolute_R1_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, R1s_absolute_mean_delta, R1s_absolute_min_delta, R1s_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_R1_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, R1s_relative_mean_delta, R1s_relative_min_delta, R1s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_R1_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, R1s_absolute_mean_delta, R1s_absolute_min_delta, R1s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, R1s_relative_mean_delta, R1s_relative_min_delta, R1s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_R1_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, R1s_absolute_mean_delta, R1s_absolute_min_delta, R1s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, R1s_relative_mean_delta, R1s_relative_min_delta, R1s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R1' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative R1 parameter averaged over c3.
-
-
+fig_absolute_R1_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, R1s_absolute_mean_c3, R1s_absolute_min_c3, R1s_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_R1_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, R1s_relative_mean_c3, R1s_relative_min_c3, R1s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_R1_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, R1s_absolute_mean_c3, R1s_absolute_min_c3, R1s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, R1s_relative_mean_c3, R1s_relative_min_c3, R1s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_R1_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, R1s_absolute_mean_c3, R1s_absolute_min_c3, R1s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, R1s_relative_mean_c3, R1s_relative_min_c3, R1s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative R1 parameter averaged over c1.
-
+fig_absolute_R1_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, R1s_absolute_mean_c1, R1s_absolute_min_c1, R1s_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_R1_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, R1s_relative_mean_c1, R1s_relative_min_c1, R1s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_R1_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, R1s_absolute_mean_c1, R1s_absolute_min_c1, R1s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, R1s_relative_mean_c1, R1s_relative_min_c1, R1s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_R1_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, R1s_absolute_mean_c1, R1s_absolute_min_c1, R1s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, R1s_relative_mean_c1, R1s_relative_min_c1, R1s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R1' }, { '-', '-', 'mV' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the R2 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative R2 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_R2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, R2s_absolute_median_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_R2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, R2s_relative_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_R2_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, R2s_absolute_median_delta, R2s_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_R2_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, R2s_absolute_median_delta, R2s_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative R2 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_R2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, R2s_absolute_median_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_R2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, R2s_relative_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_R2_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, R2s_absolute_median_c3, R2s_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_R2_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, R2s_absolute_median_c3, R2s_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative R2 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_R2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, R2s_absolute_median_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_R2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, R2s_relative_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_R2_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, R2s_absolute_median_c1, R2s_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_R2_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, R2s_absolute_median_c1, R2s_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the R2 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative R2 parameter averaged over delta.
-
-
+fig_absolute_R2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, R2s_absolute_mean_delta, R2s_absolute_min_delta, R2s_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_R2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, R2s_relative_mean_delta, R2s_relative_min_delta, R2s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_R2_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, R2s_absolute_mean_delta, R2s_absolute_min_delta, R2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, R2s_relative_mean_delta, R2s_relative_min_delta, R2s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_R2_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, R2s_absolute_mean_delta, R2s_absolute_min_delta, R2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, R2s_relative_mean_delta, R2s_relative_min_delta, R2s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'R2' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative R2 parameter averaged over c3.
-
-
+fig_absolute_R2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, R2s_absolute_mean_c3, R2s_absolute_min_c3, R2s_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_R2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, R2s_relative_mean_c3, R2s_relative_min_c3, R2s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_R2_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, R2s_absolute_mean_c3, R2s_absolute_min_c3, R2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, R2s_relative_mean_c3, R2s_relative_min_c3, R2s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_R2_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, R2s_absolute_mean_c3, R2s_absolute_min_c3, R2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, R2s_relative_mean_c3, R2s_relative_min_c3, R2s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative R2 parameter averaged over c1.
-
+fig_absolute_R2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, R2s_absolute_mean_c1, R2s_absolute_min_c1, R2s_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_R2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, R2s_relative_mean_c1, R2s_relative_min_c1, R2s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_R2_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, R2s_absolute_mean_c1, R2s_absolute_min_c1, R2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, R2s_relative_mean_c1, R2s_relative_min_c1, R2s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_R2_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, R2s_absolute_mean_c1, R2s_absolute_min_c1, R2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, R2s_relative_mean_c1, R2s_relative_min_c1, R2s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'R2' }, { '-', '-', 'mV' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the Gna1 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative Gna1 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_Gna1_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, Gna1s_absolute_median_delta, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_Gna1_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, Gna1s_relative_median_delta, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_Gna1_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, Gna1s_absolute_median_delta, Gna1s_relative_median_delta, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna1' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_Gna1_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, Gna1s_absolute_median_delta, Gna1s_relative_median_delta, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna1' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative Gna1 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_Gna1_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, Gna1s_absolute_median_c3, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_Gna1_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, Gna1s_relative_median_c3, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_Gna1_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, Gna1s_absolute_median_c3, Gna1s_relative_median_c3, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_Gna1_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, Gna1s_absolute_median_c3, Gna1s_relative_median_c3, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative Gna1 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_Gna1_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, Gna1s_absolute_median_c1, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_Gna1_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, Gna1s_relative_median_c1, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_Gna1_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, Gna1s_absolute_median_c1, Gna1s_relative_median_c1, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_Gna1_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, Gna1s_absolute_median_c1, Gna1s_relative_median_c1, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the Gna1 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative Gna1 parameter averaged over delta.
-
-
+fig_absolute_Gna1_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, Gna1s_absolute_mean_delta, Gna1s_absolute_min_delta, Gna1s_absolute_max_delta, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_Gna1_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, Gna1s_relative_mean_delta, Gna1s_relative_min_delta, Gna1s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_Gna1_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, Gna1s_absolute_mean_delta, Gna1s_absolute_min_delta, Gna1s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, Gna1s_relative_mean_delta, Gna1s_relative_min_delta, Gna1s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_Gna1_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, Gna1s_absolute_mean_delta, Gna1s_absolute_min_delta, Gna1s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, Gna1s_relative_mean_delta, Gna1s_relative_min_delta, Gna1s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative Gna1 parameter averaged over c3.
-
-
+fig_absolute_Gna1_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, Gna1s_absolute_mean_c3, Gna1s_absolute_min_c3, Gna1s_absolute_max_c3, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_Gna1_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, Gna1s_relative_mean_c3, Gna1s_relative_min_c3, Gna1s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_Gna1_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, Gna1s_absolute_mean_c3, Gna1s_absolute_min_c3, Gna1s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, Gna1s_relative_mean_c3, Gna1s_relative_min_c3, Gna1s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_Gna1_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, Gna1s_absolute_mean_c3, Gna1s_absolute_min_c3, Gna1s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, Gna1s_relative_mean_c3, Gna1s_relative_min_c3, Gna1s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative Gna1 parameter averaged over c1.
-
+fig_absolute_Gna1_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, Gna1s_absolute_mean_c1, Gna1s_absolute_min_c1, Gna1s_absolute_max_c1, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_Gna1_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, Gna1s_relative_mean_c1, Gna1s_relative_min_c1, Gna1s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_Gna1_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, Gna1s_absolute_mean_c1, Gna1s_absolute_min_c1, Gna1s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, Gna1s_relative_mean_c1, Gna1s_relative_min_c1, Gna1s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_Gna1_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, Gna1s_absolute_mean_c1, Gna1s_absolute_min_c1, Gna1s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, Gna1s_relative_mean_c1, Gna1s_relative_min_c1, Gna1s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna1' }, { '-', '-', 'muS' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the Gna2 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative Gna2 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_Gna2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, Gna2s_absolute_median_delta, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_Gna2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, Gna2s_relative_median_delta, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_Gna2_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, Gna2s_absolute_median_delta, Gna2s_relative_median_delta, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna2' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_Gna2_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, Gna2s_absolute_median_delta, Gna2s_relative_median_delta, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna2' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative Gna2 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_Gna2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, Gna2s_absolute_median_c3, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_Gna2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, Gna2s_relative_median_c3, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_Gna2_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, Gna2s_absolute_median_c3, Gna2s_relative_median_c3, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_Gna2_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, Gna2s_absolute_median_c3, Gna2s_relative_median_c3, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative Gna2 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_Gna2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, Gna2s_absolute_median_c1, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_Gna2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, Gna2s_relative_median_c1, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_Gna2_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, Gna2s_absolute_median_c1, Gna2s_relative_median_c1, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_Gna2_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, Gna2s_absolute_median_c1, Gna2s_relative_median_c1, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the Gna2 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative Gna2 parameter averaged over delta.
-
-
+fig_absolute_Gna2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, Gna2s_absolute_mean_delta, Gna2s_absolute_min_delta, Gna2s_absolute_max_delta, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_Gna2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, Gna2s_relative_mean_delta, Gna2s_relative_min_delta, Gna2s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_Gna2_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, Gna2s_absolute_mean_delta, Gna2s_absolute_min_delta, Gna2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, Gna2s_relative_mean_delta, Gna2s_relative_min_delta, Gna2s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_Gna2_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, Gna2s_absolute_mean_delta, Gna2s_absolute_min_delta, Gna2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, Gna2s_relative_mean_delta, Gna2s_relative_min_delta, Gna2s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative Gna2 parameter averaged over c3.
-
-
+fig_absolute_Gna2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, Gna2s_absolute_mean_c3, Gna2s_absolute_min_c3, Gna2s_absolute_max_c3, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_Gna2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, Gna2s_relative_mean_c3, Gna2s_relative_min_c3, Gna2s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_Gna2_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, Gna2s_absolute_mean_c3, Gna2s_absolute_min_c3, Gna2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, Gna2s_relative_mean_c3, Gna2s_relative_min_c3, Gna2s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_Gna2_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, Gna2s_absolute_mean_c3, Gna2s_absolute_min_c3, Gna2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, Gna2s_relative_mean_c3, Gna2s_relative_min_c3, Gna2s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative Gna2 parameter averaged over c1.
-
+fig_absolute_Gna2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, Gna2s_absolute_mean_c1, Gna2s_absolute_min_c1, Gna2s_absolute_max_c1, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_Gna2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, Gna2s_relative_mean_c1, Gna2s_relative_min_c1, Gna2s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_Gna2_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, Gna2s_absolute_mean_c1, Gna2s_absolute_min_c1, Gna2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, Gna2s_relative_mean_c1, Gna2s_relative_min_c1, Gna2s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_Gna2_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, Gna2s_absolute_mean_c1, Gna2s_absolute_min_c1, Gna2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, Gna2s_relative_mean_c1, Gna2s_relative_min_c1, Gna2s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Gna2' }, { '-', '-', 'muS' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the dEs21 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative dEs21 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_dEs21_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, dEs21s_absolute_median_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_dEs21_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, dEs21s_relative_median_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_dEs21_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, dEs21s_absolute_median_delta, dEs21s_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_dEs21_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, dEs21s_absolute_median_delta, dEs21s_relative_median_delta, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative dEs21 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_dEs21_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, dEs21s_absolute_median_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_dEs21_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, dEs21s_relative_median_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_dEs21_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, dEs21s_absolute_median_c3, dEs21s_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_dEs21_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, dEs21s_absolute_median_c3, dEs21s_relative_median_c3, color1, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative dEs21 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_dEs21_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, dEs21s_absolute_median_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_dEs21_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, dEs21s_relative_median_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_dEs21_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, dEs21s_absolute_median_c1, dEs21s_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_dEs21_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, dEs21s_absolute_median_c1, dEs21s_relative_median_c1, color1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the dEs21 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative dEs21 parameter averaged over delta.
-
-
+fig_absolute_dEs21_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, dEs21s_absolute_mean_delta, dEs21s_absolute_min_delta, dEs21s_absolute_max_delta, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_dEs21_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, dEs21s_relative_mean_delta, dEs21s_relative_min_delta, dEs21s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_dEs21_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, dEs21s_absolute_mean_delta, dEs21s_absolute_min_delta, dEs21s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, dEs21s_relative_mean_delta, dEs21s_relative_min_delta, dEs21s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_dEs21_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, dEs21s_absolute_mean_delta, dEs21s_absolute_min_delta, dEs21s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, dEs21s_relative_mean_delta, dEs21s_relative_min_delta, dEs21s_relative_max_delta, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'c3', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative dEs21 parameter averaged over c3.
-
-
+fig_absolute_dEs21_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, dEs21s_absolute_mean_c3, dEs21s_absolute_min_c3, dEs21s_absolute_max_c3, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_dEs21_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, dEs21s_relative_mean_c3, dEs21s_relative_min_c3, dEs21s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_dEs21_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, dEs21s_absolute_mean_c3, dEs21s_absolute_min_c3, dEs21s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, dEs21s_relative_mean_c3, dEs21s_relative_min_c3, dEs21s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_dEs21_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, dEs21s_absolute_mean_c3, dEs21s_absolute_min_c3, dEs21s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, dEs21s_relative_mean_c3, dEs21s_relative_min_c3, dEs21s_relative_max_c3, color2, scale, viewing_angle, subnetwork_name, { 'c1', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative dEs21 parameter averaged over c1.
-
+fig_absolute_dEs21_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, dEs21s_absolute_mean_c1, dEs21s_absolute_min_c1, dEs21s_absolute_max_c1, color1, scale, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_dEs21_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, dEs21s_relative_mean_c1, dEs21s_relative_min_c1, dEs21s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_dEs21_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, dEs21s_absolute_mean_c1, dEs21s_absolute_min_c1, dEs21s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, dEs21s_relative_mean_c1, dEs21s_relative_min_c1, dEs21s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_dEs21_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, dEs21s_absolute_mean_c1, dEs21s_absolute_min_c1, dEs21s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, dEs21s_relative_mean_c1, dEs21s_relative_min_c1, dEs21s_relative_max_c1, color2, scale, viewing_angle, subnetwork_name, { 'c3', 'delta', 'dEs21' }, { '-', '-', 'mV' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the gs21 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative gs21 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_gs21_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, gs21s_absolute_median_delta, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'gs21' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_gs21_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, gs21s_relative_median_delta, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'gs21' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_gs21_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, gs21s_absolute_median_delta, gs21s_relative_median_delta, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'gs21' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_gs21_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, gs21s_absolute_median_delta, gs21s_relative_median_delta, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'gs21' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative gs21 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_gs21_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, gs21s_absolute_median_c3, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_gs21_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, gs21s_relative_median_c3, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_gs21_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, gs21s_absolute_median_c3, gs21s_relative_median_c3, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_gs21_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, gs21s_absolute_median_c3, gs21s_relative_median_c3, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative gs21 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_gs21_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, gs21s_absolute_median_c1, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_gs21_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, gs21s_relative_median_c1, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_gs21_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, gs21s_absolute_median_c1, gs21s_relative_median_c1, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_gs21_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, gs21s_absolute_median_c1, gs21s_relative_median_c1, color1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the gs21 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative gs21 parameter averaged over delta.
-
-
+fig_absolute_gs21_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, gs21s_absolute_mean_delta, gs21s_absolute_min_delta, gs21s_absolute_max_delta, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'gs21' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_gs21_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, gs21s_relative_mean_delta, gs21s_relative_min_delta, gs21s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'gs21' }, { '-', '-', 'muS' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_gs21_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, gs21s_absolute_mean_delta, gs21s_absolute_min_delta, gs21s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, gs21s_relative_mean_delta, gs21s_relative_min_delta, gs21s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'gs21' }, { '-', '-', 'muS' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_gs21_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, gs21s_absolute_mean_delta, gs21s_absolute_min_delta, gs21s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, gs21s_relative_mean_delta, gs21s_relative_min_delta, gs21s_relative_max_delta, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'c3', 'gs21' }, { '-', '-', 'muS' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative gs21 parameter averaged over c3.
-
-
+fig_absolute_gs21_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, gs21s_absolute_mean_c3, gs21s_absolute_min_c3, gs21s_absolute_max_c3, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_gs21_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, gs21s_relative_mean_c3, gs21s_relative_min_c3, gs21s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_gs21_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, gs21s_absolute_mean_c3, gs21s_absolute_min_c3, gs21s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, gs21s_relative_mean_c3, gs21s_relative_min_c3, gs21s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_gs21_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, gs21s_absolute_mean_c3, gs21s_absolute_min_c3, gs21s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, gs21s_relative_mean_c3, gs21s_relative_min_c3, gs21s_relative_max_c3, color2, 1e6, viewing_angle, subnetwork_name, { 'c1', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative gs21 parameter averaged over c1.
-
+fig_absolute_gs21_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, gs21s_absolute_mean_c1, gs21s_absolute_min_c1, gs21s_absolute_max_c1, color1, 1e6, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_gs21_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, gs21s_relative_mean_c1, gs21s_relative_min_c1, gs21s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_gs21_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, gs21s_absolute_mean_c1, gs21s_absolute_min_c1, gs21s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, gs21s_relative_mean_c1, gs21s_relative_min_c1, gs21s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_gs21_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, gs21s_absolute_mean_c1, gs21s_absolute_min_c1, gs21s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, gs21s_relative_mean_c1, gs21s_relative_min_c1, gs21s_relative_max_c1, color2, 1e6, viewing_angle, subnetwork_name, { 'c3', 'delta', 'gs21' }, { '-', '-', 'muS' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
 %% Plot the Ia2 Parameters Over for Median Formulation Parameters.
 
 % Plot the absolute & relative Ia2 parameter over the formulation parameters (delta fixed at median value).
-
-
+fig_absolute_Ia2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, Ia2s_absolute_median_delta, color1, 1e9, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_relative_Ia2_median_delta = plotting_utilities.surf_network_parameters( C1s_grid_delta, C3s_grid_delta, Ia2s_relative_median_delta, color2, 1e9, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed delta)', save_flag, save_directory, 'median_fixed_delta' );
+fig_Ia2_median_delta_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, Ia2s_absolute_median_delta, Ia2s_relative_median_delta, color1, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Ia2' }, { '-', '-', 'mV' }, '(Fixed delta)', true, save_flag, save_directory, 'median_fixed_delta_compact' );
+fig_Ia2_median_delta = plotting_utilities.surf_network_parameters_comparison( C1s_grid_delta, C3s_grid_delta, Ia2s_absolute_median_delta, Ia2s_relative_median_delta, color1, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Ia2' }, { '-', '-', 'mV' }, '(Fixed delta)', false, save_flag, save_directory, 'median_fixed_delta' );
 
 % Plot the absolute & relative Ia2 parameter over the formulation parameters (c3 fixed at median value).
-
-
+fig_absolute_Ia2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, Ia2s_absolute_median_c3, color1, 1e9, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_relative_Ia2_median_c3 = plotting_utilities.surf_network_parameters( C1s_grid_c3, Deltas_grid_c3, Ia2s_relative_median_c3, color2, 1e9, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', save_flag, save_directory, 'median_fixed_c3' );
+fig_Ia2_median_c3_compact = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, Ia2s_absolute_median_c3, Ia2s_relative_median_c3, color1, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', true, save_flag, save_directory, 'median_fixed_c3_compact' );
+fig_Ia2_median_c3 = plotting_utilities.surf_network_parameters_comparison( C1s_grid_c3, Deltas_grid_c3, Ia2s_absolute_median_c3, Ia2s_relative_median_c3, color1, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', false, save_flag, save_directory, 'median_fixed_c3' );
 
 % Plot the absolute & relative Ia2 parameter number over the formulation parameters (c1 fixed at median value).
-
+fig_absolute_Ia2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, Ia2s_absolute_median_c1, color1, 1e9, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_relative_Ia2_median_c1 = plotting_utilities.surf_network_parameters( C3s_grid_c1, Deltas_grid_c1, Ia2s_relative_median_c1, color2, 1e9, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', save_flag, save_directory, 'median_fixed_c1' );
+fig_Ia2_median_c1_compact = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, Ia2s_absolute_median_c1, Ia2s_relative_median_c1, color1, color2, 1e9, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', true, save_flag, save_directory, 'median_fixed_c1_compact' );
+fig_Ia2_median_c1 = plotting_utilities.surf_network_parameters_comparison( C3s_grid_c1, Deltas_grid_c1, Ia2s_absolute_median_c1, Ia2s_relative_median_c1, color1, color2, 1e9, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', false, save_flag, save_directory, 'median_fixed_c1' );
 
 
 %% Plot a Summary of the Ia2 Parameters Over the Formulation Parameters.
 
 % Plot a summary of the absolute & relative Ia2 parameter averaged over delta.
-
-
+fig_absolute_Ia2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, Ia2s_absolute_mean_delta, Ia2s_absolute_min_delta, Ia2s_absolute_max_delta, color1, 1e9, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'c3', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_relative_Ia2_summary_delta = plotting_utilities.surf_network_parameters_patch( C1s_grid_delta, C3s_grid_delta, Ia2s_relative_mean_delta, Ia2s_relative_min_delta, Ia2s_relative_max_delta, color2, 1e9, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'c3', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed delta)', save_flag, save_directory, 'fixed_delta_summary' );
+fig_Ia2_summary_delta_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, Ia2s_absolute_mean_delta, Ia2s_absolute_min_delta, Ia2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, Ia2s_relative_mean_delta, Ia2s_relative_min_delta, Ia2s_relative_max_delta, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed delta)', true, save_flag, save_directory, 'fixed_delta_summary_compact' );
+fig_Ia2_summary_delta = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_delta, C3s_grid_delta, Ia2s_absolute_mean_delta, Ia2s_absolute_min_delta, Ia2s_absolute_max_delta, color1, C1s_grid_delta, C3s_grid_delta, Ia2s_relative_mean_delta, Ia2s_relative_min_delta, Ia2s_relative_max_delta, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'c3', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed delta)', false, save_flag, save_directory, 'fixed_delta_summary' );
 
 % Plot a summary of the absolute & relative Ia2 parameter averaged over c3.
-
-
+fig_absolute_Ia2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, Ia2s_absolute_mean_c3, Ia2s_absolute_min_c3, Ia2s_absolute_max_c3, color1, 1e9, viewing_angle, subnetwork_name, 'Absolute', { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_relative_Ia2_summary_c3 = plotting_utilities.surf_network_parameters_patch( C1s_grid_c3, Deltas_grid_c3, Ia2s_relative_mean_c3, Ia2s_relative_min_c3, Ia2s_relative_max_c3, color2, 1e9, viewing_angle, subnetwork_name, 'Relative', { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', save_flag, save_directory, 'fixed_c3_summary' );
+fig_Ia2_summary_c3_compact = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, Ia2s_absolute_mean_c3, Ia2s_absolute_min_c3, Ia2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, Ia2s_relative_mean_c3, Ia2s_relative_min_c3, Ia2s_relative_max_c3, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', true, save_flag, save_directory, 'fixed_c3_summary_compact' );
+fig_Ia2_summary_c3 = plotting_utilities.surf_network_parameters_patch_comparison( C1s_grid_c3, Deltas_grid_c3, Ia2s_absolute_mean_c3, Ia2s_absolute_min_c3, Ia2s_absolute_max_c3, color1, C1s_grid_c3, Deltas_grid_c3, Ia2s_relative_mean_c3, Ia2s_relative_min_c3, Ia2s_relative_max_c3, color2, 1e9, viewing_angle, subnetwork_name, { 'c1', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c3)', false, save_flag, save_directory, 'fixed_c3_summary' );
 
 % Plot a summary of the absolute & relative Ia2 parameter averaged over c1.
+fig_absolute_Ia2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, Ia2s_absolute_mean_c1, Ia2s_absolute_min_c1, Ia2s_absolute_max_c1, color1, 1e9, viewing_angle, subnetwork_name, 'Absolute', { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_relative_Ia2_summary_c1 = plotting_utilities.surf_network_parameters_patch( C3s_grid_c1, Deltas_grid_c1, Ia2s_relative_mean_c1, Ia2s_relative_min_c1, Ia2s_relative_max_c1, color2, 1e9, viewing_angle, subnetwork_name, 'Relative', { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', save_flag, save_directory, 'fixed_c1_summary' );
+fig_Ia2_summary_c1_compact = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, Ia2s_absolute_mean_c1, Ia2s_absolute_min_c1, Ia2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, Ia2s_relative_mean_c1, Ia2s_relative_min_c1, Ia2s_relative_max_c1, color2, 1e9, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', true, save_flag, save_directory, 'fixed_c1_summary_compact' );
+fig_Ia2_summary_c1 = plotting_utilities.surf_network_parameters_patch_comparison( C3s_grid_c1, Deltas_grid_c1, Ia2s_absolute_mean_c1, Ia2s_absolute_min_c1, Ia2s_absolute_max_c1, color1, C3s_grid_c1, Deltas_grid_c1, Ia2s_relative_mean_c1, Ia2s_relative_min_c1, Ia2s_relative_max_c1, color2, 1e9, viewing_angle, subnetwork_name, { 'c3', 'delta', 'Ia2' }, { '-', '-', 'nA' }, '(Fixed c1)', false, save_flag, save_directory, 'fixed_c1_summary' );
 
 
-
-
-%% OLD PLOTS BELOW 
-
-
-
-
-
-%% Plot the Encoded Steady State Behavior.
-
-% Plot the encoded steady state behavior.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Absolute Encoded Steady State Response' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Transmission: Absolute Encoded Steady State Response' ), zlim( [ 0, 0.160*scale ] )
-surf( Cs, scale*Us_input, scale*Us_desired_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*Us_theoretical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*Us_numerical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_absolute_encoded_ss_response_gain' ] ) 
-
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Relative Encoded Steady State Response' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Output, U2 [mV]' ), title( 'Transmission: Relative Encoded Steady State Response' ), zlim( [ 0, 0.020*scale ] )
-surf( Cs, scale*Us_input, scale*Us_desired_relative_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*Us_theoretical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*Us_numerical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theory)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_relative_encoded_ss_response_gain' ] ) 
-
-
-%% Plot the Decoded Steady State Behavior.
-
-% Plot the absolute decoded steady state behavior.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Absolute Decoded Steady State Response' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Transmission: Absolute Decoded Steady State Response' )
-surf( Cs, scale*xs_input, scale*Xs_desired_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*xs_input, scale*Xs_theoretical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( Cs, scale*xs_input, scale*Xs_numerical_absolute_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_absolute_decoded_ss_response_gain' ] ) 
-
-% Plot the relative decoded steady state behavior.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Relative Decoded Steady State Response' ); hold on, grid on, rotate3d on, view( 145, 15 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Output, x2 [-]' ), title( 'Transmission: Relative Decoded Steady State Response' )
-surf( Cs, scale*Xs_input, scale*Xs_desired_relative_output, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*Xs_theoretical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*Xs_numerical_relative_output, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_relative_decoded_ss_response_gain' ] ) 
-
-
-%% Plot the Encoded Error vs Gain.
-
-% Plot the encoded error vs gain comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error' ); 
-subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mv]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Theoretical Encoded Error' )
-surf( Cs, scale*Us_input, scale*errors_theoretical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_theoretical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-
-subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mv]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Numerical Encoded Error' )
-surf( Cs, scale*Us_input, scale*errors_numerical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_numerical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_gain_comparison' ] ) 
-
-% Plot the theoretical encoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Theoretical Encoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mv]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Theoretical Encoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, scale*Us_input, scale*errors_theoretical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_theoretical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_theoretical_encoded_error_gain' ] ) 
-
-% Plot the numerical encoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Numerical Encoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mv]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Numerical Encoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, scale*Us_input, scale*errors_numerical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_numerical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_numerical_encoded_error_gain' ] ) 
-
-% Plot the encoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mv]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Encoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, scale*Us_input, scale*errors_numerical_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_numerical_relative_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_gain' ] ) 
-
-% Plot the encoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Summary' );
-subplot( 2, 2, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Theoretical Encoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_theoretical_absolute_encoded; flipud( scale*errors_max_theoretical_absolute_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_absolute_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_absolute_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_absolute_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 2, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Theoretical Encoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_theoretical_relative_encoded; flipud( scale*errors_max_theoretical_relative_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_relative_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_relative_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_relative_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 2, 3 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Numerical Encoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_numerical_absolute_encoded; flipud( scale*errors_max_numerical_absolute_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_absolute_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_absolute_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_absolute_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-subplot( 2, 2, 4 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Numerical Encoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_numerical_relative_encoded; flipud( scale*errors_max_numerical_relative_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_relative_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_relative_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_relative_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_gain_summary_comparison' ] )
-
-% Plot the theoretical encoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Theoretical Encoded Error Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Theoretical Encoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_theoretical_absolute_encoded; flipud( scale*errors_max_theoretical_absolute_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_absolute_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_absolute_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_absolute_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Theoretical Encoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_theoretical_relative_encoded; flipud( scale*errors_max_theoretical_relative_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_relative_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_relative_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_relative_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_theoretical_encoded_error_gain_summary' ] ) 
-
-% Plot the numerical encoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Numerical Encoded Error Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Numerical Encoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_numerical_absolute_encoded; flipud( scale*errors_max_numerical_absolute_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_absolute_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_absolute_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_absolute_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Numerical Encoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_numerical_relative_encoded; flipud( scale*errors_max_numerical_relative_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_relative_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_relative_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_relative_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_numerical_encoded_error_gain_summary' ] )
-
-% Plot the encoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Encoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_numerical_absolute_encoded; flipud( scale*errors_max_numerical_absolute_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_absolute_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_absolute_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_absolute_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'Transmission: Encoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_numerical_relative_encoded; flipud( scale*errors_max_numerical_relative_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_relative_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_relative_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_relative_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_gain_summary' ] )
-
-
-%% Plot the Decoded Error vs Gain.
-
-% Plot the decoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error' ); 
-subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Error' )
-surf( Cs, scale*Xs_input, scale*errors_theoretical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*errors_theoretical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-
-subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Error' )
-surf( Cs, Xs_input, scale*errors_numerical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, Xs_input, scale*errors_numerical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain_comparison' ] ) 
-
-% Plot the theoretical decoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Theoretical Decoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, scale*Xs_input, scale*errors_theoretical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*errors_theoretical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_theoretical_decoded_error_gain' ] ) 
-
-% Plot the numerical decoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Numerical Decoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, scale*Xs_input, scale*errors_numerical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*errors_numerical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_numerical_decoded_error_gain' ] ) 
-
-% Plot the decoded error vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error' ); hold on, grid on, rotate3d on, view( 25, 10 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Error' ), zlim( [ 0, 70 ] )
-surf( Cs, scale*Xs_input, scale*errors_numerical_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*errors_numerical_relative_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain' ] ) 
-
-% Plot the decoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Summary' );
-subplot( 2, 2, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Theoretical Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_absolute_decoded; flipud( errors_max_theoretical_absolute_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_absolute_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_absolute_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_absolute_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 2, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Theoretical Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_relative_decoded; flipud( errors_max_theoretical_relative_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_relative_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_relative_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_relative_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 2, 3 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Numerical Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_absolute_decoded; flipud( errors_max_numerical_absolute_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_absolute_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_absolute_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_absolute_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-subplot( 2, 2, 4 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Numerical Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_relative_decoded; flipud( errors_max_numerical_relative_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_relative_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_relative_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_relative_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain_summary_comparison' ] ) 
-
-% Plot the theoretical decoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Theoretical Decoded Error Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_absolute_decoded; flipud( errors_max_theoretical_absolute_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_absolute_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_absolute_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_absolute_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Theoretical Decoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_theoretical_relative_decoded; flipud( errors_max_theoretical_relative_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_theoretical_relative_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_theoretical_relative_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_theoretical_relative_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_theoretical_decoded_error_gain_summary' ] ) 
-
-% Plot the numerical decoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Numerical Decoded Error Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_absolute_decoded; flipud( errors_max_numerical_absolute_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_absolute_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_absolute_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_absolute_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Numerical Decoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_relative_decoded; flipud( errors_max_numerical_relative_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_relative_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_relative_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_relative_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_numerical_decoded_error_gain_summary' ] )
-
-% Plot the decoded error vs gain summary.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Absolute Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_absolute_decoded; flipud( errors_max_numerical_absolute_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_absolute_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_absolute_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_absolute_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'Transmission: Decoded Relative Error Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_numerical_relative_decoded; flipud( errors_max_numerical_relative_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_rmse_numerical_relative_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_numerical_relative_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_numerical_relative_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_gain_summary' ] )
-
-
-%% Plot the Encoded Error Difference vs Gain.
-
-% Plot the encoded error difference. 
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Difference' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Error Difference, dE [mV]' ), title( 'Transmission: Encoded Error Difference' )
-surf( Cs, scale*Us_input, scale*errors_diff_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_diff_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_difference_gain' ] ) 
-
-% Plot the encoded error difference percentage.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Difference Percentage' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Error Difference Percentage, dE [%]' ), title( 'Transmission: Encoded Error Difference Percentage' )
-surf( Cs, scale*Us_input, errors_percent_diff_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, errors_percent_diff_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_difference_percentage_gain' ] ) 
-
-% Plot the encoded error difference.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Difference Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Difference, dE [mV]' ), title( 'Transmission: Encoded Theoretical Error Difference  Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_diff_theoretical_encoded; flipud( scale*errors_max_diff_theoretical_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_diff_theoretical_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_diff_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_diff_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Difference Summary, dE [mV]' ), title( 'Transmission: Encoded Numerical Error Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_diff_numerical_encoded; flipud( scale*errors_max_diff_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_diff_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_diff_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_diff_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_difference_gain_summary' ] ) 
-
-% Plot the encoded error percentage difference.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Percentage Difference Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Percentage Difference, E [%]' ), title( 'Transmission: Encoded Theoretical Error Percentage Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_diff_theoretical_encoded; flipud( errors_max_percent_diff_theoretical_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_diff_theoretical_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_percent_diff_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_percent_diff_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Percentage Difference, E [%]' ), title( 'Transmission: Encoded Numerical Error Percentage Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_diff_numerical_encoded; flipud( errors_max_percent_diff_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_diff_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_percent_diff_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_percent_diff_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_difference_percentage_gain_summary' ] ) 
-
-
-%% Plot Decoded Error Difference vs Gain.
-
-% Plot the decoded error difference.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Difference' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Difference, E [-]' ), title( 'Transmission: Decoded Error Difference' )
-surf( Cs, scale*Xs_input, scale*errors_diff_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*errors_diff_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_gain' ] ) 
-
-% Plot the decoded error difference percentage.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Difference Percentage' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Difference Percentage, E [%]' ), title( 'Transmission: Decoded Error Difference Percentage' )
-surf( Cs, scale*Xs_input, errors_percent_diff_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, errors_percent_diff_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_percentage_gain' ] ) 
-
-% % Plot the decoded mse difference.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded MSE Difference' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded MSE Difference, mse [-]' ), title( 'Transmission: Decoded MSE Difference' )
-% plot( cs, errors_mse_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_mse_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_mse_difference_gain' ] ) 
-% 
-% % Plot the decoded mse difference percentage.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded MSE Difference Percentage' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded MSE Difference Percentage, mse [%]' ), title( 'Transmission: Decoded MSE Difference Percentage' )
-% plot( cs, errors_mse_percent_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_mse_percent_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_mse_percent_difference_gain' ] ) 
-% 
-% % Plot the decoded std difference.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded STD Difference' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded STD Difference, std [-]' ), title( 'Transmission: Decoded STD Difference' )
-% plot( cs, errors_std_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_std_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_std_difference_gain' ] ) 
-% 
-% % Plot the decoded std percentage difference.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded STD Difference Percentage' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded STD Difference Percentage, std [%]' ), title( 'Transmission: Decoded STD Difference Percentage' )
-% plot( cs, errors_std_percent_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_std_percent_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_std_percent_difference_gain' ] ) 
-% 
-% % Plot the decoded minimum error difference.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Minimum Error Difference' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Minimum Error Difference, Emin [-]' ), title( 'Transmission: Decoded Minimum Error Difference' )
-% plot( cs, errors_min_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_min_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_min_error_difference_gain' ] ) 
-% 
-% % Plot the decoded minimum error difference percentage.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Minimum Error Difference Percentage' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Minimum Error Difference Percentage, Emin [%]' ), title( 'Transmission: Decoded Minimum Error Difference Percentage' )
-% plot( cs, errors_min_percent_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_min_percent_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_min_percent_error_difference_gain' ] ) 
-% 
-% % Plot the decoded maximum error difference.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Maximum Error Difference' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Maximum Error Difference, Emin [-]' ), title( 'Transmission: Decoded Maximum Error Difference' )
-% plot( cs, errors_max_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_max_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_max_error_difference_gain' ] ) 
-% 
-% % Plot the decoded maximum error difference percentage.
-% fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Maximum Error Difference Percentage' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Maximum Error Difference Percentage, Emax [%]' ), title( 'Transmission: Decoded Maximum Error Difference Percentage' )
-% plot( cs, errors_max_percent_diff_theoretical_decoded, '-.', 'Color', color1, 'Linewidth', 3 )
-% plot( cs, errors_max_percent_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 3 )
-% legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-% saveas( fig, [ save_directory, '\', 'transmission_decoded_max_percent_error_difference_gain' ] ) 
-
-% Plot the decoded error difference.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Difference Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Difference, E [-]' ), title( 'Transmission: Decoded Theoretical Error Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_diff_theoretical_decoded; flipud( errors_max_diff_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_diff_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Difference, E [-]' ), title( 'Transmission: Decoded Numerical Error Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_diff_numerical_decoded; flipud( errors_max_diff_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_diff_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_error_difference_gain_summary' ] ) 
-
-% Plot the decoded error percentage difference.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Percentage Difference Summary' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Percentage Difference, E [%]' ), title( 'Transmission: Decoded Theoretical Error Percentage Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_diff_theoretical_decoded; flipud( errors_max_percent_diff_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_diff_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_percent_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_percent_diff_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Percentage Difference, E [%]' ), title( 'Transmission: Decoded Numerical Error Percentage Difference Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_diff_numerical_decoded; flipud( errors_max_percent_diff_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_diff_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_percent_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_percent_diff_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-
-
-%% Plot the Encoded Error Improvement vs Gain.
-
-% Plot the encoded error improvement comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Comparison' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Error Improvement Comparison' )
-surf( Cs, scale*Us_input, scale*errors_improv_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, scale*errors_improv_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_gain_comparison' ] ) 
-
-% Plot the encoded error improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Error Improvement' )
-surf( Cs, scale*Us_input, scale*errors_improv_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_gain' ] ) 
-
-% Plot the encoded error improvement percentage comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Percentage Comparison' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Error Improvement Percentage, E [%]' ), title( 'Transmission: Encoded Error Improvement Percentage Comparison' )
-surf( Cs, scale*Us_input, errors_percent_improv_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Us_input, errors_percent_improv_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_percentage_gain_comparison' ] ) 
-
-% Plot the encoded error improvement percentage.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Percentage' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Input, U1 [mV]' ), zlabel( 'Encoded Error Improvement Percentage, E [%]' ), title( 'Transmission: Encoded Error Improvement Percentage' )
-surf( Cs, scale*Us_input, errors_percent_improv_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_percentage_gain' ] ) 
-
-% Plot the encoded error improvement comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Summary Comparison' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Theoretical Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_improv_theoretical_encoded; flipud( scale*errors_max_improv_theoretical_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_improv_theoretical_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_improv_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_improv_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Numerical Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_improv_numerical_encoded; flipud( scale*errors_max_improv_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_improv_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_gain_summary' ] ) 
-
-% Plot the encoded error improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Improvement, E [mV]' ), title( 'Transmission: Encoded Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ scale*errors_min_improv_numerical_encoded; flipud( scale*errors_max_improv_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_improv_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_gain_summary' ] ) 
-
-% Plot the encoded error percentage improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Percentage Improvement Summary Comparison' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Percentage Improvement, E [%]' ), title( 'Transmission: Encoded Theoretical Error Percentage Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_improv_theoretical_encoded; flipud( errors_max_percent_improv_theoretical_encoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_improv_theoretical_encoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_percent_improv_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_percent_improv_theoretical_encoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Percentage Improvement, E [%]' ), title( 'Transmission: Encoded Numerical Error Percentage Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_improv_numerical_encoded; flipud( errors_max_percent_improv_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_improv_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_percent_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_percent_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_percentage_gain_summary_comparison' ] ) 
-
-% Plot the encoded error percentage improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Encoded Error Percentage Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Encoded Error Percentage Improvement, E [%]' ), title( 'Transmission: Encoded Error Percentage Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_improv_numerical_encoded; flipud( errors_max_percent_improv_numerical_encoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_improv_numerical_encoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_percent_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_percent_improv_numerical_encoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_encoded_error_improvement_percentage_gain_summary' ] ) 
-
-
-%% Plot the Decoded Error Improvement vs Gain.
-
-% Plot the decoded error improvement comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Comparison' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Error Improvement Comparison' )
-surf( Cs, scale*Xs_input, scale*errors_improv_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, scale*errors_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_gain_comparison' ] ) 
-
-% Plot the decoded error improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Error Improvement' )
-surf( Cs, scale*Xs_input, scale*errors_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_gain' ] ) 
-
-% Plot the decoded error improvement percentage comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Percentage Comparison' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement Percentage, E [%]' ), title( 'Transmission: Decoded Error Improvement Percentage Comparison' )
-surf( Cs, scale*Xs_input, errors_percent_improv_theoretical_decoded, 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.5 )
-surf( Cs, scale*Xs_input, errors_percent_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_percentage_gain_comparison' ] ) 
-
-% Plot the decoded error improvement percentage.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Percentage' ); hold on, grid on, rotate3d on, view( 45, 20 ), xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Input, x1 [-]' ), zlabel( 'Decoded Error Improvement Percentage, E [%]' ), title( 'Transmission: Decoded Error Improvement Percentage' )
-surf( Cs, scale*Xs_input, errors_percent_improv_numerical_decoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_percentage_gain' ] ) 
-
-% Plot the decoded error improvement comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Summary Comparison' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Theoretical Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_improv_theoretical_decoded; flipud( errors_max_improv_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_improv_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*errors_min_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, scale*errors_max_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Numerical Error Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_improv_numerical_decoded; flipud( errors_max_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_gain_summary_comparison' ] ) 
-
-% Plot the decoded error improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Improvement, E [-]' ), title( 'Transmission: Decoded Numerical Error Improvement Summary' ), ylim( [ 0, 70 ] )
-patch( [ cs'; flipud( cs' ) ], scale*[ errors_min_improv_numerical_decoded; flipud( errors_max_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, scale*errors_mse_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, scale*errors_min_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, scale*errors_max_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_difference_gain_summary' ] ) 
-
-% Plot the encoded error percentage improvement comparison.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Percentage Improvement Summary Comparison' );
-subplot( 2, 1, 1 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Percentage Improvement, E [%]' ), title( 'Transmission: Decoded Theoretical Error Percentage Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_improv_theoretical_decoded; flipud( errors_max_percent_improv_theoretical_decoded ) ], color1( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_improv_theoretical_decoded, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, errors_min_percent_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-plot( cs, errors_max_percent_improv_theoretical_decoded, '--', 'Color', color1, 'Linewidth', 1 )
-
-subplot( 2, 1, 2 ), hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Percentage Improvement, E [%]' ), title( 'Transmission: Decoded Numerical Error Percentage Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_improv_numerical_decoded; flipud( errors_max_percent_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_percent_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_percent_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_percentage_gain_summary_comparison' ] ) 
-
-% Plot the encoded error percentage improvement.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Decoded Error Percentage Improvement Summary' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Decoded Error Percentage Improvement, E [%]' ), title( 'Transmission: Decoded Numerical Error Percentage Improvement Summary' )
-patch( [ cs'; flipud( cs' ) ], [ errors_min_percent_improv_numerical_decoded; flipud( errors_max_percent_improv_numerical_decoded ) ], color2( 1:end - 1 ), 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-plot( cs, errors_mse_percent_improv_numerical_decoded, '-', 'Color', color2, 'Linewidth', 3 )
-plot( cs, errors_min_percent_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-plot( cs, errors_max_percent_improv_numerical_decoded, '--', 'Color', color2, 'Linewidth', 1 )
-saveas( fig, [ save_directory, '\', 'transmission_decoded_error_improvement_percentage_gain_summary' ] ) 
-
-
-%% Plot the Numerical Stability Information vs Gain.
-
-% Plot the maximum RK4 step size.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum RK4 Step Size' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Max RK4 Step Size, dt [s]' ), title( 'Transmission: Maximum RK4 Step Size' )
-plot( cs, dts_max_absolute, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, dts_max_relative, '-', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_max_rk4_step_size_gain' ] ) 
-
-% Plot the maximum condition number.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Condition Number' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Max Condition Number [-]' ), title( 'Transmission: Maximum Condition Number' )
-plot( cs, condition_numbers_max_absolute, '-', 'Color', color1, 'Linewidth', 3 )
-plot( cs, condition_numbers_max_relative, '-', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_max_condition_number_gain' ] ) 
-
-
-%% Plot Network Parameters vs Gain.
-
-% Plot the maximum decoded output vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Decoded Output' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Maximum Decoded Output, x2_max [-]' ), title( 'Transmission: Maximum Decoded Output' )
-plot( cs, scale*x2maxs_absolute, '--', 'Color', color1, 'Linewidth', 3 )
-plot( cs, scale*x2maxs_relative , '--', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_maximum_decoded_output_gain' ] )
-
-% Plot the maximum membrane voltage vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Membrane Voltage' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Maximum Membrane Voltage, R [V]' ), title( 'Transmission: Maximum Membrane Voltage' )
-plot( cs, R1s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, R2s_absolute, '--', 'Color', color1, 'Linewidth', 3 )
-plot( cs, R1_relative*ones( size( cs ) ) , '-.', 'Color', color2, 'Linewidth', 3 )
-plot( cs, R2_relative*ones( size( cs ) ) , '--', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute 1', 'Absolute 2', 'Relative 1', 'Relative 2' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_maximum_membrane_voltage_gain' ] )
-
-% Plot the sodium channel conductance vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Sodium Channel Conductance' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Sodium Channel Conductance, Gna [S]' ), title( 'Transmission: Sodium Channel Conductance' )
-plot( cs, Gna1s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Gna2s_absolute, '--', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Gna1s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
-plot( cs, Gna2s_relative, '--', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute 1', 'Absolute 2', 'Relative 1', 'Relative 2' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_sodium_channel_conductance_gain' ] )
-
-% Plot the synaptic reversal potential vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Synaptic Reversal Potential' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Synaptic Reversal Potential, dE [V]' ), title( 'Transmission: Synaptic Reversal Potential' )
-plot( cs, dEs21s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, dEs21s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_synaptic_reversal_potential_gain' ] )
-
-% Plot the maximum synaptic conductance vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Maximum Synaptic Conductance' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Maximum Synaptic Conductance, gs [S]' ), title( 'Transmission: Maximum Synaptic Conductance' )
-plot( cs, gs21s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, gs21s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_max_synaptic_conductance_gain' ] )
-
-% Plot the steady state applied current vs gain.
-fig = figure( 'Color', 'w', 'Name', 'Transmission: Applied Current' ); hold on, grid on, xlabel( 'Gain, c [-]' ), ylabel( 'Applied Current, Ia [A]' ), title( 'Transmission: Applied Current' )
-plot( cs, Ia2s_absolute, '-.', 'Color', color1, 'Linewidth', 3 )
-plot( cs, Ia2s_relative, '-.', 'Color', color2, 'Linewidth', 3 )
-legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'transmission_applied_currents_gain' ] )
 
