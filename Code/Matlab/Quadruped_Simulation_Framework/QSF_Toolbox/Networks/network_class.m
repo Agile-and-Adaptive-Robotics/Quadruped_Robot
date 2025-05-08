@@ -1537,7 +1537,7 @@ classdef network_class
                 x1_max = formulation_input_params.x1_max;
                 
                 % Compute the maximum decoded output.
-                c2 = self.network_utilities.compute_absolute_inversion_c2( c1, delta, x1_max );
+                c2 = self.network_utilities.compute_reduced_absolute_inversion_c2( c1, delta, x1_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
                 
@@ -1547,7 +1547,7 @@ classdef network_class
                 x1_max = formulation_input_params.x1_max;
                 
                 % Compute the maximum decoded output.
-                c2 = self.network_utilities.compute_relative_inversion_c2( c1, delta, x1_max );
+                c2 = self.network_utilities.compute_reduced_relative_inversion_c2( c1, delta, x1_max );
             
             else                                                    % Otherwise...
                 
@@ -4780,6 +4780,38 @@ classdef network_class
         
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to pack the formulation params for a reduced absolute inversion subnetwork.
+        function formulation_input_params = pack_reduced_absolute_inversion_formulation_params( self, c1, delta, x1_max )
+            
+            % Set the default input params.
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFUALT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
+            
+            % Pack the params.
+            formulation_input_params.c1 = c1;
+            formulation_input_params.delta = delta;
+            formulation_input_params.x1_max = x1_max;
+            
+        end
+        
+        
+        % Implement a function to pack the formulation params for a reduced relative inversion subnetwork.
+        function formulation_input_params = pack_reduced_relative_inversion_formulation_params( self, c1, delta, x1_max )
+            
+            % Set the default input params.
+            if nargin < 4, x1_max = self.x1max_reduced_relative_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_relative_inversion_DEFUALT; end
+            if nargin < 2, c1 = self.c1_reduced_relative_inversion_DEFAULT; end
+            
+            % Pack the params.
+            formulation_input_params.c1 = c1;
+            formulation_input_params.delta = delta;
+            formulation_input_params.x1_max = x1_max;
+            
+        end
+        
         
         % Implement a function to pack the params for a reduced absolute inversion subnetwork.
         function reduced_inversion_params = pack_reduced_absolute_inversion_params( self, c1, delta, R1, Gm1, Gm2, Cm1, Cm2, neuron_manager, undetected_option )
@@ -15263,8 +15295,8 @@ classdef network_class
             n_applied_currents = self.n_inversion_applied_currents_DEFAULT;
             
             % Unpack the subtraction params.
-            [ ~, ~, ~, ~, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_absolute_inversion_input_params( reduced_inversion_input_params, neuron_manager, undetected_option );
-            
+            [ ~, ~, ~, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_absolute_inversion_input_params( reduced_inversion_input_params, neuron_manager, undetected_option );
+                        
             % Define the neuron properties.
             neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
             [ neuron_names, ~, ~ ] = neuron_manager.generate_names( neuron_IDs, neuron_manager.neurons, false, undetected_option );

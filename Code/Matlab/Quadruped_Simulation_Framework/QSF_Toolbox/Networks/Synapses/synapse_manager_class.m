@@ -833,13 +833,13 @@ classdef synapse_manager_class
             n_synapses = length( synapses );
             
             % Initialize the  synapse detected flag.
-            b_synapse_detected = false;
+            synapse_detected_flag = false;
             
             % Initialize the loop counter.
             k = 0;
             
             % Search for the synapse(s) that connect the specified neurons.
-            while ( ~b_synapse_detected ) && ( k < n_synapses )                                                                 % While a matching synapse has not yet been detected and we haven't looked through all of the synapses...
+            while ( ~synapse_detected_flag ) && ( k < n_synapses )                                                                 % While a matching synapse has not yet been detected and we haven't looked through all of the synapses...
                 
                 % Advance the loop counter.
                 k = k + 1;
@@ -848,14 +848,14 @@ classdef synapse_manager_class
                 if ( synapses( k ).from_neuron_ID == from_neuron_ID ) && ( synapses( k ).to_neuron_ID == to_neuron_ID )         % If this synapse connects the specified neurons...
                     
                     % Set the synapse detected flag to true.
-                    b_synapse_detected = true;
+                    synapse_detected_flag = true;
                     
                 end
                 
             end
             
             % Determine whether a matching synapse was detected.
-            if b_synapse_detected                                                                                               % If we found a matching synapse....
+            if synapse_detected_flag                                                                                               % If we found a matching synapse....
                 
                 % Retrieve the ID of the matching synapse.
                 synapse_ID = synapses( k ).ID;
@@ -1209,10 +1209,10 @@ classdef synapse_manager_class
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 3, params = struct( [  ] ); end                                                           	% [struct] Parameters Struct.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1221,7 +1221,7 @@ classdef synapse_manager_class
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
+                    % Store the required params.
                     params.c = c;
                     params.x1_max = x1_max;
                     params.Gm2 = Gm2;
@@ -1229,7 +1229,7 @@ classdef synapse_manager_class
                     
                 else                                                                                                   	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 4                                                       	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
@@ -1241,7 +1241,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                              	% If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                              	% If no params were provided...
                     
                     % Set the default parameter values.
@@ -1249,14 +1249,14 @@ classdef synapse_manager_class
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
+                    % Store the required params.
                     params.R2 = R2;
                     params.Gm2 = Gm2;
                     params.dEs21 = dEs21;
                     
                 else                                                                                                  	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 3                                                                     	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
@@ -1283,10 +1283,10 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, params = struct( [  ] ); end                           	% [struct] Parameters Struct.  (Absolute: R2, Gm2, dEs21, Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                 	% If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                              	% If no params were provided...
                     
                     % Set the default parameter values.
@@ -1294,14 +1294,14 @@ classdef synapse_manager_class
                     x1_max = self.x1max_absolute_transmission_DEFAULT;                  % [-] Maximum Decoded Input.
                     Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
                     
-                    % Store the required params in a cell.
+                    % Store the required params.
                     params.c = c;
                     params.x1_max = x1_max;
                     params.Gm2 = Gm2;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 3                                    	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
@@ -1313,20 +1313,20 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                            	% If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                              	% If no params were provided...
                     
                     % Set the default parameter values.
                     R2 = self.R_DEFAULT;                                             	% [V] Activation Domain.
                     Gm2 = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
                     
-                    % Store the required params in a cell.
+                    % Store the required params.
                     params.R2 = R2;
                     params.Gm2 = Gm2;
                     
                 else                                                                 	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 2                                      	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
@@ -1355,12 +1355,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Compute the number of synapse IDs.
@@ -1373,13 +1373,17 @@ classdef synapse_manager_class
                     dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                     Ia_n = self.Ia_DEFAULT;                                                                                 % [A] Applied Current.
                                         
-                    % Store the required params in a cell.
-                    params = { c_k, R_k, Gm_n, dEs_nk, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.R_k = R_k;
+                    params.Gm_n = Gm_n;
+                    params.dEs_nk = dEs_nk;
+                    params.Ia_n = Ia_n;                    
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1390,7 +1394,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1400,13 +1404,17 @@ classdef synapse_manager_class
                     dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                     Ia_n = self.Ia_DEFAULT;                                                                                 % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = {c_k, R_n, Gm_n, dEs_nk, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.R_n = R_n;
+                    params.Gm_n= Gm_n;
+                    params.dEs_nk = dEs_nk;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1430,12 +1438,12 @@ classdef synapse_manager_class
                     
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                    	% [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                              	% If no params were provided...
                     
                     % Compute the number of synapse IDs.
@@ -1447,13 +1455,16 @@ classdef synapse_manager_class
                     Gm_n = self.Gm_DEFAULT;                                           	% [S] Membrane Conductance.
                     Ia_n = self.Ia_DEFAULT;                                           	% [A] Applied Current.
                                         
-                    % Store the required params in a cell.
-                    params = { c_k, R_k, Gm_n, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.R_k = R_k;
+                    params.Gm_n = Gm_n;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                 	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                       	% If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                       	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1464,7 +1475,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                            	% If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                               	% If no params were provided...
                     
                     % Set the default parameter values.
@@ -1473,13 +1484,16 @@ classdef synapse_manager_class
                     Gm_n = self.Gm_DEFAULT;                                            	% [S] Membrane Conductance.
                     Ia_n = self.Ia_DEFAULT;                                          	% [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { c_k, R_n, Gm_n, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.R_n = R_n;
+                    params.Gm_n = Gm_n;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                 	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                        % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                        % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1507,12 +1521,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                        	% [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                   	% [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                             	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                         	% [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                         	% [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                    	% If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                  	% If no params were provided...
                     
                     % Compute the number of synapse IDs.
@@ -1526,13 +1540,18 @@ classdef synapse_manager_class
                     dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                     Ia_n = self.Ia_DEFAULT;                                                                                	% [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.s_k = s_k;
+                    params.R_k = R_k;
+                    params.Gm_n = Gm_n;
+                    params.dEs_nk = dEs_nk;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                                                      	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                           	% If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                           	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1543,7 +1562,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                	% If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                  	% If no params were provided... 
                     
                     % Compute the number of synapse IDs.
@@ -1557,13 +1576,18 @@ classdef synapse_manager_class
                     dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                     Ia_n = self.Ia_DEFAULT;                                                                                	% [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.s_k = s_k;
+                    params.R_k = R_k;
+                    params.Gm_n = Gm_n;
+                    params.dEs_nk = dEs_nk;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                                                      	% Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                         	% If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                         	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1587,12 +1611,12 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                               % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                        % If no params were provided...
                     
                     % Compute the number of synapse IDs.
@@ -1605,13 +1629,17 @@ classdef synapse_manager_class
                     Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
                     Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { c_k, s_k, R_k, Gm_n, Ia_n };
+                    % Store the required params.
+                    params.c_k = c_k;
+                    params.s_k = s_k;
+                    params.R_k = R_k;
+                    params.Gm_n = Gm_n;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                                                            % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                                % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                                % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1622,7 +1650,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                       % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                        % If no params were provided... 
                     
                     % Compute the number of synapse IDs.
@@ -1635,13 +1663,17 @@ classdef synapse_manager_class
                     Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
                     Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { c_k, s_k, R_k, Gm_n, Ia_n };
+                    % Store the required params.                    
+                    params.c_k = c_k;
+                    params.s_k = s_k;
+                    params.R_k = R_k;
+                    params.Gm_n = Gm_n;
+                    params.Ia_n = Ia_n;
                     
                 else                                                                                                            % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                             	% If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                             	% If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1669,12 +1701,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1691,10 +1723,9 @@ classdef synapse_manager_class
                     params.Gm2 = Gm2;
                     params.dEs21 = dEs21;
                     
-                    
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
@@ -1706,7 +1737,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1727,7 +1758,7 @@ classdef synapse_manager_class
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
@@ -1752,12 +1783,12 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1774,7 +1805,7 @@ classdef synapse_manager_class
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
@@ -1786,7 +1817,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1805,7 +1836,7 @@ classdef synapse_manager_class
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
@@ -1834,12 +1865,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1848,13 +1879,16 @@ classdef synapse_manager_class
                     dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, Gm2, dEs21, Ia2 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.Gm2 = Gm2;
+                    params.dEs21 = dEs21;
+                    params.Ia2 = Ia2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1865,7 +1899,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1874,13 +1908,16 @@ classdef synapse_manager_class
                     dEs21 = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.                                                                                 % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, Gm2, dEs21, Ia2 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.Gm2 = Gm2;
+                    params.dEs21 = dEs21;
+                    params.Ia2 = Ia2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1904,12 +1941,12 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1917,13 +1954,15 @@ classdef synapse_manager_class
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, Gm2, Ia2 };
+                    % Store the required params.
+                    params.delta1 = delta1;
+                    params.Gm2 = Gm2;
+                    params.Ia2 = Ia2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 3                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 3                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1934,7 +1973,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1942,13 +1981,15 @@ classdef synapse_manager_class
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
                     Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.                                                                                 % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, Gm2, Ia2 };
+                    % Store the required params.
+                    params.delta1 = delta1;
+                    params.Gm2 = Gm2;
+                    params.Ia2 = Ia2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1976,12 +2017,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -1990,13 +2031,16 @@ classdef synapse_manager_class
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
 
-                    % Store the required params in a cell.
-                    params = { R3, Gm3, dEs31, Ia3 };
+                    % Store the required params.
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2007,7 +2051,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2016,13 +2060,16 @@ classdef synapse_manager_class
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { R3, Gm3, dEs31, Ia3 };
+                    % Store the required params.
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2048,12 +2095,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2064,13 +2111,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta2, Gm3, gs31, dEs31, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta2 = delta2;
+                    params.Gm3 = Gm3;
+                    params.gs31 = gs31;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2081,7 +2133,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2092,13 +2144,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta2, Gm3, gs31, dEs31, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta2 = delta2;
+                    params.Gm3 = Gm3;
+                    params.gs31 = gs31;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2138,12 +2195,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2154,13 +2211,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta, R3, Gm3, dEs31, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta = delta;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2171,7 +2233,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2182,13 +2244,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );       	% [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta, R3, Gm3, dEs31, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta = delta;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2212,12 +2279,12 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2226,13 +2293,16 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;                                                                               	% [S] Membrane Conductance.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta, R3, Gm3, Ia3 };
+                    % Store the required params.                    
+                    params.delta = delta;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2243,7 +2313,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2252,13 +2322,16 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;                                                                               	% [S] Membrane Conductance.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { delta, R3, Gm3, Ia3 };
+                    % Store the required params.
+                    params.delta = delta;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2286,12 +2359,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2300,13 +2373,16 @@ classdef synapse_manager_class
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
 
-                    % Store the required params in a cell.
-                    params = { R3, Gm3, dEs31, Ia3 };
+                    % Store the required params.
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2317,7 +2393,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2326,13 +2402,16 @@ classdef synapse_manager_class
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
-                    % Store the required params in a cell.
-                    params = { R3, Gm3, dEs31, Ia3 };
+                    % Store the required params.                    
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2358,12 +2437,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2374,13 +2453,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta2, Gm3, gs31, dEs31, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta2 = delta2;
+                    params.Gm3 = Gm3;
+                    params.gs31 = gs31;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2391,7 +2475,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2402,13 +2486,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta2, Gm3, gs31, dEs31, dEs32, Ia3 };
+                    % Store the required params.
+                    params.delta2 = delta2;
+                    params.Gm3 = Gm3;
+                    params.gs31 = gs31;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2448,12 +2537,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2464,13 +2553,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );        % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
 
-                    % Store the required params in a cell.
-                    params = { delta2, R3, Gm3, dEs31, dEs32, Ia3 };
+                    % Store the required params.
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2481,7 +2575,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2492,13 +2586,18 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );        % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
 
-                    % Store the required params in a cell.
-                    params = { delta2, R3, Gm3, dEs31, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2522,12 +2621,12 @@ classdef synapse_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2536,13 +2635,16 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
 
-                    % Store the required params in a cell.
-                    params = { delta2, R3, Gm3, Ia3 };
+                    % Store the required params.
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2553,7 +2655,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2562,13 +2664,16 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;                                                                                  % [S] Membrane Conductance.
                     Ia3 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
 
-                    % Store the required params in a cell.
-                    params = { delta2, R3, Gm3, Ia3 };
+                    % Store the required params.                    
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2596,12 +2701,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2612,13 +2717,18 @@ classdef synapse_manager_class
                     R1 = self.R_DEFAULT;
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R1, R2 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R2 = R2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2629,7 +2739,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2640,13 +2750,18 @@ classdef synapse_manager_class
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R2, dEs31 };
+                    % Store the required params.
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2672,12 +2787,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2688,13 +2803,18 @@ classdef synapse_manager_class
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta2, R1, R2, dEs31 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R2 = R2;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2705,7 +2825,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2716,13 +2836,18 @@ classdef synapse_manager_class
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R2, dEs31 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2763,12 +2888,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2780,13 +2905,19 @@ classdef synapse_manager_class
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R1, R2, dEs31 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R2 = R2;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 7                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 7                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2797,7 +2928,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2808,13 +2939,18 @@ classdef synapse_manager_class
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R2, dEs31 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2838,12 +2974,12 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2854,13 +2990,18 @@ classdef synapse_manager_class
                     R1 = self.R_DEFAULT;
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
 
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R1, R2 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R2 = R2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2871,7 +3012,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2881,13 +3022,17 @@ classdef synapse_manager_class
                     delta2 = self.delta_dai_DEFAULT;
                     R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.
                     
-                    % Store the required params in a cell.
-                    params = { c1, c3, delta1, delta2, R2 };
+                    % Store the required params.                    
+                    params.c1 = c1;
+                    params.c3 = c3;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 65                                                                           % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 65                                                                           % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2915,12 +3060,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2931,13 +3076,18 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R2, R3, Gm3, dEs31 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2948,7 +3098,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -2958,13 +3108,17 @@ classdef synapse_manager_class
                     R3 = self.R_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R2, R3, dEs31 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2990,12 +3144,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                            	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3006,13 +3160,18 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R2, R3, Gm3, dEs31 };
+                    % Store the required params.
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3023,7 +3182,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3034,13 +3193,18 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R2, R3, Gm3, dEs31 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3080,12 +3244,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3096,13 +3260,18 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R2, R3, Gm3, dEs31 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3113,7 +3282,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3124,13 +3293,18 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = {delta1, delta2, R2, R3, Gm3, dEs31 };
+                    % Store the required params.
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs31 = dEs31;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3154,12 +3328,12 @@ classdef synapse_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3169,13 +3343,17 @@ classdef synapse_manager_class
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R2, R3, Gm3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R2 = R2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3186,7 +3364,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3196,13 +3374,13 @@ classdef synapse_manager_class
                     R3 = self.R_DEFAULT;
                     Gm3 = self.Gm_DEFAULT;
                     
-                    % Store the required params in a cell.
+                    % Store the required params.
                     params = { delta1, delta2, R2, R3, Gm3 };
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3230,12 +3408,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3246,13 +3424,18 @@ classdef synapse_manager_class
                     R1 = self.R_DEFAULT;
                     R3 = self.R_DEFAULT;
 
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R1, R3 };
+                    % Store the required params.
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R3 = R3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3263,7 +3446,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3274,13 +3457,18 @@ classdef synapse_manager_class
                     R3 = self.R_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R3, dEs41 };
+                    % Store the required params.
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.dEs41 = dEs41;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3306,12 +3494,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3320,13 +3508,16 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );      	% [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
 
-                    % Store the required params in a cell.
-                    params = { delta1, Gm3, dEs32, Ia3 };
+                    % Store the required params.
+                    params.delta1 = delta1;
+                    params.Gm3 = Gm3;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3337,7 +3528,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3346,13 +3537,16 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );      	% [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta1, Gm3, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.Gm3 = Gm3;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3378,12 +3572,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3394,13 +3588,18 @@ classdef synapse_manager_class
                     R3 = self.R_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta2, R1, R3, dEs41 };
+                    % Store the required params.                    
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R3 = R3;
+                    params.dEs41 = dEs41;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3411,7 +3610,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3422,13 +3621,18 @@ classdef synapse_manager_class
                     R3 = self.R_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R3, dEs41 };
+                    % Store the required params.                    
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.dEs41 = dEs41;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3470,12 +3674,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3490,13 +3694,22 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
 
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R1, R3, Gm3, dEs41, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs41 = dEs41;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 10                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 10                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3507,7 +3720,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3520,13 +3733,20 @@ classdef synapse_manager_class
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R3, Gm3, dEs41, Ia3 };
+                    % Store the required params.                    
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.dEs41 = dEs41;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 8                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 8                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3550,12 +3770,12 @@ classdef synapse_manager_class
                         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3568,13 +3788,20 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     Ia3 = self.Ia_DEFAULT;
 
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R1, R3, Gm3, Ia3 };
+                    % Store the required params.                    
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R1 = R1;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 8                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 8                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3585,7 +3812,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3597,13 +3824,19 @@ classdef synapse_manager_class
                     Gm3 = self.Gm_DEFAULT;
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { c4, c6, delta1, delta2, R3, Gm3, Ia3 };
+                    % Store the required params.                    
+                    params.c4 = c4;
+                    params.c6 = c6;
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.Gm3 = Gm3;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 7                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 7                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3631,12 +3864,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3647,13 +3880,18 @@ classdef synapse_manager_class
                     Gm4 = self.Gm_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, Gm4, dEs41 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.Gm4 = Gm4;
+                    params.dEs41 = dEs41;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3664,7 +3902,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3674,13 +3912,17 @@ classdef synapse_manager_class
                     R4 = self.R_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, dEs41 };
-                    
+                    % Store the required params.
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.dEs41 = dEs41;
+ 
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 5                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3706,12 +3948,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3720,13 +3962,16 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );      	% [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
 
-                    % Store the required params in a cell.
-                    params = { delta1, Gm3, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.Gm3 = Gm3;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3737,7 +3982,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3746,13 +3991,16 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );      	% [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;
                     
-                    % Store the required params in a cell.
-                    params = { delta1, Gm3, dEs32, Ia3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.Gm3 = Gm3;
+                    params.dEs32 = dEs32;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3778,12 +4026,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3794,13 +4042,18 @@ classdef synapse_manager_class
                     Gm4 = self.Gm_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
 
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, Gm4, dEs41 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.Gm4 = Gm4;
+                    params.dEs41 = dEs41;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3811,7 +4064,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3822,13 +4075,18 @@ classdef synapse_manager_class
                     Gm4 = self.Gm_DEFAULT;
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, Gm4, dEs41 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.Gm4 = Gm4;
+                    params.dEs41 = dEs41;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3870,12 +4128,12 @@ classdef synapse_manager_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 5, synapses = self.synapses; end                                                                    % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3889,13 +4147,13 @@ classdef synapse_manager_class
                     dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;  
                     
-                    % Store the required params in a cell.
+                    % Store the required params.
                     params = { delta1, delta2, R3, R4, Gm3, Gm4, dEs41, dEs32, Ia3 };
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 9                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 9                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3906,7 +4164,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3919,13 +4177,20 @@ classdef synapse_manager_class
                     dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );          % [V] Synaptic Reversal Potential.
                     Ia3 = self.Ia_DEFAULT;  
 
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, Gm3, Gm4, dEs41, Ia3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.Gm3 = Gm3;
+                    params.Gm4 = Gm4;
+                    params.dEs41 = dEs41;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 8                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 8                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3949,12 +4214,12 @@ classdef synapse_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, params = struct( [  ] ); end                                                                           % [cell] Parameters Cell.
+            if nargin < 2, params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3966,13 +4231,19 @@ classdef synapse_manager_class
                     Gm4 = self.Gm_DEFAULT;
                     Ia3 = self.Ia_DEFAULT;  
                     
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, Gm3, Gm4, Ia3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.Gm3 = Gm3;
+                    params.Gm4 = Gm4;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 7                                                                            % If there is anything other than the required number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 7                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3983,7 +4254,7 @@ classdef synapse_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Determine whether params cell is valid given that this operation is using a relative encoding scheme.
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
@@ -3995,13 +4266,19 @@ classdef synapse_manager_class
                     Gm4 = self.Gm_DEFAULT;
                     Ia3 = self.Ia_DEFAULT;  
 
-                    % Store the required params in a cell.
-                    params = { delta1, delta2, R3, R4, Gm3, Gm4, Ia3 };
+                    % Store the required params.                    
+                    params.delta1 = delta1;
+                    params.delta2 = delta2;
+                    params.R3 = R3;
+                    params.R4 = R4;
+                    params.Gm3 = Gm3;
+                    params.Gm4 = Gm4;
+                    params.Ia3 = Ia3;
                     
                 else                                                                                                        % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 7                                                                            % If there is anything other than the require number of parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 7                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -4027,32 +4304,40 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                   % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                   % [struct] Parameters Structure.
             
             % Determine how to unpack the params for this synapse.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
                 
                 % Unpack the params.
-                c_ks = params{ 1 };                                                % [-] Subnetwork Gain.
-                R_ks = params{ 2 };                                             % [V] Maximum Membrane Voltage.
-                Gm_n = params{ 3 };                                             % [S] Membrane Conductance.
-                dEs_nks = params{ 4 };                                          % [V] Synaptic Reversal Potential.
-                Ia_n = params{ 5 };                                             % [A] Applied Current.
+                c_ks = params.c_ks;                                                % [-] Subnetwork Gain.
+                R_ks = params.R_ks;                                             % [V] Maximum Membrane Voltage.
+                Gm_n = params.Gm_n;                                             % [S] Membrane Conductance.
+                dEs_nks = params.dEs_nks;                                          % [V] Synaptic Reversal Potential.
+                Ia_n = params.Ia_n;                                             % [A] Applied Current.
                                 
-                % Assemble the params for this synapse.
-                these_params = { c_ks( k ), R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
+                % Assemble the params for this synapse.                
+                these_params.c_ks = c_ks( k );
+                these_params.R_ks = R_ks( k );
+                these_params.Gm_n = Gm_n;
+                these_params.dEs_nks = dEs_nks( k );
+                these_params.Ia_n = Ia_n;
                 
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
                 
                 % Unpack the params.
-                c_ks = params{ 1 };                                                % [-] Subnetwork Gain.
-                R_n = params{ 2 };                                              % [V] Maximum Membrane Voltage.
-                Gm_n = params{ 3 };                                             % [S] Membrane Conductance.
-                dEs_nk = params{ 4 };                                           % [V] Synaptic Reversal Potential.
-                Ia_n = params{ 5 };                                             % [A] Applied Current.
+                c_ks = params.c_ks;                                                % [-] Subnetwork Gain.
+                R_n = params.R_n;                                              % [V] Maximum Membrane Voltage.
+                Gm_n = params.Gm_n;                                             % [S] Membrane Conductance.
+                dEs_nk = params.dEs_nk;                                           % [V] Synaptic Reversal Potential.
+                Ia_n = params.Ia_n;                                             % [A] Applied Current.
                                 
-                % Assemble the params for this synapse.
-                these_params = { c_ks( k ), R_n, Gm_n, dEs_nk( k ), Ia_n };
+                % Assemble the params for this synapse.                
+                these_params.c_ks = c_ks( k );
+                these_params.R_n = R_n;
+                these_params.Gm_n = Gm_n;
+                these_params.dEs_nk = dEs_nk( k );
+                these_params.Ia_n = Ia_n;
                 
             else
                 
@@ -4069,35 +4354,45 @@ classdef synapse_manager_class
             
             % Set the default input arguments.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                   % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                   % [struct] Parameters Structure.
             
             % Determine how to unpack the params for this synapse.
             if strcmpi( encoding_scheme, 'absolute' )                               % If the encoding scheme is absolute...
 
                 % Unpack the params.
-                c_ks = params{ 1 };                                                % [-] Subnetwork Gain.
-                s_ks = params{ 2 };                                             % [-1/+1] Input Signature.
-                R_ks = params{ 3 };                                             % [V] Maximum Membrane Voltage.
-                Gm_n = params{ 4 };                                             % [S] Membrane Conductance.
-                dEs_nks = params{ 5 };                                          % [V] Synaptic Reversal Potential.
-                Ia_n = params{ 6 };                                             % [A] Applied Current.
+                c_ks = params.c_ks;                                                % [-] Subnetwork Gain.
+                s_ks = params.s_ks;                                             % [-1/+1] Input Signature.
+                R_ks = params.R_ks;                                             % [V] Maximum Membrane Voltage.
+                Gm_n = params.Gm_n;                                             % [S] Membrane Conductance.
+                dEs_nks = params.dEs_nks;                                          % [V] Synaptic Reversal Potential.
+                Ia_n = params.Ia_n;                                             % [A] Applied Current.
                 
                 % Assemble the params for this synapse.
-                these_params = { c_ks( k ), s_ks( k ), R_ks( k ), Gm_n, dEs_nks( k ), Ia_n };
-
+                these_params.c_ks = c_ks( k );
+                these_params.s_ks = s_ks( k );
+                these_params.R_ks = R_ks( k );
+                these_params.Gm_n = Gm_n;
+                these_params.dEs_nks = dEs_nks( k );
+                these_params.Ia_n = Ia_n;
+                
             elseif strcmpi( encoding_scheme, 'relative' )                           % If the encoding scheme is relative...
 
                 % Unpack the params.
-                c_ks = params{ 1 };                                                % [-] Subnetwork Gain.
-                s_ks = params{ 2 };                                             % [-] Input Signature.
-                R_n = params{ 3 };                                              % [V] Maximum Membrane Voltage.
-                Gm_n = params{ 4 };                                             % [S] Membrane Conductance.
-                dEs_nks = params{ 5 };                                          % [V} Synaptic Reversal Potential.
-                Ia_n = params{ 6 };                                             % [A] Applied Current.
+                c_ks = params.c_ks;                                                % [-] Subnetwork Gain.
+                s_ks = params.s_ks;                                             % [-1/+1] Input Signature.
+                R_n = params.R_n;                                             % [V] Maximum Membrane Voltage.
+                Gm_n = params.Gm_n;                                             % [S] Membrane Conductance.
+                dEs_nks = params.dEs_nks;                                          % [V] Synaptic Reversal Potential.
+                Ia_n = params.Ia_n;                                             % [A] Applied Current.
                 
                 % Assemble the params for this synapse.
-                these_params = { c_ks( k ), s_ks( k ), R_n, Gm_n, dEs_nks( k ), Ia_n };
-
+                these_params.c_ks = c_ks( k );
+                these_params.s_ks = s_ks( k );
+                these_params.R_n = R_n;
+                these_params.Gm_n = Gm_n;
+                these_params.dEs_nks = dEs_nks( k );
+                these_params.Ia_n = Ia_n;
+                
             else
 
                 % Throw an error.
@@ -5232,13 +5527,13 @@ classdef synapse_manager_class
                 Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
                 Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
                                 
-            elseif length( addition_params ) == 4                                                             	% If there are a specific number of params...
+            elseif length( fieldnames( addition_params ) ) == 4                                                             	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c_k = addition_params{ 1 };                                                                     % [-] Subnetwork Gain.
-                R_k = addition_params{ 2 };                                                                   	% [V] Maximum Membrane Voltage.
-                Gm_n = addition_params{ 3 };                                                                    % [S] Membrane Conductance.
-                Ia_n = addition_params{ 4 };                                                                   	% [A] Applied Current.
+                c_k = addition_params.c_k;                                                                     % [-] Subnetwork Gain.
+                R_k = addition_params.R_k;                                                                   	% [V] Maximum Membrane Voltage.
+                Gm_n = addition_params.Gm_n;                                                                    % [S] Membrane Conductance.
+                Ia_n = addition_params.Ia_n;                                                                   	% [A] Applied Current.
             
             else                                                                                                   	% Otherwise...
                
@@ -5270,13 +5565,13 @@ classdef synapse_manager_class
                 Gm_n = self.Gm_DEFAULT;                                                                             % [S] Membrane Conductance.
                 Ia_n = self.Ia_DEFAULT;                                                                             % [A] Applied Current.
                 
-            elseif length( addition_params ) == 4                                                             	% If there are a specific number of params...
+            elseif length( fieldnames( addition_params ) ) == 4                                                             	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c_k = addition_params{ 1 };                                                                     % [-] Subnetwork Gain.
-                R_n = addition_params{ 2 };                                                                   	% [V] Maximum Membrane Voltage.
-                Gm_n = addition_params{ 3 };                                                                    % [S] Membrane Conductance.
-                Ia_n = addition_params{ 4 };                                                                   	% [A] Applied Current.
+                c_k = addition_params.c_k;                                                                     % [-] Subnetwork Gain.
+                R_n = addition_params.R_n;                                                                   	% [V] Maximum Membrane Voltage.
+                Gm_n = addition_params.Gm_n;                                                                    % [S] Membrane Conductance.
+                Ia_n = addition_params.Ia_n;                                                                   	% [A] Applied Current.
             
             else                                                                                                   	% Otherwise...
                
@@ -5311,14 +5606,14 @@ classdef synapse_manager_class
                 Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
                 Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
                                 
-            elseif length( subtraction_params ) == 5                                                                    % If there are a specific number of params...
+            elseif length( fieldnames( subtraction_params ) ) == 5                                                                    % If there are a specific number of params...
                 
                 % Unpack the params.
-                c_k = subtraction_params{ 1 };                                                                          % [-] Subnetwork Gain.
-                s_k = subtraction_params{ 2 };                                                                          % [-] Input Signature.
-                R_k = subtraction_params{ 3 };                                                                          % [V] Maximum Membrane Voltage.
-                Gm_n = subtraction_params{ 4 };                                                                        	% [S] Membrane Conductance.
-                Ia_n = subtraction_params{ 5 };                                                                      	% [A] Applied Current.
+                c_k = subtraction_params.c_k;                                                                          % [-] Subnetwork Gain.
+                s_k = subtraction_params.s_k;                                                                          % [-] Input Signature.
+                R_k = subtraction_params.R_k;                                                                          % [V] Maximum Membrane Voltage.
+                Gm_n = subtraction_params.Gm_n;                                                                        	% [S] Membrane Conductance.
+                Ia_n = subtraction_params.Ia_n;                                                                      	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5351,14 +5646,14 @@ classdef synapse_manager_class
                 Gm_n = self.Gm_DEFAULT;                                                                                     % [S] Membrane Conductance.
                 Ia_n = self.Ia_DEFAULT;                                                                                     % [A] Applied Current.
 
-            elseif length( subtraction_params ) == 5                                                                    % If there are a specific number of params...
+            elseif length( fieldnames( subtraction_params ) ) == 5                                                                    % If there are a specific number of params...
                 
                 % Unpack the params.
-                c_k = subtraction_params{ 1 };                                                                          % [-] Subnetwork Gain.
-                s_k = subtraction_params{ 2 };                                                                          % [-] Input Signature.
-                R_k = subtraction_params{ 3 };                                                                          % [V] Maximum Membrane Voltage.
-                Gm_n = subtraction_params{ 4 };                                                                        	% [S] Membrane Conductance.
-                Ia_n = subtraction_params{ 5 };                                                                      	% [A] Applied Current.
+                c_k = subtraction_params.c_k;                                                                          % [-] Subnetwork Gain.
+                s_k = subtraction_params.s_k;                                                                          % [-] Input Signature.
+                R_k = subtraction_params.R_k;                                                                          % [V] Maximum Membrane Voltage.
+                Gm_n = subtraction_params.Gm_n;                                                                        	% [S] Membrane Conductance.
+                Ia_n = subtraction_params.Ia_n;                                                                      	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5459,12 +5754,12 @@ classdef synapse_manager_class
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                 
-            elseif length( inversion_params ) == 3                                                                	% If there are a specific number of params...
+            elseif length( fieldnames( inversion_params ) ) == 3                                                                	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = inversion_params{ 1 };                                                                    	% [V] Inversion Subnetwork Offset.
-                Gm2 = inversion_params{ 2 };                                                                       	% [S] Membrane Conductance.
-                Ia2 = inversion_params{ 3 };                                                                      	% [A] Applied Current.
+                delta1 = inversion_params.delta1;                                                                    	% [V] Inversion Subnetwork Offset.
+                Gm2 = inversion_params.Gm2;                                                                       	% [S] Membrane Conductance.
+                Ia2 = inversion_params.Ia2;                                                                      	% [A] Applied Current.
             
             else                                                                                                       	% Otherwise...
                
@@ -5492,12 +5787,12 @@ classdef synapse_manager_class
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
                 Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                                 
-            elseif length( inversion_params ) == 3                                                                	% If there are a specific number of params...
+            elseif length( fieldnames( inversion_params ) ) == 3                                                                	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = inversion_params{ 1 };                                                                    	% [V] Inversion Subnetwork Offset.
-                Gm2 = inversion_params{ 2 };                                                                       	% [S] Membrane Conductance.
-                Ia2 = inversion_params{ 3 };                                                                      	% [A] Applied Current.
+                delta1 = inversion_params.delta1;                                                                    	% [V] Inversion Subnetwork Offset.
+                Gm2 = inversion_params.Gm2;                                                                       	% [S] Membrane Conductance.
+                Ia2 = inversion_params.Ia2;                                                                      	% [A] Applied Current.
             
             else                                                                                                       	% Otherwise...
                
@@ -5532,15 +5827,15 @@ classdef synapse_manager_class
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                dEs31 = division_params{ 4 };                                                                           % [V] Synaptic Reversal Potential.
-                dEs32 = division_params{ 5 };                                                                           % [V] Synaptic Reversal Potential.
-                Ia3 = division_params{ 6 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_params.dEs32;                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5573,15 +5868,15 @@ classdef synapse_manager_class
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                dEs31 = division_params{ 4 };                                                                           % [V] Synaptic Reversal Potential.
-                dEs32 = division_params{ 5 };                                                                           % [V] Synaptic Reversal Potential.
-                Ia3 = division_params{ 6 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_params.dEs32;                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5610,13 +5905,13 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 4                                                                 	% If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 4                                                                 	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                      	% [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                         	% [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                         	% [S] Membrane Conductance.
-                Ia3 = division_params{ 4 };                                                                        	% [A] Applied Current.
+                delta = division_params.delta;                                                                      	% [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                         	% [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                         	% [S] Membrane Conductance.
+                Ia3 = division_params.Ia3;                                                                        	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5645,13 +5940,13 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 4                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 4                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                Ia3 = division_params{ 4 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5686,15 +5981,15 @@ classdef synapse_manager_class
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                dEs31 = division_params{ 4 };                                                                           % [V] Synaptic Reversal Potential.
-                dEs32 = division_params{ 5 };                                                                           % [V] Synaptic Reversal Potential.
-                Ia3 = division_params{ 6 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_params.dEs32;                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5727,15 +6022,15 @@ classdef synapse_manager_class
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                dEs31 = division_params{ 4 };                                                                           % [V] Synaptic Reversal Potential.
-                dEs32 = division_params{ 5 };                                                                           % [V] Synaptic Reversal Potential.
-                Ia3 = division_params{ 6 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
+                dEs32 = division_params.dEs32;                                                                           % [V] Synaptic Reversal Potential.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5764,13 +6059,13 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 4                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 4                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                Ia3 = division_params{ 4 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5799,13 +6094,13 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( division_params ) == 4                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 4                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = division_params{ 1 };                                                                           % [V] Division Subnetwork Offset.
-                R3 = division_params{ 2 };                                                                              % [V] Activation Domain.
-                Gm3 = division_params{ 3 };                                                                             % [S] Membrane Conductance.
-                Ia3 = division_params{ 4 };                                                                             % [A] Applied Current.
+                delta = division_params.delta;                                                                           % [V] Division Subnetwork Offset.
+                R3 = division_params.R3;                                                                              % [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                             % [S] Membrane Conductance.
+                Ia3 = division_params.Ia3;                                                                             % [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -5841,16 +6136,16 @@ classdef synapse_manager_class
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 
-            elseif length( division_params ) == 7                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 7                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_params{ 1 };                                                                              % [-] Absolute Division After Inversion Gain 1.
-                c3 = division_params{ 2 };                                                                              % [-] Absolute Division After Inversion Gain 3.
-                delta1 = division_params{ 3 };                                                                          % [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 4 };                                                                        	% [V] Division Subnetwork Offset.
-                R1 = division_params{ 5 };                                                                             	% [V] Acitvation Domain.
-                R2 = division_params{ 6 };                                                                            	% [V] Activation Domain.
-                dEs31 = division_params{ 7 };                                                                           % [V] Synaptic Reversal Potential.
+                c1 = division_params.c1;                                                                              % [-] Absolute Division After Inversion Gain 1.
+                c3 = division_params.c3;                                                                              % [-] Absolute Division After Inversion Gain 3.
+                delta1 = division_params.delta1;                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                                                        	% [V] Division Subnetwork Offset.
+                R1 = division_params.R1;                                                                             	% [V] Acitvation Domain.
+                R2 = division_params.R2;                                                                            	% [V] Activation Domain.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
             
             else                                                                                                            % Otherwise...
                
@@ -5883,15 +6178,15 @@ classdef synapse_manager_class
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_params{ 1 };                                                                              % [-] Absolute Division After Inversion Gain 1.
-                c3 = division_params{ 2 };                                                                              % [-] Absolute Division After Inversion Gain 3.
-                delta1 = division_params{ 3 };                                                                          % [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 4 };                                                                        	% [V] Division Subnetwork Offset.
-                R2 = division_params{ 5 };                                                                            	% [V] Activation Domain.
-                dEs31 = division_params{ 6 };                                                                           % [V] Synaptic Reversal Potential.
+                c1 = division_params.c1;                                                                              % [-] Absolute Division After Inversion Gain 1.
+                c3 = division_params.c3;                                                                              % [-] Absolute Division After Inversion Gain 3.
+                delta1 = division_params.delta1;                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_params.R2;                                                                            	% [V] Activation Domain.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
             
             else                                                                                                            % Otherwise...
                
@@ -5922,15 +6217,15 @@ classdef synapse_manager_class
                 R1 = self.R_DEFAULT;                                                                                        % [V] Acitvation Domain.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_params{ 1 };                                                                              % [-] Absolute Division After Inversion Gain 1.
-                c3 = division_params{ 2 };                                                                              % [-] Absolute Division After Inversion Gain 3.
-                delta1 = division_params{ 3 };                                                                          % [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 4 };                                                                        	% [V] Division Subnetwork Offset.
-                R1 = division_params{ 5 };                                                                             	% [V] Acitvation Domain.
-                R2 = division_params{ 6 };                                                                            	% [V] Activation Domain.
+                c1 = division_params.c1;                                                                              % [-] Absolute Division After Inversion Gain 1.
+                c3 = division_params.c3;                                                                              % [-] Absolute Division After Inversion Gain 3.
+                delta1 = division_params.delta1;                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                                                        	% [V] Division Subnetwork Offset.
+                R1 = division_params.R1;                                                                             	% [V] Acitvation Domain.
+                R2 = division_params.R2;                                                                            	% [V] Activation Domain.
             
             else                                                                                                            % Otherwise...
                
@@ -5960,14 +6255,14 @@ classdef synapse_manager_class
                 delta2 = self.delta_dai_DEFAULT;                                                                            % [V] Division Subnetwork Offset.
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                        % [V] Activation Domain.
                 
-            elseif length( division_params ) == 5                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 5                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_params{ 1 };                                                                              % [-] Absolute Division After Inversion Gain 1.
-                c3 = division_params{ 2 };                                                                              % [-] Absolute Division After Inversion Gain 3.
-                delta1 = division_params{ 3 };                                                                          % [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 4 };                                                                        	% [V] Division Subnetwork Offset.
-                R2 = division_params{ 5 };                                                                            	% [V] Activation Domain.
+                c1 = division_params.c1;                                                                              % [-] Absolute Division After Inversion Gain 1.
+                c3 = division_params.c3;                                                                              % [-] Absolute Division After Inversion Gain 3.
+                delta1 = division_params.delta1;                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_params.R2;                                                                            	% [V] Activation Domain.
             
             else                                                                                                            % Otherwise...
                
@@ -6002,15 +6297,15 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = division_params{ 1 };                                                                          % [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 2 };                                                                        	% [V] Division Subnetwork Offset.
-                R2 = division_params{ 3 };                                                                            	% [V] Activation Domain.
-                R3 = division_params{ 4 };                                                                            	% [V] Activation Domain.
-                Gm3 = division_params{ 5 };                                                                           	% [S] Membrane Conductance.
-                dEs31 = division_params{ 6 };                                                                           % [V] Synaptic Reversal Potential.
+                delta1 = division_params.delta1;                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_params.R2;                                                                            	% [V] Activation Domain.
+                R3 = division_params.R3;                                                                            	% [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                                                           	% [S] Membrane Conductance.
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
             
             else                                                                                                            % Otherwise...
                
@@ -6043,15 +6338,15 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [V] Activation Domain.
                 dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 
-            elseif length( division_params ) == 6                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 6                                                                       % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = division_params{ 1 };                                                                          % [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 2 };                                                                        	% [V] Division Subnetwork Offset.
-                R2 = division_params{ 3 };                                                                            	% [V] Activation Domain.
-                R3 = division_params{ 4 };                                                                            	% [V] Activation Domain.
-                Gm3 = division_params{ 5 };
-                dEs31 = division_params{ 6 };                                                                           % [V] Synaptic Reversal Potential.
+                delta1 = division_params.delta1;                                                                          % [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                                                        	% [V] Division Subnetwork Offset.
+                R2 = division_params.R2;                                                                            	% [V] Activation Domain.
+                R3 = division_params.R3;                                                                            	% [V] Activation Domain.
+                Gm3 = division_params.Gm3;
+                dEs31 = division_params.dEs31;                                                                           % [V] Synaptic Reversal Potential.
             
             else                                                                                                            % Otherwise...
                
@@ -6081,14 +6376,14 @@ classdef synapse_manager_class
                 R3 = self.R_DEFAULT;                                                      	% [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                    	% [S] Membrane Conductance.
                 
-            elseif length( division_params ) == 5                                     	% If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 5                                     	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = division_params{ 1 };                                        	% [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 2 };                                        	% [V] Division Subnetwork Offset.
-                R2 = division_params{ 3 };                                           	% [V] Activation Domain.
-                R3 = division_params{ 4 };                                             	% [V] Activation Domain.
-                Gm3 = division_params{ 5 };                                           	% [S] Membrane Conductance.
+                delta1 = division_params.delta1;                                        	% [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                        	% [V] Division Subnetwork Offset.
+                R2 = division_params.R2;                                           	% [V] Activation Domain.
+                R3 = division_params.R3;                                             	% [V] Activation Domain.
+                Gm3 = division_params.Gm3;                                           	% [S] Membrane Conductance.
             
             else                                                                        	% Otherwise...
                
@@ -6118,14 +6413,14 @@ classdef synapse_manager_class
                 R3 = self.R_DEFAULT;                                                    	% [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                    	% [V] Activation Domain.
                 
-            elseif length( division_params ) == 5                                     	% If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 5                                     	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = division_params{ 1 };                                        	% [V] Inversion Subbnetwork Offset.
-                delta2 = division_params{ 2 };                                         	% [V] Division Subnetwork Offset.
-                R2 = division_params{ 3 };                                           	% [V] Activation Domain.
-                R3 = division_params{ 4 };                                             	% [V] Activation Domain.
-                Gm3 = division_params{ 5 };
+                delta1 = division_params.delta1;                                        	% [V] Inversion Subbnetwork Offset.
+                delta2 = division_params.delta2;                                         	% [V] Division Subnetwork Offset.
+                R2 = division_params.R2;                                           	% [V] Activation Domain.
+                R3 = division_params.R3;                                             	% [V] Activation Domain.
+                Gm3 = division_params.Gm3;
             
             else                                                                         	% Otherwise...
                
@@ -6164,19 +6459,19 @@ classdef synapse_manager_class
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 10                                                              	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 10                                                              	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c4 = multiplication_params{ 1 };
-                c6 = multiplication_params{ 2 };
-                delta1 = multiplication_params{ 3 };                                                                 	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 4 };                                                                 	% [V] Division Subnetwork Offset.
-                R1 = multiplication_params{ 5 };                                                                      	% [V] Activation Domain.
-                R3 = multiplication_params{ 6 };                                                                       	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 7 };                                                                     	% [S] Membrane Conductance.
-                dEs41 = multiplication_params{ 8 };                                                                    	% [V] Synaptic Reversal Potential.
-                dEs32 = multiplication_params{ 9 };                                                                  	% [V] Synaptic Reversal Potential.
-                Ia3 = multiplication_params{ 10 };                                                                     	% [A] Applied Current.
+                c4 = multiplication_params.c4;
+                c6 = multiplication_param.c6;
+                delta1 = multiplication_params.delta1;                                                                 	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                 	% [V] Division Subnetwork Offset.
+                R1 = multiplication_params.R1;                                                                      	% [V] Activation Domain.
+                R3 = multiplication_params.R3;                                                                       	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                     	% [S] Membrane Conductance.
+                dEs41 = multiplication_params.dEs41;                                                                    	% [V] Synaptic Reversal Potential.
+                dEs32 = multiplication_params.dEs32;                                                                  	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_params.Ia3;                                                                     	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6211,17 +6506,17 @@ classdef synapse_manager_class
                 dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 10                                                               	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 10                                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c4 = multiplication_params{ 1 };
-                c6 = multiplication_params{ 2 };
-                delta1 = multiplication_params{ 3 };                                                                	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 4 };                                                                   	% [V] Division Subnetwork Offset.
-                R3 = multiplication_params{ 5 };                                                                      	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 6 };                                                                      	% [S] Membrane Conductance.
-                dEs41 = multiplication_params{ 7 };                                                                    	% [V] Synaptic Reversal Potential.
-                Ia3 = multiplication_params{ 8 };                                                                      	% [A] Applied Current.
+                c4 = multiplication_params.c4;
+                c6 = multiplication_params.c6;
+                delta1 = multiplication_params.delta1;                                                                	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                   	% [V] Division Subnetwork Offset.
+                R3 = multiplication_params.R3;                                                                      	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                      	% [S] Membrane Conductance.
+                dEs41 = multiplication_params.dEs41;                                                                    	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_params.Ia3;                                                                      	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6254,17 +6549,17 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 8                                                              	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 8                                                              	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c4 = multiplication_params{ 1 };
-                c6 = multiplication_params{ 2 };
-                delta1 = multiplication_params{ 3 };                                                                 	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 4 };                                                                 	% [V] Division Subnetwork Offset.
-                R1 = multiplication_params{ 5 };                                                                      	% [V] Activation Domain.
-                R3 = multiplication_params{ 6 };                                                                       	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 7 };                                                                     	% [S] Membrane Conductance.
-                Ia3 = multiplication_params{ 8 };                                                                     	% [A] Applied Current.
+                c4 = multiplication_params.c4;
+                c6 = multiplication_params.c6;
+                delta1 = multiplication_params.delta1;                                                                 	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                 	% [V] Division Subnetwork Offset.
+                R1 = multiplication_params.R1;                                                                      	% [V] Activation Domain.
+                R3 = multiplication_params.R3;                                                                       	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                     	% [S] Membrane Conductance.
+                Ia3 = multiplication_params.Ia3;                                                                     	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6296,16 +6591,16 @@ classdef synapse_manager_class
                 Gm3 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 7                                                               	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 7                                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c4 = multiplication_params{ 1 };
-                c6 = multiplication_params{ 2 };
-                delta1 = multiplication_params{ 3 };                                                                	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 4 };                                                                   	% [V] Division Subnetwork Offset.
-                R3 = multiplication_params{ 5 };                                                                      	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 6 };                                                                      	% [S] Membrane Conductance.
-                Ia3 = multiplication_params{ 7 };                                                                      	% [A] Applied Current.
+                c4 = multiplication_params.c4;
+                c6 = multiplication_params.c6;
+                delta1 = multiplication_params.delta1;                                                                	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                   	% [V] Division Subnetwork Offset.
+                R3 = multiplication_params.R3;                                                                      	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                      	% [S] Membrane Conductance.
+                Ia3 = multiplication_params.Ia3;                                                                      	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6343,18 +6638,18 @@ classdef synapse_manager_class
                 dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option );           	% [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 9                                                               	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 9                                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = multiplication_params{ 1 };                                                                  	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 2 };                                                                 	% [V] Division Subnetwork Offset.
-                R3 = multiplication_params{ 3 };                                                                      	% [V] Activation Domain.
-                R4 = multiplication_params{ 4 };                                                                      	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 5 };                                                                      	% [S] Membrane Conductance.
-                Gm4 = multiplication_params{ 6 };                                                                     	% [S] Membrane Conductance.
-                dEs41 = multiplication_params{ 7 };                                                                   	% [V] Synaptic Reversal Potential.
-                dEs32 = multiplication_params{ 8 };                                                                   	% [V] Synaptic Reversal Potential.
-                Ia3 = multiplication_params{ 9 };                                                                    	% [A] Applied Current.
+                delta1 = multiplication_params.delta1;                                                                  	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                 	% [V] Division Subnetwork Offset.
+                R3 = multiplication_params.R3;                                                                      	% [V] Activation Domain.
+                R4 = multiplication_params.R4;                                                                      	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                      	% [S] Membrane Conductance.
+                Gm4 = multiplication_params.Gm4;                                                                     	% [S] Membrane Conductance.
+                dEs41 = multiplication_params.dEs41;                                                                   	% [V] Synaptic Reversal Potential.
+                dEs32 = multiplication_params.dEs32;                                                                   	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_params.Ia3;                                                                    	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6389,17 +6684,17 @@ classdef synapse_manager_class
                 dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option );            % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 8                                                               	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 8                                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = multiplication_params{ 1 };                                                                  	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 2 };                                                                  	% [V] Division Subnetwork Offset.
-                R3 = multiplication_params{ 3 };                                                                     	% [V] Activation Domain.
-                R4 = multiplication_params{ 4 };                                                                       	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 5 };                                                                     	% [S] Membrane Conductance.
-                Gm4 = multiplication_params{ 6 };                                                                     	% [S] Membrane Conductance.
-                dEs41 = multiplication_params{ 7 };                                                                    	% [V] Synaptic Reversal Potential.
-                Ia3 = multiplication_params{ 8 };                                                                      	% [A] Applied Current.
+                delta1 = multiplication_params.delta1;                                                                  	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                  	% [V] Division Subnetwork Offset.
+                R3 = multiplication_params.R3;                                                                     	% [V] Activation Domain.
+                R4 = multiplication_params.R4;                                                                       	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                     	% [S] Membrane Conductance.
+                Gm4 = multiplication_params.Gm4;                                                                     	% [S] Membrane Conductance.
+                dEs41 = multiplication_params.dEs41;                                                                    	% [V] Synaptic Reversal Potential.
+                Ia3 = multiplication_params.Ia3;                                                                      	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6431,16 +6726,16 @@ classdef synapse_manager_class
                 Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 7                                                               	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 7                                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = multiplication_params{ 1 };                                                                  	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 2 };                                                                 	% [V] Division Subnetwork Offset.
-                R3 = multiplication_params{ 3 };                                                                      	% [V] Activation Domain.
-                R4 = multiplication_params{ 4 };                                                                      	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 5 };                                                                      	% [S] Membrane Conductance.
-                Gm4 = multiplication_params{ 6 };                                                                     	% [S] Membrane Conductance.
-                Ia3 = multiplication_params{ 7 };                                                                    	% [A] Applied Current.
+                delta1 = multiplication_params.delta1;                                                                  	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                 	% [V] Division Subnetwork Offset.
+                R3 = multiplication_params.R3;                                                                      	% [V] Activation Domain.
+                R4 = multiplication_params.R4;                                                                      	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                      	% [S] Membrane Conductance.
+                Gm4 = multiplication_params.Gm4;                                                                     	% [S] Membrane Conductance.
+                Ia3 = multiplication_params.Ia3;                                                                    	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
                
@@ -6472,15 +6767,15 @@ classdef synapse_manager_class
                 Gm4 = self.Gm_DEFAULT;                                                                                      % [S] Membrane Conductance.
                 Ia3 = self.Ia3_absolute_division_DEFAULT;                                                                    % [A] Applied Current.
                 
-            elseif length( multiplication_params ) == 7                                                               	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 7                                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = multiplication_params{ 1 };                                                                  	% [V] Inversion Subnetwork Offset.
-                delta2 = multiplication_params{ 2 };                                                                  	% [V] Division Subnetwork Offset.
-                R3 = multiplication_params{ 3 };                                                                     	% [V] Activation Domain.
-                R4 = multiplication_params{ 4 };                                                                       	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 5 };                                                                     	% [S] Membrane Conductance.
-                Gm4 = multiplication_params{ 6 };                                                                     	% [S] Membrane Conductance.
+                delta1 = multiplication_params.delta1;                                                                  	% [V] Inversion Subnetwork Offset.
+                delta2 = multiplication_params.delta2;                                                                  	% [V] Division Subnetwork Offset.
+                R3 = multiplication_params.R3;                                                                     	% [V] Activation Domain.
+                R4 = multiplication_params.R4;                                                                       	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                                     	% [S] Membrane Conductance.
+                Gm4 = multiplication_params.Gm4;                                                                     	% [S] Membrane Conductance.
                 Ia3 = multiplication_params{ 7 };                                                                      	% [A] Applied Current.
             
             else                                                                                                            % Otherwise...
@@ -6582,15 +6877,12 @@ classdef synapse_manager_class
             if nargin < 4, R_k = self.R_DEFAULT*ones( 1, num_synapse_IDs ); end
             if nargin < 3, c_k = self.c_DEFAULT*ones( 1, num_synapse_IDs ); end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 5 );
-            
             % Pack the params.
-            params_gs{ 1 } = c_k;
-            params_gs{ 2 } = R_k;
-            params_gs{ 3 } = Gm_n;
-            params_gs{ 4 } = dEs_nk;
-            params_gs{ 5 } = Ia_n;
+            params_gs.c_k = c_k;
+            params_gs.R_k = R_k;
+            params_gs.Gm_n = Gm_n;
+            params_gs.dEs_nk = dEs_nk;
+            params_gs.Ia_n = Ia_n;
 
         end
         
@@ -6610,15 +6902,12 @@ classdef synapse_manager_class
             if nargin < 4, R_n = self.R_DEFAULT; end
             if nargin < 3, c_k = self.c_DEFAULT*ones( 1, num_synapse_IDs ); end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 5 );
-            
             % Pack the params.
-            params_gs{ 1 } = c_k;
-            params_gs{ 2 } = R_n;
-            params_gs{ 3 } = Gm_n;
-            params_gs{ 4 } = dEs_nk;
-            params_gs{ 5 } = Ia_n;
+            params_gs.c_k = c_k;
+            params_gs.R_n = R_n;
+            params_gs.Gm_n = Gm_n;
+            params_gs.dEs_nk = dEs_nk;
+            params_gs.Ia_n = Ia_n;
 
         end
         
@@ -6631,15 +6920,12 @@ classdef synapse_manager_class
             if nargin < 4, Gm_n = self.Gm_DEFAULT; end
             if nargin < 3, R_k = self.R_DEFAULT; end
             if nargin < 2, c_k = self.c_absolute_addition_DEFAULT; end
-            
-            % Preallocate a cell array to store the params.
-            addition_params = cell( 1, 4 );
-            
+                        
             % Pack the params.
-            addition_params{ 1 } = c_k;
-            addition_params{ 2 } = R_k;
-            addition_params{ 3 } = Gm_n;
-            addition_params{ 3 } = Ia_n;
+            addition_params.c_k = c_k;
+            addition_params.R_k = R_k;
+            addition_params.Gm_n = Gm_n;
+            addition_params.Ia_n = Ia_n;
 
         end
         
@@ -6653,14 +6939,11 @@ classdef synapse_manager_class
             if nargin < 3, R_n = self.R_DEFAULT; end
             if nargin < 2, c_k = self.c_relative_addition_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            addition_params = cell( 1, 4 );
-            
             % Pack the params.
-            addition_params{ 1 } = c_k;
-            addition_params{ 2 } = R_n;
-            addition_params{ 3 } = Gm_n;
-            addition_params{ 3 } = Ia_n;
+            addition_params.c_k = c_k;
+            addition_params.R_n = R_n;
+            addition_params.Gm_n = Gm_n;
+            addition_params.Ia_n = Ia_n;
 
         end
         
@@ -6683,16 +6966,13 @@ classdef synapse_manager_class
             if nargin < 4, s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs ); end
             if nargin < 3, c_k = self.c_DEFAULT*ones( 1, num_synapse_IDs ); end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs{ 1 } = c_k;
-            params_gs{ 2 } = s_k;
-            params_gs{ 3 } = R_k;
-            params_gs{ 4 } = Gm_n;
-            params_gs{ 5 } = dEs_nk;
-            params_gs{ 6 } = Ia_n;
+            params_gs.c_k = c_k;
+            params_gs.s_k = s_k;
+            params_gs.R_k = R_k;
+            params_gs.Gm_n = Gm_n;
+            params_gs.dEs_nk = dEs_nk;
+            params_gs.Ia_n = Ia_n;
 
         end
         
@@ -6713,16 +6993,13 @@ classdef synapse_manager_class
             if nargin < 4, s_k = self.s_DEFAULT*ones( 1, num_synapse_IDs ); end
             if nargin < 3, c_k = self.c_DEFAULT*ones( 1, num_synapse_IDs ); end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs{ 1 } = c_k;
-            params_gs{ 2 } = s_k;
-            params_gs{ 3 } = R_k;
-            params_gs{ 4 } = Gm_n;
-            params_gs{ 5 } = dEs_nk;
-            params_gs{ 6 } = Ia_n;
+            params_gs.c_k = c_k;
+            params_gs.s_k = s_k;
+            params_gs.R_k = R_k;
+            params_gs.Gm_n = Gm_n;
+            params_gs.dEs_nk = dEs_nk;
+            params_gs.Ia_n = Ia_n;
 
         end
         
@@ -6737,15 +7014,12 @@ classdef synapse_manager_class
             if nargin < 3, s_k = self.signature_DEFAULT; end
             if nargin < 2, c_k = self.c_absolute_subtraction_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            subtraction_params = cell( 1, 5 );
-            
             % Pack the params.
-            subtraction_params{ 1 } = c_k;
-            subtraction_params{ 2 } = s_k;
-            subtraction_params{ 3 } = R_k;
-            subtraction_params{ 4 } = Gm_n;
-            subtraction_params{ 5 } = Ia_n;
+            subtraction_params.c_k = c_k;
+            subtraction_params.s_k = s_k;
+            subtraction_params.R_k = R_k;
+            subtraction_params.Gm_n = Gm_n;
+            subtraction_params.Ia_n = Ia_n;
 
         end
         
@@ -6760,15 +7034,12 @@ classdef synapse_manager_class
             if nargin < 3, s_k = self.signature_DEFAULT; end
             if nargin < 2, c_k = self.c_absolute_subtraction_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            subtraction_params = cell( 1, 5 );
-            
             % Pack the params.
-            subtraction_params{ 1 } = c_k;
-            subtraction_params{ 2 } = s_k;
-            subtraction_params{ 3 } = R_k;
-            subtraction_params{ 4 } = Gm_n;
-            subtraction_params{ 5 } = Ia_n;
+            subtraction_params.c_k = c_k;
+            subtraction_params.s_k = s_k;
+            subtraction_params.R_k = R_k;
+            subtraction_params.Gm_n = Gm_n;
+            subtraction_params.Ia_n = Ia_n;
 
         end
         
@@ -6872,14 +7143,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm2 = self.Gm_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs{ 1 } = delta1;
-            params_gs{ 2 } = Gm2;
-            params_gs{ 3 } = dEs21;
-            params_gs{ 4 } = Ia2;
+            params_gs.delta1 = delta1;
+            params_gs.Gm2 = Gm2;
+            params_gs.dEs21 = dEs21;
+            params_gs.Ia2 = Ia2;
             
         end
         
@@ -6895,14 +7163,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm2 = self.Gm_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs{ 1 } = delta1;
-            params_gs{ 2 } = Gm2;
-            params_gs{ 3 } = dEs21;
-            params_gs{ 4 } = Ia2;
+            params_gs.delta1 = delta1;
+            params_gs.Gm2 = Gm2;
+            params_gs.dEs21 = dEs21;
+            params_gs.Ia2 = Ia2;
             
         end
         
@@ -6915,13 +7180,10 @@ classdef synapse_manager_class
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_inversion_params = cell( 1, 3 );
-            
             % Pack the params.
-            reduced_inversion_params{ 1 } = delta1;
-            reduced_inversion_params{ 2 } = Gm2;
-            reduced_inversion_params{ 3 } = Ia2;
+            reduced_inversion_params.delta1 = delta1;
+            reduced_inversion_params.Gm2 = Gm2;
+            reduced_inversion_params.Ia2 = Ia2;
             
         end
         
@@ -6934,13 +7196,10 @@ classdef synapse_manager_class
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_inversion_params = cell( 1, 3 );
-            
             % Pack the params.
-            reduced_inversion_params{ 1 } = delta1;
-            reduced_inversion_params{ 2 } = Gm2;
-            reduced_inversion_params{ 3 } = Ia2;
+            reduced_inversion_params.delta1 = delta1;
+            reduced_inversion_params.Gm2 = Gm2;
+            reduced_inversion_params.Ia2 = Ia2;
             
         end
         
@@ -6960,14 +7219,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs31{ 1 } = R3;
-            params_gs31{ 2 } = Gm3;
-            params_gs31{ 3 } = dEs31;
-            params_gs31{ 4 } = Ia3;
+            params_gs31.R3 = R3;
+            params_gs31.Gm3 = Gm3;
+            params_gs31.dEs31 = dEs31;
+            params_gs31.Ia3 = Ia3;
             
         end
         
@@ -6985,14 +7241,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs31{ 1 } = R3;
-            params_gs31{ 2 } = Gm3;
-            params_gs31{ 3 } = dEs31;
-            params_gs31{ 4 } = Ia3;
+            params_gs31.R3 = R3;
+            params_gs31.Gm3 = Gm3;
+            params_gs31.dEs31 = dEs31;
+            params_gs31.Ia3 = Ia3;
             
         end
                         
@@ -7012,16 +7265,13 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta = self.delta_absolute_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = gs31;
-            params_gs32{ 4 } = dEs31;
-            params_gs32{ 5 } = dEs32;
-            params_gs32{ 6 } = Ia3;
+            params_gs32.delta = delta;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.gs31 = gs31;
+            params_gs32.dEs31 = dEs31;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
 
         end
         
@@ -7041,16 +7291,13 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta = self.delta_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = gs31;
-            params_gs32{ 4 } = dEs31;
-            params_gs32{ 5 } = dEs32;
-            params_gs32{ 6 } = Ia3;
+            params_gs32.delta = delta;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.gs31 = gs31;
+            params_gs32.dEs31 = dEs31;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
 
         end
         
@@ -7067,17 +7314,14 @@ classdef synapse_manager_class
             if nargin < 5, Gm3 = self.Gm_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
             if nargin < 3, delta = self.delta_division_DEFAULT; end
-
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = delta;                     % [V] Division Subnetwork Offset.
-            params_gs{ 2 } = R3;                        % [V] Maximum Membrane Voltage.
-            params_gs{ 3 } = Gm3;                       % [S] Membrane Conductance.
-            params_gs{ 4 } = dEs31;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 5 } = dEs32;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 6 } = Ia3;                       % [A] Applied Current.
+            params_gs.delta = delta;                     % [V] Division Subnetwork Offset.
+            params_gs.R3 = R3;                        % [V] Maximum Membrane Voltage.
+            params_gs.Gm3 = Gm3;                       % [S] Membrane Conductance.
+            params_gs.dEs31 = dEs31;                     % [V] Synaptic Reversal Potential.
+            params_gs.dEs32 = dEs32;                     % [V] Synaptic Reversal Potential.
+            params_gs.Ia3 = Ia3;                       % [A] Applied Current.
             
         end
         
@@ -7094,17 +7338,14 @@ classdef synapse_manager_class
             if nargin < 5, Gm3 = self.Gm_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
             if nargin < 3, delta = self.delta_division_DEFAULT; end
-
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = delta;                     % [V] Division Subnetwork Offset.
-            params_gs{ 2 } = R3;                        % [V] Maximum Membrane Voltage.
-            params_gs{ 3 } = Gm3;                       % [S] Membrane Conductance.
-            params_gs{ 4 } = dEs31;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 5 } = dEs32;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 6 } = Ia3;                       % [A] Applied Current.
+            params_gs.delta = delta;                     % [V] Division Subnetwork Offset.
+            params_gs.R3 = R3;                        % [V] Maximum Membrane Voltage.
+            params_gs.Gm3 = Gm3;                       % [S] Membrane Conductance.
+            params_gs.dEs31 = dEs31;                     % [V] Synaptic Reversal Potential.
+            params_gs.dEs32 = dEs32;                     % [V] Synaptic Reversal Potential.
+            params_gs.Ia3 = Ia3;                       % [A] Applied Current.
             
         end
         
@@ -7118,14 +7359,11 @@ classdef synapse_manager_class
             if nargin < 3, R3 = self.R_DEFAULT; end
             if nargin < 2, delta = self.delta_absolute_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            division_params = cell( 1, 4 );
-            
             % Pack the params.
-            division_params{ 1 } = delta;
-            division_params{ 2 } = R3;
-            division_params{ 3 } = Gm3;
-            division_params{ 4 } = Ia3;
+            division_params.delta = delta;
+            division_params.R3 = R3;
+            division_params.Gm3 = Gm3;
+            division_params.Ia3 = Ia3;
             
         end
         
@@ -7139,14 +7377,11 @@ classdef synapse_manager_class
             if nargin < 3, R3 = self.R_DEFAULT; end
             if nargin < 2, delta = self.delta_relative_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            division_params = cell( 1, 4 );
-            
             % Pack the params.
-            division_params{ 1 } = delta;
-            division_params{ 2 } = R3;
-            division_params{ 3 } = Gm3;
-            division_params{ 4 } = Ia3;
+            division_params.delta = delta;
+            division_params.R3 = R3;
+            division_params.Gm3 = Gm3;
+            division_params.Ia3 = Ia3;
             
         end
         
@@ -7166,14 +7401,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs31{ 1 } = R3;
-            params_gs31{ 2 } = Gm3;
-            params_gs31{ 3 } = dEs31;
-            params_gs31{ 4 } = Ia3;
+            params_gs31.R3 = R3;
+            params_gs31.Gm3 = Gm3;
+            params_gs31.dEs31 = dEs31;
+            params_gs31.Ia3 = Ia3;
             
         end
                 
@@ -7191,14 +7423,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs31{ 1 } = R3;
-            params_gs31{ 2 } = Gm3;
-            params_gs31{ 3 } = dEs31;
-            params_gs31{ 4 } = Ia3;
+            params_gs31.R3 = R3;
+            params_gs31.Gm3 = Gm3;
+            params_gs31.dEs31 = dEs31;
+            params_gs31.Ia3 = Ia3;
             
         end
                 
@@ -7218,16 +7447,13 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta = self.delta_absolute_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = gs31;
-            params_gs32{ 4 } = dEs31;
-            params_gs32{ 5 } = dEs32;
-            params_gs32{ 6 } = Ia3;
+            params_gs32.delta = delta;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.gs31 = gs31;
+            params_gs32.dEs31 = dEs31;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
 
         end
         
@@ -7247,16 +7473,13 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta = self.delta_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = gs31;
-            params_gs32{ 4 } = dEs31;
-            params_gs32{ 5 } = dEs32;
-            params_gs32{ 6 } = Ia3;
+            params_gs32.delta = delta;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.gs31 = gs31;
+            params_gs32.dEs31 = dEs31;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
 
         end
              
@@ -7273,17 +7496,14 @@ classdef synapse_manager_class
             if nargin < 5, Gm3 = self.Gm_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
             if nargin < 3, delta = self.delta_division_DEFAULT; end
-
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = delta;                     % [V] Division Subnetwork Offset.
-            params_gs{ 2 } = R3;                        % [V] Maximum Membrane Voltage.
-            params_gs{ 3 } = Gm3;                       % [S] Membrane Conductance.
-            params_gs{ 4 } = dEs31;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 5 } = dEs32;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 6 } = Ia3;                       % [A] Applied Current.
+            params_gs.delta = delta;                     % [V] Division Subnetwork Offset.
+            params_gs.R3 = R3;                        % [V] Maximum Membrane Voltage.
+            params_gs.Gm3 = Gm3;                       % [S] Membrane Conductance.
+            params_gs.dEs31 = dEs31;                     % [V] Synaptic Reversal Potential.
+            params_gs.dEs32 = dEs32;                     % [V] Synaptic Reversal Potential.
+            params_gs.Ia3 = Ia3;                       % [A] Applied Current.
             
         end
         
@@ -7300,17 +7520,14 @@ classdef synapse_manager_class
             if nargin < 5, Gm3 = self.Gm_DEFAULT; end
             if nargin < 4, R3 = self.R_DEFAULT; end
             if nargin < 3, delta = self.delta_division_DEFAULT; end
-
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = delta;                     % [V] Division Subnetwork Offset.
-            params_gs{ 2 } = R3;                        % [V] Maximum Membrane Voltage.
-            params_gs{ 3 } = Gm3;                       % [S] Membrane Conductance.
-            params_gs{ 4 } = dEs31;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 5 } = dEs32;                     % [V] Synaptic Reversal Potential.
-            params_gs{ 6 } = Ia3;                       % [A] Applied Current.
+            params_gs.delta = delta;                     % [V] Division Subnetwork Offset.
+            params_gs.R3 = R3;                        % [V] Maximum Membrane Voltage.
+            params_gs.Gm3 = Gm3;                       % [S] Membrane Conductance.
+            params_gs.dEs31 = dEs31;                     % [V] Synaptic Reversal Potential.
+            params_gs.dEs32 = dEs32;                     % [V] Synaptic Reversal Potential.
+            params_gs.Ia3 = Ia3;                       % [A] Applied Current.
             
         end
         
@@ -7324,14 +7541,11 @@ classdef synapse_manager_class
             if nargin < 3, R3 = self.R_DEFAULT; end
             if nargin < 2, delta = self.delta_reduced_absolute_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_division_params = cell( 1, 4 );
-            
             % Pack the params.
-            reduced_division_params{ 1 } = delta;
-            reduced_division_params{ 2 } = R3;
-            reduced_division_params{ 3 } = Gm3;
-            reduced_division_params{ 4 } = Ia3;
+            reduced_division_params.delta = delta;
+            reduced_division_params.R3 = R3;
+            reduced_division_params.Gm3 = Gm3;
+            reduced_division_params.Ia3 = Ia3;
             
         end
         
@@ -7345,14 +7559,11 @@ classdef synapse_manager_class
             if nargin < 3, R3 = self.R_DEFAULT; end
             if nargin < 2, delta = self.delta_reduced_relative_division_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_division_params = cell( 1, 4 );
-            
             % Pack the params.
-            reduced_division_params{ 1 } = delta;
-            reduced_division_params{ 2 } = R3;
-            reduced_division_params{ 3 } = Gm3;
-            reduced_division_params{ 4 } = Ia3;
+            reduced_division_params.delta = delta;
+            reduced_division_params.R3 = R3;
+            reduced_division_params.Gm3 = Gm3;
+            reduced_division_params.Ia3 = Ia3;
             
         end
         
@@ -7371,17 +7582,14 @@ classdef synapse_manager_class
             if nargin < 4, delta1 = self.delta_inversion_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs31{ 1 } = c1;
-            params_gs31{ 2 } = c3;
-            params_gs31{ 3 } = delta1;
-            params_gs31{ 4 } = delta2;
-            params_gs31{ 5 } = R1;
-            params_gs31{ 6 } = R2;
+            params_gs31.c1 = c1;
+            params_gs31.c3 = c3;
+            params_gs31.delta1 = delta1;
+            params_gs31.delta2 = delta2;
+            params_gs31.R1 = R1;
+            params_gs31.R2 = R2;
             
         end
         
@@ -7400,17 +7608,14 @@ classdef synapse_manager_class
             if nargin < 5, delta1 = self.delta_inversion_DEFAULT; end
             if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 3, c1 = self.c1_absolute_dai_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs31{ 1 } = c1;
-            params_gs31{ 2 } = c3;
-            params_gs31{ 3 } = delta1;
-            params_gs31{ 4 } = delta2;
-            params_gs31{ 5 } = R2;
-            params_gs31{ 6 } = dEs31;
+            params_gs31.c1 = c1;
+            params_gs31.c3 = c3;
+            params_gs31.delta1 = delta1;
+            params_gs31.delta2 = delta2;
+            params_gs31.R2 = R2;
+            params_gs31.dEs31 = dEs31;
             
         end
         
@@ -7429,17 +7634,14 @@ classdef synapse_manager_class
             if nargin < 5, delta2 = self.delta_division_DEFAULT; end
             if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 3, c1 = self.c1_absolute_dai_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs32{ 1 } = c1;
-            params_gs32{ 2 } = c3;
-            params_gs32{ 3 } = delta2;
-            params_gs32{ 4 } = R1;
-            params_gs32{ 5 } = R2;
-            params_gs32{ 6 } = dEs31;
+            params_gs32.c1 = c1;
+            params_gs32.c3 = c3;
+            params_gs32.delta2 = delta2;
+            params_gs32.R1 = R1;
+            params_gs32.R2 = R2;
+            params_gs32.dEs31 = dEs31;
 
         end
         
@@ -7458,17 +7660,14 @@ classdef synapse_manager_class
             if nargin < 5, delta1 = self.delta_inversion_DEFAULT; end
             if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 3, c1 = self.c1_absolute_dai_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs32{ 1 } = c1;
-            params_gs32{ 2 } = c3;
-            params_gs32{ 3 } = delta1;
-            params_gs32{ 4 } = delta2;
-            params_gs32{ 5 } = R2;
-            params_gs32{ 6 } = dEs31;
+            params_gs32.c1 = c1;
+            params_gs32.c3 = c3;
+            params_gs32.delta1 = delta1;
+            params_gs32.delta2 = delta2;
+            params_gs32.R2 = R2;
+            params_gs32.dEs31 = dEs31;
 
         end
                
@@ -7486,18 +7685,15 @@ classdef synapse_manager_class
             if nargin < 5, delta1 = self.delta_inversion_DEFAULT; end
             if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 3, c1 = self.c1_absolute_dai_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 7 );
             
             % Pack the params.
-            params_gs{ 1 } = c1;
-            params_gs{ 2 } = c3;
-            params_gs{ 3 } = delta1;
-            params_gs{ 4 } = delta2;
-            params_gs{ 5 } = R1;
-            params_gs{ 6 } = R2;
-            params_gs{ 7 } = dEs31;
+            params_gs.c1 = c1;
+            params_gs.c3 = c3;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R1 = R1;
+            params_gs.R2 = R2;
+            params_gs.dEs31 = dEs31;
             
         end
         
@@ -7514,17 +7710,14 @@ classdef synapse_manager_class
             if nargin < 5, delta1 = self.delta_inversion_DEFAULT; end
             if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 3, c1 = self.c1_absolute_dai_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = c1;
-            params_gs{ 2 } = c3;
-            params_gs{ 3 } = delta1;
-            params_gs{ 4 } = delta2;
-            params_gs{ 5 } = R2;
-            params_gs{ 6 } = dEs31;
+            params_gs.c1 = c1;
+            params_gs.c3 = c3;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R2 = R2;
+            params_gs.dEs31 = dEs31;
             
         end
         
@@ -7540,16 +7733,13 @@ classdef synapse_manager_class
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            division_params = cell( 1, 6 );
-            
             % Pack the params.
-            division_params{ 1 } = c1;
-            division_params{ 2 } = c3;
-            division_params{ 3 } = delta1;
-            division_params{ 4 } = delta2;
-            division_params{ 5 } = R1;
-            division_params{ 6 } = R2;
+            division_params.c1 = c1;
+            division_params.c3 = c3;
+            division_params.delta1 = delta1;
+            division_params.delta2 = delta2;
+            division_params.R1 = R1;
+            division_params.R2 = R2;
             
         end
         
@@ -7564,15 +7754,12 @@ classdef synapse_manager_class
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            division_params = cell( 1, 5 );
-            
             % Pack the params.
-            division_params{ 1 } = c1;
-            division_params{ 2 } = c3;
-            division_params{ 3 } = delta1;
-            division_params{ 4 } = delta2;
-            division_params{ 5 } = R2;
+            division_params.c1 = c1;
+            division_params.c3 = c3;
+            division_params.delta1 = delta1;
+            division_params.delta2 = delta2;
+            division_params.R2 = R2;
             
         end
         
@@ -7593,17 +7780,14 @@ classdef synapse_manager_class
             if nargin < 5, R2 = self.R_DEFAUL; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs31{ 1 } = delta1;
-            params_gs31{ 2 } = delta2;
-            params_gs31{ 3 } = R2;
-            params_gs31{ 4 } = R3;
-            params_gs31{ 5 } = Gm3;
-            params_gs31{ 6 } = dEs31;
+            params_gs31.delta1 = delta1;
+            params_gs31.delta2 = delta2;
+            params_gs31.R2 = R2;
+            params_gs31.R3 = R3;
+            params_gs31.Gm3 = Gm3;
+            params_gs31.dEs31 = dEs31;
             
         end
                 
@@ -7621,16 +7805,13 @@ classdef synapse_manager_class
             if nargin < 5, R2 = self.R_DEFAUL; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs31 = cell( 1, 5 );
             
             % Pack the params.
-            params_gs31{ 1 } = delta1;
-            params_gs31{ 2 } = delta2;
-            params_gs31{ 3 } = R2;
-            params_gs31{ 4 } = R3;
-            params_gs31{ 5 } = dEs31;
+            params_gs31.delta1 = delta1;
+            params_gs31.delta2 = delta2;
+            params_gs31.R2 = R2;
+            params_gs31.R3 = R3;
+            params_gs31.dEs31 = dEs31;
             
         end
         
@@ -7649,17 +7830,14 @@ classdef synapse_manager_class
             if nargin < 5, R2 = self.R_DEFAUL; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs32{ 1 } = delta1;
-            params_gs32{ 2 } = delta2;
-            params_gs32{ 3 } = R2;
-            params_gs32{ 4 } = R3;
-            params_gs32{ 5 } = Gm3;
-            params_gs32{ 6 } = dEs31;
+            params_gs32.delta1 = delta1;
+            params_gs32.delta2 = delta2;
+            params_gs32.R2 = R2;
+            params_gs32.R3 = R3;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.dEs31 = dEs31;
             
         end
                 
@@ -7678,17 +7856,14 @@ classdef synapse_manager_class
             if nargin < 5, R2 = self.R_DEFAUL; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs32{ 1 } = delta1;
-            params_gs32{ 2 } = delta2;
-            params_gs32{ 3 } = R2;
-            params_gs32{ 4 } = R3;
-            params_gs32{ 5 } = Gm3;
-            params_gs32{ 6 } = dEs31;
+            params_gs32.delta1 = delta1;
+            params_gs32.delta2 = delta2;
+            params_gs32.R2 = R2;
+            params_gs32.R3 = R3;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.dEs31 = dEs31;
             
         end
         
@@ -7705,17 +7880,14 @@ classdef synapse_manager_class
             if nargin < 5, R2 = self.R_DEFAUL; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = delta1;
-            params_gs{ 2 } = delta2;
-            params_gs{ 3 } = R2;
-            params_gs{ 4 } = R3;
-            params_gs{ 5 } = Gm3;
-            params_gs{ 6 } = dEs31;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R2 = R2;
+            params_gs.R3 = R3;
+            params_gs.Gm3 = Gm3;
+            params_gs.dEs31 = dEs31;
             
         end
                 
@@ -7732,17 +7904,14 @@ classdef synapse_manager_class
             if nargin < 5, R2 = self.R_DEFAUL; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 6 );
             
             % Pack the params.
-            params_gs{ 1 } = delta1;
-            params_gs{ 2 } = delta2;
-            params_gs{ 3 } = R2;
-            params_gs{ 4 } = R3;
-            params_gs{ 5 } = Gm3;
-            params_gs{ 6 } = dEs31;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R2 = R2;
+            params_gs.R3 = R3;
+            params_gs.Gm3 = Gm3;
+            params_gs.dEs31 = dEs31;
 
         end
         
@@ -7757,15 +7926,12 @@ classdef synapse_manager_class
             if nargin < 3, delta2 = self.delta_reduced_absolute_division_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_division_params = cell( 1, 5 );
-            
             % Pack the params.
-            reduced_division_params{ 1 } = delta1;
-            reduced_division_params{ 2 } = delta2;
-            reduced_division_params{ 3 } = R2;
-            reduced_division_params{ 4 } = R3;
-            reduced_division_params{ 5 } = Gm3;
+            reduced_division_params.delta1 = delta1;
+            reduced_division_params.delta2 = delta2;
+            reduced_division_params.R2 = R2;
+            reduced_division_params.R3 = R3;
+            reduced_division_params.Gm3 = Gm3;
             
         end
         
@@ -7780,15 +7946,12 @@ classdef synapse_manager_class
             if nargin < 3, delta2 = self.delta_reduced_relative_division_DEFAULT; end
             if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_division_params = cell( 1, 5 );
-            
             % Pack the params.
-            reduced_division_params{ 1 } = delta1;
-            reduced_division_params{ 2 } = delta2;
-            reduced_division_params{ 3 } = R2;
-            reduced_division_params{ 4 } = R3;
-            reduced_division_params{ 5 } = Gm3;
+            reduced_division_params.delta1 = delta1;
+            reduced_division_params.delta2 = delta2;
+            reduced_division_params.R2 = R2;
+            reduced_division_params.R3 = R3;
+            reduced_division_params.Gm3 = Gm3;
             
         end
         
@@ -7808,16 +7971,13 @@ classdef synapse_manager_class
             if nargin < 3, c6 = self.c3_dai_DEFAULT; end
             if nargin < 2, c4 = self.c1_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs41 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs41{ 1 } = c4;
-            params_gs41{ 2 } = c6;
-            params_gs41{ 3 } = delta1;
-            params_gs41{ 4 } = delta2;
-            params_gs41{ 5 } = R1;
-            params_gs41{ 6 } = R3;
+            params_gs41.c4 = c4;
+            params_gs41.c6 = c6;
+            params_gs41.delta1 = delta1;
+            params_gs41.delta2 = delta2;
+            params_gs41.R1 = R1;
+            params_gs41.R3 = R3;
             
         end
         
@@ -7837,16 +7997,13 @@ classdef synapse_manager_class
             if nargin < 4, c6 = self.c3_dai_DEFAULT; end
             if nargin < 3, c4 = self.c1_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs41 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs41{ 1 } = c4;
-            params_gs41{ 2 } = c6;
-            params_gs41{ 3 } = delta1;
-            params_gs41{ 4 } = delta2;
-            params_gs41{ 5 } = R3;
-            params_gs41{ 6 } = dEs41;
+            params_gs41.c4 = c4;
+            params_gs41.c6 = c6;
+            params_gs41.delta1 = delta1;
+            params_gs41.delta2 = delta2;
+            params_gs41.R3 = R3;
+            params_gs41.dEs41 = dEs41;
             
         end
         
@@ -7864,14 +8021,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta1;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = dEs32;
-            params_gs32{ 4 } = Ia3;
+            params_gs32.delta1 = delta1;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
             
         end
         
@@ -7889,14 +8043,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta1;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = dEs32;
-            params_gs32{ 4 } = Ia3;
+            params_gs32.delta1 = delta1;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
             
         end
         
@@ -7916,16 +8067,13 @@ classdef synapse_manager_class
             if nargin < 4, c6 = self.c3_dai_DEFAULT; end
             if nargin < 3, c4 = self.c1_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs43 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs43{ 1 } = c4;
-            params_gs43{ 2 } = c6;
-            params_gs43{ 3 } = delta2;
-            params_gs43{ 4 } = R1;
-            params_gs43{ 5 } = R3;
-            params_gs43{ 6 } = dEs41;
+            params_gs43.c4 = c4;
+            params_gs43.c6 = c6;
+            params_gs43.delta2 = delta2;
+            params_gs43.R1 = R1;
+            params_gs43.R3 = R3;
+            params_gs43.dEs41 = dEs41;
 
         end
                 
@@ -7945,16 +8093,13 @@ classdef synapse_manager_class
             if nargin < 4, c6 = self.c3_dai_DEFAULT; end
             if nargin < 3, c4 = self.c1_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs43 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs43{ 1 } = c4;
-            params_gs43{ 2 } = c6;
-            params_gs43{ 3 } = delta1;
-            params_gs43{ 4 } = delta2;
-            params_gs43{ 5 } = R3;
-            params_gs43{ 6 } = dEs41;
+            params_gs43.c4 = c4;
+            params_gs43.c6 = c6;
+            params_gs43.delta1 = delta1;
+            params_gs43.delta2 = delta2;
+            params_gs43.R3 = R3;
+            params_gs43.dEs41 = dEs41;
 
         end
                 
@@ -7976,20 +8121,17 @@ classdef synapse_manager_class
             if nargin < 4, c6 = self.c3_dai_DEFAULT; end
             if nargin < 3, c4 = self.c1_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 10 );
-            
             % Pack the params.
-            params_gs{ 1 } = c4;
-            params_gs{ 2 } = c6;
-            params_gs{ 3 } = delta1;
-            params_gs{ 4 } = delta2;
-            params_gs{ 5 } = R1;
-            params_gs{ 6 } = R3;
-            params_gs{ 7 } = Gm3;
-            params_gs{ 8 } = dEs41;
-            params_gs{ 9 } = dEs32;
-            params_gs{ 10 } = Ia3;
+            params_gs.c4 = c4;
+            params_gs.c6 = c6;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R1 = R1;
+            params_gs.R3 = R3;
+            params_gs.Gm3 = Gm3;
+            params_gs.dEs41 = dEs41;
+            params_gs.dEs32 = dEs32;
+            params_gs.Ia3 = Ia3;
 
         end
         
@@ -8009,18 +8151,15 @@ classdef synapse_manager_class
             if nargin < 4, c6 = self.c3_dai_DEFAULT; end
             if nargin < 3, c4 = self.c1_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 8 );
-            
             % Pack the params.
-            params_gs{ 1 } = c4;
-            params_gs{ 2 } = c6;
-            params_gs{ 3 } = delta1;
-            params_gs{ 4 } = delta2;
-            params_gs{ 5 } = R3;
-            params_gs{ 6 } = Gm3;
-            params_gs{ 7 } = dEs41;
-            params_gs{ 8 } = Ia3;
+            params_gs.c4 = c4;
+            params_gs.c6 = c6;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R3 = R3;
+            params_gs.Gm3 = Gm3;
+            params_gs.dEs41 = dEs41;
+            params_gs.Ia3 = Ia3;
 
         end
         
@@ -8038,18 +8177,15 @@ classdef synapse_manager_class
             if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c4 = self.c1_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            multiplication_params = cell( 1, 8 );
-            
             % Pack the params.
-            multiplication_params{ 1 } = c4;
-            multiplication_params{ 2 } = c6;
-            multiplication_params{ 3 } = delta1;
-            multiplication_params{ 4 } = delta2;
-            multiplication_params{ 5 } = R1;
-            multiplication_params{ 6 } = R3;
-            multiplication_params{ 7 } = Gm3;
-            multiplication_params{ 8 } = Ia3;
+            multiplication_params.c4 = c4;
+            multiplication_params.c6 = c6;
+            multiplication_params.delta1 = delta1;
+            multiplication_params.delta2 = delta2;
+            multiplication_params.R1 = R1;
+            multiplication_params.R3 = R3;
+            multiplication_params.Gm3 = Gm3;
+            multiplication_params.Ia3 = Ia3;
             
         end
         
@@ -8066,17 +8202,14 @@ classdef synapse_manager_class
             if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c4 = self.c1_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            multiplication_params = cell( 1, 7 );
-            
             % Pack the params.
-            multiplication_params{ 1 } = c4;
-            multiplication_params{ 2 } = c6;
-            multiplication_params{ 3 } = delta1;
-            multiplication_params{ 4 } = delta2;
-            multiplication_params{ 5 } = R3;
-            multiplication_params{ 6 } = Gm3;
-            multiplication_params{ 7 } = Ia3;
+            multiplication_params.c4 = c4;
+            multiplication_params.c6 = c6;
+            multiplication_params.delta1 = delta1;
+            multiplication_params.delta2 = delta2;
+            multiplication_params.R3 = R3;
+            multiplication_params.Gm3 = Gm3;
+            multiplication_params.Ia3 = Ia3;
             
         end
                 
@@ -8098,16 +8231,13 @@ classdef synapse_manager_class
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs41 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs41{ 1 } = delta1;
-            params_gs41{ 2 } = delta2;
-            params_gs41{ 3 } = R3;
-            params_gs41{ 4 } = R4;
-            params_gs41{ 5 } = Gm4;
-            params_gs41{ 6 } = dEs41;
+            params_gs41.delta1 = delta1;
+            params_gs41.delta2 = delta2;
+            params_gs41.R3 = R3;
+            params_gs41.R4 = R4;
+            params_gs41.Gm4 = Gm4;
+            params_gs41.dEs41 = dEs41;
 
         end
         
@@ -8126,15 +8256,12 @@ classdef synapse_manager_class
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs41 = cell( 1, 5 );
-            
             % Pack the params.
-            params_gs41{ 1 } = delta1;
-            params_gs41{ 2 } = delta2;
-            params_gs41{ 3 } = R3;
-            params_gs41{ 4 } = R4;
-            params_gs41{ 5 } = dEs41;
+            params_gs41.delta1 = delta1;
+            params_gs41.delta2 = delta2;
+            params_gs41.R3 = R3;
+            params_gs41.R4 = R4;
+            params_gs41.dEs41 = dEs41;
 
         end
                 
@@ -8152,14 +8279,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta1;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = dEs32;
-            params_gs32{ 4 } = Ia3;
+            params_gs32.delta1 = delta1;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
             
         end
         
@@ -8177,14 +8301,11 @@ classdef synapse_manager_class
             if nargin < 4, Gm3 = self.Gm_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs32 = cell( 1, 4 );
-            
             % Pack the params.
-            params_gs32{ 1 } = delta1;
-            params_gs32{ 2 } = Gm3;
-            params_gs32{ 3 } = dEs32;
-            params_gs32{ 4 } = Ia3;
+            params_gs32.delta1 = delta1;
+            params_gs32.Gm3 = Gm3;
+            params_gs32.dEs32 = dEs32;
+            params_gs32.Ia3 = Ia3;
             
         end
         
@@ -8203,17 +8324,14 @@ classdef synapse_manager_class
             if nargin < 5, R3 = self.R_DEFAULT; end
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
-
-            % Preallocate a cell array to store the params.
-            params_gs43 = cell( 1, 6 );
             
             % Pack the params.
-            params_gs43{ 1 } = delta1;
-            params_gs43{ 2 } = delta2;
-            params_gs43{ 3 } = R3;
-            params_gs43{ 4 } = R4;
-            params_gs43{ 5 } = Gm4;
-            params_gs43{ 6 } = dEs41;
+            params_gs43.delta1 = delta1;
+            params_gs43.delta2 = delta2;
+            params_gs43.R3 = R3;
+            params_gs43.R4 = R4;
+            params_gs43.Gm4 = Gm4;
+            params_gs43.dEs41 = dEs41;
 
         end
                 
@@ -8233,16 +8351,13 @@ classdef synapse_manager_class
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs43 = cell( 1, 6 );
-            
             % Pack the params.
-            params_gs43{ 1 } = delta1;
-            params_gs43{ 2 } = delta2;
-            params_gs43{ 3 } = R3;
-            params_gs43{ 4 } = R4;
-            params_gs43{ 5 } = Gm4;
-            params_gs43{ 6 } = dEs41;
+            params_gs43.delta1 = delta1;
+            params_gs43.delta2 = delta2;
+            params_gs43.R3 = R3;
+            params_gs43.R4 = R4;
+            params_gs43.Gm4 = Gm4;
+            params_gs43.dEs41 = dEs41;
             
         end
                         
@@ -8263,19 +8378,16 @@ classdef synapse_manager_class
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 9 );
-            
             % Pack the params.
-            params_gs{ 1 } = delta1;
-            params_gs{ 2 } = delta2;
-            params_gs{ 3 } = R3;
-            params_gs{ 4 } = R4;
-            params_gs{ 5 } = Gm3;
-            params_gs{ 6 } = Gm4;
-            params_gs{ 7 } = dEs41;
-            params_gs{ 8 } = dEs32;
-            params_gs{ 9 } = Ia3;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R3 = R3;
+            params_gs.R4 = R4;
+            params_gs.Gm3 = Gm3;
+            params_gs.Gm4 = Gm4;
+            params_gs.dEs41 = dEs41;
+            params_gs.dEs32 = dEs32;
+            params_gs.Ia3 = Ia3;
 
         end
         
@@ -8295,18 +8407,15 @@ classdef synapse_manager_class
             if nargin < 4, delta2 = self.delta_division_DEFAULT; end
             if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            params_gs = cell( 1, 8 );
-            
             % Pack the params.
-            params_gs{ 1 } = delta1;
-            params_gs{ 2 } = delta2;
-            params_gs{ 3 } = R3;
-            params_gs{ 4 } = R4;
-            params_gs{ 5 } = Gm3;
-            params_gs{ 6 } = Gm4;
-            params_gs{ 7 } = dEs41;
-            params_gs{ 8 } = Ia3;
+            params_gs.delta1 = delta1;
+            params_gs.delta2 = delta2;
+            params_gs.R3 = R3;
+            params_gs.R4 = R4;
+            params_gs.Gm3 = Gm3;
+            params_gs.Gm4 = Gm4;
+            params_gs.dEs41 = dEs41;
+            params_gs.Ia3 = Ia3;
 
         end
         
@@ -8323,17 +8432,14 @@ classdef synapse_manager_class
             if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            multiplication_params = cell( 1, 7 );
-            
             % Pack the params.
-            multiplication_params{ 1 } = delta1;
-            multiplication_params{ 2 } = delta2;
-            multiplication_params{ 3 } = R3;
-            multiplication_params{ 4 } = R4;
-            multiplication_params{ 5 } = Gm3;
-            multiplication_params{ 6 } = Gm4;
-            multiplication_params{ 7 } = Ia3;
+            multiplication_params.delta1 = delta1;
+            multiplication_params.delta2 = delta2;
+            multiplication_params.R3 = R3;
+            multiplication_params.R4 = R4;
+            multiplication_params.Gm3 = Gm3;
+            multiplication_params.Gm4 = Gm4;
+            multiplication_params.Ia3 = Ia3;
             
         end
         
@@ -8350,17 +8456,14 @@ classdef synapse_manager_class
             if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            multiplication_params = cell( 1, 7 );
-            
             % Pack the params.
-            multiplication_params{ 1 } = delta1;
-            multiplication_params{ 2 } = delta2;
-            multiplication_params{ 3 } = R3;
-            multiplication_params{ 4 } = R4;
-            multiplication_params{ 5 } = Gm3;
-            multiplication_params{ 6 } = Gm4;
-            multiplication_params{ 7 } = Ia3;
+            multiplication_params.delta1 = delta1;
+            multiplication_params.delta2 = delta2;
+            multiplication_params.R3 = R3;
+            multiplication_params.R4 = R4;
+            multiplication_params.Gm3 = Gm3;
+            multiplication_params.Gm4 = Gm4;
+            multiplication_params.Ia3 = Ia3;
             
         end
         
@@ -8379,7 +8482,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, transmission_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute transmission params.
@@ -8418,7 +8521,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, addition_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute addition params.
@@ -8457,7 +8560,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs_nk = self.get_synapse_property( synapse_IDs, 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, subtraction_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute subtraction params.
@@ -8496,7 +8599,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, inversion_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute inversion params.
@@ -8535,7 +8638,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, reduced_inversion_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute inversion params.
@@ -8573,7 +8676,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_gs_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8610,7 +8713,7 @@ classdef synapse_manager_class
             if nargin < 3, gs31 = self.get_synapse_property( synapse_IDs( 1 ), 'gs', true, synapses, undetected_option ); end            % [V] Synaptic Reversal Potential.
             if nargin < 2, division_gs_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8648,7 +8751,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8686,7 +8789,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8723,7 +8826,7 @@ classdef synapse_manager_class
             if nargin < 3, gs31 = self.get_synapse_property( synapse_IDs( 1 ), 'gs', true, synapses, undetected_option ); end            % [V] Synaptic Reversal Potential.
             if nargin < 2, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8761,7 +8864,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, reduced_division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute reduced division params.
@@ -8799,7 +8902,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8835,7 +8938,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8872,7 +8975,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, dai_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute dai params.
@@ -8910,7 +9013,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.                
@@ -8946,7 +9049,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
@@ -8983,7 +9086,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, reduced_dai_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the reduced absolute dai params.
@@ -9021,7 +9124,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.                
@@ -9057,7 +9160,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.                
@@ -9093,7 +9196,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.                
@@ -9131,7 +9234,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.
@@ -9169,7 +9272,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.                                
@@ -9205,7 +9308,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.                                
@@ -9241,7 +9344,7 @@ classdef synapse_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute multiplication params.                                
@@ -9279,7 +9382,7 @@ classdef synapse_manager_class
             if nargin < 4, dEs41 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, reduced_multiplication_params = struct( [  ] ); end
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the reduced absolute multiplication params.
@@ -9319,7 +9422,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9351,7 +9454,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
 
             % Validate the synapse IDs.
@@ -9397,7 +9500,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9443,7 +9546,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9475,7 +9578,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9507,7 +9610,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9537,7 +9640,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9567,7 +9670,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9608,7 +9711,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9638,7 +9741,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9668,7 +9771,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9709,7 +9812,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9739,7 +9842,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9769,7 +9872,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9810,7 +9913,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9840,7 +9943,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9870,7 +9973,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9911,7 +10014,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9941,7 +10044,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -9971,7 +10074,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10001,7 +10104,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10048,7 +10151,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10078,7 +10181,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10108,7 +10211,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -10138,7 +10241,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [cell] Parameters Cell.
+            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -12901,7 +13004,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, inversion_params = struct( [  ] ); end                                     % [cell] Parameters Cell.
+            if nargin < 3, inversion_params = struct( [  ] ); end                                     % [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 1:self.n_inversion_neurons_DEFAULT; end                 % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
@@ -12940,7 +13043,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_inversion_params = struct( [  ] ); end                            	% [cell] Parameters Cell.
+            if nargin < 3, reduced_inversion_params = struct( [  ] ); end                            	% [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 1:self.n_inversion_neurons_DEFAULT; end                 % [#] Neuron IDs.
             
             % Get the synapse ID that connects the first neuron to the second neuron.
@@ -12975,7 +13078,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, division_params = struct( [  ] ); end                                    	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, division_params = struct( [  ] ); end                                    	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13012,7 +13115,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, dai_params = struct( [  ] ); end                                          	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, dai_params = struct( [  ] ); end                                          	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13049,7 +13152,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_division_params = struct( [  ] ); end                             	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_division_params = struct( [  ] ); end                             	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13086,7 +13189,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_dai_params = struct( [  ] ); end                                 	% [cell] Parameters Cell. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_dai_params = struct( [  ] ); end                                 	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13123,7 +13226,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, multiplication_params = struct( [  ] ); end                               	% [cell] Parameters Cell.
+            if nargin < 3, multiplication_params = struct( [  ] ); end                               	% [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.
@@ -13158,7 +13261,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                               	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_multiplication_params = struct( [  ] ); end                       	% [cell] Parameters Cell.
+            if nargin < 3, reduced_multiplication_params = struct( [  ] ); end                       	% [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 1:self.num_multiplication_neurons_DEFAULT; end          % [#] Neuron IDs.
             
             % Get the synapse IDs that comprise this multiplication subnetwork.

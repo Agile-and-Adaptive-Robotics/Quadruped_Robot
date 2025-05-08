@@ -1130,10 +1130,10 @@ classdef applied_current_manager_class
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, params = struct( [  ] ); end
            
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
@@ -1148,7 +1148,7 @@ classdef applied_current_manager_class
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 3                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
@@ -1160,7 +1160,7 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
@@ -1173,7 +1173,7 @@ classdef applied_current_manager_class
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
+                    % Determine whether the params has a valid number of entries.
                     if length( fieldnames( params ) ) ~= 2                        	% If there is anything other than three parameter entries...
                         
                         % Throw an error.
@@ -1200,25 +1200,26 @@ classdef applied_current_manager_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm2 = self.Gm_DEFAULT;
                     R2 = self.R_DEFAULT;                           
                     
-                    % Store the required params in a cell.
-                    params = { Gm2, R2 };
+                    % Store the required params.
+                    params.Gm2 = Gm2;
+                    params.R2 = R2;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1229,20 +1230,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm2 = self.Gm_DEFAULT;
                     R2 = self.R_DEFAULT;                           
                     
-                    % Store the required params in a cell.
-                    params = { Gm2, R2 };
+                    % Store the required params.
+                    params.Gm2 = Gm2;
+                    params.R2 = R2;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1269,28 +1271,29 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required params in a cell.
-                    params = { Gm3, R3 };
+                    % Store the required params.
+                    params.Gm3 = Gm3;
+                    params.R3 = R3;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1301,20 +1304,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required params in a cell.
-                    params = { Gm3, R3 };
+                    % Store the required params.
+                    params.Gm3 = Gm3;
+                    params.R3 = R3;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1341,28 +1345,29 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required params in a cell.
-                    params = { Gm3, R3 };
+                    % Store the required params.
+                    params.Gm3 = Gm3;
+                    params.R3 = R3;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1373,20 +1378,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm3 = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R3 = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required params in a cell.
-                    params = { Gm3, R3 };
+                    % Store the required params.
+                    params.Gm3 = Gm3;
+                    params.R3 = R3;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1413,28 +1419,29 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.                    
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1445,20 +1452,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1483,28 +1491,29 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1515,20 +1524,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1553,28 +1563,30 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.
+                    params.Gm = Gm;
+                    params.R = R;
+                    
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1585,20 +1597,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1623,28 +1636,29 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 4, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, params = {  }; end
+            if nargin < 2, params = struct( [  ] ); end
            
             % Compute the number of applied currents.
             n_applied_currents = length( applied_currents );
             
-            % Determine how to create the params cell.
+            % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If this operation is using an absolute encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using an absolute encoding scheme.
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1655,20 +1669,21 @@ classdef applied_current_manager_class
                 
             elseif strcmpi( encoding_scheme, 'relative' )                               % If this operation uses a relative encoding scheme...
                 
-                % Determine how to create the params cell given that this operation is using a relative encoding scheme.
+                % Determine how to create the params given that this operation is using a relative encoding scheme.
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     Gm = self.Gm_DEFAULT*ones( 1, n_applied_currents );
                     R = self.R_DEFAULT*ones( 1, n_applied_currents );                        
                     
-                    % Store the required params in a cell.
-                    params = { Gm, R };
+                    % Store the required params.                    
+                    params.Gm = Gm;
+                    params.R = R;
                     
                 else                                                                    % Otherwise...
                     
-                    % Determine whether the params cell has a valid number of entries.
-                    if length( params ) ~= 2                                        % If there is anything other than three parameter entries...
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -1811,7 +1826,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -1950,7 +1965,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -1995,7 +2010,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -2079,7 +2094,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -2122,7 +2137,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -2165,7 +2180,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -2208,7 +2223,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFUALT; end
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, params = {  }; end
+            if nargin < 3, params = struct( [  ] ); end
             if nargin < 2, applied_current_IDs = 'all'; end                                                         % [-] Applied Current IDs
             
             % Validate the applied current IDs.
@@ -2680,7 +2695,7 @@ classdef applied_current_manager_class
         function [ R2, Gm2 ] = unpack_absolute_inversion_params( self, inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, inversion_params = {  }; end                                                      	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_params = struct( [  ] ); end                                                      	% [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( inversion_params )                                                                      % If the params are empty...
@@ -2709,7 +2724,7 @@ classdef applied_current_manager_class
         function [ R2, Gm2 ] = unpack_relative_inversion_params( self, inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, inversion_params = {  }; end                                                      	% [-] Input Parameters Cell.
+            if nargin < 2, inversion_params = struct( [  ] ); end                                                      	% [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( inversion_params )                                                                      % If the params are empty...
@@ -2740,7 +2755,7 @@ classdef applied_current_manager_class
         function [ R2, Gm2 ] = unpack_reduced_absolute_inversion_params( self, reduced_inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_inversion_params = {  }; end                                                      	% [-] Input Parameters Cell.
+            if nargin < 2, reduced_inversion_params = struct( [  ] ); end                                                      	% [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( reduced_inversion_params )                                                                      % If the params are empty...
@@ -2769,7 +2784,7 @@ classdef applied_current_manager_class
         function [ R2, Gm2 ] = unpack_reduced_relative_inversion_params( self, reduced_inversion_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_inversion_params = {  }; end                                              	% [-] Input Parameters Cell.
+            if nargin < 2, reduced_inversion_params = struct( [  ] ); end                                              	% [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( reduced_inversion_params )                                                           	% If the params are empty...
@@ -2800,7 +2815,7 @@ classdef applied_current_manager_class
         function [ R3, Gm3 ] = unpack_absolute_multiplication_params( self, multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, multiplication_params = {  }; end                                                 	% [-] Input Parameters Cell.
+            if nargin < 2, multiplication_params = struct( [  ] ); end                                                 	% [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( multiplication_params )                                                                	% If the params are empty...
@@ -2829,7 +2844,7 @@ classdef applied_current_manager_class
          function [ R3, Gm3 ] = unpack_relative_multiplication_params( self, multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, multiplication_params = {  }; end                                                 	% [-] Input Parameters Cell.
+            if nargin < 2, multiplication_params = struct( [  ] ); end                                                 	% [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( multiplication_params )                                                                	% If the params are empty...
@@ -2860,7 +2875,7 @@ classdef applied_current_manager_class
         function [ R3, Gm3 ] = unpack_reduced_absolute_multiplication_params( self, reduced_multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_multiplication_params = {  }; end                                            % [-] Input Parameters Cell.
+            if nargin < 2, reduced_multiplication_params = struct( [  ] ); end                                            % [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( reduced_multiplication_params )                                                       	% If the params are empty...
@@ -2889,7 +2904,7 @@ classdef applied_current_manager_class
         function [ R3, Gm3 ] = unpack_reduced_relative_multiplication_params( self, reduced_multiplication_params )
             
             % Set the default input arguments.
-            if nargin < 2, reduced_multiplication_params = {  }; end                                            % [-] Input Parameters Cell.
+            if nargin < 2, reduced_multiplication_params = struct( [  ] ); end                                            % [-] Input Parameters Cell.
             
             % Determine how to set the params.
             if isempty( reduced_multiplication_params )                                                       	% If the params are empty...
@@ -3727,7 +3742,7 @@ classdef applied_current_manager_class
             % Compute the applied current magnitudes of this subnetwork.            
             Ia2 = self.compute_transmission_Ias2( encoding_scheme, applied_currents, array_utilities );
             
-            % Store the applied current magnitudes in the output params cell.
+            % Store the applied current magnitudes in the output params.
             applied_current_output_params.Ia2 = Ia2;
             
         end
@@ -3790,7 +3805,7 @@ classdef applied_current_manager_class
             % Compute the inversion applied current magnitude outputs.
             [ Ia2, applied_currents, self ] = self.compute_inversion_Ias2( applied_current_IDs, inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option );
             
-            % Store the applied current magnitudes in the output params cell.
+            % Store the applied current magnitudes in the output params.
             applied_current_output_params.Ia2 = Ia2;
             
         end
@@ -3809,7 +3824,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, reduced_inversion_params = {  }; end
+            if nargin < 3, reduced_inversion_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
@@ -3901,7 +3916,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, multiplication_params = {  }; end
+            if nargin < 3, multiplication_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
@@ -3929,7 +3944,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, reduced_multiplication_params = {  }; end
+            if nargin < 3, reduced_multiplication_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
@@ -3957,7 +3972,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, integration_params = {  }; end
+            if nargin < 3, integration_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Process the params.
@@ -3983,7 +3998,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, vbi_params = {  }; end
+            if nargin < 3, vbi_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Process the params.
@@ -4009,7 +4024,7 @@ classdef applied_current_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag. (Determines whether to updated the applied current manager.)
             if nargin < 5, applied_currents = self.applied_currents; end                            % [class] Array of Applied Current Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, svbi_params = {  }; end
+            if nargin < 3, svbi_params = struct( [  ] ); end
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Process the params.
