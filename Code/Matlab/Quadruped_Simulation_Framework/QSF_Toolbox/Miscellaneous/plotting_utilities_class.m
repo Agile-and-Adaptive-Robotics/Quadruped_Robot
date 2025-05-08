@@ -2076,92 +2076,97 @@ classdef plotting_utilities_class
             if compact_flag                   % If we want to make multiple subplots...
                 
                 % Create the subplot titles.
-                subplot_title_encoded = sprintf( 'Absolute %s: Encoded Steady State Error', subnetwork_name );
-                subplot_title_decoded = sprintf( 'Relative %s: Decoded Steady State Error', subnetwork_name );
+                subplot_title_encoded = sprintf( 'Absolute %s: Encoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_decoded = sprintf( 'Relative %s: Decoded Steady State Error %s', subnetwork_name, title_tag );
 
                 % Create the first subplot.
                 subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_encoded )            
-                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_absolute_encoded = surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 );
+                gobj_patch_absolute_encoded = patch( ps_patch_xlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 
-                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_relative_encoded = surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 );
+                gobj_patch_relative_encoded = patch( ps_patch_xlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_relative_encoded( :, 1 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 2 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                legend( [ gobj_surf_absolute_encoded, gobj_patch_absolute_encoded, gobj_surf_relative_encoded, gobj_patch_relative_encoded ], { 'Absolute Average', 'Absolute Range', 'Relative Average', 'Relative Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
                 
                 % Create the second subplot.
                 subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_decoded )            
-                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_absolute_decoded = surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 );
+                gobj_patch_absolute_decoded = patch( ps_patch_xlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 
-                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_relative_decoded = surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 );
+                gobj_patch_relative_decoded = patch( ps_patch_xlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_relative_decoded( :, 1 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 2 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-                                
+                legend( [ gobj_surf_absolute_decoded, gobj_patch_absolute_decoded, gobj_surf_relative_decoded, gobj_patch_relative_decoded ], { 'Absolute Average', 'Absolute Range', 'Relative Average', 'Relative Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+                
             else                                % Otherwise...
                 
                 % Create the subplot titles.
-                subplot_title_absolute_encoded = sprintf( 'Absolute %s: Encoded Steady State Error', subnetwork_name );
-                subplot_title_relative_encoded = sprintf( 'Relative %s: Encoded Steady State Error', subnetwork_name );
-                subplot_title_absolute_decoded = sprintf( 'Absolute %s: Decoded Steady State Error', subnetwork_name );
-                subplot_title_relative_decoded = sprintf( 'Relative %s: Decoded Steady State Error', subnetwork_name );
+                subplot_title_absolute_encoded = sprintf( 'Absolute %s: Encoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_relative_encoded = sprintf( 'Relative %s: Encoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_absolute_decoded = sprintf( 'Absolute %s: Decoded Steady State Error %s', subnetwork_name, title_tag );
+                subplot_title_relative_decoded = sprintf( 'Relative %s: Decoded Steady State Error %s', subnetwork_name, title_tag );
 
                 % Create the first subplot.
                 subplot( 2, 2, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_absolute_encoded )            
-                surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_absolute_encoded = surf( Xs_absolute_encoded, scale_encoded*Ys_absolute_encoded, scale_encoded*Es_absolute_encoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 );
+                gobj_patch_absolute_encoded = patch( ps_patch_xlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_xupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_ylower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_yupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zlower_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_absolute_encoded( :, 1 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 2 ), scale_encoded*ps_patch_zupper_absolute_encoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                legend( [ gobj_surf_absolute_encoded, gobj_patch_absolute_encoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
                 
                 % Create the second subplot.
                 subplot( 2, 2, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_absolute_decoded )            
-                surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-                patch( ps_patch_xupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_absolute_decoded = surf( Xs_absolute_decoded, scale_decoded*Ys_absolute_decoded, scale_decoded*Es_absolute_decoded, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 0.90 );
+                gobj_patch_absolute_decoded = patch( ps_patch_xlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );                patch( ps_patch_xupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_xupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_ylower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_yupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zlower_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_absolute_decoded( :, 1 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 2 ), scale_decoded*ps_patch_zupper_absolute_decoded( :, 3 ), color_absolute, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                legend( [ gobj_surf_absolute_decoded, gobj_patch_absolute_decoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
                 
                 % Create the third subplot.
                 subplot( 2, 2, 3 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_relative_encoded )            
-                surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_relative_encoded = surf( Xs_relative_encoded, scale_encoded*Ys_relative_encoded, scale_encoded*Es_relative_encoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 );
+                gobj_patch_relative_encoded = patch( ps_patch_xlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_xlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_xupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_relative_encoded( :, 1 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 2 ), scale_encoded*ps_patch_ylower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_yupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_relative_encoded( :, 1 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 2 ), scale_encoded*ps_patch_zlower_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_relative_encoded( :, 1 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 2 ), scale_encoded*ps_patch_zupper_relative_encoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                legend( [ gobj_surf_relative_encoded, gobj_patch_relative_encoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
                 
                 % Create the fourth subplot.
                 subplot( 2, 2, 4 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_relative_decoded )            
-                surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 )            
-                patch( ps_patch_xlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                gobj_surf_relative_decoded = surf( Xs_relative_decoded, scale_decoded*Ys_relative_decoded, scale_decoded*Es_relative_decoded, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 0.90 );
+                gobj_patch_relative_decoded = patch( ps_patch_xlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_xlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
                 patch( ps_patch_xupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_xupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_ylower_relative_decoded( :, 1 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 2 ), scale_decoded*ps_patch_ylower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_yupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_yupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zlower_relative_decoded( :, 1 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 2 ), scale_decoded*ps_patch_zlower_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
                 patch( ps_patch_zupper_relative_decoded( :, 1 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 2 ), scale_decoded*ps_patch_zupper_relative_decoded( :, 3 ), color_relative, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+                legend( [ gobj_surf_relative_decoded, gobj_patch_relative_decoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
                 
             end
                 
@@ -2374,12 +2379,13 @@ classdef plotting_utilities_class
         
         
         % Implement a function to plot the steady state error of a subnetwork for a specific gain.
-        function fig = plot_steady_state_error_difference_comparison( ~, xs_encoded, es_theoretical_encoded, es_numerical_encoded, color_encoded, xs_decoded, es_theoretical_decoded, es_numerical_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, save_flag, save_directory, save_tag )
+        function fig = plot_steady_state_error_difference_comparison( ~, xs_encoded, es_theoretical_encoded, es_numerical_encoded, color_encoded, xs_decoded, es_theoretical_decoded, es_numerical_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 19, save_tag = ''; end
-            if nargin < 18, save_directory = './'; end
-            if nargin < 17, save_flag = true; end
+            if nargin < 20, save_tag = ''; end
+            if nargin < 19, save_directory = './'; end
+            if nargin < 18, save_flag = true; end
+            if nargin < 17, title_tag = ''; end
             if nargin < 16, units_string_decoded = { '-', '-' }; end
             if nargin < 15, units_string_encoded = { 'mV', 'mV' }; end
             if nargin < 14, variables_string_decoded = { 'x1', 'E' }; end
@@ -2389,7 +2395,7 @@ classdef plotting_utilities_class
             if nargin < 10, scale_encoded = 1; end
             
             % Compute the figure title.
-            title_string = sprintf( 'Encoded vs Decoded %s: Steady State Error Difference', subnetwork_name );
+            title_string = sprintf( 'Encoded vs Decoded %s: Steady State Error Difference %s', subnetwork_name, title_tag );
             
             % Compute the figure labels.
             xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_string_encoded{ 1 } );
@@ -2401,20 +2407,20 @@ classdef plotting_utilities_class
             fig = figure( 'Color', 'w', 'Name', title_string );
             
             % Create the subplot titles.
-            subplot_title_encoded = sprintf( 'Encoded %s: Steady State Error Difference', subnetwork_name );
-            subplot_title_decoded = sprintf( 'Decoded %s: Steady State Error Difference', subnetwork_name );
+            subplot_title_encoded = sprintf( 'Encoded %s: Steady State Error Difference %s', subnetwork_name, title_tag );
+            subplot_title_decoded = sprintf( 'Decoded %s: Steady State Error Difference %s', subnetwork_name, title_tag );
 
             % Create the first subplot.
             subplot( 2, 1, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_encoded )
             plot( scale_encoded*xs_encoded, scale_encoded*es_theoretical_encoded, '-.', 'Color', [ color_encoded, 2/3 ], 'Linewidth', 3 )
             plot( scale_encoded*xs_encoded, scale_encoded*es_numerical_encoded, '--', 'Color', [ color_encoded, 1 ], 'Linewidth', 3 )
-            legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 
             % Create the second subplot.
             subplot( 2, 1, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_decoded )
             plot( scale_decoded*xs_decoded, scale_decoded*es_theoretical_decoded, '-.', 'Color', [ color_decoded, 2/3 ], 'Linewidth', 3 )
             plot( scale_decoded*xs_decoded, scale_decoded*es_numerical_decoded, '--', 'Color', [ color_decoded, 1 ], 'Linewidth', 3 )
-            legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
                 
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
@@ -2493,12 +2499,13 @@ classdef plotting_utilities_class
         
         
         % Implement a function to plot the steady state error difference of a subnetwork for a specific encoding scheme and gain, including upper and lower boundaries.
-        function fig = plot_steady_state_error_difference_patch_comparison( self, xs_encoded, es_mean_encoded, es_min_encoded, es_max_encoded, color_encoded, xs_decoded, es_mean_decoded, es_min_decoded, es_max_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, save_flag, save_directory, save_tag )
+        function fig = plot_steady_state_error_difference_patch_comparison( self, xs_encoded, es_mean_encoded, es_min_encoded, es_max_encoded, color_encoded, xs_decoded, es_mean_decoded, es_min_decoded, es_max_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 21, save_tag = ''; end
-            if nargin < 20, save_directory = './'; end
-            if nargin < 19, save_flag = true; end
+            if nargin < 22, save_tag = ''; end
+            if nargin < 21, save_directory = './'; end
+            if nargin < 20, save_flag = true; end
+            if nargin < 19, title_tag = ''; end
             if nargin < 18, units_string_decoded = { '-', '-' }; end
             if nargin < 17, units_string_encoded = { 'mV', 'mV' }; end
             if nargin < 16, variables_string_decoded = { 'x1', 'E' }; end
@@ -2512,7 +2519,7 @@ classdef plotting_utilities_class
             [ xs_patch_decoded, ys_patch_decoded ] = self.generate_2D_patch_data( xs_decoded, es_min_decoded, es_max_decoded );
             
             % Compute the figure title.
-            title_string = sprintf( '%s: Steady State Error Difference Summary', subnetwork_name );
+            title_string = sprintf( '%s: Steady State Error Difference %s', subnetwork_name, title_tag );
             
             % Compute the figure labels.
             xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_string_encoded{ 1 } );
@@ -2525,8 +2532,8 @@ classdef plotting_utilities_class
             fig = figure( 'Color', 'w', 'Name', title_string );
                 
             % Create the subplot titles.
-            subplot_title_encoded = sprintf( '%s: Encoded Steady State Error Difference', subnetwork_name );
-            subplot_title_decoded = sprintf( '%s: Decoded Steady State Error Difference', subnetwork_name );
+            subplot_title_encoded = sprintf( '%s: Encoded Steady State Error Difference %s', subnetwork_name, title_tag );
+            subplot_title_decoded = sprintf( '%s: Decoded Steady State Error Difference %s', subnetwork_name, title_tag );
 
             % Create the first subplot.
             subplot( 2, 1, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_encoded )
@@ -2598,23 +2605,25 @@ classdef plotting_utilities_class
 
             % Create the first subplot.
             subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_encoded )            
-            surf( Xs_encoded, scale_encoded*Ys_encoded, scale_encoded*Es_encoded, 'Edgecolor', 'None', 'Facecolor', color_encoded, 'Facealpha', 0.90 )            
-            patch( ps_patch_xlower_encoded( :, 1 ), scale_encoded*ps_patch_xlower_encoded( :, 2 ), scale_encoded*ps_patch_xlower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            gobj_surf_encoded = surf( Xs_encoded, scale_encoded*Ys_encoded, scale_encoded*Es_encoded, 'Edgecolor', 'None', 'Facecolor', color_encoded, 'Facealpha', 0.90 );
+            gobj_patch_encoded = patch( ps_patch_xlower_encoded( :, 1 ), scale_encoded*ps_patch_xlower_encoded( :, 2 ), scale_encoded*ps_patch_xlower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
             patch( ps_patch_xupper_encoded( :, 1 ), scale_encoded*ps_patch_xupper_encoded( :, 2 ), scale_encoded*ps_patch_xupper_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_ylower_encoded( :, 1 ), scale_encoded*ps_patch_ylower_encoded( :, 2 ), scale_encoded*ps_patch_ylower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_yupper_encoded( :, 1 ), scale_encoded*ps_patch_yupper_encoded( :, 2 ), scale_encoded*ps_patch_yupper_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zlower_encoded( :, 1 ), scale_encoded*ps_patch_zlower_encoded( :, 2 ), scale_encoded*ps_patch_zlower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zupper_encoded( :, 1 ), scale_encoded*ps_patch_zupper_encoded( :, 2 ), scale_encoded*ps_patch_zupper_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-
+            legend( [ gobj_surf_encoded, gobj_patch_encoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
             % Create the second subplot.
             subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_decoded )            
-            surf( Xs_decoded, scale_decoded*Ys_decoded, scale_decoded*Es_decoded, 'Edgecolor', 'None', 'Facecolor', color_decoded, 'Facealpha', 0.90 )            
-            patch( ps_patch_xlower_decoded( :, 1 ), scale_decoded*ps_patch_xlower_decoded( :, 2 ), scale_decoded*ps_patch_xlower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            gobj_surf_decoded = surf( Xs_decoded, scale_decoded*Ys_decoded, scale_decoded*Es_decoded, 'Edgecolor', 'None', 'Facecolor', color_decoded, 'Facealpha', 0.90 );
+            gobj_patch_decoded = patch( ps_patch_xlower_decoded( :, 1 ), scale_decoded*ps_patch_xlower_decoded( :, 2 ), scale_decoded*ps_patch_xlower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
             patch( ps_patch_xupper_decoded( :, 1 ), scale_decoded*ps_patch_xupper_decoded( :, 2 ), scale_decoded*ps_patch_xupper_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_ylower_decoded( :, 1 ), scale_decoded*ps_patch_ylower_decoded( :, 2 ), scale_decoded*ps_patch_ylower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_yupper_decoded( :, 1 ), scale_decoded*ps_patch_yupper_decoded( :, 2 ), scale_decoded*ps_patch_yupper_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zlower_decoded( :, 1 ), scale_decoded*ps_patch_zlower_decoded( :, 2 ), scale_decoded*ps_patch_zlower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zupper_decoded( :, 1 ), scale_decoded*ps_patch_zupper_decoded( :, 2 ), scale_decoded*ps_patch_zupper_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            legend( [ gobj_surf_decoded, gobj_patch_decoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
             
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
@@ -2825,12 +2834,13 @@ classdef plotting_utilities_class
         
         
         % Implement a function to plot the steady state error of a subnetwork for a specific gain.
-        function fig = plot_steady_state_error_improvement_comparison( ~, xs_encoded, es_theoretical_encoded, es_numerical_encoded, color_encoded, xs_decoded, es_theoretical_decoded, es_numerical_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, save_flag, save_directory, save_tag )
+        function fig = plot_steady_state_error_improvement_comparison( ~, xs_encoded, es_theoretical_encoded, es_numerical_encoded, color_encoded, xs_decoded, es_theoretical_decoded, es_numerical_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 19, save_tag = ''; end
-            if nargin < 18, save_directory = './'; end
-            if nargin < 17, save_flag = true; end
+            if nargin < 20, save_tag = ''; end
+            if nargin < 19, save_directory = './'; end
+            if nargin < 18, save_flag = true; end
+            if nargin < 17, title_tag = ''; end
             if nargin < 16, units_string_decoded = { '-', '-' }; end
             if nargin < 15, units_string_encoded = { 'mV', 'mV' }; end
             if nargin < 14, variables_string_decoded = { 'x1', 'E' }; end
@@ -2840,7 +2850,7 @@ classdef plotting_utilities_class
             if nargin < 10, scale_encoded = 1; end
             
             % Compute the figure title.
-            title_string = sprintf( 'Encoded vs Decoded %s: Steady State Error Improvement', subnetwork_name );
+            title_string = sprintf( 'Encoded vs Decoded %s: Steady State Error Improvement %s', subnetwork_name, title_tag );
             
             % Compute the figure labels.
             xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_string_encoded{ 1 } );
@@ -2852,20 +2862,20 @@ classdef plotting_utilities_class
             fig = figure( 'Color', 'w', 'Name', title_string );
             
             % Create the subplot titles.
-            subplot_title_encoded = sprintf( 'Encoded %s: Steady State Error Improvement', subnetwork_name );
-            subplot_title_decoded = sprintf( 'Decoded %s: Steady State Error Improvement', subnetwork_name );
+            subplot_title_encoded = sprintf( 'Encoded %s: Steady State Error Improvement %s', subnetwork_name, title_tag );
+            subplot_title_decoded = sprintf( 'Decoded %s: Steady State Error Improvement %s', subnetwork_name, title_tag );
 
             % Create the first subplot.
             subplot( 2, 1, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_encoded )
             plot( scale_encoded*xs_encoded, scale_encoded*es_theoretical_encoded, '-.', 'Color', [ color_encoded, 2/3 ], 'Linewidth', 3 )
             plot( scale_encoded*xs_encoded, scale_encoded*es_numerical_encoded, '--', 'Color', [ color_encoded, 1 ], 'Linewidth', 3 )
-            legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
 
             % Create the second subplot.
             subplot( 2, 1, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_decoded )
             plot( scale_decoded*xs_decoded, scale_decoded*es_theoretical_decoded, '-.', 'Color', [ color_decoded, 2/3 ], 'Linewidth', 3 )
             plot( scale_decoded*xs_decoded, scale_decoded*es_numerical_decoded, '--', 'Color', [ color_decoded, 1 ], 'Linewidth', 3 )
-            legend( { 'Theoretical Error', 'Numerical Error' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            legend( { 'Theoretical', 'Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
                 
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
@@ -2944,12 +2954,13 @@ classdef plotting_utilities_class
         
         
         % Implement a function to plot the steady state error improvement of a subnetwork for a specific encoding scheme and gain, including upper and lower boundaries.
-        function fig = plot_steady_state_error_improvement_patch_comparison( self, xs_encoded, es_mean_encoded, es_min_encoded, es_max_encoded, color_encoded, xs_decoded, es_mean_decoded, es_min_decoded, es_max_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, save_flag, save_directory, save_tag )
+        function fig = plot_steady_state_error_improvement_patch_comparison( self, xs_encoded, es_mean_encoded, es_min_encoded, es_max_encoded, color_encoded, xs_decoded, es_mean_decoded, es_min_decoded, es_max_decoded, color_decoded, scale_encoded, scale_decoded, subnetwork_name, variables_string_encoded, variables_string_decoded, units_string_encoded, units_string_decoded, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 21, save_tag = ''; end
-            if nargin < 20, save_directory = './'; end
-            if nargin < 19, save_flag = true; end
+            if nargin < 22, save_tag = ''; end
+            if nargin < 21, save_directory = './'; end
+            if nargin < 20, save_flag = true; end
+            if nargin < 19, title_tag = ''; end
             if nargin < 18, units_string_decoded = { '-', '-' }; end
             if nargin < 17, units_string_encoded = { 'mV', 'mV' }; end
             if nargin < 16, variables_string_decoded = { 'x1', 'E' }; end
@@ -2963,7 +2974,7 @@ classdef plotting_utilities_class
             [ xs_patch_decoded, ys_patch_decoded ] = self.generate_2D_patch_data( xs_decoded, es_min_decoded, es_max_decoded );
             
             % Compute the figure title.
-            title_string = sprintf( '%s: Steady State Error Improvement Summary', subnetwork_name );
+            title_string = sprintf( '%s: Steady State Error Improvement %s', subnetwork_name, title_tag );
             
             % Compute the figure labels.
             xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_string_encoded{ 1 } );
@@ -2976,23 +2987,25 @@ classdef plotting_utilities_class
             fig = figure( 'Color', 'w', 'Name', title_string );
                 
             % Create the subplot titles.
-            subplot_title_encoded = sprintf( '%s: Encoded Steady State Error Improvement', subnetwork_name );
-            subplot_title_decoded = sprintf( '%s: Decoded Steady State Error Improvement', subnetwork_name );
+            subplot_title_encoded = sprintf( '%s: Encoded Steady State Error Improvement %s', subnetwork_name, title_tag );
+            subplot_title_decoded = sprintf( '%s: Decoded Steady State Error Improvement %s', subnetwork_name, title_tag );
 
             % Create the first subplot.
             subplot( 2, 1, 1 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_encoded )
-            patch( scale_encoded*xs_patch_encoded, scale_encoded*ys_patch_encoded, color_encoded, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-            plot( scale_encoded*xs_encoded, scale_encoded*es_mean_encoded, '-', 'Color', color_encoded, 'Linewidth', 3 )
+            gobj_patch_encoded = patch( scale_encoded*xs_patch_encoded, scale_encoded*ys_patch_encoded, color_encoded, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_plot_encoded = plot( scale_encoded*xs_encoded, scale_encoded*es_mean_encoded, '-', 'Color', color_encoded, 'Linewidth', 3 );
             plot( scale_encoded*xs_encoded, scale_encoded*es_min_encoded, '--', 'Color', color_encoded, 'Linewidth', 1 )
             plot( scale_encoded*xs_encoded, scale_encoded*es_max_encoded, '--', 'Color', color_encoded, 'Linewidth', 1 )
-
+            legend( [ gobj_plot_encoded, gobj_patch_encoded ], { 'Average', 'Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            
             % Create the second subplot.
             subplot( 2, 1, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_decoded )
-            patch( scale_decoded*xs_patch_decoded, scale_decoded*ys_patch_decoded, color_decoded, 'FaceAlpha', 0.5, 'EdgeColor', 'None' )
-            plot( scale_decoded*xs_decoded, scale_decoded*es_mean_decoded, '-', 'Color', color_decoded, 'Linewidth', 3 )
+            gobj_patch_decoded = patch( scale_decoded*xs_patch_decoded, scale_decoded*ys_patch_decoded, color_decoded, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_plot_decoded = plot( scale_decoded*xs_decoded, scale_decoded*es_mean_decoded, '-', 'Color', color_decoded, 'Linewidth', 3 );
             plot( scale_decoded*xs_decoded, scale_decoded*es_min_decoded, '--', 'Color', color_decoded, 'Linewidth', 1 )
             plot( scale_decoded*xs_decoded, scale_decoded*es_max_decoded, '--', 'Color', color_decoded, 'Linewidth', 1 )
-                            
+           legend( [ gobj_plot_decoded, gobj_patch_decoded ], { 'Average', 'Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+ 
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
                     
@@ -3049,23 +3062,25 @@ classdef plotting_utilities_class
 
             % Create the first subplot.
             subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), zlabel( zlabel_string_encoded ), title( subplot_title_encoded )            
-            surf( Xs_encoded, scale_encoded*Ys_encoded, scale_encoded*Es_encoded, 'Edgecolor', 'None', 'Facecolor', color_encoded, 'Facealpha', 0.90 )            
-            patch( ps_patch_xlower_encoded( :, 1 ), scale_encoded*ps_patch_xlower_encoded( :, 2 ), scale_encoded*ps_patch_xlower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            gobj_surf_encoded = surf( Xs_encoded, scale_encoded*Ys_encoded, scale_encoded*Es_encoded, 'Edgecolor', 'None', 'Facecolor', color_encoded, 'Facealpha', 0.90 );
+            gobj_patch_encoded = patch( ps_patch_xlower_encoded( :, 1 ), scale_encoded*ps_patch_xlower_encoded( :, 2 ), scale_encoded*ps_patch_xlower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
             patch( ps_patch_xupper_encoded( :, 1 ), scale_encoded*ps_patch_xupper_encoded( :, 2 ), scale_encoded*ps_patch_xupper_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_ylower_encoded( :, 1 ), scale_encoded*ps_patch_ylower_encoded( :, 2 ), scale_encoded*ps_patch_ylower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_yupper_encoded( :, 1 ), scale_encoded*ps_patch_yupper_encoded( :, 2 ), scale_encoded*ps_patch_yupper_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zlower_encoded( :, 1 ), scale_encoded*ps_patch_zlower_encoded( :, 2 ), scale_encoded*ps_patch_zlower_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zupper_encoded( :, 1 ), scale_encoded*ps_patch_zupper_encoded( :, 2 ), scale_encoded*ps_patch_zupper_encoded( :, 3 ), color_encoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
-
+            legend( [ gobj_surf_encoded, gobj_patch_encoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
             % Create the second subplot.
             subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), zlabel( zlabel_string_decoded ), title( subplot_title_decoded )            
-            surf( Xs_decoded, scale_decoded*Ys_decoded, scale_decoded*Es_decoded, 'Edgecolor', 'None', 'Facecolor', color_decoded, 'Facealpha', 0.90 )            
-            patch( ps_patch_xlower_decoded( :, 1 ), scale_decoded*ps_patch_xlower_decoded( :, 2 ), scale_decoded*ps_patch_xlower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            gobj_surf_decoded = surf( Xs_decoded, scale_decoded*Ys_decoded, scale_decoded*Es_decoded, 'Edgecolor', 'None', 'Facecolor', color_decoded, 'Facealpha', 0.90 );
+            gobj_patch_decoded = patch( ps_patch_xlower_decoded( :, 1 ), scale_decoded*ps_patch_xlower_decoded( :, 2 ), scale_decoded*ps_patch_xlower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' );
             patch( ps_patch_xupper_decoded( :, 1 ), scale_decoded*ps_patch_xupper_decoded( :, 2 ), scale_decoded*ps_patch_xupper_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_ylower_decoded( :, 1 ), scale_decoded*ps_patch_ylower_decoded( :, 2 ), scale_decoded*ps_patch_ylower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_yupper_decoded( :, 1 ), scale_decoded*ps_patch_yupper_decoded( :, 2 ), scale_decoded*ps_patch_yupper_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zlower_decoded( :, 1 ), scale_decoded*ps_patch_zlower_decoded( :, 2 ), scale_decoded*ps_patch_zlower_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
             patch( ps_patch_zupper_decoded( :, 1 ), scale_decoded*ps_patch_zupper_decoded( :, 2 ), scale_decoded*ps_patch_zupper_decoded( :, 3 ), color_decoded, 'FaceAlpha', 0.25, 'EdgeColor', 'None' )
+            legend( [ gobj_surf_decoded, gobj_patch_decoded ], { 'Average', 'Range' }, 'Location', 'Best', 'Orientation', 'Vertical' )
             
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
