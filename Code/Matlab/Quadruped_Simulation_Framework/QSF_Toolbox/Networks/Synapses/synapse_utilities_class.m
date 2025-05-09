@@ -1916,17 +1916,17 @@ classdef synapse_utilities_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to compute the maximum synaptic conductance of reduced absolute inversion subnetwork synapses.
-        function gs21 = compute_reduced_absolute_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
+        function gs21 = compute_reduced_absolute_inversion_gs21( self, c1, delta, x1_max, Gm2, validation_flag )
         
             % Set the default input arguments.
             if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end                  % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 5, Ia2 = self.Ia2_reduced_absolute_inversion_DEFAULT; end               % [A] Reduced Absolute Inversion Applied Current Magnitude.
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                        % [V] Synapse Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                           % [S] Membrane Conductance.
-            if nargin < 2, delta = self.delta_reduced_absolute_inversion_DEFAULT; end           % [V] Reduced Absolute Inversion Offset.
+            if nargin < 5, Gm2 = self.Gm_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end           % [V] Reduced Absolute Inversion Offset.
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                                       % [S] Synaptic Conductance.
+            gs21 = ( delta.*x1_max.*Gm2 )./( c1 - delta*x1_max );                                       % [S] Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
             if validation_flag                                                                  % If we want to validate the synaptic conductances...
@@ -1940,17 +1940,17 @@ classdef synapse_utilities_class
         
         
         % Implement a function to compute the maximum synaptic conductance of reduced relative inversion subnetwork synapses.
-        function gs21 = compute_reduced_relative_inversion_gs21( self, delta, Gm2, dEs21, Ia2, validation_flag )
+        function gs21 = compute_reduced_relative_inversion_gs21( self, c1, delta, x1_max, Gm2, validation_flag )
         
             % Set the default input arguments.
             if nargin < 6, validation_flag = self.validation_flag_DEFAULT; end                  % [T/F] Validation Flag (Determines whether to validate computed quantity.)
-            if nargin < 5, Ia2 = self.Ia2_reduced_relative_inversion_DEFAULT; end               % [A] Reduced Relative Inversion Applied Current Magnitude.
-            if nargin < 4, dEs21 = self.dEs_DEFAULT; end                                        % [V] Synapse Reversal Potential.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end                                           % [S] Membrane Conductance.
-            if nargin < 2, delta = self.delta_reduced_relative_inversion_DEFAULT; end           % [V] Reduced Relative Inversion Offset.
+            if nargin < 5, Gm2 = self.Gm_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end           % [V] Reduced Absolute Inversion Offset.
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
             % Compute the maximum synaptic conductance.
-            gs21 = ( Ia2 - delta*Gm2 )/( delta - dEs21 );                                    	% [S] Synaptic Conductance.
+            gs21 = ( delta.*x1_max.*Gm2 )./( c1 - delta*x1_max );                                       % [S] Synaptic Conductance.
             
             % Determine whether to validate the synaptic conductance.
             if validation_flag                                                                  % If we want to validate the synaptic conductances...

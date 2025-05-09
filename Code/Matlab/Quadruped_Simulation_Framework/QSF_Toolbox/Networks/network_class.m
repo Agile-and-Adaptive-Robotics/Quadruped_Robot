@@ -1238,18 +1238,18 @@ classdef network_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Set the gains to be the provided gains.
-                cs = gain_params{ 1 };
+                cs = gain_params.cs;
                 
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Retrieve the existing gains.
-                cs_nm2 = gain_params{ 1 };
+                cs_nm2 = gain_params.cs_nm2;
             
                 % Compute the final gain.
                 c_nm1 = self.network_utilities.compute_relative_addition_c( cs_nm2 );
@@ -1274,7 +1274,7 @@ classdef network_class
         
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
@@ -1285,7 +1285,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Retrieve the existing gains.
-                cs_nm2 = gain_params{ 1 };
+                cs_nm2 = gain_params.cs_nm2;
             
                 % Compute the final gain.
                 c_nm1 = self.network_utilities.compute_relative_subtraction_c( cs_nm2 );
@@ -1311,7 +1311,7 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
@@ -1450,7 +1450,7 @@ classdef network_class
                
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
@@ -1586,17 +1586,17 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Unpack the gain params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                delta = gain_params{ 3 };
-                R1 = gain_params{ 4 };
-                R2 = gain_params{ 5 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                delta = gain_params.delta;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
                 % Compute the gain c2.
                 c2 = self.network_utilities.compute_absolute_division_c2( c1, c3, delta, R1, R2 );
@@ -1604,9 +1604,9 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Unpack the gain params.
-                c3 = gain_params{ 1 };
-                delta = gain_params{ 2 };
-                R3 = gain_params{ 3 };
+                c3 = gain_params.c3;
+                delta = gain_params.delta;
+                R3 = gain_params.R3;
                 
                 % Compute the gains c1 & c2.
                 [ c1, c2 ] = self.network_utilities.compute_relative_division_gains( c3, delta, R3 );
@@ -1628,16 +1628,16 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Unpack the gain params.
-                c1 = gain_params{ 1 };
-                delta = gain_params{ 2 };
-                R1 = gain_params{ 3 };
-                R2 = gain_params{ 4 };
+                c1 = gain_params.c1;
+                delta = gain_params.delta;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
                 % Compute the gain c2.
                 c2 = self.network_utilities.compute_reduced_absolute_division_c2( c1, delta, R1, R2 );
@@ -1645,8 +1645,8 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )            	% If the encoding scheme is 'relative'...
                 
                 % Unpack the gain params.
-                delta = gain_params{ 1 };
-                R3 = gain_params{ 2 };
+                delta = gain_params.delta;
+                R3 = gain_params.R3;
                 
                 % Compute the gains c1 & c2.
                 [ c1, c2 ] = self.network_utilities.compute_reduced_relative_division_gains( delta, R3 );
@@ -1668,17 +1668,17 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Unpack the gain params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                delta2 = gain_params{ 3 };
-                R1 = gain_params{ 4 };
-                R2 = gain_params{ 5 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
                 % Compute the gain c2.
                 c2 = self.network_utilities.compute_absolute_dai_c2( c1, c3, delta2, R1, R2 );
@@ -1686,11 +1686,11 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Unpack the gain params.
-                c3 = gain_params{ 1 };
-                delta1 = gain_params{ 2 };
-                delta2 = gain_params{ 3 };
-                R2 = gain_params{ 4 };
-                R3 = gain_params{ 5 };
+                c3 = gain_params.c3;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
                 % Compute the gains c1 & c2.
                 [ c1, c2 ] = self.network_utilities.compute_relative_dai_gains( c3, delta1, delta2, R2, R3 );
@@ -1712,16 +1712,16 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Unpack the gain params.
-                c1 = gain_params{ 1 };
-                delta2 = gain_params{ 2 };
-                R1 = gain_params{ 3 };
-                R2 = gain_params{ 4 };
+                c1 = gain_params.c1;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
                 % Compute the gain c2.
                 c2 = self.network_utilities.compute_reduced_absolute_dai_c2( c1, delta2, R1, R2 );
@@ -1729,10 +1729,10 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Unpack the gain params.
-                delta1 = gain_params{ 1 };
-                delta2 = gain_params{ 2 };
-                R2 = gain_params{ 3 };
-                R3 = gain_params{ 4 };
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
                 % Compute the gains c1 & c2.
                 [ c1, c2 ] = self.network_utilities.compute_reduced_relative_dai_gains( delta1, delta2, R2, R3 );
@@ -1754,21 +1754,21 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Unpack the gain params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                c4 = gain_params{ 3 };
-                c6 = gain_params{ 4 };
-                delta1 = gain_params{ 5 };
-                delta2 = gain_params{ 6 };
-                R1 = gain_params{ 7 };
-                R2 = gain_params{ 8 };
-                R3 = gain_params{ 9 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                c4 = gain_params.c4;
+                c6 = gain_params.c6;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
                 % Compute the gains.
                 [ c2, c5 ] = self.network_utilities.compute_absolute_multiplication_gains( c1, c3, c4, c6, delta1, delta2, R1, R2, R3 );
@@ -1776,12 +1776,12 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Unpack the gain params.
-                c3 = gain_params{ 1 };
-                c6 = gain_params{ 2 };
-                delta1 = gain_params{ 3 };
-                delta2 = gain_params{ 4 };
-                R3 = gain_params{ 5 };
-                R4 = gain_params{ 6 };
+                c3 = gain_params.c3;
+                c6 = gain_params.c6;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R3 = gain_params.R3;
+                R4 = gain_params.R4;
                 
                 % Compute the gains c1 & c2.
                 [ c1, c2, c4, c5 ] = self.network_utilities.compute_relative_multiplication_gains( c3, c6, delta1, delta2, R3, R4 );
@@ -1803,19 +1803,19 @@ classdef network_class
            
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to compute the gain.
             if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
                 
                 % Unpack the gain params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                delta1 = gain_params{ 3 };
-                delta2 = gain_params{ 4 };
-                R1 = gain_params{ 5 };
-                R2 = gain_params{ 6 };
-                R3 = gain_params{ 7 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
                 % Compute the gains c2 & c4.
                 [ c2, c4 ] = self.network_utilities.compute_reduced_absolute_multiplication_gains( c1, c3, delta1, delta2, R1, R2, R3 );
@@ -1823,10 +1823,10 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
                 
                 % Unpack the gain params.
-                delta1 = gain_params{ 1 };
-                delta2 = gain_params{ 2 };
-                R3 = gain_params{ 3 };
-                R4 = gain_params{ 4 };
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R3 = gain_params.R3;
+                R4 = gain_params.R4;
                 
                 % Compute the gains c1 & c2.
                 [ c1, c2, c3, c4 ] = self.network_utilities.compute_reduced_relative_mulitplication_gains( delta1, delta2, R3, R4 );
@@ -1912,17 +1912,17 @@ classdef network_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied current for a reduced inversion subnetwork.
-        function [ Ias2, applied_currents, applied_current_manager, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, applied_current_params, encoding_scheme, applied_current_manager, set_flag, undetected_option )
+        function [ applied_current_output_params, applied_currents, applied_current_manager, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, applied_current_params, encoding_scheme, applied_current_manager, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, applied_current_params = {  }; end                                                       % [-] Applied Current Parameters Cell.
+            if nargin < 3, applied_current_params = struct( [  ] ); end                                             	% [struct] Applied Current Parameters Structure.
 
             % Design the inversion subnetwork applied current.                        
-            [ Ias2, applied_currents, applied_current_manager ] = applied_current_manager.design_reduced_inversion_applied_current( neuron_IDs, applied_current_params, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
+            [ applied_current_output_params, applied_currents, applied_current_manager ] = applied_current_manager.design_reduced_inversion_applied_current( neuron_IDs, applied_current_params, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
                         
             % Determine whether to update the network object.
             if set_flag, self.applied_current_manager = applied_current_manager; end
@@ -2000,7 +2000,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, applied_current_params = {  }; end                                                       % [-] Applied Current Parameters Cell.
+            if nargin < 3, applied_current_params = struct( [  ] ); end                                                       % [struct] Applied Current Parameters Structure.
             
             % Design the multiplication subnetwork applied current.
             [ Ias3, applied_currents, applied_current_manager ] = applied_current_manager.design_multiplication_applied_current( neuron_IDs, applied_current_params, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
@@ -2021,7 +2021,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, applied_current_manager = self.applied_current_manager; end                                  % [class] Applied Current Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, applied_current_params = {  }; end                                                       % [-] Applied Current Parameters Cell.
+            if nargin < 3, applied_current_params = struct( [  ] ); end                                                       % [struct] Applied Current Parameters Structure.
             
             % Design the multiplication subnetwork applied current.
             [ Ias3, applied_currents, applied_current_manager ] = applied_current_manager.design_reduced_multiplication_applied_current( neuron_IDs, applied_current_params, encoding_scheme, applied_current_manager.applied_currents, true, undetected_option );
@@ -2432,7 +2432,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                              	% [-] Neuron Design Parameters.
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                              	% [-] Neuron Design Parameters.
             
             % Design the addition subnetwork neurons.                        
             [ Gnas, Rn, neurons, neuron_manager ] = neuron_manager.design_addition_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2453,7 +2453,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                             	% [-] Neuron Design Parameters.
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                             	% [-] Neuron Design Parameters.
             
             % Design the subtraction subnetwork neurons.                        
             [ Gnas, Rn, neurons, neuron_manager ] = neuron_manager.design_subtraction_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2515,9 +2515,9 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_input_params = struct( [  ] ); end                                             	% { k_inversion, epsilon_inversion }.
+            if nargin < 3, neuron_input_params = struct( [  ] ); end                                                    % { k_inversion, epsilon_inversion }.
 
-            % Design the reduced inversion subnetwork neurons.                        
+            % Design the reduced inversion subnetwork neurons.
             [ neuron_output_params, neurons, neuron_manager ] = neuron_manager.design_reduced_inversion_neurons( neuron_IDs, neuron_input_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
             
             % Determine whether to update the network object.
@@ -2537,7 +2537,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                               	% { c, alpha, epsilon }
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                               	% { c, alpha, epsilon }
             
             % Design the division subnetwork neurons.            
             [ Gnas, R3, neurons, neuron_manager ] = neuron_manager.design_division_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2558,7 +2558,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                               	% { c, alpha, epsilon }
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                               	% { c, alpha, epsilon }
             
             % Design the division subnetwork neurons.            
             [ Gnas, R3, neurons, neuron_manager ] = neuron_manager.design_reduced_division_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2579,7 +2579,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                               	% { c, alpha, epsilon }
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                               	% { c, alpha, epsilon }
             
             % Design the division subnetwork neurons.            
             [ Gnas, R3, neurons, neuron_manager ] = neuron_manager.design_dai_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2600,7 +2600,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                              	% { c, alpha, epsilon }
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                              	% { c, alpha, epsilon }
             
             % Design the division subnetwork neurons.            
             [ Gnas, R3, neurons, neuron_manager ] = neuron_manager.design_reduced_dai_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2621,7 +2621,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                                % [-] Neuron Parameters Cell.
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                                % [-] Neuron Parameters Cell.
 
             % Design the multiplication subnetwork neurons.            
             [ Gnas, Rs, neurons, neuron_manager ] = neuron_manager.design_multiplication_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -2642,7 +2642,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, neuron_params = {  }; end                                                                % [-] Neuron Parameters Cell.
+            if nargin < 3, neuron_params = struct( [  ] ); end                                                                % [-] Neuron Parameters Cell.
 
             % Design the multiplication subnetwork neurons.            
             [ Gnas, Rs, neurons, neuron_manager ] = neuron_manager.design_reduced_multiplication_neurons( neuron_IDs, neuron_params, encoding_scheme, neuron_manager.neurons, true, undetected_option );
@@ -3031,7 +3031,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_input_params = struct( [  ] ); end                                               % [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_input_params = struct( [  ] ); end                                                   % [struct] Synapse Parameters Structure.
             
             % Design the transmission subnetwork synapses.                        
             [ synapse_output_params, synapse_ID, synapses, synapse_manager ] = synapse_manager.design_transmission_synapse( neuron_IDs, synapse_input_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3053,7 +3053,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                                            	% [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                                       	% [struct] Synapse Parameters Structure.
             
             % Design the addition subnetwork synapses.                        
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_addition_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3075,7 +3075,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                           	% [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                    	% [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                            	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                                   % [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                                   % [struct] Synapse Parameters Structure.
             
             % Design the subtraction subnetwork synapses.                        
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_subtraction_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3166,7 +3166,7 @@ classdef network_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapse of a reduced inversion subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, synapse_manager, self ] = design_reduced_inversion_synapse( self, neuron_IDs, synapse_params, encoding_scheme, synapse_manager, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_params, synapse_ID, synapses, synapse_manager, self ] = design_reduced_inversion_synapse( self, neuron_IDs, synapse_params, encoding_scheme, synapse_manager, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option.
@@ -3174,10 +3174,10 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                           	% [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                    	% [class] Applied Current Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end            	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                  	% [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                  	% [struct] Synapse Parameters Structure.
             
             % Design the inversion subnetwork synapse.            
-            [ dEs21, gs21, synapse_ID, synapses, synapse_manager ] = synapse_manager.design_reduced_inversion_synapse( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
+            [ synapse_output_params, synapse_ID, synapses, synapse_manager ] = synapse_manager.design_reduced_inversion_synapse( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self.synapse_manager = synapse_manager; end
@@ -3196,7 +3196,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                                             	% [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                                             	% [struct] Synapse Parameters Structure.
             
             % Design the division subnetwork synapses.            
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_division_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3218,7 +3218,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                                            	% [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                                            	% [struct] Synapse Parameters Structure.
             
             % Design the division subnetwork synapses.            
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_division_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3240,7 +3240,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                                               % [-] Synapse Parameter Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                                               % [-] Synapse Parameter Cell.
             
             % Design the division subnetwork synapses.                        
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_dai_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3262,7 +3262,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                        % [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                                              	% [-] Synapse Parameter Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                                              	% [-] Synapse Parameter Cell.
             
             % Design the division subnetwork synapses.                        
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_dai_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3284,7 +3284,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                      	% [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                 	% [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                       	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                               % [-] Synapse Parameters Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                               % [struct] Synapse Parameters Structure.
             
             % Design the multiplication subnetwork synapses.                        
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_multiplication_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -3306,7 +3306,7 @@ classdef network_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                      	% [T/F] Set Flag.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                 	% [class] Synapse Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                       	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, synapse_params = {  }; end                                              	% [-]Synapse Parameter Cell.
+            if nargin < 3, synapse_params = struct( [  ] ); end                                              	% [-]Synapse Parameter Cell.
             
             % Design the multiplication subnetwork synapses.                        
             [ dEs, gs, synapse_IDs, synapses, synapse_manager ] = synapse_manager.design_reduced_multiplication_synapses( neuron_IDs, synapse_params, encoding_scheme, synapse_manager.synapses, true, validation_flag, undetected_option );
@@ -4070,17 +4070,21 @@ classdef network_class
         
         
         % Implement a function to pack the output params for an absolute transmission subnetwork.
-        function transmission_output_params = pack_absolute_transmission_output_params( self, x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2, neuron_manager, undetected_option )
+        function transmission_output_params = pack_absolute_transmission_output_params( self, x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2, neuron_manager, synapse_manager, applied_current_manager, undetected_option )
             
             % Set the default input params.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 8, neuron_manager = self.neuron_manager; end
-            if nargin < 7, Cm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 6, Cm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 5, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Gm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
-            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 12, applied_current_manager = self.applied_current_manager; end
+            if nargin < 11, synapse_manager = self.synapse_manager; end
+            if nargin < 10, neuron_manager = self.neuron_manager; end
+            if nargin < 9, Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 8, gs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'gs', true, synapse_manager.synapses, undetected_option ); end                                    % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 7, dEs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'dEs', true, synapse_manager.synapses, undetected_option ); end                                    % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 6, Gna2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gna1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, x2_max = self.x2max_absolute_transmission_DEFAULT; end
             
             % Pack the params.
             transmission_output_params.x2_max = x2_max;
@@ -4096,27 +4100,27 @@ classdef network_class
         
         
         % Implement a function to pack the output params for a relative transmission subnetwork.
-        function transmission_input_params = pack_relative_transmission_output_params( self, c, x1_max, Gm1, Gm2, Cm1, Cm2, neuron_manager, undetected_option )
+        function transmission_output_params = pack_relative_transmission_output_params( self, x2_max, Gna1, Gna2, dEs21, gs21, Ia2, neuron_manager, synapse_manager, applied_current_manager, undetected_option )
             
             % Set the default input params.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, synapse_manager = self.synapse_manager; end
             if nargin < 8, neuron_manager = self.neuron_manager; end
-            if nargin < 7, Cm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 6, Cm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 5, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Gm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 3, x1_max = self.x1max_absolute_transmission_DEFAULT; end
-            if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
+            if nargin < 7, Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
+            if nargin < 6, gs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'gs', true, synapse_manager.synapses, undetected_option ); end                                    % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 5, dEs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'dEs', true, synapse_manager.synapses, undetected_option ); end                                    % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 4, Gna2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, Gna1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gna', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, x2_max = self.x2max_absolute_transmission_DEFAULT; end
             
             % Pack the params.
-            transmission_input_params.c = c;
-            transmission_input_params.x1_max = x1_max;
-            transmission_input_params.R1 = R1;
-            transmission_input_params.R2 = R2;
-            transmission_input_params.Gm1 = Gm1;
-            transmission_input_params.Gm2 = Gm2;
-            transmission_input_params.Cm1 = Cm1;
-            transmission_input_params.Cm2 = Cm2;
+            transmission_output_params.x2_max = x2_max;
+            transmission_output_params.Gna1 = Gna1;
+            transmission_output_params.Gna2 = Gna2;
+            transmission_output_params.dEs21 = dEs21;
+            transmission_output_params.gs21 = gs21;
+            transmission_output_params.Ia2 = Ia2;
                         
         end
         
@@ -4141,7 +4145,7 @@ classdef network_class
 %         function gain_params = pack_relative_transmission_gain_params( ~ )
 %             
 %             % Pack the gain params.
-%             gain_params = {  };
+%             gain_params = struct( [  ] );
 %             
 %         end
         %}
@@ -4231,14 +4235,11 @@ classdef network_class
             if nargin < 3, Rs_input = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 1:( end - 1 ) ), 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 2, cs = self.c_absolute_addition_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 ); end
             
-            % Preallocate a cell to store the params.
-            addition_params = cell( 1, 4 );
-            
             % Pack the params.
-            addition_params{ 1 } = cs;
-            addition_params{ 2 } = Rs_input;
-            addition_params{ 3 } = Gms;
-            addition_params{ 4 } = Cms;
+            addition_params.cs = cs;
+            addition_params.Rs_input = Rs_input;
+            addition_params.Gms = Gms;
+            addition_params.Cms = Cms;
             
         end
         
@@ -4254,14 +4255,11 @@ classdef network_class
             if nargin < 3, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 2, cs_nm1 = self.c_relative_addition_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 ); end
             
-            % Preallocate a cell to store the params.
-            addition_params = cell( 1, 4 );
-            
             % Pack the params.
-            addition_params{ 1 } = cs_nm1;
-            addition_params{ 2 } = Rs;
-            addition_params{ 3 } = Gms;
-            addition_params{ 4 } = Cms;
+            addition_params.cs_nm1 = cs_nm1;
+            addition_params.Rs = Rs;
+            addition_params.Gms = Gms;
+            addition_params.Cms = Cms;
             
         end
         
@@ -4272,11 +4270,8 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 2, cs = self.c_absolute_addition_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 1 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = cs;
+            gain_params.cs = cs;
             
         end
         
@@ -4287,11 +4282,8 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 2, cs_nm2 = self.c_relative_addition_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 1 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = cs_nm2;
+            gain_params.cs_nm2 = cs_nm2;
             
         end
         
@@ -4306,7 +4298,7 @@ classdef network_class
             if nargin < 2, Ia_n = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia_n;
+            design_params.Ia_n = Ia_n;
             
         end
         
@@ -4322,8 +4314,8 @@ classdef network_class
             if nargin < 2, c_n = self.c_relative_addition_DEFAULT; end
             
             % Pack the design params.
-            design_params{ 1 } = c_n;
-            design_params{ 2 } = Ia_n;
+            design_params.c_n = c_n;
+            design_params.Ia_n = Ia_n;
             
         end
         
@@ -4379,15 +4371,12 @@ classdef network_class
             if nargin < 3, ss = self.signature_DEFAULT; end
             if nargin < 2, cs = self.c_absolute_subtraction_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 ); end
             
-            % Preallocate a cell to store the params.
-            subtraction_params = cell( 1, 5 );
-            
             % Pack the params.
-            subtraction_params{ 1 } = cs;
-            subtraction_params{ 2 } = ss;
-            subtraction_params{ 3 } = Rs_input;
-            subtraction_params{ 4 } = Gms;
-            subtraction_params{ 5 } = Cms;
+            subtraction_params.cs = cs;
+            subtraction_params.ss = ss;
+            subtraction_params.Rs_input = Rs_input;
+            subtraction_params.Gms = Gms;
+            subtraction_params.Cms = Cms;
 
         end
         
@@ -4404,15 +4393,12 @@ classdef network_class
             if nargin < 3, ss = self.signature_DEFAULT; end
             if nargin < 2, cs_mn1 = self.c_relative_subtraction_DEFAULT*ones( 1, neuron_manager.num_neurons - 1 ); end
             
-            % Preallocate a cell to store the params.
-            subtraction_params = cell( 1, 5 );
-            
             % Pack the params.
-            subtraction_params{ 1 } = cs_mn1;
-            subtraction_params{ 2 } = ss;
-            subtraction_params{ 3 } = Rs;
-            subtraction_params{ 4 } = Gms;
-            subtraction_params{ 5 } = Cms;
+            subtraction_params.cs_mn1 = cs_mn1;
+            subtraction_params.ss = ss;
+            subtraction_params.Rs = Rs;
+            subtraction_params.Gms = Gms;
+            subtraction_params.Cms = Cms;
             
         end
         
@@ -4423,11 +4409,8 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 2, cs = self.c_absolute_subtraction_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 1 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = cs;
+            gain_params.cs = cs;
             
         end
         
@@ -4438,11 +4421,8 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 2, cs_nm2 = self.c_relative_subtraction_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 1 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = cs_nm2;
+            gain_params.cs_nm2 = cs_nm2;
             
         end
         
@@ -4457,7 +4437,7 @@ classdef network_class
             if nargin < 2, Ia_n = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia_n;
+            design_params.Ia_n = Ia_n;
             
         end
         
@@ -4473,8 +4453,8 @@ classdef network_class
             if nargin < 2, c_n = self.c_relative_subtraction_DEFAULT; end
             
             % Pack the design params.
-            design_params{ 1 } = c_n;
-            design_params{ 2 } = Ia_n;
+            design_params.c_n = c_n;
+            design_params.Ia_n = Ia_n;
             
         end
         
@@ -4625,14 +4605,11 @@ classdef network_class
             if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 4 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = c3;
-            gain_params{ 3 } = delta;
-            gain_params{ 4 } = R1;
+            gain_params.c1 = c1;
+            gain_params.c3 = c3;
+            gain_params.delta = delta;
+            gain_params.R1 = R1;
             
         end
         
@@ -4646,14 +4623,11 @@ classdef network_class
             if nargin < 4, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 3, delta = self.delta_absolute_inversion_DEFAULT; end
             if nargin < 2, c3 = self.c3_absolute_inversion_DEFAULT; end
-            
-            % Preallocate the gain params.
-            gain_params = cell( 1, 3 );
-            
+
             % Pack the gain params.            
-            gain_params{ 1 } = c3;
-            gain_params{ 2 } = delta;
-            gain_params{ 3 } = R2;
+            gain_params.c3 = c3;
+            gain_params.delta = delta;
+            gain_params.R2 = R2;
             
         end
         
@@ -4668,7 +4642,7 @@ classdef network_class
             if nargin < 2, Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia2;
+            design_params.Ia2 = Ia2;
             
         end
         
@@ -4683,7 +4657,7 @@ classdef network_class
             if nargin < 2, Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia2;
+            design_params.Ia2 = Ia2;
             
         end
         
@@ -4733,7 +4707,7 @@ classdef network_class
             if nargin < 2, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R2;
+            design_params.R2 = R2;
             
         end
         
@@ -4742,7 +4716,7 @@ classdef network_class
         function design_params = pack_relative_inversion_app_current_design_params( ~ )
             
             % Pack the design params.
-            design_params = {  };
+            design_params = struct( [  ] );
             
         end
         
@@ -4827,17 +4801,14 @@ classdef network_class
             if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_inversion_params = cell( 1, 7 );
-            
             % Pack the params.
-            reduced_inversion_params{ 1 } = c1;
-            reduced_inversion_params{ 2 } = delta;
-            reduced_inversion_params{ 3 } = R1;
-            reduced_inversion_params{ 4 } = Gm1;
-            reduced_inversion_params{ 5 } = Gm2;
-            reduced_inversion_params{ 6 } = Cm1;
-            reduced_inversion_params{ 7 } = Cm2;
+            reduced_inversion_params.c1 = c1;
+            reduced_inversion_params.delta = delta;
+            reduced_inversion_params.R1 = R1;
+            reduced_inversion_params.Gm1 = Gm1;
+            reduced_inversion_params.Gm2 = Gm2;
+            reduced_inversion_params.Cm1 = Cm1;
+            reduced_inversion_params.Cm2 = Cm2;
             
         end
         
@@ -4856,17 +4827,14 @@ classdef network_class
             if nargin < 3, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 2, delta = self.delta_reduced_relative_inversion_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_inversion_params = cell( 1, 7 );
-            
             % Pack the params.
-            reduced_inversion_params{ 1 } = delta;
-            reduced_inversion_params{ 2 } = R1;
-            reduced_inversion_params{ 3 } = R2;
-            reduced_inversion_params{ 4 } = Gm1;
-            reduced_inversion_params{ 5 } = Gm2;
-            reduced_inversion_params{ 6 } = Cm1;
-            reduced_inversion_params{ 7 } = Cm2;
+            reduced_inversion_params.delta = delta;
+            reduced_inversion_params.R1 = R1;
+            reduced_inversion_params.R2 = R2;
+            reduced_inversion_params.Gm1 = Gm1;
+            reduced_inversion_params.Gm2 = Gm2;
+            reduced_inversion_params.Cm1 = Cm1;
+            reduced_inversion_params.Cm2 = Cm2;
             
         end
         
@@ -4881,13 +4849,10 @@ classdef network_class
             if nargin < 3, delta = self.delta_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 3 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = delta;
-            gain_params{ 3 } = R1;
+            gain_params.c1 = c1;
+            gain_params.delta = delta;
+            gain_params.R1 = R1;
             
         end
         
@@ -4901,12 +4866,9 @@ classdef network_class
             if nargin < 3, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 2, delta = self.delta_absolute_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 2 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = delta;
-            gain_params{ 2 } = R2;
+            gain_params.delta = delta;
+            gain_params.R2 = R2;
             
         end
         
@@ -4921,7 +4883,7 @@ classdef network_class
             if nargin < 2, Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia2;
+            design_params.Ia2 = Ia2;
             
         end
         
@@ -4936,7 +4898,7 @@ classdef network_class
             if nargin < 2, Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia2;
+            design_params.Ia2 = Ia2;
             
         end
         
@@ -4986,7 +4948,7 @@ classdef network_class
             if nargin < 2, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R2;
+            design_params.R2 = R2;
             
         end
         
@@ -4995,7 +4957,7 @@ classdef network_class
         function design_params = pack_reduced_relative_inversion_app_current_design_params( ~ )
             
             % Pack the design params.
-            design_params = {  };
+            design_params = struct( [  ] );
             
         end
         
@@ -5052,21 +5014,18 @@ classdef network_class
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            division_params = cell( 1, 11 );
-            
             % Pack the params.
-            division_params{ 1 } = c1;
-            division_params{ 2 } = c3;
-            division_params{ 3 } = delta;
-            division_params{ 4 } = R1;
-            division_params{ 5 } = R2;
-            division_params{ 6 } = Gm1;
-            division_params{ 7 } = Gm2;
-            division_params{ 8 } = Gm3;
-            division_params{ 9 } = Cm1;
-            division_params{ 10 } = Cm2;
-            division_params{ 11 } = Cm3;
+            division_params.c1 = c1;
+            division_params.c3 = c3;
+            division_params.delta = delta;
+            division_params.R1 = R1;
+            division_params.R2 = R2;
+            division_params.Gm1 = Gm1;
+            division_params.Gm2 = Gm2;
+            division_params.Gm3 = Gm3;
+            division_params.Cm1 = Cm1;
+            division_params.Cm2 = Cm2;
+            division_params.Cm3 = Cm3;
             
         end
         
@@ -5089,21 +5048,18 @@ classdef network_class
             if nargin < 2, delta = self.delta_relative_division_DEFAULT; end
             if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            division_params = cell( 1, 11 );
-            
             % Pack the params.
-            division_params{ 1 } = c3;
-            division_params{ 2 } = delta;
-            division_params{ 3 } = R1;
-            division_params{ 4 } = R2;
-            division_params{ 5 } = R3;
-            division_params{ 6 } = Gm1;
-            division_params{ 7 } = Gm2;
-            division_params{ 8 } = Gm3;
-            division_params{ 9 } = Cm1;
-            division_params{ 10 } = Cm2;
-            division_params{ 11 } = Cm3;
+            division_params.c3 = c3;
+            division_params.delta = delta;
+            division_params.R1 = R1;
+            division_params.R2 = R2;
+            division_params.R3 = R3;
+            division_params.Gm1 = Gm1;
+            division_params.Gm2 = Gm2;
+            division_params.Gm3 = Gm3;
+            division_params.Cm1 = Cm1;
+            division_params.Cm2 = Cm2;
+            division_params.Cm3 = Cm3;
             
         end
         
@@ -5120,15 +5076,12 @@ classdef network_class
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 5 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = c3;
-            gain_params{ 3 } = delta;
-            gain_params{ 4 } = R1;
-            gain_params{ 5 } = R2;
+            gain_params.c1 = c1;
+            gain_params.c3 = c3;
+            gain_params.delta = delta;
+            gain_params.R1 = R1;
+            gain_params.R2 = R2;
             
         end
         
@@ -5143,13 +5096,10 @@ classdef network_class
             if nargin < 3, delta = self.delta_relative_division_DEFAULT; end
             if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 3 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c3;
-            gain_params{ 2 } = delta;
-            gain_params{ 3 } = R3;
+            gain_params.c3 = c3;
+            gain_params.delta = delta;
+            gain_params.R3 = R3;
             
         end
         
@@ -5165,8 +5115,8 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R3;
-            design_params{ 2 } = Ia3;
+            design_params.R3 = R3;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -5181,7 +5131,7 @@ classdef network_class
             if nargin < 2, Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia3;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -5242,20 +5192,17 @@ classdef network_class
             if nargin < 3, delta = self.delta_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_division_params = cell( 1, 10 );
-            
             % Pack the params.
-            reduced_division_params{ 1 } = c1;
-            reduced_division_params{ 2 } = delta;
-            reduced_division_params{ 3 } = R1;
-            reduced_division_params{ 4 } = R2;
-            reduced_division_params{ 5 } = Gm1;
-            reduced_division_params{ 6 } = Gm2;
-            reduced_division_params{ 7 } = Gm3;
-            reduced_division_params{ 8 } = Cm1;
-            reduced_division_params{ 9 } = Cm2;
-            reduced_division_params{ 10 } = Cm3;
+            reduced_division_params.c1 = c1;
+            reduced_division_params.delta = delta;
+            reduced_division_params.R1 = R1;
+            reduced_division_params.R2 = R2;
+            reduced_division_params.Gm1 = Gm1;
+            reduced_division_params.Gm2 = Gm2;
+            reduced_division_params.Gm3 = Gm3;
+            reduced_division_params.Cm1 = Cm1;
+            reduced_division_params.Cm2 = Cm2;
+            reduced_division_params.Cm3 = Cm3;
             
         end
         
@@ -5277,20 +5224,17 @@ classdef network_class
             if nargin < 3, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 2, delta = self.delta_reduced_relative_division_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_division_params = cell( 1, 10 );
-            
             % Pack the params.
-            reduced_division_params{ 1 } = delta;
-            reduced_division_params{ 2 } = R1;
-            reduced_division_params{ 3 } = R2;
-            reduced_division_params{ 4 } = R3;
-            reduced_division_params{ 5 } = Gm1;
-            reduced_division_params{ 6 } = Gm2;
-            reduced_division_params{ 7 } = Gm3;
-            reduced_division_params{ 8 } = Cm1;
-            reduced_division_params{ 9 } = Cm2;
-            reduced_division_params{ 10 } = Cm3;
+            reduced_division_params.delta = delta;
+            reduced_division_params.R1 = R1;
+            reduced_division_params.R2 = R2;
+            reduced_division_params.R3 = R3;
+            reduced_division_params.Gm1 = Gm1;
+            reduced_division_params.Gm2 = Gm2;
+            reduced_division_params.Gm3 = Gm3;
+            reduced_division_params.Cm1 = Cm1;
+            reduced_division_params.Cm2 = Cm2;
+            reduced_division_params.Cm3 = Cm3;
             
         end
         
@@ -5306,14 +5250,11 @@ classdef network_class
             if nargin < 3, delta = self.delta_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
 
-            % Preallocate the gain params.
-            gain_params = cell( 1, 4 );
-
             % Pack the gain params.            
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = delta;
-            gain_params{ 3 } = R1;
-            gain_params{ 4 } = R2;
+            gain_params.c1 = c1;
+            gain_params.delta = delta;
+            gain_params.R1 = R1;
+            gain_params.R2 = R2;
 
         end
 
@@ -5327,12 +5268,9 @@ classdef network_class
             if nargin < 3, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 2, delta = self.delta_relative_division_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 2 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = delta;
-            gain_params{ 2 } = R3;
+            gain_params.delta = delta;
+            gain_params.R3 = R3;
             
         end
         
@@ -5343,11 +5281,8 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 2, c2 = self.c2_reduced_absolute_division_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            design_params = cell( 1, 1 );
-            
             % Pack the params.
-            design_params{ 1 } = c2;
+            design_params.c2 = c2;
             
         end
         
@@ -5356,7 +5291,7 @@ classdef network_class
         function design_params = pack_reduced_relative_division_neuron_design_params( ~ )
             
             % Set the design params to be empty.
-            design_params = [  ];
+            design_params = struct( [  ] );
             
         end
         
@@ -5402,8 +5337,8 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R3;
-            design_params{ 2 } = Ia3;
+            design_params.R3 = R3;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -5418,7 +5353,7 @@ classdef network_class
             if nargin < 2, Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia3;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -5480,22 +5415,19 @@ classdef network_class
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            dai_params = cell( 1, 12 );
-            
             % Pack the params.
-            dai_params{ 1 } = c1;
-            dai_params{ 2 } = c3;
-            dai_params{ 3 } = delta1;
-            dai_params{ 4 } = delta2;
-            dai_params{ 5 } = R1;
-            dai_params{ 6 } = R2;
-            dai_params{ 7 } = Gm1;
-            dai_params{ 8 } = Gm2;
-            dai_params{ 9 } = Gm3;
-            dai_params{ 10 } = Cm1;
-            dai_params{ 11 } = Cm2;
-            dai_params{ 12 } = Cm3;
+            dai_params.c1 = c1;
+            dai_params.c3 = c3;
+            dai_params.delta1 = delta1;
+            dai_params.delta2 = delta2;
+            dai_params.R1 = R1;
+            dai_params.R2 = R2;
+            dai_params.Gm1 = Gm1;
+            dai_params.Gm2 = Gm2;
+            dai_params.Gm3 = Gm3;
+            dai_params.Cm1 = Cm1;
+            dai_params.Cm2 = Cm2;
+            dai_params.Cm3 = Cm3;
             
         end
         
@@ -5519,22 +5451,19 @@ classdef network_class
             if nargin < 3, delta1 = self.delta_relative_inversion_DEFAULT; end
             if nargin < 2, c3 = self.c3_relative_dai_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            dai_params = cell( 1, 12 );
-            
             % Pack the params.
-            dai_params{ 1 } = c3;
-            dai_params{ 2 } = delta1;
-            dai_params{ 3 } = delta2;
-            dai_params{ 4 } = R1;
-            dai_params{ 5 } = R2;
-            dai_params{ 6 } = R3;
-            dai_params{ 7 } = Gm1;
-            dai_params{ 8 } = Gm2;
-            dai_params{ 9 } = Gm3;
-            dai_params{ 10 } = Cm1;
-            dai_params{ 11 } = Cm2;
-            dai_params{ 12 } = Cm3;
+            dai_params.c3 = c3;
+            dai_params.delta1 = delta1;
+            dai_params.delta2 = delta2;
+            dai_params.R1 = R1;
+            dai_params.R2 = R2;
+            dai_params.R3 = R3;
+            dai_params.Gm1 = Gm1;
+            dai_params.Gm2 = Gm2;
+            dai_params.Gm3 = Gm3;
+            dai_params.Cm1 = Cm1;
+            dai_params.Cm2 = Cm2;
+            dai_params.Cm3 = Cm3;
             
         end
         
@@ -5551,15 +5480,12 @@ classdef network_class
             if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
 
-            % Preallocate the gain params.
-            gain_params = cell( 1, 5 );
-
             % Pack the gain params.                        
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = c3;
-            gain_params{ 3 } = delta2;
-            gain_params{ 4 } = R1;
-            gain_params{ 5 } = R2;
+            gain_params.c1 = c1;
+            gain_params.c3 = c3;
+            gain_params.delta2 = delta2;
+            gain_params.R1 = R1;
+            gain_params.R2 = R2;
 
         end
 
@@ -5576,15 +5502,12 @@ classdef network_class
             if nargin < 3, delta1 = self.delta_relative_inversion_DEFAULT; end
             if nargin < 2, c3 = self.c3_relative_dai_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 5 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = c3;
-            gain_params{ 2 } = delta1;
-            gain_params{ 3 } = delta2;
-            gain_params{ 4 } = R2;
-            gain_params{ 5 } = R3;
+            gain_params.c3 = c3;
+            gain_params.delta1 = delta1;
+            gain_params.delta2 = delta2;
+            gain_params.R2 = R2;
+            gain_params.R3 = R3;
             
         end
         
@@ -5595,11 +5518,8 @@ classdef network_class
            % Set the default input arguments.
             if nargin < 2, c2 = self.c2_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            design_params = cell( 1, 1 );
-            
             % Pack the params.
-            design_params{ 1 } = c2;
+            design_params.c2 = c2;
         
         end
         
@@ -5608,7 +5528,7 @@ classdef network_class
         function design_params = pack_relative_dai_neuron_design_params( ~ )
             
             % Set the params to be empty.
-            design_params = [  ];
+            design_params = struct( [  ] );
         
         end
         
@@ -5647,7 +5567,7 @@ classdef network_class
         function design_params = pack_absolute_dai_synapse_design_params( ~ )
             
             % Set the design params.
-            design_params = {  };
+            design_params = struct( [  ] );
             
         end
         
@@ -5659,7 +5579,7 @@ classdef network_class
             if nargin < 2, c1 = self.c_relative_dai_DEFAULT; end
             
             % Pack the design params.
-            design_params{ 1 } = c1;
+            design_params.c1 = c1;
             
         end
         
@@ -5714,21 +5634,18 @@ classdef network_class
             if nargin < 3, delta1 = self.delta_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_dai_params = cell( 1, 11 );
-            
             % Pack the params.
-            reduced_dai_params{ 1 } = c1;
-            reduced_dai_params{ 2 } = delta1;
-            reduced_dai_params{ 3 } = delta2;
-            reduced_dai_params{ 4 } = R1;
-            reduced_dai_params{ 5 } = R2;
-            reduced_dai_params{ 6 } = Gm1;
-            reduced_dai_params{ 7 } = Gm2;
-            reduced_dai_params{ 8 } = Gm3;
-            reduced_dai_params{ 9 } = Cm1;
-            reduced_dai_params{ 10 } = Cm2;
-            reduced_dai_params{ 11 } = Cm3;
+            reduced_dai_params.c1 = c1;
+            reduced_dai_params.delta1 = delta1;
+            reduced_dai_params.delta2 = delta2;
+            reduced_dai_params.R1 = R1;
+            reduced_dai_params.R2 = R2;
+            reduced_dai_params.Gm1 = Gm1;
+            reduced_dai_params.Gm2 = Gm2;
+            reduced_dai_params.Gm3 = Gm3;
+            reduced_dai_params.Cm1 = Cm1;
+            reduced_dai_params.Cm2 = Cm2;
+            reduced_dai_params.Cm3 = Cm3;
             
         end
         
@@ -5751,21 +5668,18 @@ classdef network_class
             if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_dai_params = cell( 1, 11 );
-            
             % Pack the params.
-            reduced_dai_params{ 1 } = delta1;
-            reduced_dai_params{ 2 } = delta2;
-            reduced_dai_params{ 3 } = R1;
-            reduced_dai_params{ 4 } = R2;
-            reduced_dai_params{ 5 } = R3;
-            reduced_dai_params{ 6 } = Gm1;
-            reduced_dai_params{ 7 } = Gm2;
-            reduced_dai_params{ 8 } = Gm3;
-            reduced_dai_params{ 9 } = Cm1;
-            reduced_dai_params{ 10 } = Cm2;
-            reduced_dai_params{ 11 } = Cm3;
+            reduced_dai_params.delta1 = delta1;
+            reduced_dai_params.delta2 = delta2;
+            reduced_dai_params.R1 = R1;
+            reduced_dai_params.R2 = R2;
+            reduced_dai_params.R3 = R3;
+            reduced_dai_params.Gm1 = Gm1;
+            reduced_dai_params.Gm2 = Gm2;
+            reduced_dai_params.Gm3 = Gm3;
+            reduced_dai_params.Cm1 = Cm1;
+            reduced_dai_params.Cm2 = Cm2;
+            reduced_dai_params.Cm3 = Cm3;
             
         end
         
@@ -5781,14 +5695,11 @@ classdef network_class
             if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
 
-            % Preallocate the gain params.
-            gain_params = cell( 1, 4 );
-
             % Pack the gain params.                        
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = delta2;
-            gain_params{ 3 } = R1;
-            gain_params{ 4 } = R2;
+            gain_params.c1 = c1;
+            gain_params.delta2 = delta2;
+            gain_params.R1 = R1;
+            gain_params.R2 = R2;
 
         end
 
@@ -5804,14 +5715,11 @@ classdef network_class
             if nargin < 3, delta2 = self.delta_relative_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_relative_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 4 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = delta1;
-            gain_params{ 2 } = delta2;
-            gain_params{ 3 } = R2;
-            gain_params{ 4 } = R3;
+            gain_params.delta1 = delta1;
+            gain_params.delta2 = delta2;
+            gain_params.R2 = R2;
+            gain_params.R3 = R3;
             
         end
         
@@ -5822,11 +5730,8 @@ classdef network_class
            % Set the default input arguments.
             if nargin < 2, c2 = self.c2_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            design_params = cell( 1, 1 );
-            
             % Pack the params.
-            design_params{ 1 } = c2;
+            design_params.c2 = c2;
         
         end
         
@@ -5835,7 +5740,7 @@ classdef network_class
         function design_params = pack_reduced_relative_dai_neuron_design_params( ~ )
             
             % Set the params to be empty.
-            design_params = [  ];
+            design_params = struct( [  ] );
         
         end
         
@@ -5879,7 +5784,7 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Set the design params.
-            design_params{ 1 } = R3;
+            design_params.R3 = R3;
             
         end
         
@@ -5888,7 +5793,7 @@ classdef network_class
         function design_params = pack_reduced_relative_dai_synapse_design_params( ~ )
             
             % Set the design params.
-            design_params = {  };
+            design_params = struct( [  ] );
             
         end
         
@@ -5948,27 +5853,24 @@ classdef network_class
             if nargin < 4, c4 = self.c1_absolute_dai_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
-            
-            % Preallocate a cell to store the params.
-            multiplication_params = cell( 1, 16 );
-            
+
             % Pack the params.
-            multiplication_params{ 1 } = c1;
-            multiplication_params{ 2 } = c3;
-            multiplication_params{ 3 } = c4;
-            multiplication_params{ 4 } = c6;
-            multiplication_params{ 5 } = delta1;
-            multiplication_params{ 6 } = delta2;
-            multiplication_params{ 7 } = R1;
-            multiplication_params{ 8 } = R2;
-            multiplication_params{ 9 } = Gm1;
-            multiplication_params{ 10 } = Gm2;
-            multiplication_params{ 11 } = Gm3;
-            multiplication_params{ 12 } = Gm4;
-            multiplication_params{ 13 } = Cm1;
-            multiplication_params{ 14 } = Cm2;
-            multiplication_params{ 15 } = Cm3;
-            multiplication_params{ 16 } = Cm4;
+            multiplication_params.c1 = c1;
+            multiplication_params.c3 = c3;
+            multiplication_params.c4 = c4;
+            multiplication_params.c6 = c6;
+            multiplication_params.delta1 = delta1;
+            multiplication_params.delta2 = delta2;
+            multiplication_params.R1 = R1;
+            multiplication_params.R2 = R2;
+            multiplication_params.Gm1 = Gm1;
+            multiplication_params.Gm2 = Gm2;
+            multiplication_params.Gm3 = Gm3;
+            multiplication_params.Gm4 = Gm4;
+            multiplication_params.Cm1 = Cm1;
+            multiplication_params.Cm2 = Cm2;
+            multiplication_params.Cm3 = Cm3;
+            multiplication_params.Cm4 = Cm4;
             
         end
         
@@ -5995,27 +5897,24 @@ classdef network_class
             if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
             if nargin < 3, c6 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c3 = self.c3_absolute_inversion_DEFAULT; end
-            
-            % Preallocate a cell to store the params.
-            multiplication_params = cell( 1, 16 );
-            
+
             % Pack the params.
-            multiplication_params{ 1 } = c3;
-            multiplication_params{ 2 } = c6;
-            multiplication_params{ 3 } = delta1;
-            multiplication_params{ 4 } = delta2;
-            multiplication_params{ 5 } = R1;
-            multiplication_params{ 6 } = R2;
-            multiplication_params{ 7 } = R3;
-            multiplication_params{ 8 } = R4;
-            multiplication_params{ 9 } = Gm1;
-            multiplication_params{ 10 } = Gm2;
-            multiplication_params{ 11 } = Gm3;
-            multiplication_params{ 12 } = Gm4;
-            multiplication_params{ 13 } = Cm1;
-            multiplication_params{ 14 } = Cm2;
-            multiplication_params{ 15 } = Cm3;
-            multiplication_params{ 16 } = Cm4;
+            multiplication_params.c3 = c3;
+            multiplication_params.c6 = c6;
+            multiplication_params.delta1 = delta1;
+            multiplication_params.delta2 = delta2;
+            multiplication_params.R1 = R1;
+            multiplication_params.R2 = R2;
+            multiplication_params.R3 = R3;
+            multiplication_params.R4 = R4;
+            multiplication_params.Gm1 = Gm1;
+            multiplication_params.Gm2 = Gm2;
+            multiplication_params.Gm3 = Gm3;
+            multiplication_params.Gm4 = Gm4;
+            multiplication_params.Cm1 = Cm1;
+            multiplication_params.Cm2 = Cm2;
+            multiplication_params.Cm3 = Cm3;
+            multiplication_params.Cm4 = Cm4;
             
         end
         
@@ -6036,19 +5935,16 @@ classdef network_class
             if nargin < 3, c3 = self.c3_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 9 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = c3;
-            gain_params{ 3 } = c4;
-            gain_params{ 4 } = c6;
-            gain_params{ 5 } = delta1;
-            gain_params{ 6 } = delta2;
-            gain_params{ 7 } = R1;
-            gain_params{ 8 } = R2;
-            gain_params{ 9 } = R3;
+            gain_params.c1 = c1;
+            gain_params.c3 = c3;
+            gain_params.c4 = c4;
+            gain_params.c6 = c6;
+            gain_params.delta1 = delta1;
+            gain_params.delta2 = delta2;
+            gain_params.R1 = R1;
+            gain_params.R2 = R2;
+            gain_params.R3 = R3;
 
         end
 
@@ -6066,16 +5962,13 @@ classdef network_class
             if nargin < 3, c6 = self.c3_relative_division_DEFAULT; end
             if nargin < 2, c3 = self.c3_relative_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 6 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c3;
-            gain_params{ 2 } = c6;
-            gain_params{ 3 } = delta1;
-            gain_params{ 4 } = delta2;
-            gain_params{ 5 } = R3;
-            gain_params{ 6 } = R4;
+            gain_params.c3 = c3;
+            gain_params.c6 = c6;
+            gain_params.delta1 = delta1;
+            gain_params.delta2 = delta2;
+            gain_params.R3 = R3;
+            gain_params.R4 = R4;
             
         end
         
@@ -6086,11 +5979,8 @@ classdef network_class
            % Set the default input arguments.
             if nargin < 2, c5 = self.c2_absolute_dai_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            design_params = cell( 1, 1 );
-            
             % Pack the params.
-            design_params{ 1 } = c5;
+            design_params.c5 = c5;
         
         end
         
@@ -6099,7 +5989,7 @@ classdef network_class
         function design_params = pack_relative_multiplication_neuron_design_params( ~ )
             
             % Set the params to be empty.
-            design_params = [  ];
+            design_params = struct( [  ] );
         
         end
         
@@ -6145,8 +6035,8 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R3;
-            design_params{ 2 } = Ia3;
+            design_params.R3 = R3;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -6162,8 +6052,8 @@ classdef network_class
             if nargin < 2, c4 = self.c1_relative_dai_DEFAULT; end
             
             % Pack the design params.
-            design_params{ 1 } = c4;
-            design_params{ 2 } = Ia3;
+            design_params.c4 = c4;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -6214,7 +6104,7 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R3;
+            design_params.R3 = R3;
             
         end
         
@@ -6223,7 +6113,7 @@ classdef network_class
         function design_params = pack_relative_multiplication_app_current_design_params( ~ )
            
             % Pack the design params.
-            design_params = {  };
+            design_params = struct( [  ] );
             
         end
         
@@ -6282,24 +6172,21 @@ classdef network_class
             if nargin < 3, c3 = self.c1_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_multiplication_params = cell( 1, 14 );
-            
             % Pack the params.
-            reduced_multiplication_params{ 1 } = c1;
-            reduced_multiplication_params{ 2 } = c3;
-            reduced_multiplication_params{ 3 } = delta1;
-            reduced_multiplication_params{ 4 } = delta2;
-            reduced_multiplication_params{ 5 } = R1;
-            reduced_multiplication_params{ 6 } = R2;
-            reduced_multiplication_params{ 7 } = Gm1;
-            reduced_multiplication_params{ 8 } = Gm2;
-            reduced_multiplication_params{ 9 } = Gm3;
-            reduced_multiplication_params{ 10 } = Gm4;
-            reduced_multiplication_params{ 11 } = Cm1;
-            reduced_multiplication_params{ 12 } = Cm2;
-            reduced_multiplication_params{ 13 } = Cm3;
-            reduced_multiplication_params{ 14 } = Cm4;
+            reduced_multiplication_params.c1 = c1;
+            reduced_multiplication_params.c3 = c3;
+            reduced_multiplication_params.delta1 = delta1;
+            reduced_multiplication_params.delta2 = delta2;
+            reduced_multiplication_params.R1 = R1;
+            reduced_multiplication_params.R2 = R2;
+            reduced_multiplication_params.Gm1 = Gm1;
+            reduced_multiplication_params.Gm2 = Gm2;
+            reduced_multiplication_params.Gm3 = Gm3;
+            reduced_multiplication_params.Gm4 = Gm4;
+            reduced_multiplication_params.Cm1 = Cm1;
+            reduced_multiplication_params.Cm2 = Cm2;
+            reduced_multiplication_params.Cm3 = Cm3;
+            reduced_multiplication_params.Cm4 = Cm4;
             
         end
         
@@ -6325,24 +6212,21 @@ classdef network_class
             if nargin < 3, delta2 = self.delta_absolute_dai_DEFAULT; end
             if nargin < 2, delta1 = self.delta_absolute_inversion_DEFAULT; end
             
-            % Preallocate a cell to store the params.
-            reduced_multiplication_params = cell( 1, 14 );
-            
             % Pack the params.
-            reduced_multiplication_params{ 1 } = delta1;
-            reduced_multiplication_params{ 2 } = delta2;
-            reduced_multiplication_params{ 3 } = R1;
-            reduced_multiplication_params{ 4 } = R2;
-            reduced_multiplication_params{ 5 } = R3;
-            reduced_multiplication_params{ 6 } = R4;
-            reduced_multiplication_params{ 7 } = Gm1;
-            reduced_multiplication_params{ 8 } = Gm2;
-            reduced_multiplication_params{ 9 } = Gm3;
-            reduced_multiplication_params{ 10 } = Gm4;
-            reduced_multiplication_params{ 11 } = Cm1;
-            reduced_multiplication_params{ 12 } = Cm2;
-            reduced_multiplication_params{ 13 } = Cm3;
-            reduced_multiplication_params{ 14 } = Cm4;
+            reduced_multiplication_params.delta1 = delta1;
+            reduced_multiplication_params.delta2 = delta2;
+            reduced_multiplication_params.R1 = R1;
+            reduced_multiplication_params.R2 = R2;
+            reduced_multiplication_params.R3 = R3;
+            reduced_multiplication_params.R4 = R4;
+            reduced_multiplication_params.Gm1 = Gm1;
+            reduced_multiplication_params.Gm2 = Gm2;
+            reduced_multiplication_params.Gm3 = Gm3;
+            reduced_multiplication_params.Gm4 = Gm4;
+            reduced_multiplication_params.Cm1 = Cm1;
+            reduced_multiplication_params.Cm2 = Cm2;
+            reduced_multiplication_params.Cm3 = Cm3;
+            reduced_multiplication_params.Cm4 = Cm4;
             
         end
         
@@ -6361,17 +6245,14 @@ classdef network_class
             if nargin < 3, c3 = self.c3_reduced_absolute_inversion_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 7 );
-            
             % Pack the gain params.            
-            gain_params{ 1 } = c1;
-            gain_params{ 2 } = c3;
-            gain_params{ 3 } = delta1;
-            gain_params{ 4 } = delta2;
-            gain_params{ 5 } = R1;
-            gain_params{ 6 } = R2;
-            gain_params{ 7 } = R3;
+            gain_params.c1 = c1;
+            gain_params.c3 = c3;
+            gain_params.delta1 = delta1;
+            gain_params.delta2 = delta2;
+            gain_params.R1 = R1;
+            gain_params.R2 = R2;
+            gain_params.R3 = R3;
 
         end
 
@@ -6387,14 +6268,11 @@ classdef network_class
             if nargin < 3, delta2 = self.delta_relative_division_DEFAULT; end
             if nargin < 2, delta1 = self.delta_relative_inversion_DEFAULT; end
             
-            % Preallocate the gain params.
-            gain_params = cell( 1, 4 );
-            
             % Pack the gain params.
-            gain_params{ 1 } = delta1;
-            gain_params{ 2 } = delta2;
-            gain_params{ 3 } = R3;
-            gain_params{ 4 } = R4;
+            gain_params.delta1 = delta1;
+            gain_params.delta2 = delta2;
+            gain_params.R3 = R3;
+            gain_params.R4 = R4;
             
         end
         
@@ -6406,12 +6284,9 @@ classdef network_class
             if nargin < 3, c4 = self.c2_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, c2 = self.c2_reduced_absolute_inversion_DEFAULT; end
 
-            % Preallocate a cell to store the params.
-            design_params = cell( 1, 2 );
-
             % Pack the params.
-            design_params{ 1 } = c2;
-            design_params{ 2 } = c4;
+            design_params.c2 = c2;
+            design_params.c4 = c4;
         
         end
         
@@ -6420,7 +6295,7 @@ classdef network_class
         function design_params = pack_reduced_relative_multiplication_neuron_design_params( ~ )
             
             % Set the params to be empty.
-            design_params = [  ];
+            design_params = struct( [  ] );
         
         end
         
@@ -6468,9 +6343,9 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R3;
-            design_params{ 2 } = R4;
-            design_params{ 3 } = Ia3;
+            design_params.R3 = R3;
+            design_params.R4 = R4;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -6485,7 +6360,7 @@ classdef network_class
             if nargin < 2, Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = Ia3;
+            design_params.Ia3 = Ia3;
             
         end
         
@@ -6536,7 +6411,7 @@ classdef network_class
             if nargin < 2, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
             
             % Pack the design params.
-            design_params{ 1 } = R3;
+            design_params.R3 = R3;
             
         end
         
@@ -6545,7 +6420,7 @@ classdef network_class
         function design_params = pack_reduced_relative_mult_app_current_design_params( ~ )
            
             % Pack the design params.
-            design_params = {  };
+            design_params = struct( [  ] );
             
         end
         
@@ -6758,7 +6633,7 @@ classdef network_class
         function c = unpack_absolute_transmission_gain_params( self, gain_params )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -6766,7 +6641,7 @@ classdef network_class
                 % Set the params to default values.
                 c = self.c_absolute_transmission_DEFAULT;
                 
-            elseif length( gain_params ) == 1           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 1           % If there are a specific number of params...
                 
                 % Unpack the params.
                 c = gain_params{ 1 };
@@ -6798,7 +6673,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                   % If the params are empty...
@@ -6807,7 +6682,7 @@ classdef network_class
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2           % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2           % If there are a specific number of params...
                 
                 % Unpack the params.
                 R2 = design_params{ 1 };
@@ -6830,7 +6705,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                   % If the params are empty...
@@ -6838,7 +6713,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1           % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1           % If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia2 = design_params{ 1 };
@@ -6933,7 +6808,7 @@ classdef network_class
         function cs = unpack_absolute_addition_gain_params( self, gain_params )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -6941,7 +6816,7 @@ classdef network_class
                 % Set the params to default values.
                 cs = self.c_absolute_addition_DEFAULT;
                 
-            elseif length( gain_params ) == 1           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 1           % If there are a specific number of params...
                 
                 % Unpack the params.
                 cs = gain_params{ 1 };
@@ -6960,7 +6835,7 @@ classdef network_class
         function cs_nm2 = unpack_relative_addition_gain_params( self, gain_params )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -6968,7 +6843,7 @@ classdef network_class
                 % Set the params to default values.
                 cs_nm2 = self.c_absolute_addition_DEFAULT;
                 
-            elseif length( gain_params ) == 1           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 1           % If there are a specific number of params...
                 
                 % Unpack the params.
                 cs_nm2 = gain_params{ 1 };
@@ -6990,7 +6865,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                   % If the params are empty...
@@ -6998,7 +6873,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia_n = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1       	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1       	% If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia_n = design_params{ 1 };
@@ -7020,7 +6895,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                   % If the params are empty...
@@ -7029,7 +6904,7 @@ classdef network_class
                 c_n = self.c_relative_addition_DEFAULT; 
                 Ia_n = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2       	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2       	% If there are a specific number of params...
                 
                 % Unpack the params.
                 c_n = design_params{ 1 };
@@ -7130,7 +7005,7 @@ classdef network_class
         function cs = unpack_absolute_subtraction_gain_params( self, gain_params )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -7138,7 +7013,7 @@ classdef network_class
                 % Set the params to default values.
                 cs = self.c_absolute_subtraction_DEFAULT;
                 
-            elseif length( gain_params ) == 1           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 1           % If there are a specific number of params...
                 
                 % Unpack the params.
                 cs = gain_params{ 1 };
@@ -7157,7 +7032,7 @@ classdef network_class
         function cs_nm2 = unpack_relative_subtraction_gain_params( self, gain_params )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -7165,7 +7040,7 @@ classdef network_class
                 % Set the params to default values.
                 cs_nm2 = self.c_absolute_subtraction_DEFAULT;
                 
-            elseif length( gain_params ) == 1           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 1           % If there are a specific number of params...
                 
                 % Unpack the params.
                 cs_nm2 = gain_params{ 1 };
@@ -7187,7 +7062,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                   % If the params are empty...
@@ -7195,7 +7070,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia_n = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1       	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1       	% If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia_n = design_params{ 1 };
@@ -7217,7 +7092,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                   % If the params are empty...
@@ -7226,7 +7101,7 @@ classdef network_class
                 c_n = self.c_relative_subtraction_DEFAULT; 
                 Ia_n = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( end ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2       	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2       	% If there are a specific number of params...
                 
                 % Unpack the params.
                 c_n = design_params{ 1 };
@@ -7432,7 +7307,7 @@ classdef network_class
         function [ c1, c3, delta, R1 ] = unpack_absolute_inversion_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -7443,7 +7318,7 @@ classdef network_class
                 delta = self.delta_absolute_inversion_DEFAULT;
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 4           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 4           % If there are a specific number of params...
                 
                 % Unpack the params.
                 c1 = gain_params{ 1 };
@@ -7465,7 +7340,7 @@ classdef network_class
         function [ c3, delta, R2 ] = unpack_relative_inversion_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -7475,7 +7350,7 @@ classdef network_class
                 delta = self.delta_absolute_inversion_DEFAULT;
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 3           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 3           % If there are a specific number of params...
                 
                 % Unpack the params.
                 c3 = gain_params{ 1 };
@@ -7499,7 +7374,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                      % If the params are empty...
@@ -7507,7 +7382,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1              % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1              % If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia2 = design_params{ 1 };
@@ -7529,7 +7404,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                      % If the params are empty...
@@ -7537,7 +7412,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1              % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1              % If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia2 = design_params{ 1 };
@@ -7558,7 +7433,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                      % If the params are empty...
@@ -7566,7 +7441,7 @@ classdef network_class
                 % Set the params to default values.
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( design_params ) == 1              % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1              % If there are a specific number of params...
                 
                 % Unpack the params.
                 R2 = design_params{ 1 };
@@ -7856,7 +7731,7 @@ classdef network_class
         function [ c1, delta, R1 ] = unpack_reduced_absolute_inversion_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -7866,7 +7741,7 @@ classdef network_class
                 delta = self.delta_absolute_inversion_DEFAULT;
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 3           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 3           % If there are a specific number of params...
                 
                 % Unpack the params.
                 c1 = gain_params{ 1 };
@@ -7887,7 +7762,7 @@ classdef network_class
         function [ delta, R2 ] = unpack_reduced_relative_inversion_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -7896,7 +7771,7 @@ classdef network_class
                 delta = self.delta_reduced_absolute_inversion_DEFAULT;
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 2           % If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 2           % If there are a specific number of params...
                 
                 % Unpack the params.
                 delta = gain_params{ 1 };
@@ -7916,7 +7791,7 @@ classdef network_class
         function c2 = unpack_reduced_absolute_inversion_neuron_design_params( self, design_params )
             
             % Set the default input arguments. 
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                	% If the params are empty...
@@ -7924,7 +7799,7 @@ classdef network_class
                 % Set the params to default values.
                 c2 = self.c2_reduced_absolute_inversion_DEFAULT;
                 
-            elseif length( design_params ) == 1         % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1         % If there are a specific number of params...
                 
                 % Unpack the params.
                 c2 = design_params{ 1 };
@@ -7954,7 +7829,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                      % If the params are empty...
@@ -7962,7 +7837,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1              % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1              % If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia2 = design_params{ 1 };
@@ -7984,7 +7859,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                      % If the params are empty...
@@ -7992,7 +7867,7 @@ classdef network_class
                 % Set the params to default values.
                 Ia2 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 2 ).ID, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1              % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1              % If there are a specific number of params...
                 
                 % Unpack the params.
                 Ia2 = design_params{ 1 };
@@ -8013,7 +7888,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                      % If the params are empty...
@@ -8021,7 +7896,7 @@ classdef network_class
                 % Set the params to default values.
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( design_params ) == 1              % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1              % If there are a specific number of params...
                 
                 % Unpack the params.
                 R2 = design_params{ 1 };
@@ -8053,7 +7928,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( division_params )                	% If the params are empty...
@@ -8071,20 +7946,20 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( division_params ) == 11        	% If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 11        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_params{ 1 };
-                c3 = division_params{ 2 };
-                delta = division_params{ 3 };
-                R1 = division_params{ 4 };
-                R2 = division_params{ 5 };
-                Gm1 = division_params{ 6 };
-                Gm2 = division_params{ 7 };
-                Gm3 = division_params{ 8 };
-                Cm1 = division_params{ 9 };
-                Cm2 = division_params{ 10 };
-                Cm3 = division_params{ 11 };
+                c1 = division_params.c1;
+                c3 = division_params.c3;
+                delta = division_params.delta;
+                R1 = division_params.R1;
+                R2 = division_params.R2;
+                Gm1 = division_params.Gm1;
+                Gm2 = division_params.Gm2;
+                Gm3 = division_params.Gm3;
+                Cm1 = division_params.Cm1;
+                Cm2 = division_params.Cm2;
+                Cm3 = division_params.Cm3;
                 
             else                                              	% Otherwise...
                 
@@ -8102,7 +7977,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( division_params )                   % If the params are empty...
@@ -8120,20 +7995,20 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( division_params ) == 11        	% If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 11        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c3 = division_params{ 1 };
-                delta = division_params{ 2 };
-                R1 = division_params{ 3 };
-                R2 = division_params{ 4 };
-                R3 = division_params{ 5 };
-                Gm1 = division_params{ 6 };
-                Gm2 = division_params{ 7 };
-                Gm3 = division_params{ 8 };
-                Cm1 = division_params{ 9 };
-                Cm2 = division_params{ 10 };
-                Cm3 = division_params{ 11 };
+                c3 = division_params.c3;
+                delta = division_params.delta;
+                R1 = division_params.R1;
+                R2 = division_params.R2;
+                R3 = division_params.R3;
+                Gm1 = division_params.Gm1;
+                Gm2 = division_params.Gm2;
+                Gm3 = division_params.Gm3;
+                Cm1 = division_params.Cm1;
+                Cm2 = division_params.Cm2;
+                Cm3 = division_params.Cm3;
                 
             else                                              	% Otherwise...
                 
@@ -8149,7 +8024,7 @@ classdef network_class
         function [ c1, c3, delta, R1, R2 ] = unpack_absolute_division_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8161,14 +8036,14 @@ classdef network_class
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 5       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 5       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                delta = gain_params{ 3 };
-                R1 = gain_params{ 4 };
-                R2 = gain_params{ 5 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                delta = gain_params.delta;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
             else                                         	% Otherwise...
                 
@@ -8184,7 +8059,7 @@ classdef network_class
         function [ c3, delta, R3 ] = unpack_relative_division_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8194,12 +8069,12 @@ classdef network_class
                 delta = self.delta_absolute_division_DEFAULT;
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 3       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 3       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c3 = gain_params{ 1 };
-                delta = gain_params{ 2 };
-                R3 = gain_params{ 3 };
+                c3 = gain_params.c3;
+                delta = gain_params.delta;
+                R3 = gain_params.R3;
                 
             else                                         	% Otherwise...
                 
@@ -8218,7 +8093,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                	% If the params are empty...
@@ -8227,11 +8102,11 @@ classdef network_class
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2        	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R3 = design_params{ 1 };
-                Ia3 = design_params{ 2 };
+                R3 = design_params.R3;
+                Ia3 = design_params.Ia3;
                 
             else                                              	% Otherwise...
                 
@@ -8250,7 +8125,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                	% If the params are empty...
@@ -8258,10 +8133,10 @@ classdef network_class
                 % Set the params to default values.
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1        	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                Ia3 = design_params{ 1 };
+                Ia3 = design_params.Ia3;
                 
             else                                              	% Otherwise...
                 
@@ -8281,7 +8156,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( division_params )                       % If the params are empty...
@@ -8298,19 +8173,19 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( division_params ) == 10              % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 10              % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = reduced_division_params{ 1 };
-                delta = reduced_division_params{ 2 };
-                R1 = reduced_division_params{ 3 };
-                R2 = reduced_division_params{ 4 };
-                Gm1 = reduced_division_params{ 5 };
-                Gm2 = reduced_division_params{ 6 };
-                Gm3 = reduced_division_params{ 7 };
-                Cm1 = reduced_division_params{ 8 };
-                Cm2 = reduced_division_params{ 9 };
-                Cm3 = reduced_division_params{ 10 };
+                c1 = reduced_division_params.c1;
+                delta = reduced_division_params.delta;
+                R1 = reduced_division_params.R1;
+                R2 = reduced_division_params.R2;
+                Gm1 = reduced_division_params.Gm1;
+                Gm2 = reduced_division_params.Gm2;
+                Gm3 = reduced_division_params.Gm3;
+                Cm1 = reduced_division_params.Cm1;
+                Cm2 = reduced_division_params.Cm2;
+                Cm3 = reduced_division_params.Cm3;
                 
             else                                                    % Otherwise...
                 
@@ -8328,7 +8203,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( division_params )                   % If the params are empty...
@@ -8345,19 +8220,19 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( division_params ) == 10           % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 10           % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = reduced_division_params{ 1 };
-                R1 = reduced_division_params{ 2 };
-                R2 = reduced_division_params{ 3 };
-                R3 = reduced_division_params{ 4 };
-                Gm1 = reduced_division_params{ 5 };
-                Gm2 = reduced_division_params{ 6 };
-                Gm3 = reduced_division_params{ 7 };
-                Cm1 = reduced_division_params{ 8 };
-                Cm2 = reduced_division_params{ 9 };
-                Cm3 = reduced_division_params{ 10 };
+                delta = reduced_division_params.delta;
+                R1 = reduced_division_params.R1;
+                R2 = reduced_division_params.R2;
+                R3 = reduced_division_params.R3;
+                Gm1 = reduced_division_params.Gm1;
+                Gm2 = reduced_division_params.Gm2;
+                Gm3 = reduced_division_params.Gm3;
+                Cm1 = reduced_division_params.Cm1;
+                Cm2 = reduced_division_params.Cm2;
+                Cm3 = reduced_division_params.Cm3;
                 
             else                                              	% Otherwise...
                 
@@ -8373,7 +8248,7 @@ classdef network_class
         function [ c1, delta, R1, R2 ] = unpack_reduced_absolute_division_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8384,13 +8259,13 @@ classdef network_class
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 4       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 4       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = gain_params{ 1 };
-                delta = gain_params{ 2 };
-                R1 = gain_params{ 3 };
-                R2 = gain_params{ 4 };
+                c1 = gain_params.c1;
+                delta = gain_params.delta;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
             else                                         	% Otherwise...
                 
@@ -8406,7 +8281,7 @@ classdef network_class
         function [ delta, R3 ] = unpack_reduced_relative_division_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8415,11 +8290,11 @@ classdef network_class
                 delta = self.delta_reduced_relative_division_DEFAULT;
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 2       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 2       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta = gain_params{ 1 };
-                R3 = gain_params{ 2 };
+                delta = gain_params.delta;
+                R3 = gain_params.R3;
                 
             else                                         	% Otherwise...
                 
@@ -8435,7 +8310,7 @@ classdef network_class
         function c2 = unpack_reduced_absolute_division_neuron_design_params( self, design_params )
         
             % Set the default input arguments.
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                       % If the params are empty...
@@ -8443,10 +8318,10 @@ classdef network_class
                 % Set the params to default values.
                 c2 = self.c2_reduced_absolute_division_DEFAULT;
                 
-            elseif length( design_params ) == 1               % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1               % If there are a specific number of params...
                 
                 % Unpack the params.
-                c2 = design_params{ 1 };
+                c2 = design_params.c2;
                 
             else                                                    % Otherwise...
                 
@@ -8473,7 +8348,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                	% If the params are empty...
@@ -8482,11 +8357,11 @@ classdef network_class
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2        	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R3 = design_params{ 1 };
-                Ia3 = design_params{ 2 };
+                R3 = design_params.R3;
+                Ia3 = design_params.Ia3;
                 
             else                                              	% Otherwise...
                 
@@ -8505,7 +8380,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                	% If the params are empty...
@@ -8513,10 +8388,10 @@ classdef network_class
                 % Set the params to default values.
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1        	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                Ia3 = design_params{ 1 };
+                Ia3 = design_params.Ia3;
                 
             else                                              	% Otherwise...
                 
@@ -8536,7 +8411,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( dai_params )                    % If the params are empty...
@@ -8555,21 +8430,21 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( dai_params ) == 12            % If there are a specific number of params...
+            elseif length( fieldnames( dai_params ))  == 12            % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = dai_params{ 1 };        
-                c3 = dai_params{ 2 };
-                delta1 = dai_params{ 3 };
-                delta2 = dai_params{ 4 };                
-                R1 = dai_params{ 5 };
-                R2 = dai_params{ 6 };
-                Gm1 = dai_params{ 7 };
-                Gm2 = dai_params{ 8 };
-                Gm3 = dai_params{ 9 };
-                Cm1 = dai_params{ 10 };
-                Cm2 = dai_params{ 11 };
-                Cm3 = dai_params{ 12 };
+                c1 = dai_params.c1;        
+                c3 = dai_params.c3;
+                delta1 = dai_params.delta1;
+                delta2 = dai_params.delta2;                
+                R1 = dai_params.R1;
+                R2 = dai_params.R2;
+                Gm1 = dai_params.Gm1;
+                Gm2 = dai_params.Gm2;
+                Gm3 = dai_params.Gm3;
+                Cm1 = dai_params.Cm1;
+                Cm2 = dai_params.Cm2;
+                Cm3 = dai_params.Cm3;
                 
             else                                            % Otherwise...
                 
@@ -8587,7 +8462,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( dai_params )                    % If the params are empty...
@@ -8606,21 +8481,21 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( dai_params ) == 12            % If there are a specific number of params...
+            elseif length( fieldnames( dai_params ))  == 12            % If there are a specific number of params...
                 
                 % Unpack the params.
-                c3 = dai_params{ 1 };
-                delta1 = dai_params{ 2 };
-                delta2 = dai_params{ 3 };                
-                R1 = dai_params{ 4 };
-                R2 = dai_params{ 5 };
-                R3 = dai_params{ 6 };
-                Gm1 = dai_params{ 7 };
-                Gm2 = dai_params{ 8 };
-                Gm3 = dai_params{ 9 };
-                Cm1 = dai_params{ 10 };
-                Cm2 = dai_params{ 11 };
-                Cm3 = dai_params{ 12 };
+                c3 = dai_params.c3;
+                delta1 = dai_params.delta1;
+                delta2 = dai_params.delta2;                
+                R1 = dai_params.R1;
+                R2 = dai_params.R2;
+                R3 = dai_params.R3;
+                Gm1 = dai_params.Gm1;
+                Gm2 = dai_params.Gm2;
+                Gm3 = dai_params.Gm3;
+                Cm1 = dai_params.Cm1;
+                Cm2 = dai_params.Cm2;
+                Cm3 = dai_params.Cm3;
                 
             else                                            % Otherwise...
                 
@@ -8636,7 +8511,7 @@ classdef network_class
         function [ c1, c3, delta2, R1, R2 ] = unpack_absolute_dai_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8648,14 +8523,14 @@ classdef network_class
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 5       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 5       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                delta2 = gain_params{ 3 };
-                R1 = gain_params{ 4 };
-                R2 = gain_params{ 5 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
             else                                         	% Otherwise...
                 
@@ -8671,7 +8546,7 @@ classdef network_class
         function [ c3, delta1, delta2, R2, R3 ] = unpack_relative_dai_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8683,14 +8558,14 @@ classdef network_class
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 5       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 5       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c3 = gain_params{ 1 };
-                delta1 = gain_params{ 2 };
-                delta2 = gain_params{ 3 };
-                R2 = gain_params{ 4 };
-                R3 = gain_params{ 5 };
+                c3 = gain_params.c3;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
             else                                         	% Otherwise...
                 
@@ -8706,7 +8581,7 @@ classdef network_class
         function c2 = unpack_absolute_dai_neuron_design_params( self, design_params )
         
             % Set the default input arguments.
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                       % If the params are empty...
@@ -8714,10 +8589,10 @@ classdef network_class
                 % Set the params to default values.
                 c2 = self.c2_reduced_absolute_dai_DEFAULT;
                 
-            elseif length( design_params ) == 1               % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1               % If there are a specific number of params...
                 
                 % Unpack the params.
-                c2 = design_params{ 1 };
+                c2 = design_params.c2;
                 
             else                                                    % Otherwise...
                 
@@ -8749,7 +8624,7 @@ classdef network_class
         function c1 = unpack_relative_dai_synapse_design_params( self, design_params )
         
             % Set the default input arguments.
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                    % If the params are empty...
@@ -8757,10 +8632,10 @@ classdef network_class
                 % Set the params to default values.
                 c1 = self.c1_absolute_dai_DEFAULT;
                 
-            elseif length( design_params ) == 1            % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1            % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = design_params{ 1 };
+                c1 = design_params.c1;
                 
             else                                            % Otherwise...
                 
@@ -8780,7 +8655,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( dai_params )                    % If the params are empty...
@@ -8798,20 +8673,20 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
 
-            elseif length( dai_params ) == 11         	% If there are a specific number of params...
+            elseif length( fieldnames( dai_params ))  == 11         	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = dai_params{ 1 };
-                delta1 = dai_params{ 2 };
-                delta2 = dai_params{ 3 };                
-                R1 = dai_params{ 4 };
-                R2 = dai_params{ 5 };
-                Gm1 = dai_params{ 6 };
-                Gm2 = dai_params{ 7 };
-                Gm3 = dai_params{ 8 };
-                Cm1 = dai_params{ 9 };
-                Cm2 = dai_params{ 10 };
-                Cm3 = dai_params{ 11 };
+                c1 = dai_params.c1;
+                delta1 = dai_params.delta1;
+                delta2 = dai_params.delta2;                
+                R1 = dai_params.R1;
+                R2 = dai_params.R2;
+                Gm1 = dai_params.Gm1;
+                Gm2 = dai_params.Gm2;
+                Gm3 = dai_params.Gm3;
+                Cm1 = dai_params.Cm1;
+                Cm2 = dai_params.Cm2;
+                Cm3 = dai_params.Cm3;
                 
             else                                            % Otherwise...
                 
@@ -8829,7 +8704,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( dai_params )                    % If the params are empty...
@@ -8847,20 +8722,20 @@ classdef network_class
                 Cm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( dai_params ) == 11        	% If there are a specific number of params...
+            elseif length( fieldnames( dai_params ))  == 11        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = dai_params{ 1 };
-                delta2 = dai_params{ 2 };                
-                R1 = dai_params{ 3 };
-                R2 = dai_params{ 4 };
-                R3 = dai_params{ 5 };
-                Gm1 = dai_params{ 6 };
-                Gm2 = dai_params{ 7 };
-                Gm3 = dai_params{ 8 };
-                Cm1 = dai_params{ 9 };
-                Cm2 = dai_params{ 10 };
-                Cm3 = dai_params{ 11 };
+                delta1 = dai_params.delta1;
+                delta2 = dai_params.delta2;                
+                R1 = dai_params.R1;
+                R2 = dai_params.R2;
+                R3 = dai_params.R3;
+                Gm1 = dai_params.Gm1;
+                Gm2 = dai_params.Gm2;
+                Gm3 = dai_params.Gm3;
+                Cm1 = dai_params.Cm1;
+                Cm2 = dai_params.Cm2;
+                Cm3 = dai_params.Cm3;
                 
             else                                            % Otherwise...
                 
@@ -8876,7 +8751,7 @@ classdef network_class
         function [ c1, delta2, R1, R2 ] = unpack_reduced_absolute_dai_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8887,13 +8762,13 @@ classdef network_class
                 R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 4       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 4       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = gain_params{ 1 };
-                delta2 = gain_params{ 2 };
-                R1 = gain_params{ 3 };
-                R2 = gain_params{ 4 };
+                c1 = gain_params.c1;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
                 
             else                                         	% Otherwise...
                 
@@ -8909,7 +8784,7 @@ classdef network_class
         function [ delta1, delta2, R2, R3 ] = unpack_reduced_relative_dai_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -8920,13 +8795,13 @@ classdef network_class
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 4       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 4       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = gain_params{ 1 };
-                delta2 = gain_params{ 2 };
-                R2 = gain_params{ 3 };
-                R3 = gain_params{ 4 };
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
             else                                         	% Otherwise...
                 
@@ -8942,7 +8817,7 @@ classdef network_class
         function c2 = unpack_reduced_absolute_dai_neuron_design_params( self, design_params )
         
             % Set the default input arguments.
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                       % If the params are empty...
@@ -8950,10 +8825,10 @@ classdef network_class
                 % Set the params to default values.
                 c2 = self.c2_reduced_absolute_dai_DEFAULT;
                 
-            elseif length( design_params ) == 1               % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1               % If there are a specific number of params...
                 
                 % Unpack the params.
-                c2 = design_params{ 1 };
+                c2 = design_params.c2;
                 
             else                                                    % Otherwise...
                 
@@ -8979,7 +8854,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                    % If the params are empty...
@@ -8987,10 +8862,10 @@ classdef network_class
                 % Set the params to default values. 
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
 
-            elseif length( design_params ) == 1         	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1         	% If there are a specific number of params...
                 
                 % Unpack the params.              
-                R3 = design_params{ 1 };
+                R3 = design_params.R3;
                 
             else                                            % Otherwise...
                 
@@ -9018,7 +8893,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( multiplication_params )                     % If the params are empty...
@@ -9041,25 +8916,25 @@ classdef network_class
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( multiplication_params ) == 16            % If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 16            % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = multiplication_params{ 1 };
-                c3 = multiplication_params{ 2 };
-                c4 = multiplication_params{ 3 };
-                c6 = multiplication_params{ 4 };
-                delta1 = multiplication_params{ 5 };
-                delta2 = multiplication_params{ 6 };                
-                R1 = multiplication_params{ 7 };
-                R2 = multiplication_params{ 8 };
-                Gm1 = multiplication_params{ 9 };
-                Gm2 = multiplication_params{ 10 };
-                Gm3 = multiplication_params{ 11 };
-                Gm4 = multiplication_params{ 12 };
-                Cm1 = multiplication_params{ 13 };
-                Cm2 = multiplication_params{ 14 };
-                Cm3 = multiplication_params{ 15 };
-                Cm4 = multiplication_params{ 16 };        
+                c1 = multiplication_params.c1;
+                c3 = multiplication_params.c3;
+                c4 = multiplication_params.c4;
+                c6 = multiplication_params.c6;
+                delta1 = multiplication_params.delta1;
+                delta2 = multiplication_params.delta2;                
+                R1 = multiplication_params.R1;
+                R2 = multiplication_params.R2;
+                Gm1 = multiplication_params.Gm1;
+                Gm2 = multiplication_params.Gm2;
+                Gm3 = multiplication_params.Gm3;
+                Gm4 = multiplication_params.Gm4;
+                Cm1 = multiplication_params.Cm1;
+                Cm2 = multiplication_params.Cm2;
+                Cm3 = multiplication_params.Cm3;
+                Cm4 = multiplication_params.Cm4;        
                 
             else                                                        % Otherwise...
                 
@@ -9077,7 +8952,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( multiplication_params )                     % If the params are empty...
@@ -9100,25 +8975,25 @@ classdef network_class
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( multiplication_params ) == 16             % If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 16             % If there are a specific number of params...
                 
                 % Unpack the params.
-                c3 = multiplication_params{ 1 };
-                c6 = multiplication_params{ 2 };
-                delta1 = multiplication_params{ 3 };
-                delta2 = multiplication_params{ 4 };                
-                R1 = multiplication_params{ 5 };
-                R2 = multiplication_params{ 6 };
-                R3 = multiplication_params{ 7 };
-                R4 = multiplication_params{ 8 };
-                Gm1 = multiplication_params{ 9 };
-                Gm2 = multiplication_params{ 10 };
-                Gm3 = multiplication_params{ 11 };
-                Gm4 = multiplication_params{ 12 };
-                Cm1 = multiplication_params{ 13 };
-                Cm2 = multiplication_params{ 14 };
-                Cm3 = multiplication_params{ 15 };
-                Cm4 = multiplication_params{ 16 };
+                c3 = multiplication_params.c3;
+                c6 = multiplication_params.c6;
+                delta1 = multiplication_params.delta1;
+                delta2 = multiplication_params.delta2;                
+                R1 = multiplication_params.R1;
+                R2 = multiplication_params.R2;
+                R3 = multiplication_params.R3;
+                R4 = multiplication_params.R4;
+                Gm1 = multiplication_params.Gm1;
+                Gm2 = multiplication_params.Gm2;
+                Gm3 = multiplication_params.Gm3;
+                Gm4 = multiplication_params.Gm4;
+                Cm1 = multiplication_params.Cm1;
+                Cm2 = multiplication_params.Cm2;
+                Cm3 = multiplication_params.Cm3;
+                Cm4 = multiplication_params.Cm4;
                 
             else                                                        % Otherwise...
                 
@@ -9134,7 +9009,7 @@ classdef network_class
         function [ c1, c3, c4, c6, delta1, delta2, R1, R2, R3 ] = unpack_absolute_multiplication_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -9150,18 +9025,18 @@ classdef network_class
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 9       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 9       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                c4 = gain_params{ 3 };
-                c6 = gain_params{ 4 };
-                delta1 = gain_params{ 5 };
-                delta2 = gain_params{ 6 };
-                R1 = gain_params{ 7 };
-                R2 = gain_params{ 8 };
-                R3 = gain_params{ 9 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                c4 = gain_params.c4;
+                c6 = gain_params.c6;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
             else                                         	% Otherwise...
                 
@@ -9177,7 +9052,7 @@ classdef network_class
         function [ c3, c6, delta1, delta2, R3, R4 ] = unpack_relative_multiplication_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -9190,15 +9065,15 @@ classdef network_class
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 R4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'R', true, neuron_manager.neurons, undetected_option );
 
-            elseif length( gain_params ) == 6       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 6       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c3 = gain_params{ 1 };
-                c6 = gain_params{ 2 };
-                delta1 = gain_params{ 3 };
-                delta2 = gain_params{ 4 };
-                R3 = gain_params{ 5 };
-                R4 = gain_params{ 6 };
+                c3 = gain_params.c3;
+                c6 = gain_params.c6;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R3 = gain_params.R3;
+                R4 = gain_params.R4;
 
             else                                         	% Otherwise...
                 
@@ -9214,7 +9089,7 @@ classdef network_class
         function c5 = unpack_absolute_multiplication_neuron_design_params( self, design_params )
         
             % Set the default input arguments.
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9222,10 +9097,10 @@ classdef network_class
                 % Set the params to default values.
                 c5 = self.c2_absolute_dai_DEFAULT;
                 
-            elseif length( design_params ) == 1             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1             % If there are a specific number of params...
                 
                 % Unpack the params.
-                c5 = design_params{ 1 };   
+                c5 = design_params.c5;   
                 
             else                                              	% Otherwise...
                 
@@ -9252,7 +9127,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9261,11 +9136,11 @@ classdef network_class
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2             % If there are a specific number of params...
                 
                 % Unpack the params.             
-                R3 = design_params{ 1 };
-                Ia3 = design_params{ 2 };
+                R3 = design_params.R3;
+                Ia3 = design_params.Ia3;
                 
             else                                                        % Otherwise...
                 
@@ -9284,7 +9159,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9293,11 +9168,11 @@ classdef network_class
                 c4 = self.c1_relative_dai_DEFAULT;
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 2           	% If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2           	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c4 = design_params{ 1 };
-                Ia3 = design_params{ 2 };
+                c4 = design_params.c4;
+                Ia3 = design_params.Ia3;
                 
             else                                                        % Otherwise...
                 
@@ -9315,7 +9190,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9323,10 +9198,10 @@ classdef network_class
                 % Set the params to default values.
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( design_params ) == 1             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1             % If there are a specific number of params...
                 
                 % Unpack the params.             
-                R3 = design_params{ 1 };
+                R3 = design_params.R3;
                 
             else                                                        % Otherwise...
                 
@@ -9354,7 +9229,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( multiplication_params )                     % If the params are empty...
@@ -9375,23 +9250,23 @@ classdef network_class
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( multiplication_params ) == 14            % If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 14            % If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = multiplication_params{ 1 };
-                c3 = multiplication_params{ 2 };
-                delta1 = multiplication_params{ 3 };
-                delta2 = multiplication_params{ 4 };                
-                R1 = multiplication_params{ 5 };
-                R2 = multiplication_params{ 6 };
-                Gm1 = multiplication_params{ 7 };                
-                Gm2 = multiplication_params{ 8 };
-                Gm3 = multiplication_params{ 9 };
-                Gm4 = multiplication_params{ 10 };
-                Cm1 = multiplication_params{ 11 };                
-                Cm2 = multiplication_params{ 12 };
-                Cm3 = multiplication_params{ 13 };
-                Cm4 = multiplication_params{ 14 };
+                c1 = multiplication_params.c1;
+                c3 = multiplication_params.c3;
+                delta1 = multiplication_params.delta1;
+                delta2 = multiplication_params.delta2;                
+                R1 = multiplication_params.R1;
+                R2 = multiplication_params.R2;
+                Gm1 = multiplication_params.Gm1;                
+                Gm2 = multiplication_params.Gm2;
+                Gm3 = multiplication_params.Gm3;
+                Gm4 = multiplication_params.Gm4;
+                Cm1 = multiplication_params.Cm1;                
+                Cm2 = multiplication_params.Cm2;
+                Cm3 = multiplication_params.Cm3;
+                Cm4 = multiplication_params.Cm4;
                 
             else                                                        % Otherwise...
                 
@@ -9409,7 +9284,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( multiplication_params )                    % If the params are empty...
@@ -9430,23 +9305,23 @@ classdef network_class
                 Cm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 Cm4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'Cm', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( multiplication_params ) == 14            % If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 14            % If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = multiplication_params{ 1 };
-                delta2 = multiplication_params{ 2 };                
-                R1 = multiplication_params{ 3 };
-                R2 = multiplication_params{ 4 };
-                R3 = multiplication_params{ 5 };
-                R4 = multiplication_params{ 6 };
-                Gm1 = multiplication_params{ 7 };
-                Gm2 = multiplication_params{ 8 };
-                Gm3 = multiplication_params{ 9 };
-                Gm4 = multiplication_params{ 10 };
-                Cm1 = multiplication_params{ 11 };
-                Cm2 = multiplication_params{ 12 };
-                Cm3 = multiplication_params{ 13 };
-                Cm4 = multiplication_params{ 14 };
+                delta1 = multiplication_params.delta1;
+                delta2 = multiplication_params.delta2;                
+                R1 = multiplication_params.R1;
+                R2 = multiplication_params.R2;
+                R3 = multiplication_params.R3;
+                R4 = multiplication_params.R4;
+                Gm1 = multiplication_params.Gm1;
+                Gm2 = multiplication_params.Gm2;
+                Gm3 = multiplication_params.Gm3;
+                Gm4 = multiplication_params.Gm4;
+                Cm1 = multiplication_params.Cm1;
+                Cm2 = multiplication_params.Cm2;
+                Cm3 = multiplication_params.Cm3;
+                Cm4 = multiplication_params.Cm4;
                 
             else                                                        % Otherwise...
                 
@@ -9462,7 +9337,7 @@ classdef network_class
         function [ c1, c3, delta1, delta2, R1, R2, R3 ] = unpack_reduced_absolute_multiplication_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -9476,16 +9351,16 @@ classdef network_class
                 R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( gain_params ) == 7       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 7       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = gain_params{ 1 };
-                c3 = gain_params{ 2 };
-                delta1 = gain_params{ 3 };
-                delta2 = gain_params{ 4 };
-                R1 = gain_params{ 5 };
-                R2 = gain_params{ 6 };
-                R3 = gain_params{ 7 };
+                c1 = gain_params.c1;
+                c3 = gain_params.c3;
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R1 = gain_params.R1;
+                R2 = gain_params.R2;
+                R3 = gain_params.R3;
                 
             else                                         	% Otherwise...
                 
@@ -9501,7 +9376,7 @@ classdef network_class
         function [ delta1, delta2, R3, R4 ] = unpack_reduced_relative_multiplication_gain_params( self, gain_params, neuron_manager, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 2, gain_params = {  }; end
+            if nargin < 2, gain_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( gain_params )                 	% If the params are empty...
@@ -9512,13 +9387,13 @@ classdef network_class
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 R4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'R', true, neuron_manager.neurons, undetected_option );
 
-            elseif length( gain_params ) == 4       	% If there are a specific number of params...
+            elseif length( fieldnames( gain_params ) ) == 4       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = gain_params{ 1 };
-                delta2 = gain_params{ 2 };
-                R3 = gain_params{ 3 };
-                R4 = gain_params{ 4 };
+                delta1 = gain_params.delta1;
+                delta2 = gain_params.delta2;
+                R3 = gain_params.R3;
+                R4 = gain_params.R4;
                 
             else                                         	% Otherwise...
                 
@@ -9534,7 +9409,7 @@ classdef network_class
         function [ c2, c4 ] = unpack_reduced_absolute_multiplication_neuron_design_params( self, design_params )
         
             % Set the default input arguments.
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9543,11 +9418,11 @@ classdef network_class
                 c2 = self.c2_absolute_inversion_DEFAULT;
                 c4 = self.c1_absolute_dai_DEFAULT;
                 
-            elseif length( design_params ) == 2             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 2             % If there are a specific number of params...
                 
                 % Unpack the params.
-                c2 = design_params{ 1 };
-                c4 = design_params{ 2 };           
+                c2 = design_params.c2;
+                c4 = design_params.c4;           
                 
             else                                                        % Otherwise...
                 
@@ -9574,7 +9449,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
 
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9584,12 +9459,12 @@ classdef network_class
                 R4 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 4 ), 'R', true, neuron_manager.neurons, undetected_option );
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 3             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 3             % If there are a specific number of params...
 
                 % Unpack the params.               
-                R3 = design_params{ 1 };
-                R4 = design_params{ 2 };
-                Ia3 = design_params{ 3 };
+                R3 = design_params.R3;
+                R4 = design_params.R4;
+                Ia3 = design_params.Ia3;
 
             else                                                        % Otherwise...
 
@@ -9608,7 +9483,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, applied_current_manager = self.applied_current_manager; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
 
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9616,10 +9491,10 @@ classdef network_class
                 % Set the params to default values.
                 Ia3 = applied_current_manager.applied_currents.get_applied_current_property( applied_current_manager.applied_currents.to_neuron_ID2applied_current_ID( neuron_manager.neurons.ID( 3 ), applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option );
                 
-            elseif length( design_params ) == 1             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1             % If there are a specific number of params...
 
                 % Unpack the params.               
-                Ia3 = design_params{ 1 };
+                Ia3 = design_params.Ia3;
 
             else                                                        % Otherwise...
 
@@ -9637,7 +9512,7 @@ classdef network_class
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 3, neuron_manager = self.neuron_manager; end
-            if nargin < 2, design_params = {  }; end
+            if nargin < 2, design_params = struct( [  ] ); end
             
             % Determine how to unpack the params.
             if isempty( design_params )                     % If the params are empty...
@@ -9645,10 +9520,10 @@ classdef network_class
                 % Set the params to default values.
                 R3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option );
                 
-            elseif length( design_params ) == 1             % If there are a specific number of params...
+            elseif length( fieldnames( design_params ) ) == 1             % If there are a specific number of params...
                 
                 % Unpack the params.             
-                R3 = design_params{ 1 };
+                R3 = design_params.R3;
                 
             else                                                        % Otherwise...
                 
@@ -9911,7 +9786,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -9932,7 +9807,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
             if nargin < 2, addition_params = {  }; end
             
             % Determine how to perform the parameter conversion.
@@ -10035,7 +9910,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -10056,7 +9931,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
             if nargin < 2, subtraction_params = {  }; end
             
             % Determine how to perform the parameter conversion.
@@ -10446,10 +10321,10 @@ classdef network_class
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
 
                 % Unpack inversion params.
-                [ c1, ~, ~, ~, Gm2, ~, ~ ] = self.unpack_reduced_absolute_inversion_input_params( reduced_inversion_input_params, neuron_manager, undetected_option );
+                [ c1, delta, x1_max, ~, Gm2, ~, ~ ] = self.unpack_reduced_absolute_inversion_input_params( reduced_inversion_input_params, neuron_manager, undetected_option );
                                 
                 % Pack synapse params.                
-                applied_current_input_params = applied_current_manager.pack_reduced_absolute_inversion_params( c1, Gm2 );
+                applied_current_input_params = applied_current_manager.pack_reduced_absolute_inversion_params( c1, delta, x1_max, Gm2 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
@@ -10478,7 +10353,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, encoding_scheme = 'absolute'; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10514,7 +10389,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, encoding_scheme = 'absolute'; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10528,7 +10403,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -10549,8 +10424,8 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, division_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, division_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10594,7 +10469,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, encoding_scheme = 'absolute'; end
-            if nargin < 2, reduced_division_params = {  }; end
+            if nargin < 2, reduced_division_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10630,8 +10505,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_division_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_division_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10648,7 +10523,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -10669,8 +10544,8 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_division_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_division_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10714,7 +10589,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, encoding_scheme = 'absolute'; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10750,8 +10625,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10768,7 +10643,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -10788,8 +10663,8 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, dai_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, dai_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10830,7 +10705,7 @@ classdef network_class
             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 4, neuron_manager = self.neuron_manager; end
             if nargin < 3, encoding_scheme = 'absolute'; end
-            if nargin < 2, reduced_dai_params = {  }; end
+            if nargin < 2, reduced_dai_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10866,8 +10741,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_dai_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_dai_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10884,7 +10759,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -10904,8 +10779,8 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_dai_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_dai_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10946,8 +10821,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -10986,8 +10861,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11004,7 +10879,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -11025,8 +10900,8 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11069,8 +10944,8 @@ classdef network_class
             if nargin < 6, applied_current_manager = self.applied_current_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11111,8 +10986,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11151,8 +11026,8 @@ classdef network_class
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11169,7 +11044,7 @@ classdef network_class
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
                 % Pack neuron params.
-                neuron_params = {  };
+                neuron_params = struct( [  ] );
                 
             else                                                            % Otherwise...
                 
@@ -11190,8 +11065,8 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11234,8 +11109,8 @@ classdef network_class
             if nargin < 6, applied_current_manager = self.applied_current_manager; end
             if nargin < 5, neuron_manager = self.neuron_manager; end
             if nargin < 4, encoding_scheme = 'absolute'; end
-            if nargin < 3, design_params = {  }; end
-            if nargin < 2, reduced_multiplication_params = {  }; end
+            if nargin < 3, design_params = struct( [  ] ); end
+            if nargin < 2, reduced_multiplication_params = struct( [  ] ); end
             
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
@@ -11676,7 +11551,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, division_params = {  }; end                                                              % [-] Parameter Cell.
+            if nargin < 3, division_params = struct( [  ] ); end                                                              % [-] Parameter Cell.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -11755,7 +11630,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, reduced_division_params = {  }; end                                                      % [-] Parameter Cell.
+            if nargin < 3, reduced_division_params = struct( [  ] ); end                                                      % [-] Parameter Cell.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -11853,7 +11728,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, dai_params = {  }; end                                                                   % [-] Parameter Cell.
+            if nargin < 3, dai_params = struct( [  ] ); end                                                                   % [-] Parameter Cell.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -11951,7 +11826,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, reduced_dai_params = {  }; end                                                           % [-] Parameter Cell.
+            if nargin < 3, reduced_dai_params = struct( [  ] ); end                                                           % [-] Parameter Cell.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -12049,7 +11924,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, multiplication_params = {  }; end
+            if nargin < 3, multiplication_params = struct( [  ] ); end
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -12171,7 +12046,7 @@ classdef network_class
             if nargin < 6, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
             if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 3, reduced_multiplication_params = {  }; end                                                % [-] Parameter Cell.
+            if nargin < 3, reduced_multiplication_params = struct( [  ] ); end                                                % [-] Parameter Cell.
             
             % ENSURE THAT THE GIVEN NEURONS DO IN FACT HAVE THE NECESSARY SYNAPTIC CONNECTIONS BEFORE PROCEEDING.  OTHERWISE THROW AN ERROR.
             
@@ -17750,7 +17625,7 @@ classdef network_class
             % Convert the subtraction params into network params.
             [ neuron_input_params, synapse_input_params, applied_current_input_params ] = network.reduced_inversion_params2network_params( reduced_inversion_input_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, undetected_option );
             
-            % Create inversion subnetwork components.            
+            % Create inversion subnetwork components.
             [ neuron_output_params, synapse_output_params, applied_current_output_params, network ] = network.create_reduced_inversion_subnetwork_components( encoding_scheme, neuron_input_params, synapse_input_params, applied_current_input_params, neuron_manager, synapse_manager, applied_current_manager, true, as_cell_flag );
             
             % Unpack the neuron, synapse, and applied current properties.

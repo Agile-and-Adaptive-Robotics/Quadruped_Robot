@@ -4870,11 +4870,12 @@ classdef neuron_manager_class
                 delta = self.delta_reduced_absolute_inversion_DEFAULT;                                                 	% [-] Minimum Decoded Output.
                 x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;                                                 % [-] Maximum Decoded Input.
                 
-            elseif length( fieldnames( inversion_params ) ) == 2                                                      	% If there are a specific number of params...
+            elseif length( fieldnames( inversion_params ) ) == 3                                                      	% If there are a specific number of params...
 
                 % Unpack the params.
                 c1 = inversion_params.c1;                                                                               % [-] Subnetwork Gain 1.
-                c2 = inversion_params.c2;                                                                               % [-] Subnetwork Gain 2.
+                delta = inversion_params.delta;                                                                        	% [-] Minimum Decoded Output.
+                x1_max = inversion_params.x1_max;                                                                    	% [-] Maximum Decoded Input.
 
             else                                                                                                       	% Otherwise...
                
@@ -5664,7 +5665,7 @@ classdef neuron_manager_class
         function inversion_params_R1 = pack_reduced_absolute_inversion_R1_params( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
             
             % Pack the params.
             inversion_params_R1.x1_max = x1_max;
@@ -6314,11 +6315,9 @@ classdef neuron_manager_class
         
         
         % Implement a function to convert reduced inversion params to reduced inversion R2 design params.
-        function reduced_inversion_R2_params = reduced_inversion_params2R2_params( self, reduced_inversion_params, encoding_scheme, neurons, undetected_option )
+        function reduced_inversion_R2_params = reduced_inversion_params2R2_params( self, reduced_inversion_params, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, reduced_inversion_params = struct( [  ] ); end
             
@@ -6326,7 +6325,7 @@ classdef neuron_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute inversion params.
-                [ c1, delta, x1_max ] = self.unpack_reduced_absolute_inversion_params( reduced_inversion_params, neurons, undetected_option );
+                [ c1, delta, x1_max ] = self.unpack_reduced_absolute_inversion_params( reduced_inversion_params );
                 
                 % Pack the absolute inversion R2 params.
                 reduced_inversion_R2_params = self.pack_reduced_absolute_inversion_R2_params( c1, delta, x1_max );
@@ -6874,6 +6873,35 @@ classdef neuron_manager_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
+        % Implement a function to compute the operational domain for neuron 1 of a reduced inversion subnetwork.
+        function [ R1, neurons, self ] = compute_reduced_inversion_R1( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                           % [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                        	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_reduced_inversion_R1_params( params, encoding_scheme );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_inversion_R1( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
         % Implement a function to compute the operational domain for neuron 2 of a reduced inversion subnetwork.
         function [ R2, neurons, self ] = compute_reduced_inversion_R2( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
             

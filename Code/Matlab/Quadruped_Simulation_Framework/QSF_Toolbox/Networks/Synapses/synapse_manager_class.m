@@ -1950,19 +1950,21 @@ classdef synapse_manager_class
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
-                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;
+                    delta = self.delta_reduced_absolute_inversion_DEFAULT;
+                    x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;
                     Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.
                     
                     % Store the required params.
-                    params.delta1 = delta1;
+                    params.c1 = c1;
+                    params.delta = delta;
+                    params.x1_max = x1_max;
                     params.Gm2 = Gm2;
-                    params.Ia2 = Ia2;
                     
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( params ) ) ~= 3                                                                            % If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -5703,7 +5705,6 @@ classdef synapse_manager_class
         % Implement a function to unpack the params for a relative inversion subnetwork.
         function [ c1, c3, delta, R2, Gm2 ] = unpack_relative_inversion_params( self, inversion_params )
             
-
             % Set the default input arguments.
             if nargin < 2, inversion_params = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
@@ -5739,7 +5740,7 @@ classdef synapse_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to unpack the params for a reduced absolute inversion subnetwork.
-        function [ delta1, Gm2, Ia2 ] = unpack_reduced_absolute_inversion_params( self, inversion_params )
+        function [ c1, delta, x1_max, Gm2 ] = unpack_reduced_absolute_inversion_params( self, inversion_params )
             
             % Absolute: delta1, Gm2, Ia2
 
@@ -5750,16 +5751,18 @@ classdef synapse_manager_class
             if isempty( inversion_params )                                                                       	% If the params are empty...
             
                 % Set the default parameter values.
-                delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
+                delta = self.delta_reduced_absolute_inversion_DEFAULT;
+                x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
-                Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
                 
-            elseif length( fieldnames( inversion_params ) ) == 3                                                                	% If there are a specific number of params...
+            elseif length( fieldnames( inversion_params ) ) == 4                                                                	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = inversion_params.delta1;                                                                    	% [V] Inversion Subnetwork Offset.
+                c1 = inversion_params.c1;
+                delta = inversion_params.delta;
+                x1_max = inversion_params.x1_max;
                 Gm2 = inversion_params.Gm2;                                                                       	% [S] Membrane Conductance.
-                Ia2 = inversion_params.Ia2;                                                                      	% [A] Applied Current.
             
             else                                                                                                       	% Otherwise...
                
@@ -5772,10 +5775,8 @@ classdef synapse_manager_class
         
         
         % Implement a function to unpack the params for a reduced relative inversion subnetwork.
-        function [ delta1, Gm2, Ia2 ] = unpack_reduced_relative_inversion_params( self, inversion_params )
+        function [ c1, delta, x1_max, Gm2 ] = unpack_reduced_relative_inversion_params( self, inversion_params )
             
-            % Relative: delta1, Gm2, Ia2
-
             % Set the default input arguments.
             if nargin < 2, inversion_params = struct( [  ] ); end                                                            	% [-] Input Parameters Cell.
             
@@ -5783,17 +5784,19 @@ classdef synapse_manager_class
             if isempty( inversion_params )                                                                       	% If the params are empty...
             
                 % Set the default parameter values.
-                delta1 = self.delta_inversion_DEFAULT;                                                                	% [V] Inversion Subnetwork Offset.
-                Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                 	% [S] Membrane Conductance.
-                Ia2 = self.Ia_DEFAULT;                                                                                 	% [A] Applied Current.
-                                
-            elseif length( fieldnames( inversion_params ) ) == 3                                                                	% If there are a specific number of params...
+                c1 = self.c1_reduced_relative_DEFAULT;
+                delta = self.delta_reduced_relative_DEFAULT;
+                x1_max = self.x1max_reduced_relative_DEFAULT;
+                Gm2 = self.Gm_reduced_relative_DEFAULT;
+                
+            elseif length( fieldnames( inversion_params ) ) == 4                                                                	% If there are a specific number of params...
                 
                 % Unpack the params.
-                delta1 = inversion_params.delta1;                                                                    	% [V] Inversion Subnetwork Offset.
-                Gm2 = inversion_params.Gm2;                                                                       	% [S] Membrane Conductance.
-                Ia2 = inversion_params.Ia2;                                                                      	% [A] Applied Current.
-            
+                c1 = inversion_params.c1;
+                delta = inversion_params.delta;
+                x1_max = inversion_params.x1_max;
+                Gm2 = inversion_params.Gm2;
+                
             else                                                                                                       	% Otherwise...
                
                 % Throw an error.
@@ -7133,57 +7136,55 @@ classdef synapse_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to pack reduced absolute inversion gs params.
-        function params_gs = pack_reduced_absolute_inversion_gs_params( self, synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option )
+        function params_gs = pack_reduced_absolute_inversion_gs_params( self, c1, delta, x1_max, Gm2 )
 
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 5, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 5, Gm2 = self.Gm2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
             % Pack the params.
-            params_gs.delta1 = delta1;
+            params_gs.c1 = c1;
+            params_gs.delta = delta;
+            params_gs.x1_max = x1_max;
             params_gs.Gm2 = Gm2;
-            params_gs.dEs21 = dEs21;
-            params_gs.Ia2 = Ia2;
             
         end
         
         
         % Implement a function to pack reduced relative inversion gs params.
-        function params_gs = pack_reduced_relative_inversion_gs_params( self, synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option )
+        function params_gs = pack_reduced_relative_inversion_gs_params( self, c1, delta, x1_max, Gm2 )
 
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 5, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
-            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 3, delta1 = self.delta_inversion_DEFAULT; end
+            if nargin < 5, Gm2 = self.Gm2_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
             % Pack the params.
-            params_gs.delta1 = delta1;
+            params_gs.c1 = c1;
+            params_gs.delta = delta;
+            params_gs.x1_max = x1_max;
             params_gs.Gm2 = Gm2;
-            params_gs.dEs21 = dEs21;
-            params_gs.Ia2 = Ia2;
             
         end
         
         
         % Implement a function to pack reduced absolute inversion params.
-        function reduced_inversion_params = pack_reduced_absolute_inversion_params( self, delta1, Gm2, Ia2 )
+        function reduced_inversion_params = pack_reduced_absolute_inversion_params( self, c1, delta, x1_max, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_inversion_DEFAULT; end
             
             % Pack the params.
-            reduced_inversion_params.delta1 = delta1;
+            reduced_inversion_params.c1 = c1;
+            reduced_inversion_params.delta = delta;
+            reduced_inversion_params.x1_max = x1_max;
             reduced_inversion_params.Gm2 = Gm2;
-            reduced_inversion_params.Ia2 = Ia2;
             
         end
         
@@ -8629,31 +8630,28 @@ classdef synapse_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to convert reduced inversion gs params into reduced inversion gs params.
-        function reduced_inversion_gs_params = convert_reduced_inversion_params2gs_params( self, synapse_ID, reduced_inversion_params, dEs21, encoding_scheme, synapses, undetected_option )
+        function reduced_inversion_gs_params = convert_reduced_inversion_params2gs_params( self, synapse_ID, reduced_inversion_params, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, synapses = self.synapses; end
-            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 4, dEs21 = self.get_synapse_property( synapse_ID, 'dEs', true, synapses, undetected_option ); end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 3, reduced_inversion_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute inversion params.
-                [ delta1, Gm2, Ia2 ] = self.unpack_reduced_absolute_inversion_params( reduced_inversion_params );
+                [ c1, delta, x1_max, Gm2 ] = self.unpack_reduced_absolute_inversion_params( reduced_inversion_params );
                 
                 % Pack the absolute subtraction gs params.                
-                reduced_inversion_gs_params = self.pack_reduced_absolute_inversion_gs_params( synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option );
+                reduced_inversion_gs_params = self.pack_reduced_absolute_inversion_gs_params( c1, delta, x1_max, Gm2 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Unpack the relative subtraction params.
-                [ delta1, Gm2, Ia2 ] = self.unpack_reduced_relative_inversion_params( reduced_inversion_params );
+                [ c1, delta, x1_max, Gm2 ] = self.unpack_reduced_relative_inversion_params( reduced_inversion_params );
                 
                 % Pack the relative subtraction gs params.
-                reduced_inversion_gs_params = self.pack_reduced_relative_inversion_gs_params( synapse_ID, delta1, Gm2, dEs21, Ia2, synapses, undetected_option );                
+                reduced_inversion_gs_params = self.pack_reduced_relative_inversion_gs_params( c1, delta, x1_max, Gm2 );                
                 
             else                                                                                                            % Otherwise...
                 
@@ -11467,7 +11465,7 @@ classdef synapse_manager_class
             if name_flag, name = sprintf( 'Reduced Inversion %0.0f%0.0f', from_neuron_ID, to_neuron_ID ); end
             
             % Create the synapse.    
-            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, true, false, array_utilities );
+            [ ID_new, synapse_new, synapses, synapse_manager ] = self.create_synapse( synapse_ID, name{ 1 }, dEs, gs, from_neuron_ID, to_neuron_ID, delta, enabled_flag, synapses, true, false, array_utilities );
                
             % Determine how to format the synapse IDs and objects.
             [ ID_new, synapse_new ] = self.process_synapse_creation_outputs( ID_new, synapse_new, as_cell_flag, array_utilities );
@@ -13035,7 +13033,7 @@ classdef synapse_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced inversion subnetwork.
-        function [ dEs21, gs21, synapse_ID, synapses, self ] = design_reduced_inversion_synapse( self, neuron_IDs, reduced_inversion_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_params, synapse_ID, synapses, self ] = design_reduced_inversion_synapse( self, neuron_IDs, reduced_inversion_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -13053,13 +13051,17 @@ classdef synapse_manager_class
             reduced_inversion_params = self.process_reduced_inversion_params( reduced_inversion_params, encoding_scheme );
             
             % Compute and set the synapse reversal potential.            
-            [ dEs21, synapses, synapse_manager ] = self.compute_reduced_inversion_dEs21( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
+            [ dEs21, synapses, synapse_manager ] = self.compute_reduced_inversion_dEs21( synapse_ID, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic params into gs params.
-            reduced_inversion_gs_params = self.convert_reduced_inversion_params2gs_params( synapse_ID, reduced_inversion_params, dEs21, encoding_scheme, synapses, undetected_option );
+            reduced_inversion_gs_params = self.convert_reduced_inversion_params2gs_params( synapse_ID, reduced_inversion_params, encoding_scheme );
                         
             % Compute the synaptic conductance.
-            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_reduced_inversion_gs21( synapse_IDs, reduced_inversion_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
+            [ gs21, synapses, synapse_manager ] = synapse_manager.compute_reduced_inversion_gs21( synapse_ID, reduced_inversion_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
+            
+            % Store the synapse output params in a structure.
+            synapse_output_params.dEs21 = dEs21;
+            synapse_output_params.gs21 = gs21;
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end

@@ -1936,7 +1936,7 @@ classdef plotting_utilities_class
             [ ~, ys_patch_relative_decoded ] = self.generate_2D_patch_data( xs_decoded, es_min_relative_decoded, es_max_relative_decoded );
             
             % Compute the figure title.
-            title_string = sprintf( 'Absolute vs Relative %s: Encoded vs Decoded Steady State Error %s', subnetwork_name );
+            title_string = sprintf( 'Absolute vs Relative %s: Encoded vs Decoded Steady State Error %s', subnetwork_name, title_tag );
             
             % Compute the figure labels.
             xlabel_string_encoded = sprintf( 'Encoded Input, %s [%s]', variables_string_encoded{ 1 }, units_string_encoded{ 1 } );
@@ -1992,7 +1992,7 @@ classdef plotting_utilities_class
                 gobj_es_mean_absolute_encoded = plot( scale_encoded*xs_encoded, scale_encoded*es_mean_absolute_encoded, '-', 'Color', color_absolute, 'Linewidth', 3 );
                 plot( scale_encoded*xs_encoded, scale_encoded*es_min_absolute_encoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
                 plot( scale_encoded*xs_encoded, scale_encoded*es_max_absolute_encoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
-                legend( [ gobj_es_mean_absolute_encoded, gobj_es_patch_absolute_encoded ], { 'Average', 'Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                legend( [ gobj_es_mean_absolute_encoded, gobj_es_patch_absolute_encoded ], { 'Average', 'Range' }, 'Location', 'South', 'Orientation', 'Horizontal' )
                 
                 % Create the second subplot.
                 subplot( 2, 2, 2 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_absolute_decoded )
@@ -2000,7 +2000,7 @@ classdef plotting_utilities_class
                 gobj_es_mean_absolute_decoded = plot( scale_decoded*xs_decoded, scale_decoded*es_mean_absolute_decoded, '-', 'Color', color_absolute, 'Linewidth', 3 );
                 plot( scale_decoded*xs_decoded, scale_decoded*es_min_absolute_decoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
                 plot( scale_decoded*xs_decoded, scale_decoded*es_max_absolute_decoded, '--', 'Color', color_absolute, 'Linewidth', 1 )
-                legend( [ gobj_es_mean_absolute_decoded, gobj_es_patch_absolute_decoded ], { 'Average', 'Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                legend( [ gobj_es_mean_absolute_decoded, gobj_es_patch_absolute_decoded ], { 'Average', 'Range' }, 'Location', 'South', 'Orientation', 'Horizontal' )
 
                 % Create the third subplot.
                 subplot( 2, 2, 3 ), hold on, grid on, xlabel( xlabel_string_encoded ), ylabel( ylabel_string_encoded ), title( subplot_title_relative_encoded )
@@ -2008,7 +2008,7 @@ classdef plotting_utilities_class
                 gobj_es_mean_relative_encoded = plot( scale_encoded*xs_encoded, scale_encoded*es_mean_relative_encoded, '-', 'Color', color_relative, 'Linewidth', 3 );
                 plot( scale_encoded*xs_encoded, scale_encoded*es_min_relative_encoded, '--', 'Color', color_relative, 'Linewidth', 1 )
                 plot( scale_encoded*xs_encoded, scale_encoded*es_max_relative_encoded, '--', 'Color', color_relative, 'Linewidth', 1 )
-                legend( [ gobj_es_mean_relative_encoded, gobj_es_patch_relative_encoded ], { 'Average', 'Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                legend( [ gobj_es_mean_relative_encoded, gobj_es_patch_relative_encoded ], { 'Average', 'Range' }, 'Location', 'South', 'Orientation', 'Horizontal' )
 
                 % Create the fourth subplot.
                 subplot( 2, 2, 4 ), hold on, grid on, xlabel( xlabel_string_decoded ), ylabel( ylabel_string_decoded ), title( subplot_title_relative_decoded )
@@ -2016,7 +2016,7 @@ classdef plotting_utilities_class
                 gobj_es_mean_relative_decoded = plot( scale_decoded*xs_decoded, scale_decoded*es_mean_relative_decoded, '-', 'Color', color_relative, 'Linewidth', 3 );
                 plot( scale_decoded*xs_decoded, scale_decoded*es_min_relative_decoded, '--', 'Color', color_relative, 'Linewidth', 1 )
                 plot( scale_decoded*xs_decoded, scale_decoded*es_max_relative_decoded, '--', 'Color', color_relative, 'Linewidth', 1 )
-                legend( [ gobj_es_mean_relative_decoded, gobj_es_patch_relative_decoded ], { 'Average', 'Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                legend( [ gobj_es_mean_relative_decoded, gobj_es_patch_relative_decoded ], { 'Average', 'Range' }, 'Location', 'South', 'Orientation', 'Horizontal' )
 
             end
                 

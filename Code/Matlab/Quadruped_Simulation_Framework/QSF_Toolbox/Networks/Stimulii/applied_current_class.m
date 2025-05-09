@@ -272,7 +272,7 @@ classdef applied_current_class
         function [ R2, Gm2 ] = unpack_relative_inversion_Ias2_parameters( self, Ias2_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, Ias2_parameters = {  }; end                   	% [struct] Parameters Structure.
+            if nargin < 2, Ias2_parameters = struct( [  ] ); end                   	% [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( Ias2_parameters )                                 	% If the parameters are empty...
@@ -301,23 +301,27 @@ classdef applied_current_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to unpack the parameters required to compute the applied current magnitudes for neuron 2 of a reduced absolute inversion subnetwork.
-        function [ Gm2, R2 ] = unpack_reduced_absolute_inversion_Ias2_parameters( self, parameters )
+        function [ c1, delta, x1_max, Gm2 ] = unpack_reduced_absolute_inversion_Ias2_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
                 
                 % Set the parameters to default values.
-                Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
-                R2 = self.R_DEFAULT;                                 	% [V] Activation Domain.
+                c1 = self.c1_DEFAULT;                                	% [S] Membrane Conductance.
+                delta = self.delta_DEFAULT;
+                x1_max = self.x1max_DEFAULT;
+                Gm2 = self.Gm2_DEFAULT;
                 
-            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                           	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm2 = parameters{ 1 };                                  % [S] Membrane Conductance.
-                R2 = parameters{ 2 };                               	% [V] Activation Domain.
+                c1 = parameters.c1;
+                delta = parameters.delta;
+                x1_max = parameters.x1_max;
+                Gm2 = parameters.Gm2;
                 
             else                                                     	% Otherwise...
                 
@@ -333,7 +337,7 @@ classdef applied_current_class
         function [ Gm2, R2 ] = unpack_reduced_relative_inversion_Ias2_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -342,11 +346,11 @@ classdef applied_current_class
                 Gm2 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 R2 = self.R_DEFAULT;                                    % [V] Activation Domain.
                 
-            elseif length( parameters ) == 1                          	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm2 = parameters{ 1 };                                  % [S] Membrane Conductance.
-                R2 = parameters{ 2 };                                 	% [V] Activation Domain.
+                Gm2 = parameters.Gm2;                                  % [S] Membrane Conductance.
+                R2 = parameters.R2;                                 	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -364,7 +368,7 @@ classdef applied_current_class
         function [ Gm3, R3 ] = unpack_absolute_multiplication_Ias3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -373,11 +377,11 @@ classdef applied_current_class
                 Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
                 
-            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                           	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
-                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
+                R3 = parameters.R3;                               	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -393,7 +397,7 @@ classdef applied_current_class
         function [ Gm3, R3 ] = unpack_relative_multiplication_Ias3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -402,11 +406,11 @@ classdef applied_current_class
                 Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
                 
-            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                           	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
-                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
+                R3 = parameters.R3;                               	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -424,7 +428,7 @@ classdef applied_current_class
         function [ Gm3, R3 ] = unpack_reduced_absolute_multiplication_Ias3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -433,11 +437,11 @@ classdef applied_current_class
                 Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
                 
-            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                           	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
-                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
+                R3 = parameters.R3;                               	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -453,7 +457,7 @@ classdef applied_current_class
         function [ Gm3, R3 ] = unpack_reduced_relative_multiplication_Ias3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [cell] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -462,11 +466,11 @@ classdef applied_current_class
                 Gm3 = self.Gm_DEFAULT;                                	% [S] Membrane Conductance.
                 R3 = self.R_DEFAULT;                                 	% [V] Activation Domain.
                 
-            elseif length( parameters ) == 2                           	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                           	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                Gm3 = parameters{ 1 };                                  % [S] Membrane Conductance.
-                R3 = parameters{ 2 };                               	% [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
+                R3 = parameters.R3;                               	% [V] Activation Domain.
                 
             else                                                     	% Otherwise...
                 
@@ -632,16 +636,16 @@ classdef applied_current_class
             if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                   % [cell] Parmaeters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                   % [cell] Parmaeters Cell.
             
             % Determine how to compute the applied current magnitude.
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
             
                 % Unpack the parameters required to compute the absolute inversion applied current magnitudes.
-                [ Gm2, R2 ] = self.unpack_reduced_absolute_inversion_Ias2_parameters( parameters );
+                [ c1, delta, x1_max, Gm2 ] = self.unpack_reduced_absolute_inversion_Ias2_parameters( parameters );
                 
                 % Compute the applied current magnitudes.
-                Ias2 = applied_current_utilities.compute_reduced_absolute_inversion_Ias2( Gm2, R2 );
+                Ias2 = applied_current_utilities.compute_reduced_absolute_inversion_Ias2( c1, delta, x1_max, Gm2 );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                           % If the encoding scheme is relative...
                
@@ -809,7 +813,7 @@ classdef applied_current_class
             if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                   % [cell] Parmaeters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                   % [cell] Parmaeters Cell.
             
             % Determine how to compute the applied current magnitude.
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...
@@ -850,7 +854,7 @@ classdef applied_current_class
             if nargin < 5, applied_current_utilities = self.applied_current_utilities; end          % [class] Applied Current Utilities Class.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the applied current manager.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, parameters = {  }; end                                                   % [cell] Parmaeters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                   % [cell] Parmaeters Cell.
             
             % Determine how to compute the applied current magnitude.
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is absolute...

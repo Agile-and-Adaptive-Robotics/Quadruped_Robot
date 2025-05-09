@@ -1596,7 +1596,7 @@ classdef neuron_class
         function x1_max = unpack_absolute_transmission_R1_parameters( self, R1_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, R1_parameters = struct( [  ] ); end                       % [-] Parameters Cell.
+            if nargin < 2, R1_parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( R1_parameters )                                    % If the parameters are empty...
@@ -1623,7 +1623,7 @@ classdef neuron_class
         function [ c, x1_max ] = unpack_absolute_transmission_R2_parameters( self, R2_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, R2_parameters = struct( [  ] ); end                       % [-] Parameters Cell.
+            if nargin < 2, R2_parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( R2_parameters )                                    % If the parameters are empty...
@@ -1632,7 +1632,7 @@ classdef neuron_class
                 c = self.c_absolute_transmission_DEFAULT;               % [-] Absolute Transmission Gain.
                 x1_max = self.x1max_absolute_transmission_DEFAULT;      % [V] Activation Domain.
                 
-            elseif length(fieldnames( R2_parameters ) ) == 2                          	% If there are a specific number of parameters...
+            elseif length( fieldnames( R2_parameters ) ) == 2                          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
                 c = R2_parameters.c;                                    % [-] Absolute Transmission Gain.
@@ -1654,7 +1654,7 @@ classdef neuron_class
         function [ cs, Rs ] = unpack_absolute_addition_Rn_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                               % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                            % If the parameters are empty...
@@ -1663,11 +1663,11 @@ classdef neuron_class
                 cs = self.c_absolute_addition_DEFAULT*ones( 1, 2 );             % [-] Absolute Addition Gain.
                 Rs = self.R_DEFAULT*ones( 1, 2 );                               % [V] Activation Domain
                 
-            elseif length( parameters ) == 2                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                cs = parameters{ 1 };
-                Rs = parameters{ 2 };                                           % [V] Activation Domain.
+                cs = parameters.cs;
+                Rs = parameters.Rs;                                           % [V] Activation Domain.
                 
             else                                                                % Otherwise...
                 
@@ -1685,7 +1685,7 @@ classdef neuron_class
         function [ cs, s_ks, Rs ] = unpack_absolute_subtraction_Rn_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -1695,12 +1695,12 @@ classdef neuron_class
                 s_ks = self.s_ks_DEFAULT;                               % [-] Subtraction Signature.
                 Rs = self.R_DEFAULT*ones( 1, 2 );                       % [V] Activation Domain.
 
-            elseif length( parameters ) == 2                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                cs = parameters{ 1 };                                   % [-] Absolute Subtraction Gain.
-                s_ks = parameters{ 2 };                                 % [-] Subtraction Signature.
-                Rs = parameters{ 3 };                                   % [V] Activation Domain.
+                cs = parameters.cs;                                   % [-] Absolute Subtraction Gain.
+                s_ks = parameters.s_ks;                                 % [-] Subtraction Signature.
+                Rs = parameters.Rs;                                   % [V] Activation Domain.
                                     
             else                                                        % Otherwise...
                 
@@ -1718,7 +1718,7 @@ classdef neuron_class
         function x1_max = unpack_absolute_inversion_R1_parameters( self, R1_parameters )
         
             % Set the default input arguments.
-            if nargin < 2, R1_parameters = struct( [  ] ); end              % [-] Parameters Cell.
+            if nargin < 2, R1_parameters = struct( [  ] ); end              % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( R1_parameters )                                     % If the parameters are empty...
@@ -1770,24 +1770,56 @@ classdef neuron_class
         end
                 
         
-        % Implement a function to unpack the parameters required to compute the reduced absolute inversion output activation domain.
-        function [ c1, c2 ] = unpack_reduced_absolute_inversion_R2_parameters( self, parameters )
+        
+        % ---------- Reduced Inversion Subnetwork Functions ----------
+        
+        % Implement a function to unpack the parameters required to compute the reduced absolute inversion input activation domain.
+        function x1_max = unpack_reduced_absolute_inversion_R1_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
+            
+            % Determine how to set the parameters.
+            if isempty( parameters )                                        % If the parameters are empty...
+
+                % Set the default parameters.
+                x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;          	% [-] Maximum Decoded Input.
+
+            elseif length( fieldnames( parameters ) ) == 1                                % If there are a specific number of parameters...
+
+                % Retrieve the parameters.
+                x1_max = parameters.x1_max;                                       % [-] Maximum Decoded Input.
+                
+            else                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Unable to unpack parameters.' )
+                
+            end            
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters required to compute the reduced absolute inversion output activation domain.
+        function [ c1, delta, x1_max ] = unpack_reduced_absolute_inversion_R2_parameters( self, parameters )
+        
+            % Set the default input arguments.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
 
                 % Set the default parameters.
                 c1 = self.c1_reduced_absolute_inversion_DEFAULT;          	% [-] General Subnetwork Gain 1.
-                c2 = self.c2_reduced_absolute_inversion_DEFAULT;            % [-] General Subnetwork Gain 3.
-
-            elseif length( parameters ) == 2                                % If there are a specific number of parameters...
+                delta = self.delta_reduced_absolute_inversion_DEFAULT;          	% [-] Minimum Decoded Output.
+                x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;         % [-] Maximum Decoded Input.
+                
+            elseif length( fieldnames( parameters ) ) == 3                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                       % [-] General Subnetwork Gain 1.
-                c2 = parameters{ 2 };                                       % [-] General Subnetwork Gain 3.
+                c1 = parameters.c1;                                       % [-] General Subnetwork Gain 1.
+                delta = parameters.delta;                                       % [-] Minimum Decoded Output.
+                x1_max = parameters.x1_max;                                       % [-] Maximum Decoded Input.
                 
             else                                                            % Otherwise...
                 
@@ -1803,7 +1835,7 @@ classdef neuron_class
         function R2 = unpack_reduced_relative_inversion_R2_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -1811,10 +1843,10 @@ classdef neuron_class
                 % Set the default parameters.
                 R2 = self.R2_relative_inversion_DEFAULT;          	% [V] Maximum Membrane Voltage.
 
-            elseif length( parameters ) == 1                     	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 1                     	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                R2 = parameters{ 1 };                            	% [V] Maximum Membrane Voltage.
+                R2 = parameters.R2;                            	% [V] Maximum Membrane Voltage.
                 
             else                                                    % Otherwise...
                 
@@ -1832,7 +1864,7 @@ classdef neuron_class
         function [ c1, c3, R1 ] = unpack_absolute_division_R3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end               	% [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end               	% [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -1842,12 +1874,12 @@ classdef neuron_class
                 c3 = self.c3_absolute_division_DEFAULT;           	% [-] Subnetwork Gain 3.
                 R1 = self.R_DEFAULT;                                % [V] Activation Domain 1.
 
-            elseif length( parameters ) == 3                      	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 3                      	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                              	% [-] Subnetwork Gain 1.
-                c3 = parameters{ 2 };                               % [-] Subnetwork Gain 3.
-                R1 = parameters{ 3 };                               % [V] Activation Domain 1.
+                c1 = parameters.c1;                              	% [-] Subnetwork Gain 1.
+                c3 = parameters.c3;                               % [-] Subnetwork Gain 3.
+                R1 = parameters.R1;                               % [V] Activation Domain 1.
                 
             else                                                   	% Otherwise...
                 
@@ -1863,7 +1895,7 @@ classdef neuron_class
         function [ c1, c2, c3, delta1, R1 ] = unpack_absolute_dai_R3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                % If the parameters are empty...
@@ -1875,14 +1907,14 @@ classdef neuron_class
                 delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Absolute Inversion Subnetwork Offest.
                 R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
 
-            elseif length( parameters ) == 5                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                                        % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 1.
-                c2 = parameters{ 2 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 2.
-                c3 = parameters{ 3 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 3.
-                delta1 = parameters{ 4 };                                           % [V] Absolute Inversion Subnetwork Offset.
-                R1 = parameters{ 5 };                                               % [V] Activation Domain 1.
+                c1 = parameters.c1;                                               % [-] Absolute Division After Inversion Subnetwork Gain 1.
+                c2 = parameters.c2;                                               % [-] Absolute Division After Inversion Subnetwork Gain 2.
+                c3 = parameters.c3;                                               % [-] Absolute Division After Inversion Subnetwork Gain 3.
+                delta1 = parameters.delta1;                                           % [V] Absolute Inversion Subnetwork Offset.
+                R1 = parameters.R1;                                               % [V] Activation Domain 1.
                 
             else                                                                    % Otherwise...
                 
@@ -1900,7 +1932,7 @@ classdef neuron_class
         function [ c1, c2, R1 ] = unpack_reduced_absolute_division_R3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end               	% [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end               	% [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -1910,12 +1942,12 @@ classdef neuron_class
                 c2 = self.c2_absolute_division_DEFAULT;         	% [-] Absolute Division Subnetwork Gain 2.
                 R1 = self.R_DEFAULT;                                % [V] Activation Domain 1.
 
-            elseif length( parameters ) == 3                      	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 3                      	% If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                              	% [-] Absolute Division Subnetwork Gain 1.
-                c2 = parameters{ 2 };                               % [-] Absolute Division Subnetwork Gain 2.
-                R1 = parameters{ 3 };                               % [V] Activation Domain 1.
+                c1 = parameters.c1;                              	% [-] Absolute Division Subnetwork Gain 1.
+                c2 = parameters.c2;                               % [-] Absolute Division Subnetwork Gain 2.
+                R1 = parameters.R1;                               % [V] Activation Domain 1.
                 
             else                                                   	% Otherwise...
                 
@@ -1931,7 +1963,7 @@ classdef neuron_class
         function [ c1, c2, delta1, R1 ] = unpack_reduced_absolute_dai_R3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                % If the parameters are empty...
@@ -1942,13 +1974,13 @@ classdef neuron_class
                 delta1 = self.delta_absolute_inversion_DEFAULT;                     % [V] Absolute Inversion Subnetwork Offest.
                 R1 = self.R_DEFAULT;                                                % [V] Activation Domain 1.
 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                        % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 1.
-                c2 = parameters{ 2 };                                               % [-] Absolute Division After Inversion Subnetwork Gain 2.
-                delta1 = parameters{ 3 };                                           % [V] Absolute Inversion Subnetwork Offset.
-                R1 = parameters{ 4 };                                               % [V] Activation Domain 1.
+                c1 = parameters.c1;                                               % [-] Absolute Division After Inversion Subnetwork Gain 1.
+                c2 = parameters.c2;                                               % [-] Absolute Division After Inversion Subnetwork Gain 2.
+                delta1 = parameters.delta1;                                           % [V] Absolute Inversion Subnetwork Offset.
+                R1 = parameters.R1;                                               % [V] Activation Domain 1.
                 
             else                                                                    % Otherwise...
                 
@@ -1966,7 +1998,7 @@ classdef neuron_class
         function [ c1, c3 ] = unpack_absolute_multiplication_R3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -1975,11 +2007,11 @@ classdef neuron_class
                 c1 = self.c1_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 1.
                 c3 = self.c3_absolute_inversion_DEFAULT;                    % [-] Absolute Inversion Gain 3.
 
-            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 7                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                       % [-] Absolute Inversion Gain 1.
-                c3 = parameters{ 2 };                                       % [-] Absolute Inversion Gain 3.
+                c1 = parameters.c1;                                       % [-] Absolute Inversion Gain 1.
+                c3 = parameters.c3;                                       % [-] Absolute Inversion Gain 3.
                 
             else                                                            % Otherwise...
                 
@@ -1995,7 +2027,7 @@ classdef neuron_class
         function [ c4, c5, c6, delta1, R1 ] = unpack_absolute_multiplication_R4_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -2007,14 +2039,14 @@ classdef neuron_class
                 delta1 = self.delta_absolute_inversion_DEFAULT;             % [V] Absolute Inversion Offset.
                 R1 = self.R_DEFAULT;                                        % [V] Activation Domain.
 
-            elseif length( parameters ) == 5                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c4 = parameters{ 1 };                                       % [-] Absolute Division Gain 1.
-                c5 = parameters{ 2 };                                       % [-] Absolute Division Gain 2.
-                c6 = parameters{ 3 };                                       % [-] Absolute Division Gain 3.
-                delta1 = parameters{ 4 };                                   % [V] Absolute Inversion Offset.
-                R1 = parameters{ 5 };                                       % [V] Activation Domain.
+                c4 = parameters.c4;                                       % [-] Absolute Division Gain 1.
+                c5 = parameters.c5;                                       % [-] Absolute Division Gain 2.
+                c6 = parameters.c6;                                       % [-] Absolute Division Gain 3.
+                delta1 = parameters.delta1;                                   % [V] Absolute Inversion Offset.
+                R1 = parameters.R1;                                       % [V] Activation Domain.
                 
             else                                                            % Otherwise...
                 
@@ -2032,7 +2064,7 @@ classdef neuron_class
         function [ c1, c2 ] = unpack_reduced_absolute_multiplication_R3_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -2041,11 +2073,11 @@ classdef neuron_class
                 c1 = self.c1_reduced_absolute_inversion_DEFAULT;            % [-] Reduced Absolute Inversion Gain 1.
                 c2 = self.c2_reduced_absolute_inversion_DEFAULT;          	% [-] Reduced Absolute Inversion Gain 3.
 
-            elseif length( parameters ) == 7                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 2                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c1 = parameters{ 1 };                                       % [-] Reduced Absolute Inversion Gain 1.
-                c2 = parameters{ 2 };                                       % [-] Reduced Absolute Inversion Gain 3.
+                c1 = parameters.c1;                                       % [-] Reduced Absolute Inversion Gain 1.
+                c2 = parameters.c2;                                       % [-] Reduced Absolute Inversion Gain 3.
                 
             else                                                            % Otherwise...
                 
@@ -2061,7 +2093,7 @@ classdef neuron_class
         function [ c3, c4, delta1, R1 ] = unpack_reduced_absolute_multiplication_R4_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -2072,13 +2104,13 @@ classdef neuron_class
                 delta1 = self.delta_absolute_inversion_DEFAULT;             % [V] Absolute Inversion Offset.
                 R1 = self.R_DEFAULT;                                        % [V] Activation Domain.
 
-            elseif length( parameters ) == 4                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                % If there are a specific number of parameters...
 
                 % Retrieve the parameters.
-                c3 = parameters{ 1 };                                       % [-] Reduced Absolute Division Gain 1.
-                c4 = parameters{ 2 };                                       % [-] Reduced Absolute Division Gain 2.
-                delta1 = parameters{ 3 };                                   % [V] Absolute Inversion Offset.
-                R1 = parameters{ 4 };                                       % [V] Activation Domain.
+                c3 = parameters.c3;                                       % [-] Reduced Absolute Division Gain 1.
+                c4 = parameters.c4;                                       % [-] Reduced Absolute Division Gain 2.
+                delta1 = parameters.delta1;                                   % [V] Absolute Inversion Offset.
+                R1 = parameters.R1;                                       % [V] Activation Domain.
                 
             else                                                            % Otherwise...
                 
@@ -2175,7 +2207,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end              	% [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                       	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end          % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                       % [-] Parameters Cell.                                                                             
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Parameters Structure.                                                                             
 
             % Determine how to compute the membrane capacitance for this addition subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                   % If the encoding scheme is set to absolute...
@@ -2213,7 +2245,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                    % [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this subtraction subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                               % If the encoding scheme is set to absolute...
@@ -2287,7 +2319,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                         	% [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, R2_parameters = {  }; end                                                       % [-] Parameters Cell.
+            if nargin < 2, R2_parameters = struct( [  ] ); end                                                       % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                   % If the encoding scheme is set to absolute...
@@ -2319,22 +2351,58 @@ classdef neuron_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the operational domain of the reduced inversion subnetwork output neuron.
+        function [ R1, self ] = compute_reduced_inversion_R1( self, parameters, encoding_scheme, set_flag, neuron_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 5, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
+            if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                         	% [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
+            if nargin < 2, parameters = struct( [  ] ); end                                                       % [struct] Parameters Structure.
+            
+            % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
+            if strcmpi( encoding_scheme, 'absolute' )                                                   % If the encoding scheme is set to absolute...
+
+                % Unpack the parameters required to compute the absolute inversion subnetwork output activation domain.
+                x1_max = self.unpack_reduced_absolute_inversion_R1_parameters( parameters );
+                
+                % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.            
+                R1 = neuron_utilities.compute_reduced_absolute_inversion_R1( x1_max );                          % [V] Activation Domain.
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                               % If the encoding scheme is set to relative...
+            
+                % Throw an error.
+                error( 'R1 is a free parameter for reduced relative inversion subnetworks.' )
+
+            else                                                                                        % Otherwise...
+
+                % Throw an error.
+                error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
+                
+            end
+            
+            % Determine whether to update the neuron object.
+            if set_flag, self.R = R1; end
+
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced inversion subnetwork output neuron.
         function [ R2, self ] = compute_reduced_inversion_R2( self, parameters, encoding_scheme, set_flag, neuron_utilities )
             
             % Set the default input arguments.
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                         	% [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                       % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                       % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this inversion subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                   % If the encoding scheme is set to absolute...
 
                 % Unpack the parameters required to compute the absolute inversion subnetwork output activation domain.
-                [ c1, c2 ] = self.unpack_reduced_absolute_inversion_R2_parameters( parameters );
+                [ c1, delta, x1_max ] = self.unpack_reduced_absolute_inversion_R2_parameters( parameters );
                 
                 % Compute the membrane capacitance for this neuron assuming that it belongs to an absolue inversion subnetwork.            
-                R2 = neuron_utilities.compute_reduced_absolute_inversion_R2( c1, c2 );                          % [V] Activation Domain.
+                R2 = neuron_utilities.compute_reduced_absolute_inversion_R2( c1, delta, x1_max );                          % [V] Activation Domain.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                               % If the encoding scheme is set to relative...
             
@@ -2363,7 +2431,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2401,7 +2469,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2439,7 +2507,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2477,7 +2545,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2515,7 +2583,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2551,7 +2619,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2589,7 +2657,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...
@@ -2625,7 +2693,7 @@ classdef neuron_class
             if nargin < 5, neuron_utilities = self.neuron_utilities; end                                            % [class] Neuron Utilities.
             if nargin < 4, set_flag = self.set_flag_DEFAULT; end                                                   	% [T/F] Set Flag (Determines whether to update the neuron object.)
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                      % [str] Encoding Scheme (Either 'Absolute' or 'Relative'.)
-            if nargin < 2, parameters = {  }; end                                                                   % [-] Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                   % [struct] Parameters Structure.
             
             % Determine how to compute the membrane capacitance for this division subnetwork neuron.
             if strcmpi( encoding_scheme, 'absolute' )                                                               % If the encoding scheme is set to absolute...

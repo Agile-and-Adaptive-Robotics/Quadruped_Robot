@@ -245,7 +245,7 @@ classdef synapse_class
         function [ c, x1_max, Gm2, dEs21 ] = unpack_absolute_transmission_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -278,7 +278,7 @@ classdef synapse_class
         function [ R2, Gm2, dEs21 ] = unpack_relative_transmission_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -311,7 +311,7 @@ classdef synapse_class
         function [ c_k, R_k, Gm_n, dEs_nk, Ia_n ] = unpack_absolute_addition_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                            % If the parameters are empty...
@@ -323,14 +323,14 @@ classdef synapse_class
                 dEs_nk = self.dEs;                              % [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_absolute_addition_DEFAULT;       % [A] Applied Current.
             
-            elseif length( parameters ) == 5                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c_k = parameters{ 1 };                       	% [-] Absolute Addition Subnetwork Gain.
-                R_k = parameters{ 2 };                          % [V] Activation Domain.
-                Gm_n = parameters{ 3 };                         % [S] Membrane Conductance.
-                dEs_nk = parameters{ 4 };                       % [V] Synaptic Reversal Potential.
-                Ia_n = parameters{ 5 };                         % [A] Applied Current.
+                c_k = parameters.c_k;                       	% [-] Absolute Addition Subnetwork Gain.
+                R_k = parameters.R_k;                          % [V] Activation Domain.
+                Gm_n = parameters.Gm_n;                         % [S] Membrane Conductance.
+                dEs_nk = parameters.dEs_nk;                       % [V] Synaptic Reversal Potential.
+                Ia_n = parameters.Ia_n;                         % [A] Applied Current.
                 
             else                                                % Otherwise...
                
@@ -346,7 +346,7 @@ classdef synapse_class
         function [ c_k, R_n, Gm_n, dEs_nk, Ia_n ] = unpack_relative_addition_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                            % If the parameters are empty...
@@ -358,14 +358,14 @@ classdef synapse_class
                 dEs_nk = self.dEs;                              % [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_relative_addition_DEFAULT;       % [A] Applied Current.
             
-            elseif length( parameters ) == 5                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c_k = parameters{ 1 };                         	% [-] Absolute Addition Subnetwork Gain.
-                R_n = parameters{ 2 };                          % [V] Activation Domain.
-                Gm_n = parameters{ 3 };                         % [S] Membrane Conductance.
-                dEs_nk = parameters{ 4 };                       % [V] Synaptic Reversal Potential.
-                Ia_n = parameters{ 5 };                         % [A] Applied Current.
+                c_k = parameters.c_k;                         	% [-] Absolute Addition Subnetwork Gain.
+                R_n = parameters.R_n;                          % [V] Activation Domain.
+                Gm_n = parameters.Gm_n;                         % [S] Membrane Conductance.
+                dEs_nk = parameters.dEs_nk;                       % [V] Synaptic Reversal Potential.
+                Ia_n = parameters.Ia_n;                         % [A] Applied Current.
                 
             else                                                % Otherwise...
                
@@ -383,7 +383,7 @@ classdef synapse_class
         function [ c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n ] = unpack_absolute_subtraction_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -396,15 +396,15 @@ classdef synapse_class
                 dEs_nk = self.dEs;                                  % [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_absolute_subtraction_DEFAULT;        % [A] Applied Current.
                 
-            elseif length( parameters ) == 6                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c_k = parameters{ 1 };                           	% [-] Absolute Subtraction Subnetwork Gain.
-                s_k = parameters{ 2 };                            	% [-] Excitation / Inhibition Sign.
-                R_k = parameters{ 3 };                              % [V] Activation Domain.
-                Gm_n = parameters{ 4 };                             % [S] Membrane Conductance.
-                dEs_nk = parameters{ 5 };                           % [V] Synaptic Reversal Potential.
-                Ia_n = parameters{ 6 };                             % [A] Applied Current.
+                c_k = parameter.c_k;                          	% [-] Absolute Subtraction Subnetwork Gain.
+                s_k = parameters.s_k;                            	% [-] Excitation / Inhibition Sign.
+                R_k = parameters.R_k;                              % [V] Activation Domain.
+                Gm_n = parameters.Gm_n;                             % [S] Membrane Conductance.
+                dEs_nk = parameters.dEs_nk;                           % [V] Synaptic Reversal Potential.
+                Ia_n = parameters.Ia_n;                             % [A] Applied Current.
             
             else                                                    % Otherwise...
                
@@ -420,7 +420,7 @@ classdef synapse_class
         function [ c_k, s_k, R_k, Gm_n, dEs_nk, Ia_n ] = unpack_relative_subtraction_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -433,15 +433,15 @@ classdef synapse_class
                 dEs_nk = self.dEs;                                  % [V] Synaptic Reversal Potential.
                 Ia_n = self.Ia_relative_subtraction_DEFAULT;        % [A] Applied Current.
 
-            elseif length( parameters ) == 6                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c_k = parameters{ 1 };                             	% [-] Absolute Subtraction Subnetwork Gain.
-                s_k = parameters{ 2 };                            	% [-] Excitation / Inhibition Sign.
-                R_k = parameters{ 3 };                              % [V] Activation Domain.
-                Gm_n = parameters{ 4 };                             % [S] Membrane Conductance.
-                dEs_nk = parameters{ 5 };                           % [V] Synaptic Reversal Potential.
-                Ia_n = parameters{ 6 };                             % [A] Applied Current.
+                c_k = parameters.c_k;                             	% [-] Absolute Subtraction Subnetwork Gain.
+                s_k = parameters.s_k;                            	% [-] Excitation / Inhibition Sign.
+                R_k = parameters.R_k;                              % [V] Activation Domain.
+                Gm_n = parameters.Gm_n;                             % [S] Membrane Conductance.
+                dEs_nk = parameters.dEs_nk;                           % [V] Synaptic Reversal Potential.
+                Ia_n = parameters.Ia_n;                             % [A] Applied Current.
             
             else                                                    % Otherwise...
                
@@ -494,7 +494,7 @@ classdef synapse_class
         function [ c1, c3, delta, R2, Gm2, dEs21 ] = unpack_relative_inversion_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -530,27 +530,27 @@ classdef synapse_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to unpack the parameters required to compute the reduced absolute inversion synaptic conductance.
-        function [ delta, Gm2, dEs21, Ia2 ] = unpack_reduced_absolute_inversion_gs_parameters( self, parameters )
+        function [ c1, delta, x1_max, Gm2 ] = unpack_reduced_absolute_inversion_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;
                 delta = self.delta_reduced_absolute_inversion_DEFAULT;          % [V] Reduced Absolute Inversion Offset.
+                x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;
                 Gm2 = self.Gm_DEFAULT;                                          % [S] Membrane Conductance.
-                dEs21 = self.dEs;                                               % [V] Synaptic Reversal Potential.
-                Ia2 = self.Ia2_reduced_absolute_inversion_DEFAULT;              % [A] Applied Current.
 
-            elseif length( parameters ) == 4                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                        % [V] Reduced Absolute Inversion Offset.
-                Gm2 = parameters{ 2 };                                          % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                        % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                          % [A] Applied Current.
+                c1 = parameters.c1;
+                delta = parameters.delta;                                        % [V] Reduced Absolute Inversion Offset.
+                x1_max = parameters.x1_max;
+                Gm2 = parameters.Gm2;                                          % [S] Membrane Conductance.
             
             else                                                                % Otherwise...
                
@@ -563,27 +563,27 @@ classdef synapse_class
         
             
         % Implement a function to unpack the parameters required to compute the reduced relative inversion synaptic conductance.
-        function [ delta, Gm2, dEs21, Ia2 ] = unpack_reduced_relative_inversion_gs_parameters( self, parameters )
+        function [ c1, delta, x1_max, Gm2 ] = unpack_reduced_relative_inversion_gs_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
+                c1 = self.c1_reduced_relative_inversion_DEFAULT;
                 delta = self.delta_reduced_relative_inversion_DEFAULT;          % [V] Reduced Relative Inversion Offset.
+                x1_max = self.x1max_reduced_relative_inversion_DEFAULT;
                 Gm2 = self.Gm_DEFAULT;                                          % [S] Membrane Conductance.
-                dEs21 = self.dEs;                                               % [V] Synaptic Reversal Potential.
-                Ia2 = self.Ia2_reduced_relative_inversion_DEFAULT;              % [A] Applied Current.
 
-            elseif length( parameters ) == 4                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                        % [V] Reduced Relative Inversion Offset.
-                Gm2 = parameters{ 2 };                                          % [S] Membrane Conductance.
-                dEs21 = parameters{ 3 };                                        % [V] Synaptic Reversal Potential.
-                Ia2 = parameters{ 4 };                                          % [A] Applied Current.
+                c1 = parameters.c1;
+                delta = parameters.delta;                                        % [V] Reduced Relative Inversion Offset.
+                x1_max = parameters.x1_max;
+                Gm2 = parameters.Gm2;                                          % [S] Membrane Conductance.
             
             else                                                                % Otherwise...
                
@@ -601,7 +601,7 @@ classdef synapse_class
         function [ R3, Gm3, dEs31, Ia3 ] = unpack_absolute_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -612,13 +612,13 @@ classdef synapse_class
                 dEs31 = self.dEs;                                   % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_absolute_division_DEFAULT;            % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters{ 1 };                               % [V] Activation Domain.
-                Gm3 = parameters{ 2 };                              % [S] Membrane Conductance.
-                dEs31 = parameters{ 3 };                          	% [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                              % [A] Applied Current.
+                R3 = parameters.R3;                               % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                              % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                          	% [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                              % [A] Applied Current.
             
             else                                                    % Otherwise...
                
@@ -634,7 +634,7 @@ classdef synapse_class
         function [ R3, Gm3, dEs31, Ia3 ] = unpack_relative_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -645,13 +645,13 @@ classdef synapse_class
                 dEs31 = self.dEs;                                   % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_relative_division_DEFAULT;            % [A] Applied Current.
 
-            elseif length( parameters ) == 4                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters{ 1 };                               % [V] Activation Domain.
-                Gm3 = parameters{ 2 };                             	% [S] Membrane Conductance.
-                dEs31 = parameters{ 3 };                            % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                              % [A] Applied Current.
+                R3 = parameters.R3;                               % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                             	% [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                            % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                              % [A] Applied Current.
             
             else                                                    % Otherwise...
                
@@ -669,7 +669,7 @@ classdef synapse_class
         function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_absolute_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -682,15 +682,15 @@ classdef synapse_class
                 dEs32 = self.dEs;                                       % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_absolute_division_DEFAULT;                % [A] Applied Current.
                 
-            elseif length( parameters ) == 6                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                % [V] Absolute Division Offset.
-                Gm3 = parameters{ 2 };                                  % [S] Membrane Conductance.
-                gs31 = parameters{ 3 };                                 % [S] Synaptic Conductance.
-                dEs31 = parameters{ 4 };                                % [V] Synaptic Reversal Potential.
-                dEs32 = parameters{ 5 };                                % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 6 };                                  % [A] Applied Current.
+                delta = parameters.delta;                                % [V] Absolute Division Offset.
+                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
+                gs31 = parameters.gs31;                                 % [S] Synaptic Conductance.
+                dEs31 = parameters.dEs31;                                % [V] Synaptic Reversal Potential.
+                dEs32 = parameters.dEs32;                                % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                  % [A] Applied Current.
                 
             else                                                        % Otherwise...
                
@@ -706,7 +706,7 @@ classdef synapse_class
         function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_relative_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
@@ -719,15 +719,15 @@ classdef synapse_class
                 dEs32 = self.dEs;                                       % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_absolute_division_DEFAULT;                % [A] Applied Current.
                 
-            elseif length( parameters ) == 6                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                % [V] Absolute Division Offset.
-                Gm3 = parameters{ 2 };                                  % [S] Membrane Conductance.
-                gs31 = parameters{ 3 };                                 % [S] Synaptic Conductance.
-                dEs31 = parameters{ 4 };                               	% [V] Synaptic Reversal Potential.
-                dEs32 = parameters{ 5 };                                % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 6 };                                  % [A] Applied Current.
+                delta = parameters.delta;                                % [V] Absolute Division Offset.
+                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
+                gs31 = parameters.gs31;                                 % [S] Synaptic Conductance.
+                dEs31 = parameters.dEs31;                               	% [V] Synaptic Reversal Potential.
+                dEs32 = parameters.dEs32;                                % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                  % [A] Applied Current.
                 
             else                                                        % Otherwise...
                
@@ -745,7 +745,7 @@ classdef synapse_class
         function [ R3, Gm3, dEs31, Ia3 ] = unpack_reduced_absolute_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -756,13 +756,13 @@ classdef synapse_class
                 dEs31 = self.dEs;                                           % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_reduced_absolute_division_DEFAULT;            % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters{ 1 };                                       % [V] Activation Domain.
-                Gm3 = parameters{ 2 };                                      % [S] Membrane Conductance.
-                dEs31 = parameters{ 3 };                                    % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                                      % [A] Applied Current.
+                R3 = parameters.R3;                                       % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                      % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                                    % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                      % [A] Applied Current.
             
             else                                                            % Otherwise...
                
@@ -778,7 +778,7 @@ classdef synapse_class
         function [ R3, Gm3, dEs31, Ia3 ] = unpack_reduced_relative_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -789,13 +789,13 @@ classdef synapse_class
                 dEs31 = self.dEs;                                           % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_reduced_relative_division_DEFAULT;            % [A] Applied Current.
 
-            elseif length( parameters ) == 4                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters{ 1 };                                       % [V] Activation Domain.
-                Gm3 = parameters{ 2 };                                      % [S] Membrane Conductance.
-                dEs31 = parameters{ 3 };                                    % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                                      % [A] Applied Current.
+                R3 = parameters.R3;                                       % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                      % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                                    % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                      % [A] Applied Current.
             
             else                                                            % Otherwise...
                
@@ -813,7 +813,7 @@ classdef synapse_class
         function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_reduced_absolute_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                            % If the parameters are empty...
@@ -826,15 +826,15 @@ classdef synapse_class
                 dEs32 = self.dEs;                                               % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_reduced_absolute_division_DEFAULT;                % [A] Applied Current.
                 
-            elseif length( parameters ) == 6                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                        % [V] Reduced Absolute Division Offset.
-                Gm3 = parameters{ 2 };                                          % [S] Membrane Conductance.
-                gs31 = parameters{ 3 };                                         % [S] Synaptic Conductance.
-                dEs31 = parameters{ 4 };                                        % [V] Synaptic Reversal Potential.
-                dEs32 = parameters{ 5 };                                        % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 6 };                                          % [A] Applied Current.
+                delta = parameters.delta;                                        % [V] Reduced Absolute Division Offset.
+                Gm3 = parameters.Gm3;                                          % [S] Membrane Conductance.
+                gs31 = parameters.gs31;                                         % [S] Synaptic Conductance.
+                dEs31 = parameters.dEs31;                                        % [V] Synaptic Reversal Potential.
+                dEs32 = parameters.dEs32;                                        % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                          % [A] Applied Current.
                 
             else                                                                % Otherwise...
                
@@ -850,7 +850,7 @@ classdef synapse_class
         function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_reduced_relative_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                            % If the parameters are empty...
@@ -863,15 +863,15 @@ classdef synapse_class
                 dEs32 = self.dEs;                                               % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_DEFAULT;                                          % [A] Applied Current.
                 
-            elseif length( parameters ) == 6                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters{ 1 };                                        % [V] Reduced Relative Division Offset.
-                Gm3 = parameters{ 2 };                                          % [S] Membrane Conductance.
-                gs31 = parameters{ 3 };                                         % [S] Synaptic Conductance.
-                dEs31 = parameters{ 4 };                                        % [V] Synaptic Reversal Potential.
-                dEs32 = parameters{ 5 };                                        % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 6 };                                          % [A] Applied Current.
+                delta = parameters.delta;                                        % [V] Reduced Relative Division Offset.
+                Gm3 = parameters.Gm3;                                          % [S] Membrane Conductance.
+                gs31 = parameters.gs31;                                         % [S] Synaptic Conductance.
+                dEs31 = parameters.dEs31;                                        % [V] Synaptic Reversal Potential.
+                dEs32 = parameters.dEs32;                                        % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                          % [A] Applied Current.
                 
             else                                                              	% Otherwise...
                
@@ -889,7 +889,7 @@ classdef synapse_class
         function [ c1, c3, delta1, delta2, R1, R2 ] = unpack_absolute_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
@@ -902,15 +902,15 @@ classdef synapse_class
                 R1 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 R2 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 
-            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
-                c3 = parameters{ 2 };                                                   % [-] Absolute Division After Inversion Gain 3.
-                delta1 = parameters{ 3 };                                               % [V] Absolute Inversion Offset.
-                delta2 = parameters{ 4 };                                               % [V] Absolute Division After Inversion Offset.
-                R1 = parameters{ 5 };                                                   % [V] Activation Domain.
-                R2 = parameters{ 6 };                                                   % [V] Activation Domain.
+                c1 = parameters.c1;                                                   % [-] Absolute Division After Inversion Gain 1.
+                c3 = parameters.c3;                                                   % [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters.delta1;                                               % [V] Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                               % [V] Absolute Division After Inversion Offset.
+                R1 = parameters.R1;                                                   % [V] Activation Domain.
+                R2 = parameters.R2;                                                   % [V] Activation Domain.
             
             else                                                                        % Otherwise...
                
@@ -926,7 +926,7 @@ classdef synapse_class
         function [ c1, c3, delta1, delta2, R2, dEs31 ] = unpack_relative_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                % If the parameters are empty...
@@ -939,15 +939,15 @@ classdef synapse_class
                 R2 = self.R_DEFAULT;                                                % [V] Activation Domain.
                 dEs31 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
 
-            elseif length( parameters ) == 6                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters{ 1 };                                               % [-] Relative Division After Inversion Gain 1.
-                c3 = parameters{ 2 };                                               % [-] Relative Division After Inversion Gain 3.
-                delta1 = parameters{ 3 };                                           % [V] Relative Inversion Offset.
-                delta2 = parameters{ 4 };                                           % [V] Relative Division After Inversion Offset.
-                R2 = parameters{ 5 };                                               % [V] Activation Domain.
-                dEs31 = parameters{ 6 };                                            % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;                                               % [-] Relative Division After Inversion Gain 1.
+                c3 = parameters.c3;                                               % [-] Relative Division After Inversion Gain 3.
+                delta1 = parameters.delta1;                                           % [V] Relative Inversion Offset.
+                delta2 = parameters.delta2;                                           % [V] Relative Division After Inversion Offset.
+                R2 = parameters.R2;                                               % [V] Activation Domain.
+                dEs31 = parameters.dEs31;                                            % [V] Synaptic Reversal Potential.
             
             else                                                                    % Otherwise...
                
@@ -965,7 +965,7 @@ classdef synapse_class
         function [ c1, c3, delta2, R1, R2, dEs31 ] = unpack_absolute_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
@@ -978,15 +978,15 @@ classdef synapse_class
                 R2 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 dEs31 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
-                c3 = parameters{ 2 };                                                   % [-] Absolute Division After Inversion Gain 3.
-                delta2 = parameters{ 3 };                                             	% [V] Absolute Division After Inversion Offset.
-                R1 = parameters{ 4 };                                                   % [V] Activation Domain.
-                R2 = parameters{ 5 };                                               	% [V] Activation Domain.
-                dEs31 = parameters{ 6 };                                               	% [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;                                                   % [-] Absolute Division After Inversion Gain 1.
+                c3 = parameters.c3;                                                   % [-] Absolute Division After Inversion Gain 3.
+                delta2 = parameters.delta2;                                             	% [V] Absolute Division After Inversion Offset.
+                R1 = parameters.R1;                                                   % [V] Activation Domain.
+                R2 = parameters.R2;                                               	% [V] Activation Domain.
+                dEs31 = parameters.dEs31;                                               	% [V] Synaptic Reversal Potential.
                 
             else                                                                        % Otherwise...
                
@@ -1002,7 +1002,7 @@ classdef synapse_class
         function [ c1, c3, delta1, delta2, R2, dEs31 ] = unpack_relative_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
@@ -1015,15 +1015,15 @@ classdef synapse_class
                 R2 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 dEs31 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters{ 1 };                                                   % [-] Relative Division After Inversion Gain 1.
-                c3 = parameters{ 2 };                                                   % [-] Relative Division After Inversion Gain 3.
-                delta1 = parameters{ 3 };                                               % [V] Relative Inversion Offset.
-                delta2 = parameters{ 4 };                                               % [V] Relative Division After Inversion Offset.
-                R2 = parameters{ 5 };                                                  	% [V] Activation Domain.
-                dEs31 = parameters{ 6 };                                                % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;                                                   % [-] Relative Division After Inversion Gain 1.
+                c3 = parameters.c3;                                                   % [-] Relative Division After Inversion Gain 3.
+                delta1 = parameters.delta1;                                               % [V] Relative Inversion Offset.
+                delta2 = parameters.delta2;                                               % [V] Relative Division After Inversion Offset.
+                R2 = parameters.R2;                                                  	% [V] Activation Domain.
+                dEs31 = parameters.dEs31;                                                % [V] Synaptic Reversal Potential.
                 
             else                                                                        % Otherwise...
                
@@ -1041,7 +1041,7 @@ classdef synapse_class
         function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_absolute_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1054,15 +1054,15 @@ classdef synapse_class
                 Gm3 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
                 dEs31 = self.dEs;                                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                                	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Reduced Absolute Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Reduced Absolute Division After Inversion Offset.
-                R2 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R3 = parameters{ 4 };                                                         	% [V] Activation Domain.
-                Gm3 = parameters{ 5 };                                                          % [S] Membrane Conductance.
-                dEs31 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Reduced Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Reduced Absolute Division After Inversion Offset.
+                R2 = parameters.R2;                                                           % [V] Activation Domain.
+                R3 = parameters.R3;                                                         	% [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                                          % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1078,7 +1078,7 @@ classdef synapse_class
         function [ delta1, delta2, R2, R3, dEs31 ] = unpack_reduced_relative_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1090,14 +1090,14 @@ classdef synapse_class
                 R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
                 dEs31 = self.dEs;                                                               % [V] Synaptic Reversal Potential.
 
-            elseif length( parameters ) == 5                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Reduced Relative Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Reduced Rleative Division After Inversion Offset.
-                R2 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R3 = parameters{ 4 };                                                           % [V] Activation Domain.
-                dEs31 = parameters{ 5 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Reduced Relative Inversion Offset.
+                delta2 = parameters.detla2;                                                       % [V] Reduced Rleative Division After Inversion Offset.
+                R2 = parameters.R2;                                                           % [V] Activation Domain.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                dEs31 = parameters.dEs31;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1115,7 +1115,7 @@ classdef synapse_class
         function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_absolute_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1128,15 +1128,15 @@ classdef synapse_class
                 Gm3 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
                 dEs31 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                  	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                                  	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Reduced Absolute Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Reduced Absolute Division After Inversion Offset.
-                R2 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R3 = parameters{ 4 };                                                           % [V] Activation Domain.
-                Gm3 = parameters{ 5 };                                                          % [S] Membrane Conductance.
-                dEs31 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Reduced Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Reduced Absolute Division After Inversion Offset.
+                R2 = parameters.R2;                                                           % [V] Activation Domain.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                                          % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1152,7 +1152,7 @@ classdef synapse_class
         function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_relative_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1165,15 +1165,15 @@ classdef synapse_class
                 Gm3 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
                 dEs31 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
 
-            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Reduced Relative Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Reduced Relative Division After Inversion Offset.
-                R2 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R3 = parameters{ 4 };                                                           % [V] Activation Domain.
-                Gm3 = parameters{ 5 };                                                          % [S] Membrane Conductance.
-                dEs31 = parameters{ 6 };                                                     	% [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Reduced Relative Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Reduced Relative Division After Inversion Offset.
+                R2 = parameters.R2;                                                           % [V] Activation Domain.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                                          % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                                                     	% [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1191,7 +1191,7 @@ classdef synapse_class
         function [ c4, c6, delta1, delta2, R1, R3 ] = unpack_absolute_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
@@ -1204,15 +1204,15 @@ classdef synapse_class
                 R1 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 R3 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 
-            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c4 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
-                c6 = parameters{ 2 };                                                   % [-] Absolute Division After Inversion Gain 3.
-                delta1 = parameters{ 3 };                                               % [V] Absolute Inversion Offset.
-                delta2 = parameters{ 4 };                                               % [V] Absolute Division Offset.
-                R1 = parameters{ 5 };                                                   % [V] Activation Domain.
-                R3 = parameters{ 6 };                                                   % [V] Activation Domain.
+                c4 = parameters.c4;                                                   % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters.c6;                                                   % [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters.delta1;                                               % [V] Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                               % [V] Absolute Division Offset.
+                R1 = parameters.R1;                                                   % [V] Activation Domain.
+                R3 = parameters.R3;                                                   % [V] Activation Domain.
             
             else                                                                        % Otherwise...
                
@@ -1228,7 +1228,7 @@ classdef synapse_class
         function [ c4, c6, delta1, delta2, R3, dEs41 ] = unpack_relative_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                % If the parameters are empty...
@@ -1241,15 +1241,15 @@ classdef synapse_class
                 R3 = self.R_DEFAULT;                                                % [V] Activation Domain.
                 dEs41 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c4 = parameters{ 1 };                                               % [-] Absolute Division After Inversion Gain 1.
-                c6 = parameters{ 2 };                                               % [-] Absolute Division After Inversion Gain 3.
-                delta1 = parameters{ 3 };                                           % [V] Absolute Inversion Offset.
-                delta2 = parameters{ 4 };                                           % [V] Absolute Division Offset.
-                R3 = parameters{ 5 };                                               % [V] Activation Domain.
-                dEs41 = parameters{ 6 };                                           	% [V] Synaptic Reversal Potential.
+                c4 = parameters.c4;                                               % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters.c6;                                               % [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters.delta1;                                           % [V] Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                           % [V] Absolute Division Offset.
+                R3 = parameters.R3;                                               % [V] Activation Domain.
+                dEs41 = parameters.dEs41;                                           	% [V] Synaptic Reversal Potential.
             
             else                                                                    % Otherwise...
                
@@ -1267,7 +1267,7 @@ classdef synapse_class
         function [ delta1, Gm3, dEs32, Ia3 ] = unpack_absolute_multiplication_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -1278,13 +1278,13 @@ classdef synapse_class
                 dEs32 = self.dEs;                                           % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_absolute_inversion_DEFAULT;                   % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                               	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                               	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                   % [V] Absolute Inversion Offset.
-                Gm3 = parameters{ 2 };                                      % [S] Membrane Conductance.
-                dEs32 = parameters{ 3 };                                    % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                                      % [A] Applied Current.
+                delta1 = parameters.delta1;                                   % [V] Absolute Inversion Offset.
+                Gm3 = parameters.Gm3;                                      % [S] Membrane Conductance.
+                dEs32 = parameters.dEs32;                                    % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                      % [A] Applied Current.
             
             else                                                            % Otherwise...
                
@@ -1300,7 +1300,7 @@ classdef synapse_class
         function [ delta1, Gm3, dEs32, Ia3 ] = unpack_relative_multiplication_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -1311,13 +1311,13 @@ classdef synapse_class
                 dEs32 = self.dEs;                                           % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_relative_inversion_DEFAULT;                   % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                   % [V] Relative Inversion Offset.
-                Gm3 = parameters{ 2 };                                   	% [S] Membrane Conductance.
-                dEs32 = parameters{ 3 };                                    % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                                      % [A] Applied Current.
+                delta1 = parameters.delta1;                                   % [V] Relative Inversion Offset.
+                Gm3 = parameters.Gm3;                                   	% [S] Membrane Conductance.
+                dEs32 = parameters.dEs32;                                    % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                      % [A] Applied Current.
             
             else                                                            % Otherwise...
                
@@ -1335,7 +1335,7 @@ classdef synapse_class
         function [ c4, c6, delta2, R1, R3, dEs41 ] = unpack_absolute_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
@@ -1348,15 +1348,15 @@ classdef synapse_class
                 R3 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 dEs41 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c4 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
-                c6 = parameters{ 2 };                                                   % [-] Absolute Division After Inversion Gain 3.
-                delta2 = parameters{ 3 };                                               % [V] Absolute Division Offset.
-                R1 = parameters{ 4 };                                                   % [V] Activation Domain.
-                R3 = parameters{ 5 };                                                   % [V] Activation Domain.
-                dEs41 = parameters{ 6 };                                                % [V] Synaptic Reversal Potential.
+                c4 = parameters.c4;                                                   % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters.c6;                                                   % [-] Absolute Division After Inversion Gain 3.
+                delta2 = parameters.delta2;                                               % [V] Absolute Division Offset.
+                R1 = parameters.R1;                                                   % [V] Activation Domain.
+                R3 = parameters.R3;                                                   % [V] Activation Domain.
+                dEs41 = parameters.dEs41;                                                % [V] Synaptic Reversal Potential.
             
             else                                                                        % Otherwise...
                
@@ -1372,7 +1372,7 @@ classdef synapse_class
         function [ c4, c6, delta1, delta2, R3, dEs41 ] = unpack_relative_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
@@ -1385,15 +1385,15 @@ classdef synapse_class
                 R3 = self.R_DEFAULT;                                                    % [V] Activation Domain.
                 dEs41 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c4 = parameters{ 1 };                                                   % [-] Absolute Division After Inversion Gain 1.
-                c6 = parameters{ 2 };                                                  	% [-] Absolute Division After Inversion Gain 3.
-                delta1 = parameters{ 3 };                                               % [V] Absolute Inversion Offset.
-                delta2 = parameters{ 4 };                                               % [V] Absolute Division After Inversion Offset.
-                R3 = parameters{ 5 };                                                   % [V] Activation Domain.
-                dEs41 = parameters{ 6 };                                                % [V] Synaptic Reversal Potential.
+                c4 = parameters.c4;                                                   % [-] Absolute Division After Inversion Gain 1.
+                c6 = parameters.c6;                                                  	% [-] Absolute Division After Inversion Gain 3.
+                delta1 = parameters.delta1;                                               % [V] Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                               % [V] Absolute Division After Inversion Offset.
+                R3 = parameters.R3;                                                   % [V] Activation Domain.
+                dEs41 = parameters.dEs41;                                                % [V] Synaptic Reversal Potential.
             
             else                                                                    % Otherwise...
                
@@ -1411,7 +1411,7 @@ classdef synapse_class
         function [ delta1, delta2, R3, R4, Gm4, dEs41 ] = unpack_reduced_absolute_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1424,15 +1424,15 @@ classdef synapse_class
                 Gm4 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
                 dEs41 = self.dEs;                                                               % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Absolute Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Absolute Division Offset.
-                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
-                Gm4 = parameters{ 5 };                                                          % [S] Membrane Conductance.
-                dEs41 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Absolute Division Offset.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                R4 = parameters.R4;                                                           % [V] Activation Domain.
+                Gm4 = parameters.Gm4;                                                          % [S] Membrane Conductance.
+                dEs41 = parameters.dEs41;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1448,7 +1448,7 @@ classdef synapse_class
         function [ delta1, delta2, R3, R4, dEs41 ] = unpack_reduced_relative_multiplication_gs41_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1460,14 +1460,14 @@ classdef synapse_class
                 R4 = self.R_DEFAULT;                                                            % [V] Activation Domain.
                 dEs41 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 5                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Relative Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Relative Division After Inversion Offset.
-                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
-                dEs41 = parameters{ 5 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Relative Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Relative Division After Inversion Offset.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                R4 = parameters.R4;                                                           % [V] Activation Domain.
+                dEs41 = parameters.dEs41;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1485,7 +1485,7 @@ classdef synapse_class
         function [ delta1, Gm3, dEs32, Ia3 ] = unpack_reduced_absolute_multiplication_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                % If the parameters are empty...
@@ -1496,13 +1496,13 @@ classdef synapse_class
                 dEs32 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_reduced_absolute_inversion_DEFAULT;                   % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                           % [V] Reduced Absolute Inversion Offset.
-                Gm3 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                dEs32 = parameters{ 3 };                                            % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                                              % [A] Applied Current.
+                delta1 = parameters.delta1;                                           % [V] Reduced Absolute Inversion Offset.
+                Gm3 = parameters.Gm3;                                              % [S] Membrane Conductance.
+                dEs32 = parameters.dEs32;                                            % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                              % [A] Applied Current.
             
             else                                                                    % Otherwise...
                
@@ -1518,7 +1518,7 @@ classdef synapse_class
         function [ delta1, Gm3, dEs32, Ia3 ] = unpack_reduced_relative_multiplication_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                % If the parameters are empty...
@@ -1529,13 +1529,13 @@ classdef synapse_class
                 dEs32 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
                 Ia3 = self.Ia_reduced_relative_inversion_DEFAULT;                   % [A] Applied Current.
                 
-            elseif length( parameters ) == 4                                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 4                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                           % [V] Reduced Relative Inversion Offset.
-                Gm3 = parameters{ 2 };                                              % [S] Membrane Conductance.
-                dEs32 = parameters{ 3 };                                            % [V] Synaptic Reversal Potential.
-                Ia3 = parameters{ 4 };                                              % [A] Applied Current.
+                delta1 = parameters.delta1;                                           % [V] Reduced Relative Inversion Offset.
+                Gm3 = parameters.Gm3;                                              % [S] Membrane Conductance.
+                dEs32 = parameters.dEs32;                                            % [V] Synaptic Reversal Potential.
+                Ia3 = parameters.Ia3;                                              % [A] Applied Current.
             
             else                                                                    % Otherwise...
                
@@ -1553,7 +1553,7 @@ classdef synapse_class
         function [ delta1, delta2, R3, R4, Gm4, dEs41 ] = unpack_reduced_absolute_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1566,15 +1566,15 @@ classdef synapse_class
                 Gm4 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
                 dEs41 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Absolute Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Absolute Division After Inversion Offset.
-                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
-                Gm4 = parameters{ 5 };                                                          % [S] Membrane Conductance.
-                dEs41 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Absolute Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Absolute Division After Inversion Offset.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                R4 = parameters.R4;                                                           % [V] Activation Domain.
+                Gm4 = parameters.Gm4;                                                          % [S] Membrane Conductance.
+                dEs41 = parameters.dEs41;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -1590,7 +1590,7 @@ classdef synapse_class
         function [ delta1, delta2, R3, R4, Gm4, dEs41 ] = unpack_reduced_relative_multiplication_gs43_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = {  }; end                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                            % If the parameters are empty...
@@ -1603,15 +1603,15 @@ classdef synapse_class
                 Gm4 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
                 dEs41 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
                 
-            elseif length( parameters ) == 6                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters{ 1 };                                                       % [V] Relative Inversion Offset.
-                delta2 = parameters{ 2 };                                                       % [V] Relative Division After Inversion Offset.
-                R3 = parameters{ 3 };                                                           % [V] Activation Domain.
-                R4 = parameters{ 4 };                                                           % [V] Activation Domain.
-                Gm4 = parameters{ 5 };                                                          % [S] Membrane Conductance.
-                dEs41 = parameters{ 6 };                                                        % [V] Synaptic Reversal Potential.
+                delta1 = parameters.delta1;                                                       % [V] Relative Inversion Offset.
+                delta2 = parameters.delta2;                                                       % [V] Relative Division After Inversion Offset.
+                R3 = parameters.R3;                                                           % [V] Activation Domain.
+                R4 = parameters.R4;                                                           % [V] Activation Domain.
+                Gm4 = parameters.Gm4;                                                          % [S] Membrane Conductance.
+                dEs41 = parameters.dEs41;                                                        % [V] Synaptic Reversal Potential.
             
             else                                                                                % Otherwise...
                
@@ -2417,7 +2417,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                  % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                 % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                               % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an addition subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If the encoding scheme is set to absolute...
@@ -2459,7 +2459,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                      % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                     % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                      % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                   % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an addition subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
@@ -2501,7 +2501,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                              % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                           % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for a subtraction subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
@@ -2543,7 +2543,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                 	% [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                 % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                  % [str] Encoding Scheme.
-            if nargin < 2, parameters = struct( [  ] ); end                                                                    	% [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                    	% [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an inversion subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                           % If the encoding scheme is set to absolute...
@@ -2585,7 +2585,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                          % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                         % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                          % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                       % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an inversion subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                   % If the encoding scheme is set to absolute...
@@ -2627,7 +2627,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                            	% [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If the encoding scheme is set to absolute...
@@ -2667,7 +2667,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                              % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                           % [-] Input Parameter Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                           % [-] Input Parameter Cell.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
@@ -2709,7 +2709,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                      % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                     % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                   	% [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                   % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
@@ -2749,7 +2749,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                      % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                                     % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                     	% [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                                   % [-] Input Parameter Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                                   % [-] Input Parameter Cell.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                               % If the encoding scheme is set to absolute...
@@ -2791,7 +2791,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                      % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                     % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                      % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                   % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
@@ -2831,7 +2831,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                      % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                     % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                      % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                   % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
@@ -2873,7 +2873,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                              % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                           % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
@@ -2913,7 +2913,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                              % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                           % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
@@ -2955,7 +2955,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                  % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                                 % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                  % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                               % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                           % If the encoding scheme is set to absolute...
@@ -2995,7 +2995,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                      % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                     % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                      % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                   % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                   % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
@@ -3035,7 +3035,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                  % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                                 % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                  % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                               % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                               % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                           % If the encoding scheme is set to absolute...
@@ -3077,7 +3077,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                          % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                                         % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                          % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                                       % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                                   % If the encoding scheme is set to absolute...
@@ -3117,7 +3117,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                              % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                            	% [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                           % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                           % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
@@ -3157,7 +3157,7 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                          % [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                                                         % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                          % [str] Encoding Scheme.
-            if nargin < 2, parameters = {  }; end                                                                                                       % [-] Input Parameters Cell.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                                       % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                                                   % If the encoding scheme is set to absolute...

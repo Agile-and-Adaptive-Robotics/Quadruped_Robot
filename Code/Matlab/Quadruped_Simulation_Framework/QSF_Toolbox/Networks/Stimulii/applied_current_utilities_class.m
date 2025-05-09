@@ -280,14 +280,16 @@ classdef applied_current_utilities_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the magnitude of output reduced absolute inversion subnetwork applied currents.
-        function Ias2 = compute_reduced_absolute_inversion_Ias2( self, Gm2, R2 )
+        function Ias2 = compute_reduced_absolute_inversion_Ias2( self, c1, delta, x1_max, Gm2 )
             
             % Define the default input arguments.
-            if nargin < 3, R2 = self.R_DEFAULT; end                                          % [V] Activation Domain.
-            if nargin < 2, Gm2 = self.Gm_DEFAULT; end                                        % [S] Membrane Conductance.
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end                                        % [S] Membrane Conductance.
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 3, delta = self.delta_DEFAULT; end
+            if nargin < 2, c1 = self.c1_DEFAULT; end
             
             % Compute the magnitude of the inversion subentwork applied currents.
-            Ias2 = Gm2.*R2;                                                                    % [A] Applied Current.
+            Ias2 = ( c1.*delta.*Gm2 )./( c1 - delta.*x1_max );                                                                    % [A] Applied Current.
             
         end
         

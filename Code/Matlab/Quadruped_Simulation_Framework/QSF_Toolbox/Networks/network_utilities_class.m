@@ -2922,15 +2922,16 @@ classdef network_utilities_class
 
         
         % Implement a function to encode the reduced relative inversion output.
-        function U2 = encode_reduced_relative_inversion_output( self, x2, c1, c2, R2 )
+        function U2 = encode_reduced_relative_inversion_output( self, x2, c1, delta, x1_max, R2 )
         
             % Set the default input arguments.
-            if nargin < 5, R2 = self.R_DEFAULT; end
-            if nargin < 4, c2 = self.c2_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
             if nargin < 3, c1 = self.c1_DEFAULT; end
             
             % Encode the output.
-            U2 = ( ( c2.*R2 )./c1 ).*x2;
+            U2 = ( ( ( c1 - delta.*x1_max ).*R2 )./( c1.*delta ) ).*x2;
             
         end
         
@@ -2949,15 +2950,16 @@ classdef network_utilities_class
         
         
         % Implement a function to decode the reduced relative inversion output.
-        function x2 = decode_reduced_relative_inversion_output( self, U2, c1, c2, R2 )
+        function x2 = decode_reduced_relative_inversion_output( self, U2, c1, delta, x1_max, R2 )
         
             % Set the default input arguments.
-            if nargin < 5, R2 = self.R_DEFAULT; end
-            if nargin < 4, c2 = self.c2_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
             if nargin < 3, c1 = self.c1_DEFAULT; end
             
             % Decode the output.
-            x2 = ( c1./( c2.*R2 ) ).*U2;
+            x2 = ( ( c1.*delta )./( ( c1 - delta.*x1_max ).*R2 ) ).*U2;
             
         end
         

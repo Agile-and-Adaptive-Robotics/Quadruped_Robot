@@ -37,8 +37,9 @@ classdef applied_current_manager_class
         n_svbi_applied_currents_DEFAULT = 3;                                                                    % [#] Number of Split Voltage Based Integration Applied Currents.
         
         % Define the subnetwork neuron quantities.
-        n_inversion_neurons_DEFAULT = 2;                                                                        % [#] Number of 
-        
+        n_inversion_neurons_DEFAULT = 2;                                                                        % [#] Number of Inversion Subnetwork Neurons.
+        n_reduced_inversion_neurons_DEFAULT = 2;                                                               	% [#] Number of Reduced Inversion Subnetwork Neurons.
+
         % Define the default applied current properties.
         ts_DEFAULT = 0;                                                                                         % [s] Applied Current Times.
         Ias_DEFAULT = 0;                                                                                        % [A] Applied Current Magnitudes.
@@ -1209,17 +1210,21 @@ classdef applied_current_manager_class
                 if isempty( params )                                                % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
-                    Gm2 = self.Gm_DEFAULT;
-                    R2 = self.R_DEFAULT;                           
+                    c1 = self.c1_DEFAULT;
+                    delta = self.delta_DEFAULT;
+                    x1_max = self.x1max_DEFAULT;
+                    Gm2 = self.Gm2_DEFAULT;
                     
                     % Store the required params.
+                    params.c1 = c1;
+                    params.delta = delta;
+                    params.x1_max = x1_max;
                     params.Gm2 = Gm2;
-                    params.R2 = R2;
-                    
+
                 else                                                                    % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( params ) ) ~= 2                                        % If there is anything other than three parameter entries...
+                    if length( fieldnames( params ) ) ~= 4                                        % If there is anything other than three parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -2582,18 +2587,19 @@ classdef applied_current_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to pack the params for a reduced absolute inversion subnetwork.
-        function reduced_inversion_params = pack_reduced_absolute_inversion_params( self, R2, Gm2 )
+        function reduced_inversion_params = pack_reduced_absolute_inversion_params( self, c1, delta, x1_max, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, R2 = self.R_DEFAULT; end
-            
-            % Preallocate a cell array to store the params.
-            reduced_inversion_params = cell( 1, 2 );
-            
+            if nargin < 5, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_abolute_division_DEFAULT; end
+
             % Pack the params.
-            reduced_inversion_params{ 1 } = R2;
-            reduced_inversion_params{ 2 } = Gm2;            
+            reduced_inversion_params.c1 = c1;
+            reduced_inversion_params.delta = delta;
+            reduced_inversion_params.x1_max = x1_max;
+            reduced_inversion_params.Gm2 = Gm2;            
             
         end
         
@@ -2605,12 +2611,9 @@ classdef applied_current_manager_class
             if nargin < 3, Gm2 = self.Gm_DEFAULT; end
             if nargin < 2, R2 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_inversion_params = cell( 1, 2 );
-            
             % Pack the params.
-            reduced_inversion_params{ 1 } = R2;
-            reduced_inversion_params{ 2 } = Gm2;            
+            reduced_inversion_params.R2 = R2;
+            reduced_inversion_params.Gm2 = Gm2;            
             
         end
         
@@ -2624,12 +2627,9 @@ classdef applied_current_manager_class
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            multiplication_params = cell( 1, 2 );
-            
             % Pack the params.
-            multiplication_params{ 1 } = R3;
-            multiplication_params{ 2 } = Gm3;            
+            multiplication_params.R3 = R3;
+            multiplication_params.Gm3 = Gm3;            
             
         end
         
@@ -2640,13 +2640,10 @@ classdef applied_current_manager_class
             % Set the default input arguments.
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
-            
-            % Preallocate a cell array to store the params.
-            multiplication_params = cell( 1, 2 );
-            
+                        
             % Pack the params.
-            multiplication_params{ 1 } = R3;
-            multiplication_params{ 2 } = Gm3;            
+            multiplication_params.R3 = R3;
+            multiplication_params.Gm3 = Gm3;            
             
         end
         
@@ -2660,12 +2657,9 @@ classdef applied_current_manager_class
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_multiplication_params = cell( 1, 2 );
-            
             % Pack the params.
-            reduced_multiplication_params{ 1 } = R3;
-            reduced_multiplication_params{ 2 } = Gm3;            
+            reduced_multiplication_params.R3 = R3;
+            reduced_multiplication_params.Gm3 = Gm3;            
             
         end
         
@@ -2677,12 +2671,9 @@ classdef applied_current_manager_class
             if nargin < 3, Gm3 = self.Gm_DEFAULT; end
             if nargin < 2, R3 = self.R_DEFAULT; end
             
-            % Preallocate a cell array to store the params.
-            reduced_multiplication_params = cell( 1, 2 );
-            
             % Pack the params.
-            reduced_multiplication_params{ 1 } = R3;
-            reduced_multiplication_params{ 2 } = Gm3;            
+            reduced_multiplication_params.R3 = R3;
+            reduced_multiplication_params.Gm3 = Gm3;            
             
         end
         
@@ -2704,11 +2695,11 @@ classdef applied_current_manager_class
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( inversion_params ) == 2                                                              % If there are a specific number of params...
+            elseif length( fieldnames( inversion_params ) ) == 2                                                              % If there are a specific number of params...
                 
                 % Unpack the params.
-                R2 = inversion_params{ 1 };                                                                     % [V] Activation Domain.
-                Gm2 = inversion_params{ 2 };                                                                    % [S] Membrane Conductance.
+                R2 = inversion_params.R2;                                                                     % [V] Activation Domain.
+                Gm2 = inversion_params.Gm2;                                                                    % [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2733,11 +2724,11 @@ classdef applied_current_manager_class
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( inversion_params ) == 2                                                              % If there are a specific number of params...
+            elseif length( fieldnames( inversion_params ) ) == 2                                                              % If there are a specific number of params...
                 
                 % Unpack the params.
-                R2 = inversion_params{ 1 };                                                                     % [V] Activation Domain.
-                Gm2 = inversion_params{ 2 };                                                                    % [S] Membrane Conductance.
+                R2 = inversion_params.R2;                                                                     % [V] Activation Domain.
+                Gm2 = inversion_params.Gm2;                                                                    % [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2752,7 +2743,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to unpack reduced absolute inversion subnetwork params.
-        function [ R2, Gm2 ] = unpack_reduced_absolute_inversion_params( self, reduced_inversion_params )
+        function [ c1, delta, x1_max, Gm2 ] = unpack_reduced_absolute_inversion_params( self, reduced_inversion_params )
             
             % Set the default input arguments.
             if nargin < 2, reduced_inversion_params = struct( [  ] ); end                                                      	% [-] Input Parameters Cell.
@@ -2761,14 +2752,18 @@ classdef applied_current_manager_class
             if isempty( reduced_inversion_params )                                                                      % If the params are empty...
             
                 % Set the params to default values.
-                R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
+                c1 = self.c1_reduced_absolute_inversion_DEFAULT;
+                delta = self.delta_reduced_absolute_inversion_DEFAULT;
+                x1_max = self.x1max_reduce_absolute_inversion_DEFAULT; 
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( reduced_inversion_params ) == 2                                                              % If there are a specific number of params...
+            elseif length( fieldnames( reduced_inversion_params ) ) == 4                                                              % If there are a specific number of params...
                 
                 % Unpack the params.
-                R2 = reduced_inversion_params{ 1 };                                                                     % [V] Activation Domain.
-                Gm2 = reduced_inversion_params{ 2 };                                                                    % [S] Membrane Conductance.
+                c1 = reduced_inversion_params.c1;
+                delta = reduced_inversion_params.delta;
+                x1_max = reduced_inversion_params.x1_max;
+                Gm2 = reduced_inversion_params.Gm2;                                                                    % [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2793,11 +2788,11 @@ classdef applied_current_manager_class
                 R2 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( reduced_inversion_params ) == 2                                                     	% If there are a specific number of params...
+            elseif length( fieldnames( reduced_inversion_params ) ) == 2                                                     	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R2 = reduced_inversion_params{ 1 };                                                            	% [V] Activation Domain.
-                Gm2 = reduced_inversion_params{ 2 };                                                          	% [S] Membrane Conductance.
+                R2 = reduced_inversion_params.R2;                                                            	% [V] Activation Domain.
+                Gm2 = reduced_inversion_params.Gm2;                                                          	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2824,11 +2819,11 @@ classdef applied_current_manager_class
                 R3 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( multiplication_params ) == 2                                                       	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 2                                                       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R3 = multiplication_params{ 1 };                                                              	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 2 };                                                             	% [S] Membrane Conductance.
+                R3 = multiplication_params.R3;                                                              	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                             	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2853,11 +2848,11 @@ classdef applied_current_manager_class
                 R3 = self.R_DEFAULT;                                                                                % [V] Activation Domain.                                                                                            % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.                                                                                          % [S] Membrane Conductance.
                 
-            elseif length( multiplication_params ) == 2                                                       	% If there are a specific number of params...
+            elseif length( fieldnames( multiplication_params ) ) == 2                                                       	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R3 = multiplication_params{ 1 };                                                              	% [V] Activation Domain.
-                Gm3 = multiplication_params{ 2 };                                                             	% [S] Membrane Conductance.
+                R3 = multiplication_params.R3;                                                              	% [V] Activation Domain.
+                Gm3 = multiplication_params.Gm3;                                                             	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2887,8 +2882,8 @@ classdef applied_current_manager_class
             elseif length( reduced_multiplication_params ) == 2                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R3 = reduced_multiplication_params{ 1 };                                                       	% [V] Activation Domain.
-                Gm3 = reduced_multiplication_params{ 2 };                                                   	% [S] Membrane Conductance.
+                R3 = reduced_multiplication_params.R3;                                                       	% [V] Activation Domain.
+                Gm3 = reduced_multiplication_params.Gm3;                                                   	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -2916,8 +2911,8 @@ classdef applied_current_manager_class
             elseif length( reduced_multiplication_params ) == 2                                               	% If there are a specific number of params...
                 
                 % Unpack the params.
-                R3 = reduced_multiplication_params{ 1 };                                                       	% [V] Activation Domain.
-                Gm3 = reduced_multiplication_params{ 2 };                                                   	% [S] Membrane Conductance.
+                R3 = reduced_multiplication_params.R3;                                                       	% [V] Activation Domain.
+                Gm3 = reduced_multiplication_params.Gm3;                                                   	% [S] Membrane Conductance.
             
             else                                                                                                    % Otherwise...
                
@@ -3814,10 +3809,10 @@ classdef applied_current_manager_class
         % ---------- Reduced Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a reduced inversion subnetwork.
-        function [ Ias2, applied_currents, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ applied_current_output_params, applied_currents, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
-            n_neurons = self.num_reduced_inversion_neurons;
+            n_neurons = self.n_reduced_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -3828,13 +3823,16 @@ classdef applied_current_manager_class
             if nargin < 2, neuron_IDs = 1:n_neurons; end
             
             % Retrieve the applied current IDs associated with the provided neuron IDs.
-            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs, applied_currents, undetected_option );
+            applied_current_IDs = self.to_neuron_IDs2applied_current_IDs( neuron_IDs( 2 ), applied_currents, undetected_option );
             
             % Process the params.
             reduced_inversion_params = self.process_reduced_inversion_Ias2_params( reduced_inversion_params, encoding_scheme );
             
             % Compute the inversion applied current magnitude outputs.
-            [ Ias2, applied_currents, self ] = self.compute_reduced_inversion_Ias2( applied_current_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option );
+            [ Ia2, applied_currents, self ] = self.compute_reduced_inversion_Ias2( applied_current_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option );
+            
+            % Store the applied current magnitudes in the output params.
+            applied_current_output_params.Ia2 = Ia2;
             
         end
         
