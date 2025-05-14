@@ -15243,7 +15243,7 @@ classdef network_class
             n_applied_currents = self.n_inversion_applied_currents_DEFAULT;
             
             % Unpack the subtraction params.             
-            [ ~, ~, ~, ~, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_relative_inversion_input_params( reduced_inversion_input_params, neuron_manager, undetected_option );
+            [ ~, ~, ~, R1, R2, Gm1, Gm2, Cm1, Cm2 ] = self.unpack_reduced_relative_inversion_input_params( reduced_inversion_input_params, neuron_manager, undetected_option );
             
             % Define the neuron properties.
             neuron_IDs = neuron_manager.generate_unique_neuron_IDs( n_neurons, neuron_manager.neurons, neuron_manager.array_utilities );
@@ -18831,6 +18831,71 @@ classdef network_class
         
         % ---------- Reduced Inversion Functions ----------
         
+        % Implement a function to perform RK4 stability analysis on a reduced inversion subnetwork given encoded inputs.
+        function [ U2s, As, dts, condition_numbers ] = achieved_reduced_inversion_RK4_stability_analysis_encoded( self, U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 13, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 12, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 11, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 10, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 9, dt0 = self.dt_DEFAULT; end
+            if nargin < 8, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 6, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved reduced inversion steady state output at each of the provided inputs.
+            U2s = self.compute_encoded_achieved_reduced_inversion_sso( U1s, Rs( 1 ), Gms( 2 ), gs( 2, 1 ), dEs( 2, 1 ), Ias( 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+                        
+            % Create the operating points array.
+            Us = [ U1s, U2s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
+            
+        end
+        
+    
+        % Implement a function to perform RK4 stability analysis on a reduced inversion subnetwork given decoded inputs.
+        function [ x2s, As, dts, condition_numbers ] = achieved_reduced_inversion_RK4_stability_analysis_decoded( self, x1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 15, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
+            if nargin < 13, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
+            if nargin < 12, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 11, f_decode_output = @( xs ) zeros( size( xs ) ); end
+            if nargin < 10, f_encode_input = @( xs ) zeros( size( xs ) ); end
+            if nargin < 9, dt0 = self.dt_DEFAULT; end
+            if nargin < 8, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 6, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 2, x1s = zeros( 1, 1 ); end
+            
+            % Compute the encoded input signals.
+            U1s = f_encode_input( x1s );
+            
+            % Compute the achieved inversion steady state output at each of the provided inputs.
+            U2s = self.compute_encoded_achieved_reduced_inversion_sso( U1s, Rs( 1 ), Gms( 2 ), gs( 2, 1 ), dEs( 2, 1 ), Ias( 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
+            
+            % Decoded the output signals.
+            x2s = f_decode_output( U2s );
+            
+        end
+        
         
         % ---------- Division Functions ----------
 
@@ -19413,62 +19478,120 @@ classdef network_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
-        function U2s = compute_dra_inversion_sso( self, U1s, c1, c2, neuron_manager, undetected_option, network_utilities )
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a reduced inversion subnetwork.
+        function U2s = compute_encoded_achieved_reduced_inversion_sso( self, U1s, R1, Gm2, gs21, dEs21, Ia2, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 7, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 5, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 4, c2 = self.c2_ra_inversion_DEFAULT; end                       % [mV] Design Constant 2.
-            if nargin < 3, c1 = self.c1_ra_inversion_DEFAULT; end                        % [mV^2] Design Constant 1.
-            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
-
+            if nargin < 12, network_utilities = self.network_utilities; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, synapse_manager = self.synapse_manager; end
+            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 7, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( 2, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end           % [A] Applied Current (Neuron 2).
+            if nargin < 6, dEs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'dEs', true, synapse_manager.synapses, undetected_option ); end                                                                 % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 5, gs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'gs', true, synapse_manager.synapses, undetected_option ); end                                                                   % [S] Synaptic Conductance (Synapse 21).
+            if nargin < 4, Gm2 = neuron_manager.get_neuron_property( 2, 'Gm', true, neuron_manager.neurons, undetected_option ); end                                                                                                                                                                        % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end  
+            
             % Compute the steady state output.
-            U2s = network_utilities.compute_dra_inversion_sso( U1s, c1, c2 );
+            U2s = network_utilities.compute_encoded_achieved_reduced_inversion_sso( U1s, R1, Gm2, gs21, dEs21, Ia2 );
+            
+        end
+                
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced absolute inversion subnetwork.
+        function x2s = compute_decoded_achieved_reduced_absolute_inversion_sso( self, x1s, R1, Gm2, gs21, dEs21, Ia2, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 12, network_utilities = self.network_utilities; end
+            if nargin < 11, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 10, applied_current_manager = self.applied_current_manager; end
+            if nargin < 9, synapse_manager = self.synapse_manager; end
+            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 7, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( 2, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end           % [A] Applied Current (Neuron 2).
+            if nargin < 6, dEs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'dEs', true, synapse_manager.synapses, undetected_option ); end                                                                 % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 5, gs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'gs', true, synapse_manager.synapses, undetected_option ); end                                                                   % [S] Synaptic Conductance (Synapse 21).
+            if nargin < 4, Gm2 = neuron_manager.get_neuron_property( 2, 'Gm', true, neuron_manager.neurons, undetected_option ); end                                                                                                                                                                        % [S] Membrane Conductance (Neuron 2).
+            if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end 
+            
+            % Compute the steady state output.        
+            x2s = network_utilities.compute_decoded_achieved_reduced_absolute_inversion_sso( x1s, R1, Gm2, gs21, dEs21, Ia2 );
+                        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced relative inversion subnetwork.
+        function x2s = computed_decoded_achieved_reduced_relative_inversion_sso( self, x1s, c1, delta, x1_max, R2, Gm2, gs21, dEs21, Ia2, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 15, network_utilities = self.network_utilities; end
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end
+            if nargin < 12, synapse_manager = self.synapse_manager; end
+            if nargin < 11, neuron_manager = self.neuron_manager; end
+            if nargin < 10, Ia2 = applied_current_manager.get_applied_current_property( applied_current_manager.to_neuron_ID2applied_current_ID( 2, applied_current_manager.applied_currents, undetected_option ), 'Ias', true, applied_current_manager.applied_currents, undetected_option ); end           % [A] Applied Current (Neuron 2).
+            if nargin < 9, dEs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'dEs', true, synapse_manager.synapses, undetected_option ); end                                                                 % [V] Synaptic Reversal Potential (Synapse 21).
+            if nargin < 8, gs21 = synapse_manager.get_synapse_property( synapse_manager.from_to_neuron_ID2synapse_ID( 1, 2, synapse_manager.synapses, undetected_option ), 'gs', true, synapse_manager.synapses, undetected_option ); end                                                                   % [S] Synaptic Conductance (Synapse 21).
+            if nargin < 7, Gm2 = neuron_manager.get_neuron_property( 2, 'Gm', true, neuron_manager.neurons, undetected_option ); end                                                                                                                                                                        % [S] Membrane Conductance (Neuron 2).
+            if nargin < 6, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end 
+            if nargin < 5, x1_max = self.x1max_reduced_relative_inversion_DEFAULT; end
+            if nargin < 4, delta = self.delta_reduced_relative_inversion_DEFAULT; end
+            if nargin < 3, c1 = self.c1_reduced_relative_inversion_DEFAULT; end
+            
+            % Compute the steady state output.
+            x2s = network_utilities.computed_decoded_achieved_reduced_relative_inversion_sso( x1s, c1, delta, x1_max, R2, Gm2, gs21, dEs21, Ia2 );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
-        function U2s = compute_drr_inversion_sso( self, U1s, c1, c2, R1, R2, neuron_manager, undetected_option, network_utilities )
+        % Implement a function to compute the decoded steady state output of the desired mapping of a reduced inversion subnetwork.
+        function x2s = compute_decoded_desired_reduced_inversion_sso( self, x1s, c1, delta, x1_max, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 9, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 7, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
-            if nargin < 6, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maxmimum Membrane Voltage (Neuron 2).
-            if nargin < 5, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 4, c2 = self.c2_rr_inversion_DEFAULT; end                                                                                            % [-] Design Constant 2. 52.6e-3
-            if nargin < 3, c1 = self.c1_rr_inversion_DEFAULT; end                                                                                            % [-] Design Constant 1. 52.6e-3
-            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end
-
+            if nargin < 6, network_utilities = self.network_utilities; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
+            
             % Compute the steady state output.
-            U2s = network_utilities.compute_drr_inversion_sso( U1s, c1, c2, R1, R2 );         % [V] Membrane Voltage (Neuron 2).
+            x2s = network_utilities.compute_decoded_desired_reduced_inversion_sso( x1s, c1, delta, x1_max );
+        
+        end
+        
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced absolute inversion subnetwork.
+        function U2s = compute_encoded_desired_reduced_absolute_inversion_sso( self, U1s, c1, delta, x1_max, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 6, network_utilities = self.network_utilities; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
+            
+            % Compute the steady state output.
+            U2s = network_utilities.compute_encoded_desired_reduced_absolute_inversion_sso( U1s, c1, delta, x1_max );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the achieved formulation of a reduced inversion subnetwork.
-        function U2s = compute_ra_inversion_sso( self, U1s, R1, Gm2, Ia2, gs21, dEs21, neuron_manager, synapse_manager, undetected_option, network_utilities )
-            
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced relative inversion subnetwork.
+        function U2s = compute_encoded_desired_reduced_relative_inversion_sso( self, U1s, c1, delta, x1_max, R1, R2, neuron_manager, undetected_option, network_utilities )
+                
             % Set the default input arguments.
-            if nargin < 11, network_utilities = self.network_utilities; end                                                                     % [class] Network Utilities Class.
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                                                             % [str] Undetected Option.
-            if nargin < 9, synapse_manager = self.synapse_manager; end                                                                          % [class] Synapse Manager Class.
-            if nargin < 8, neuron_manager = self.neuron_manager; end                                                                            % [class] Neuron Manager Class.
-            if nargin < 7, dEs21 = self.get_dEs( [ 1, 2 ], neuron_manager, synapse_manager ); end                                           	% [V] Synaptic Reversal Potential (Synapse 21).
-            if nargin < 6, gs21 = self.get_gs( [ 1, 2 ], neuron_manager, synapse_manager ); end                                               	% [S] Maximum Synaptic Conductance (Synapse 21).
-            if nargin < 5, Ia2 = neuron_manager.get_neuron_property( 2, 'I_tonic', true, neuron_manager.neurons, undetected_option ); end      	% [A] Applied Currents (Neuron 2).
-            if nargin < 4, Gm2 = neuron_manager.get_neuron_property( 2, 'Gm', true, neuron_manager.neurons, undetected_option ); end         	% [S] Membrane Conductance (Neuron 2).
-            if nargin < 3, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end              % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 2, U1s = neuron_manager.get_neuron_property( 1, 'U', true, neuron_manager.neurons, undetected_option ); end             % [V] Membrane Voltage (Neuron 1).
+            if nargin < 10, network_utilities = self.network_utilities; end
+            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 8, neuron_manager = self.neuron_manager; end
+            if nargin < 7, R2 = neuron_manager.get_neuron_property( 2, 'R', true, neuron_manager.neurons, undetected_option ); end 
+            if nargin < 6, R1 = neuron_manager.get_neuron_property( 1, 'R', true, neuron_manager.neurons, undetected_option ); end 
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
             
             % Compute the steady state output.
-            U2s = network_utilities.compute_ra_inversion_sso( U1s, R1, Gm2, Ia2, gs21, dEs21 );                                                 % [V] Membrane Voltage (Neuron 2).
-            
-        end
+            U2s = network_utilities.compute_encoded_desired_reduced_relative_inversion_sso( U1s, c1, delta, x1_max, R1, R2 );
         
+        end
+                
         
         % ---------- Division Subnetwork Functions ----------
         

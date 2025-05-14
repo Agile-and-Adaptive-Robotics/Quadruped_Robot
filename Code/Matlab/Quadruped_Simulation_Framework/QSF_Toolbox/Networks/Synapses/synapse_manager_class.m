@@ -1979,19 +1979,21 @@ classdef synapse_manager_class
                 if isempty( params )                                                                                    % If no params were provided...
                     
                     % Set the default parameter values.
-                    delta1 = self.delta_reduced_absolute_inversion_DEFAULT;
-                    Gm2 = self.Gm_DEFAULT;                                                                              % [S] Membrane Conductance.
-                    Ia2 = self.Ia_DEFAULT;                                                                                  % [A] Applied Current.                                                                                 % [A] Applied Current.
+                    c1 = self.c1_reduced_absolute_inversion_DEFAULT;
+                    delta = self.delta_reduced_absolute_inversion_DEFAULT;
+                    x1_max = self.x1max_reduced_absolute_inversion_DEFAULT;
+                    Gm2 = self.Gm_DEFAULT;  
                     
                     % Store the required params.
-                    params.delta1 = delta1;
+                    params.c1 = c1;
+                    params.delta = delta;
+                    params.x1_max = x1_max;
                     params.Gm2 = Gm2;
-                    params.Ia2 = Ia2;
                     
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( params ) ) ~= 3                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( fieldnames( params ) ) ~= 4                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -7190,17 +7192,19 @@ classdef synapse_manager_class
         
         
         % Implement a function to pack reduced relative inversion params.
-        function reduced_inversion_params = pack_reduced_relative_inversion_params( self, delta1, Gm2, Ia2 )
+        function reduced_inversion_params = pack_reduced_relative_inversion_params( self, c1, delta, x1_max, Gm2 )
             
             % Set the default input arguments.
-            if nargin < 4, Ia2 = self.Ia_DEFAULT; end
-            if nargin < 3, Gm2 = self.Gm_DEFAULT; end
-            if nargin < 2, delta1 = self.delta_reduced_relative_inversion_DEFAULT; end
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_relative_inversion_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_relative_inversion_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_relative_inversion_DEFAULT; end
             
             % Pack the params.
-            reduced_inversion_params.delta1 = delta1;
+            reduced_inversion_params.c1 = c1;
+            reduced_inversion_params.delta = delta;
+            reduced_inversion_params.x1_max = x1_max;
             reduced_inversion_params.Gm2 = Gm2;
-            reduced_inversion_params.Ia2 = Ia2;
             
         end
         

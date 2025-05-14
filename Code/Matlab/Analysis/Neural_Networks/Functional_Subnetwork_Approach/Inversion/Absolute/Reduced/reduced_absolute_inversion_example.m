@@ -101,8 +101,8 @@ Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
-% Create a inversion subnetwork.
-[ inversion_output_parameters, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.create_reduced_inversion_subnetwork( reduced_inversion_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+% Create a reduced inversion subnetwork.
+[ reduced_inversion_output_parameters, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.create_reduced_inversion_subnetwork( reduced_inversion_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Update the input current ID and name.
 [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network.applied_current_manager.applied_currents, true );

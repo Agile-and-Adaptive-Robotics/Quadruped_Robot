@@ -1,4 +1,4 @@
-%% Inversion Subnetwork Encoding Comparison.
+%% Reduced Inversion Subnetwork Error Comparison (Variable Gain).
 
 % Clear Everything.
 clear, close( 'all' ), clc

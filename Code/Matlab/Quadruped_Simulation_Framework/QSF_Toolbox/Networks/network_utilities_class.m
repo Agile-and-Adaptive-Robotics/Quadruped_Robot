@@ -1712,105 +1712,98 @@ classdef network_utilities_class
         
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of a reduced inversion subnetwork.
-        function ys = compute_desired_reduced_inversion_sso( ~, xs, c1, c2 )
-           
-            %{
-            Input(s):
-                xs  =   [-] Decoded Inputs.
-                c1  =   [-] Reduced Absolute Inversion Design Constant 1.
-                c2  =   [-] Reduced Absolute Inversion Design Constant 2.
-            
-            Output(s):
-                ys  =   [-] Decoded Outputs.
-            %}
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a reduced inversion subnetwork.
+        function U2s = compute_encoded_achieved_reduced_inversion_sso( self, U1s, R1, Gm2, gs21, dEs21, Ia2 )
             
             % Set the default input arguments.
-            if nargin < 4, c2 = 21.05e-6; end                       % [mV] Design Constant 2.
-            if nargin < 3, c1 = 1.05e-3; end                        % [mV^2] Design Constant 1.
-           
-            % Compute the steady state network outputs.
-            ys = c1./( xs + c2 );                                   % [-] Decoded Outputs.
+            if nargin < 7, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs21 = self.dEs_DEFAULT; end
+            if nargin < 5, gs21 = self.gs_DEFAULT; end
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
             
+            % Compute the steady state output.
+            U2s = ( gs21.*dEs21.*U1s + R1.*Ia2 )./( gs21.*U1s + R1.*Gm2 );
+            
+        end
+                
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced absolute inversion subnetwork.
+        function x2s = compute_decoded_achieved_reduced_absolute_inversion_sso( self, x1s, R1, Gm2, gs21, dEs21, Ia2 )
+        
+            % Set the default input arguments.
+            if nargin < 7, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 6, dEs21 = self.dEs_DEFAULT; end
+            if nargin < 5, gs21 = self.gs_DEFAULT; end
+            if nargin < 4, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 3, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            x2s = ( gs21.*dEs21.*x1s + R1.*Ia2 )./( gs21.*x1s + R1.*Gm2 );
+        
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute inversion subnetwork.
-        function U2s = compute_dra_inversion_sso( ~, U1s, c1, c2 )
-           
-            %{
-            Input(s):
-                U1s     =   [V] Membrane Voltages (Neuron 1).
-                c1      =   [-] Reduced Absolute Inversion Design Constant 1.
-                c2      =   [-] Reduced Absolute Inversion Design Constant 2.
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced relative inversion subnetwork.
+        function x2s = computed_decoded_achieved_reduced_relative_inversion_sso( self, x1s, c1, delta, x1_max, R2, Gm2, gs21, dEs21, Ia2 )
+        
             % Set the default input arguments.
-            if nargin < 4, c2 = 21.05e-6; end                       % [mV] Design Constant 2.
-            if nargin < 3, c1 = 1.05e-3; end                        % [mV^2] Design Constant 1.
-           
-            % Compute the steady state network outputs.
-            U2s = c1./( U1s + c2 );                                 % [V] Membrane Voltage (Neuron 2).
+            if nargin < 10, Ia2 = self.Ia_DEFAULT; end
+            if nargin < 9, dEs21 = self.dEs_DEFAULT; end
+            if nargin < 8, gs21 = self.gs_DEFAULT; end
+            if nargin < 7, Gm2 = self.Gm_DEFAULT; end
+            if nargin < 6, R2 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
             
+            % Compute the steady state output.
+            x2s = ( ( delta.*c1 )./( ( c1 - delta.*x1_max ).*R2 ) ).*( ( gs21.*dEs21.*x1s + x1_max.*Ia2 )./( gs21.*x1s + x1_max.*Gm2 ) );
+        
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative inversion subnetwork.
-        function U2s = compute_drr_inversion_sso( ~, Us1, c1, c2, R1, R2 )
+        % Implement a function to compute the decoded steady state output of the desired mapping of a reduced inversion subnetwork.
+        function x2s = compute_decoded_desired_reduced_inversion_sso( self, x1s, c1, delta, x1_max )
         
-            %{
-            Input(s):
-                Us1     =   [V] Membrane Voltages (Neuron 1).
-                c1      =   [?] Reduced Relative Inversion Design Constant 1.
-                c2      =   [?] Reduced Relative Inversion Design Constant 2.
-                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2      =   [V] Maximum Membrane Voltage (Neuron 2).
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
             % Set the default input arguments.
-            if nargin < 6, R2 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 5, R1 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 4, c2 = 52.6e-3; end                       	% [-] Design Constant 2.
-            if nargin < 3, c1 = 52.6e-3; end                       	% [-] Design Constant 1.
-
-            % Compute the steady state network outputs.
-            U2s = ( c1*R1*R2 )./( Us1 + c2*R1 );                    % [V] Membrane Voltage (Neuron 2).
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
             
+            % Compute the steady state output.
+            x2s = ( delta.*c1 )./( delta.*x1s + c1 - delta.*x1_max );
+        
         end
         
         
-        % Implement a function to compute the steady state output associated with the reduced achieved formulation of an inversion subnetwork.
-        function U2s = compute_ra_inversion_sso( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced absolute inversion subnetwork.
+        function U2s = compute_encoded_desired_reduced_absolute_inversion_sso( self, U1s, c1, delta, x1_max )
         
-            %{
-            Input(s):
-                U1s     =   [V] Membrane Voltages (Neuron 1).
-                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
-                Gm2     =   [S] Membrane Conductance (Neuron 2).
-                Ia2     =   [A] Applied Current (Neuron 2).
-                gs21    =   [S] Maximum Synaptic Conductance (Synapse 21).
-                dEs21   =   [V] Synaptic Reversal Potential (Synapse 21).
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
             % Set the default input arguments.
-            if nargin < 7, dEs21 = 0; end                                       % [V] Synaptic Reversal Potential (Synapse 21).
-            if nargin < 6, gs21 = 19e-6; end                                    % [S] Synaptic Conductance (Synapse 21).
-            if nargin < 5, Ia2 = 20e-9; end                                     % [A] Applied Current (Neuron 2).
-            if nargin < 4, Gm2 = 1e-6; end                                      % [S] Membrane Conductance (Neuron 2).
-            if nargin < 3, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
             
-            % Compute the steady state network outputs.
-            U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );           % [V] Membrane Voltage (Neuron 2).
+            % Compute the steady state output.
+            U2s = ( delta.*c1 )./( delta.*U1s + c1 - delta.*x1_max );
+        
+        end
+        
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced relative inversion subnetwork.
+        function U2s = compute_encoded_desired_reduced_relative_inversion_sso( self, U1s, c1, delta, x1_max, R1, R2 )
+                
+            % Set the default input arguments.
+            if nargin < 7, R2 = self.R_DEFAULT; end
+            if nargin < 6, R1 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
             
+            % Compute the steady state output.
+            U2s = ( ( c1 - delta.*x1_max ).*R1.*R2 )./( delta.*x1_max.*U1s + ( c1 - delta.*x1_max ).*R1 );
+        
         end
         
         

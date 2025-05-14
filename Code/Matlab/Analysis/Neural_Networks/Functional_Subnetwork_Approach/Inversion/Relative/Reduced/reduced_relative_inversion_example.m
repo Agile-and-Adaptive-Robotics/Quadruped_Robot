@@ -1,7 +1,7 @@
-%% Reduced Relative Inversion Subnetwork Example.
+%% Reduced Absolute Inversion Subnetwork Example.
 
 % Clear Everything.
-clear, close( 'all' ), clc
+clear, close('all'), clc
 
 
 %% Define Simulation Parameters.
@@ -25,11 +25,11 @@ network_tf = 0.5;                                 	% [s] Simulation Duration.
 % network_tf = 1;                                 	% [s] Simulation Duration.
 % network_tf = 3;                                 	% [s] Simulation Duration.
 
-% Compute the number of simulation timesteps.
-n_timesteps = floor( network_tf/network_dt ) + 1;   % [#] Number of Simulation Timesteps.
-
 % Construct the simulation times associated with the input currents.
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
+
+% Compute the number of simulation timesteps.
+n_timesteps = length( ts );   % [#] Number of Simulation Timesteps.
 
 % Define the integration method.
 integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
@@ -41,29 +41,29 @@ encoding_scheme = 'relative';
 network_utilities = network_utilities_class(  );
 
 
-%% Define Relative Inversion Subnetwork Parameters.
+%% Define Subnetwork Design Parameters.
 
-% Define the inversion subnetwork design parameters.
-c1 = 20e-6;                                           % [-] Subnetwork Gain 1.
-delta = 1e-3;                                       % [-] Minium Decoded Output.
-x1_max = 20e-3;                                    	% [-] Maximum Decoded Input.
-R1 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
-R2 = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
+% Define the subnetwork design parameters.
+c1 = 2.1052631578947372e-05;                        % [-] Subnetwork Gain 1.
+delta = 1e-3;                                       % [V] Minimum Decoded Output.
+x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
+R1 = 20e-3;                                         % [V] Maximum Encoded Input.
+R2 = 20e-3;                                         % [V] Maximum Decoded Input.
 Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
-Gm2 = 1e-6;                                         % [S] Membrane Conductance (Neuron 2).
+Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
 Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
- 
-% Store the inversion subnetwork design parameters.
-reduced_inversion_input_params.c1 = c1;
-reduced_inversion_input_params.delta = delta;
-reduced_inversion_input_params.x1_max = x1_max;
-reduced_inversion_input_params.R1 = R1;
-reduced_inversion_input_params.R2 = R2;
-reduced_inversion_input_params.Gm1 = Gm1;
-reduced_inversion_input_params.Gm2 = Gm2;
-reduced_inversion_input_params.Cm1 = Cm1;
-reduced_inversion_input_params.Cm2 = Cm2;
+
+% Store the subnetwork design parameters in a structure.
+reduced_inversion_input_parameters.c1 = c1;
+reduced_inversion_input_parameters.delta = delta;
+reduced_inversion_input_parameters.x1_max = x1_max;
+reduced_inversion_input_parameters.R1 = R1;
+reduced_inversion_input_parameters.R2 = R2;
+reduced_inversion_input_parameters.Gm1 = Gm1;
+reduced_inversion_input_parameters.Gm2 = Gm2;
+reduced_inversion_input_parameters.Cm1 = Cm1;
+reduced_inversion_input_parameters.Cm2 = Cm2;
 
 
 %% Define the Encoding & Decoding Operations.
@@ -79,17 +79,17 @@ f_decode2 = @( U2 ) network_utilities.decode_reduced_relative_inversion_output( 
 f_decode = @( Us ) [ f_decode1( Us( :, 1 ) ), f_decode2( Us( :, 2 ) ) ];
 
 
-%% Define the Decoded Input Signal.
+%% Define the Desired Input Signal.
 
-% Define the desired input signal.
-xs1_desired = 0*ones( n_timesteps, 1 );
-% xs1_desired = x1_max*ones( n_timesteps, 1 );
+% Define the desired decoded input signal.
+% xs1_desired = 0*ones( n_timesteps, 1 );
+xs1_desired = x1_max*ones( n_timesteps, 1 );
 
 % Encode the input signal.
 Us1_desired = f_encode1( xs1_desired );
 
 
-%% Define the Relative Inversion Subnetwork Input Current Parameters.
+%% Define the Subnetwork Input Current Parameters.
 
 % Define the current identification properties.
 input_current_ID = 1;                               % [#] Input Current ID.
@@ -97,16 +97,16 @@ input_current_name = 'Applied Current 1';           % [str] Input Current Name.
 input_current_to_neuron_ID = 1;                     % [#] Neuron ID to Which Input Current is Applied.
 
 % Define the magnitudes of the applied current input.
-Ias1 = Us1_desired*Gm1;                             % [A] Applied Currents.
+Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 
 
-%% Create Relative Inversion Subnetwork.
+%% Create the Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
-% Create an inversion subnetwork.
-[ reduced_inversion_output_params, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.create_reduced_inversion_subnetwork( reduced_inversion_input_params, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+% Create a inversion subnetwork.
+[ reduced_inversion_output_parameters, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.create_reduced_inversion_subnetwork( reduced_inversion_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Update the input current ID and name.
 [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network.applied_current_manager.applied_currents, true );
@@ -121,13 +121,13 @@ network.applied_current_manager.applied_currents( 1 ) = network.applied_current_
 network.applied_current_manager.applied_currents( 2 ) = temporary_applied_current;
 
 
-%% Print Relative Inversion Subnetwork Parameters.
+%% Print Subnetwork Parameters.
 
 % Print inversion subnetwork information.
 network.print( network.neuron_manager, network.synapse_manager, network.applied_current_manager, verbose_flag );
 
 
-%% Compute Relative Inversion Numerical Stability Analysis Parameters.
+%% Compute Numerical Stability Analysis Parameters.
 
 % Define the property retrieval settings.
 as_matrix_flag = true;
@@ -153,7 +153,7 @@ dt0 = 1e-6;                                                                     
 network.numerical_method_utilities.print_numerical_stability_info( As, dts, network_dt, condition_numbers );
 
 
-%% Simulate the Relative Inversion Subnetwork.
+%% Simulate the Subnetwork.
 
 % Set additional simulation properties.
 filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
@@ -165,13 +165,13 @@ undetected_option = 'Ignore';               % [str] Undetected Option.
 tic
 
 % Simulate the network.
-[ ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.compute_simulation( network_dt, network_tf, integration_method, network.neuron_manager, network.synapse_manager, network.applied_current_manager, network.applied_voltage_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network.network_utilities );
+[ ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, ~, ~, ~, ~, network ] = network.compute_simulation( network_dt, network_tf, integration_method, network.neuron_manager, network.synapse_manager, network.applied_current_manager, network.applied_voltage_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network.network_utilities );
 
 % End the timer.
 toc
 
 
-%% Decode the Relative Inversion Subnetwork Output.
+%% Decode the Subnetwork Output.
 
 % Decode the network input.
 xs1 = f_decode1( Us( 1, : ) );
@@ -183,7 +183,7 @@ xs2 = f_decode2( Us( 2, : ) );
 Xs = [ xs1; xs2 ];
 
 
-%% Plot the Relative Inversion Subnetwork Results.
+%% Plot the Subnetwork Results.
 
 % Retrieve the neuron IDs.
 neuron_IDs = network.neuron_manager.get_all_neuron_IDs( network.neuron_manager.neurons );
@@ -214,7 +214,7 @@ plot( Us( 1, : ), Us( 2, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_encoded, [ save_directory, '\', 'reduced_relative_inversion_dynamic_example_encoded' ] )
 
 % Plot the decoded network input and output.
-fig_network_decoding = figure( 'Color', 'w', 'Name', 'RRI: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input, X1 [-]' ), ylabel( 'Decoded Output, X2 [-]' ), title( 'RRI: Decoded Output vs Decoded Input' )
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'RRI: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input [-]' ), ylabel( 'Decoded Output [-]' ), title( 'RRI: Decoded Output vs Decoded Input' )
 plot( Xs( 1, : ), Xs( 2, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_decoding, [ save_directory, '\', 'reduced_relative_inversion_dynamic_example_decoded' ] )
 
