@@ -196,6 +196,9 @@ classdef plotting_utilities_class
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
                     
+                % Ensure that the subnetwork name does not have any spaces.
+                subnetwork_name = replace( subnetwork_name, ' ', '_' );
+                
                 % Define the file name.
                 file_name = sprintf( '%s_%s_%s_ssr_%s.png', lower( encoding_scheme ), lower( subnetwork_name ), lower( encoded_string ), save_tag );
                 

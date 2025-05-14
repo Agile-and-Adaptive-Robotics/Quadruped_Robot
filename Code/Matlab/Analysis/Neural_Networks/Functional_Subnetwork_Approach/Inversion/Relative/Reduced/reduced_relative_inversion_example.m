@@ -44,8 +44,15 @@ network_utilities = network_utilities_class(  );
 %% Define Subnetwork Design Parameters.
 
 % Define the subnetwork design parameters.
-c1 = 2.1052631578947372e-05;                        % [-] Subnetwork Gain 1.
-delta = 1e-3;                                       % [V] Minimum Decoded Output.
+% c1 = 2.1052631578947372e-05;                        % [-] Subnetwork Gain 1.
+% delta = 1e-3;                                       % [V] Minimum Decoded Output.
+
+% c1 = 0.5*( 2.1052631578947372e-05 );                        % [-] Subnetwork Gain 1.
+% delta = 0.5*( 1e-3 );                                       % [V] Minimum Decoded Output.
+
+c1 = 2.0536315789473687e-05;                        % [-] Subnetwork Gain 1.
+delta = 1e-4;                                       % [V] Minimum Decoded Output.
+
 x1_max = 20e-3;                                    	% [V] Maximum Membrane Voltage (Neuron 1).
 R1 = 20e-3;                                         % [V] Maximum Encoded Input.
 R2 = 20e-3;                                         % [V] Maximum Decoded Input.

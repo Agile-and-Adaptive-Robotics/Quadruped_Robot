@@ -77,20 +77,20 @@ deltas = linspace( delta_min, delta_max, num_deltas );                          
 % Define the subnetwork formulation params (shared by both encoding schemes).
 x1_max = 20e-3;
 
-% Define the transmission subnetwork design params.
+% Define the inversion subnetwork design params.
 Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
 Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design params.
+% Store the inversion subnetwork design params.
 absolute_inversion_input_params.x1_max = x1_max;
 absolute_inversion_input_params.Gm1 = Gm1_absolute;
 absolute_inversion_input_params.Gm2 = Gm2_absolute;
 absolute_inversion_input_params.Cm1 = Cm1_absolute;
 absolute_inversion_input_params.Cm2 = Cm2_absolute;
 
-% Define the transmission subnetwork design params.
+% Define the inversion subnetwork design params.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -98,7 +98,7 @@ Gm2_relative = 1e-6;                                         % [S] Membrane Cond
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the transmission subnetwork design params.
+% Store the inversion subnetwork design params.
 relative_inversion_input_params.x1_max = x1_max;
 relative_inversion_input_params.R1 = R1_relative;
 relative_inversion_input_params.R2 = R2_relative;
@@ -507,11 +507,11 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             % Define the stability analysis step_size seed.
             dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
 
-            % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative transmission subnetwork.
+            % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative inversion subnetwork.
             [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, true, undetected_option );
             [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, true, undetected_option );
 
-            % Compute the relative inversion steady state output.
+            % Compute the absolute & relative inversion steady state output.
             [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
             [ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, f_encode1_relative, @( xs ) f_decode2_relative( xs, c1, c3 ), network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
 
@@ -739,11 +739,11 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative, c1, c3 );
             xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative, c1, c3 );
             
-            %     % Print the absolute transmission summary statistics.
+            %     % Print the absolute inversion summary statistics.
             %     network_absolute.numerical_method_utilities.print_error_statistics( header_str_absolute_encoded, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_absolute_encoded, error_rmse_percentage_theoretical_absolute_encoded, error_rmse_numerical_absolute_encoded, error_rmse_percentage_numerical_absolute_encoded, error_std_theoretical_absolute_encoded, error_std_percentage_theoretical_absolute_encoded, error_std_numerical_absolute_encoded, error_std_percentage_numerical_absolute_encoded, error_min_theoretical_absolute_encoded, error_min_percentage_theoretical_absolute_encoded, Us_critmin_theoretical_absolute, error_min_numerical_absolute_encoded, error_min_percentage_numerical_absolute_encoded, Us_critmin_numerical_absolute, error_max_theoretical_absolute_encoded, error_max_percentage_theoretical_absolute_encoded, Us_critmax_theoretical_absolute, error_max_numerical_absolute_encoded, error_max_percentage_numerical_absolute_encoded, Us_critmax_numerical_absolute, error_range_theoretical_absolute_encoded, error_range_percentage_theoretical_absolute_encoded, error_range_numerical_absolute_encoded, error_range_percentage_numerical_absolute_encoded )
             %     network_absolute.numerical_method_utilities.print_error_statistics( header_str_absolute_decoded, unit_str_decoded, 1, error_rmse_theoretical_absolute_decoded, error_rmse_percentage_theoretical_absolute_decoded, error_rmse_numerical_absolute_decoded, error_rmse_percentage_numerical_absolute_decoded, error_std_theoretical_absolute_decoded, error_std_percentage_theoretical_absolute_decoded, error_std_numerical_absolute_decoded, error_std_percentage_numerical_absolute_decoded, error_min_theoretical_absolute_decoded, error_min_percentage_theoretical_absolute_decoded, xs_critmin_theoretical_absolute, error_min_numerical_absolute_decoded, error_min_percentage_numerical_absolute_decoded, xs_critmin_numerical_absolute, error_max_theoretical_absolute_decoded, error_max_percentage_theoretical_absolute_decoded, xs_critmax_theoretical_absolute, error_max_numerical_absolute_decoded, error_max_percentage_numerical_absolute_decoded, xs_critmax_numerical_absolute, error_range_theoretical_absolute_decoded, error_range_percentage_theoretical_absolute_decoded, error_range_numerical_absolute_decoded, error_range_percentage_numerical_absolute_decoded )
             %
-            %     % Print the relative transmission summary statistics.
+            %     % Print the relative inversion summary statistics.
             %     network_relative.numerical_method_utilities.print_error_statistics( header_str_relative_encoded, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_relative_encoded, error_rmse_percentage_theoretical_relative_encoded, error_rmse_numerical_relative_encoded, error_rmse_percentage_numerical_relative_encoded, error_std_theoretical_relative_encoded, error_std_percentage_theoretical_relative_encoded, error_std_numerical_relative_encoded, error_std_percentage_numerical_relative_encoded, error_min_theoretical_relative_encoded, error_min_percentage_theoretical_relative_encoded, Us_critmin_theoretical_relative, error_min_numerical_relative_encoded, error_min_percentage_numerical_relative_encoded, Us_critmin_numerical_relative, error_max_theoretical_relative_encoded, error_max_percentage_theoretical_relative_encoded, Us_critmax_theoretical_relative, error_max_numerical_relative_encoded, error_max_percentage_numerical_relative_encoded, Us_critmax_numerical_relative, error_range_theoretical_relative_encoded, error_range_percentage_theoretical_relative_encoded, error_range_numerical_relative_encoded, error_range_percentage_numerical_relative_encoded )
             %     network_relative.numerical_method_utilities.print_error_statistics( header_str_relative_decoded, unit_str_decoded, 1, error_rmse_theoretical_relative_decoded, error_rmse_percentage_theoretical_relative_decoded, error_rmse_numerical_relative_decoded, error_rmse_percentage_numerical_relative_decoded, error_std_theoretical_relative_decoded, error_std_percentage_theoretical_relative_decoded, error_std_numerical_relative_decoded, error_std_percentage_numerical_relative_decoded, error_min_theoretical_relative_decoded, error_min_percentage_theoretical_relative_decoded, xs_critmin_theoretical_relative, error_min_numerical_relative_decoded, error_min_percentage_numerical_relative_decoded, xs_critmin_numerical_relative, error_max_theoretical_relative_decoded, error_max_percentage_theoretical_relative_decoded, xs_critmax_theoretical_relative, error_max_numerical_relative_decoded, error_max_percentage_numerical_relative_decoded, xs_critmax_numerical_relative, error_range_theoretical_relative_decoded, error_range_percentage_theoretical_relative_decoded, error_range_numerical_relative_decoded, error_range_percentage_numerical_relative_decoded )
             
