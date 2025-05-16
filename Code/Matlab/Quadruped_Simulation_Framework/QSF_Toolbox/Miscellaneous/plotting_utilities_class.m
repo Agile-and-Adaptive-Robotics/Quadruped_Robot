@@ -3099,7 +3099,6 @@ classdef plotting_utilities_class
         end
         
         
-        
         %% Steady State Error Percentage Plotting Functions.
 
         % Implement a function to plot the steady state error percentage of a subnetwork for a specific gain.
@@ -3230,28 +3229,38 @@ classdef plotting_utilities_class
         %% Maximum RK4 Step Size Plotting Functions.
         
         % Implement a function to plot the maximum RK4 step size for a specific gain.
-        function fig = plot_max_rk4_step_size( ~, xs_absolute, dts_absolute, color_absolute, xs_relative, dts_relative, color_relative, scale, subnetwork_name, encoded_string, variables_string, units_string, save_flag, save_directory )
+        function fig = plot_max_rk4_step_size( ~, xs_absolute, dts_absolute, color_absolute, xs_relative, dts_relative, color_relative, scale, subnetwork_name, variables_string, units_string, title_tag, scale_x_flag, save_flag, save_directory, save_tag )
         
             % Set the default input arguments.
-            if nargin < 14, save_directory = './'; end
-            if nargin < 13, save_flag = true; end
-            if nargin < 12, units_string = { 'mV', 'ms' }; end
-            if nargin < 11, variables_string = { 'U1', 'dT' }; end
-            if nargin < 10, encoded_string = 'Encoded'; end
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, scale_x_flag = false; end
+            if nargin < 12, title_tag = ''; end
+            if nargin < 11, units_string = { 'mV', 'ms' }; end
+            if nargin < 10, variables_string = { 'U1', 'dT' }; end
             if nargin < 9, subnetwork_name = 'Transmission'; end
             if nargin < 8, scale = 1; end
             
             % Compute the figure labels.
-            title_string = sprintf( '%s: %s Condition Numbers', subnetwork_name, encoded_string );
-            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 1 }, units_string{ 1 } );
+            title_string = sprintf( '%s: Max RK4 Step Size %s', subnetwork_name, title_tag );
+            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
             ylabel_string = sprintf( 'Maximum RK4 Step Size, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
 
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
             
+            % Determine whether to scale the x data.
+            if scale_x_flag             % If we want to scale the x data...
+                
+                xs_absolute = scale*xs_absolute;
+                xs_relative = scale*xs_relative;
+                
+            end
+            
             % Plot the desired, theoretical, and numerical steady state responses.
-            plot( scale*xs_absolute, scale*dts_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
-            plot( scale*xs_relative, scale*dts_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
+            plot( xs_absolute, scale*dts_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
+            plot( xs_relative, scale*dts_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
             
             % Add a legend to the figure.
             legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
@@ -3260,7 +3269,69 @@ classdef plotting_utilities_class
             if save_flag                            % If we want to save the figure...
                     
                 % Define the file name.
-                file_name = sprintf( '%s_max_rk4_step_size_%s.png', lower( subnetwork_name ), lower( encoded_string ) );
+                file_name = sprintf( '%s_max_rk4_step_size_%s_%s.png', lower( subnetwork_name ), variables_string{ 1 }, save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the maximum RK4 step size patch for a specific gain.
+        function fig = plot_max_rk4_step_size_patch( self, xs_absolute, dts_absolute_mean, dts_absolute_min, dts_absolute_max, color_absolute, xs_relative, dts_relative_mean, dts_relative_min, dts_relative_max, color_relative, scale, subnetwork_name, variables_string, units_string, title_tag, scale_x_flag, save_flag, save_directory, save_tag )
+        
+            % Set the default input arguments.
+            if nargin < 20, save_tag = ''; end
+            if nargin < 19, save_directory = './'; end
+            if nargin < 18, save_flag = true; end
+            if nargin < 17, scale_x_flag = false; end
+            if nargin < 16, title_tag = ''; end
+            if nargin < 15, units_string = { 'mV', 'ms' }; end
+            if nargin < 14, variables_string = { 'U1', 'dT' }; end
+            if nargin < 13, subnetwork_name = 'Transmission'; end
+            if nargin < 12, scale = 1; end
+            
+            % Determine whether to scale the x data.
+            if scale_x_flag             % If we want to scale the x data...
+                
+                xs_absolute = scale*xs_absolute;
+                xs_relative = scale*xs_relative;
+                
+            end
+            
+            % Generate the patch data.
+            [ xs_patch_absolute, ys_patch_absolute ] = self.generate_2D_patch_data( xs_absolute, dts_absolute_min, dts_absolute_max );
+            [ xs_patch_relative, ys_patch_relative ] = self.generate_2D_patch_data( xs_relative, dts_relative_min, dts_relative_max );
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s: Max RK4 Step Size %s', subnetwork_name, title_tag );
+            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( 'Maximum RK4 Step Size, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
+
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+                        
+            % Plot the desired, theoretical, and numerical steady state responses.            
+            gobj_absolute_patch = patch( xs_patch_absolute, scale*ys_patch_absolute, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_absolute = plot( xs_absolute, scale*dts_absolute_mean, '-', 'Color', color_absolute, 'Linewidth', 3 );
+            plot( xs_absolute, scale*dts_absolute_min, '--', 'Color', color_absolute, 'Linewidth', 1 )
+            plot( xs_absolute, scale*dts_absolute_max, '--', 'Color', color_absolute, 'Linewidth', 1 )
+            
+            gobj_relative_patch = patch( xs_patch_relative, scale*ys_patch_relative, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_relative = plot( xs_relative, scale*dts_relative_mean, '-', 'Color', color_relative, 'Linewidth', 3 );
+            plot( xs_relative, scale*dts_relative_min, '--', 'Color', color_relative, 'Linewidth', 1 )
+            plot( xs_relative, scale*dts_relative_max, '--', 'Color', color_relative, 'Linewidth', 1 )
+
+            % Add a legend to the figure.
+            legend( [ gobj_absolute, gobj_absolute_patch, gobj_relative, gobj_relative_patch ], { 'Absolute Average', 'Absolute Range', 'Relative Average', 'Relative Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_max_rk4_step_size_%s_%s.png', lower( subnetwork_name ), variables_string{ 1 }, save_tag );
                 
                 % Save the figure.
                 saveas( fig, [ save_directory, '\', file_name ] ) 
@@ -3582,28 +3653,38 @@ classdef plotting_utilities_class
         %% Condition Number Plotting Functions.
         
         % Implement a function to plot the condition number for a specific gain.
-        function fig = plot_condition_numbers( ~, xs_absolute, condition_numbers_absolute, color_absolute, xs_relative, condition_numbers_relative, color_relative, scale, subnetwork_name, encoded_string, input_variable_string, unit, save_flag, save_directory )
+        function fig = plot_max_condition_number( ~, xs_absolute, dks_absolute, color_absolute, xs_relative, dks_relative, color_relative, scale, subnetwork_name, variables_string, units_string, title_tag, scale_x_flag, save_flag, save_directory, save_tag )
         
             % Set the default input arguments.
-            if nargin < 14, save_directory = './'; end
-            if nargin < 13, save_flag = true; end
-            if nargin < 12, unit = 'mV'; end
-            if nargin < 11, input_variable_string = 'U1'; end
-            if nargin < 10, encoded_string = 'Encoded'; end
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, scale_x_flag = false; end
+            if nargin < 12, title_tag = ''; end
+            if nargin < 11, units_string = { 'mV', '-' }; end
+            if nargin < 10, variables_string = { 'U1', 'dK' }; end
             if nargin < 9, subnetwork_name = 'Transmission'; end
             if nargin < 8, scale = 1; end
             
             % Compute the figure labels.
-            title_string = sprintf( '%s: %s Condition Numbers', subnetwork_name, encoded_string );
-            xlabel_string = sprintf( '%s Input, %s [%s]', encoded_string, input_variable_string, unit );
-            ylabel_string = sprintf( 'Condition Numbers [-]' );
+            title_string = sprintf( '%s: Max Condition Number %s', subnetwork_name, title_tag );
+            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( 'Max Condition Number, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
 
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
             
+            % Determine whether to scale the x data.
+            if scale_x_flag             % If we want to scale the x data...
+                
+                xs_absolute = scale*xs_absolute;
+                xs_relative = scale*xs_relative;
+                
+            end
+            
             % Plot the desired, theoretical, and numerical steady state responses.
-            plot( scale*xs_absolute, condition_numbers_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
-            plot( scale*xs_relative, condition_numbers_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
+            plot( xs_absolute, scale*dks_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
+            plot( xs_relative, scale*dks_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
             
             % Add a legend to the figure.
             legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
@@ -3612,7 +3693,69 @@ classdef plotting_utilities_class
             if save_flag                            % If we want to save the figure...
                     
                 % Define the file name.
-                file_name = sprintf( '%s_condition_number_%s.png', lower( subnetwork_name ), lower( encoded_string ) );
+                file_name = sprintf( '%s_max_condition_number_%s_%s.png', lower( subnetwork_name ), variables_string{ 1 }, save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the maximum condition number patch for a specific gain.
+        function fig = plot_max_condition_number_patch( self, xs_absolute, dks_absolute_mean, dks_absolute_min, dks_absolute_max, color_absolute, xs_relative, dks_relative_mean, dks_relative_min, dks_relative_max, color_relative, scale, subnetwork_name, variables_string, units_string, title_tag, scale_x_flag, save_flag, save_directory, save_tag )
+        
+            % Set the default input arguments.
+            if nargin < 20, save_tag = ''; end
+            if nargin < 19, save_directory = './'; end
+            if nargin < 18, save_flag = true; end
+            if nargin < 17, scale_x_flag = false; end
+            if nargin < 16, title_tag = ''; end
+            if nargin < 15, units_string = { 'mV', '-' }; end
+            if nargin < 14, variables_string = { 'U1', 'dK' }; end
+            if nargin < 13, subnetwork_name = 'Transmission'; end
+            if nargin < 12, scale = 1; end
+            
+            % Determine whether to scale the x data.
+            if scale_x_flag             % If we want to scale the x data...
+                
+                xs_absolute = scale*xs_absolute;
+                xs_relative = scale*xs_relative;
+                
+            end
+            
+            % Generate the patch data.
+            [ xs_patch_absolute, ys_patch_absolute ] = self.generate_2D_patch_data( xs_absolute, dks_absolute_min, dks_absolute_max );
+            [ xs_patch_relative, ys_patch_relative ] = self.generate_2D_patch_data( xs_relative, dks_relative_min, dks_relative_max );
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s: Max Condition Number %s', subnetwork_name, title_tag );
+            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( 'Maximum RK4 Step Size, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
+
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+                        
+            % Plot the desired, theoretical, and numerical steady state responses.            
+            gobj_absolute_patch = patch( xs_patch_absolute, scale*ys_patch_absolute, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_absolute = plot( xs_absolute, scale*dks_absolute_mean, '-', 'Color', color_absolute, 'Linewidth', 3 );
+            plot( xs_absolute, scale*dks_absolute_min, '--', 'Color', color_absolute, 'Linewidth', 1 )
+            plot( xs_absolute, scale*dks_absolute_max, '--', 'Color', color_absolute, 'Linewidth', 1 )
+            
+            gobj_relative_patch = patch( xs_patch_relative, scale*ys_patch_relative, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_relative = plot( xs_relative, scale*dks_relative_mean, '-', 'Color', color_relative, 'Linewidth', 3 );
+            plot( xs_relative, scale*dks_relative_min, '--', 'Color', color_relative, 'Linewidth', 1 )
+            plot( xs_relative, scale*dks_relative_max, '--', 'Color', color_relative, 'Linewidth', 1 )
+
+            % Add a legend to the figure.
+            legend( [ gobj_absolute, gobj_absolute_patch, gobj_relative, gobj_relative_patch ], { 'Absolute Average', 'Absolute Range', 'Relative Average', 'Relative Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_max_condition_number_%s_%s.png', lower( subnetwork_name ), variables_string{ 1 }, save_tag );
                 
                 % Save the figure.
                 saveas( fig, [ save_directory, '\', file_name ] ) 
@@ -3890,6 +4033,118 @@ classdef plotting_utilities_class
         
         %% Parameter Plotting Functions.
 
+        % Implement a function to plot the a parameter for a specific gain.
+        function fig = plot_network_parameter( ~, xs, ys_absolute, ys_relative, color_absolute, color_relative, scale, subnetwork_name, variables_string, units_string, title_tag, scale_x_flag, save_flag, save_directory, save_tag )
+        
+            % Set the default input arguments.
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, scale_x_flag = false; end
+            if nargin < 12, title_tag = ''; end
+            if nargin < 11, units_string = { 'mV', '-' }; end
+            if nargin < 10, variables_string = { 'U1', 'dK' }; end
+            if nargin < 9, subnetwork_name = 'Transmission'; end
+            if nargin < 8, scale = 1; end
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s: Parameter %s %s', subnetwork_name, variables_string{ 2 }, title_tag );
+            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+            
+            % Determine whether to scale the x data.
+            if scale_x_flag             % If we want to scale the x data...
+                
+                xs = scale*xs;
+                
+            end
+            
+            % Plot the desired, theoretical, and numerical steady state responses.
+            plot( xs, scale*ys_absolute, '-', 'Color', color_absolute, 'Linewidth', 3 )
+            plot( xs, scale*ys_relative, '-', 'Color', color_relative, 'Linewidth', 3 )
+            
+            % Add a legend to the figure.
+            legend( { 'Absolute', 'Relative' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+            	
+                % Define the file name.
+                file_name = sprintf( '%s_parameter_%s_%s_%s.png', lower( subnetwork_name ), variables_string{ 2 }, variables_string{ 1 }, lower( save_tag ) );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to plot the parameter patch for a specific gain.
+        function fig = plot_network_parameter_patch( self, xs_absolute, ys_absolute_mean, ys_absolute_min, ys_absolute_max, color_absolute, xs_relative, ys_relative_mean, ys_relative_min, ys_relative_max, color_relative, scale, subnetwork_name, variables_string, units_string, title_tag, scale_x_flag, save_flag, save_directory, save_tag )
+        
+            % Set the default input arguments.
+            if nargin < 20, save_tag = ''; end
+            if nargin < 19, save_directory = './'; end
+            if nargin < 18, save_flag = true; end
+            if nargin < 17, scale_x_flag = false; end
+            if nargin < 16, title_tag = ''; end
+            if nargin < 15, units_string = { 'mV', '-' }; end
+            if nargin < 14, variables_string = { 'U1', 'dK' }; end
+            if nargin < 13, subnetwork_name = 'Transmission'; end
+            if nargin < 12, scale = 1; end
+            
+            % Determine whether to scale the x data.
+            if scale_x_flag             % If we want to scale the x data...
+                
+                xs_absolute = scale*xs_absolute;
+                xs_relative = scale*xs_relative;
+                
+            end
+            
+            % Generate the patch data.
+            [ xs_patch_absolute, ys_patch_absolute ] = self.generate_2D_patch_data( xs_absolute, ys_absolute_min, ys_absolute_max );
+            [ xs_patch_relative, ys_patch_relative ] = self.generate_2D_patch_data( xs_relative, ys_relative_min, ys_relative_max );
+            
+            % Compute the figure labels.
+            title_string = sprintf( '%s: Network Parameter %s', subnetwork_name, title_tag );
+            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
+
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, xlabel( xlabel_string ), ylabel( ylabel_string ), title( title_string )
+                        
+            % Plot the desired, theoretical, and numerical steady state responses.            
+            gobj_absolute_patch = patch( xs_patch_absolute, scale*ys_patch_absolute, color_absolute, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_absolute = plot( xs_absolute, scale*ys_absolute_mean, '-', 'Color', color_absolute, 'Linewidth', 3 );
+            plot( xs_absolute, scale*ys_absolute_min, '--', 'Color', color_absolute, 'Linewidth', 1 )
+            plot( xs_absolute, scale*ys_absolute_max, '--', 'Color', color_absolute, 'Linewidth', 1 )
+            
+            gobj_relative_patch = patch( xs_patch_relative, scale*ys_patch_relative, color_relative, 'FaceAlpha', 0.5, 'EdgeColor', 'None' );
+            gobj_relative = plot( xs_relative, scale*ys_relative_mean, '-', 'Color', color_relative, 'Linewidth', 3 );
+            plot( xs_relative, scale*ys_relative_min, '--', 'Color', color_relative, 'Linewidth', 1 )
+            plot( xs_relative, scale*ys_relative_max, '--', 'Color', color_relative, 'Linewidth', 1 )
+
+            % Add a legend to the figure.
+            legend( [ gobj_absolute, gobj_absolute_patch, gobj_relative, gobj_relative_patch ], { 'Absolute Average', 'Absolute Range', 'Relative Average', 'Relative Range' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_parameter_%s_%s_%s.png', lower( subnetwork_name ), variables_string{ 2 }, variables_string{ 1 }, save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
         % Implement a function to create a surface plot of specific network parameters over the formulation parameters.
         function fig = surf_network_parameters( ~, Xs, Ys, Zs, color, scale, viewing_angle, subnetwork_name, encoding_scheme, variables_string, units_string, title_tag, save_flag, save_directory, save_tag )
             
