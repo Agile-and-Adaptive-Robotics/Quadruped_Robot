@@ -1,24 +1,21 @@
-%% Absolute Transmission Derivation.
+%% Reduced Absolute Inversion Subnetwork Derivation
 
-% Clear everything.
+% Clear Everything.
 clear, close( 'all' ), clc
 
 
-%% Setup Symbolic Variables.
+%% Setup the Reduced Absolute Inversion Subnetwork Constraints
 
-% Create the symbolic variables.
+% Define the symbolic variables.
 syms x1 x2 U1 U2 real
-syms c x1max x2max real positive
+syms c1 c2 x1max x2max delta real positive
 syms R1 R2 Gm1 Gm2 real positive
 syms gs21 real positive
 syms dEs21 real
-syms Ia2 real
+syms Ia2 real positive
 
 % Create additional symbolic assumptions.
 assume( dEs21 >= 0 );
-
-
-%% Derive Design Constraints.
 
 % Define the encoded state variables.
 U1 = x1;
@@ -29,23 +26,36 @@ R1 = x1max;
 R2 = x2max;
 
 % Define the decoded desired mapping.
-eq_desired = x2 == c*x1;
+eq_desired = x2 == c1/( x1 + c2 );
 
 % Define the decoded achieved mapping.
 eq_achieved = U2 == ( gs21*dEs21*U1 + R1*Ia2 )/( gs21*U1 + R1*Gm2 );
 
-% Define the decoded target points.
-P1 = [ x1max; x2max ];
-P2 = [ 0; 0 ];
+% Define the points of interest.
+P1 = [ 0; x2max ];
+P2 = [ x1max; delta ];
+
+
+%% Derive Desired Absolute Inversion Constraints.
 
 % Create the desired constraints.
 eq_desired1 = subs( eq_desired, [ x1, x2 ], [ P1( 1 ), P1( 2 ) ] );
 eq_desired2 = subs( eq_desired, [ x1, x2 ], [ P2( 1 ), P2( 2 ) ] );
 
-% Solve the first desired constraint equation for x2max.
+% Solve the first desired constraint for x2max.
 sol_x2max = solve( eq_desired1, x2max, 'ReturnConditions', true );
-x2max = sol_x2max.x2max;
+x2max = simplify( sol_x2max.x2max );
+
+% Solve the second desired constraint for c2.
+sol_c2 = solve( eq_desired2, c2, 'ReturnConditions', true );
+c2 = simplify( sol_c2.c2 );
+
+% Substitute c2 into x2max.
+x2max = subs( x2max, 'c2', c2 );
 x2max = simplify( x2max );
+
+
+%% Derive Achieved Absolute Inversion Constraints.
 
 % Substitute the x2max constraint into the first decoded target point.
 P1 = subs( P1, 'x2max', x2max );
@@ -54,20 +64,21 @@ P1 = subs( P1, 'x2max', x2max );
 eq_achieved1 = subs( eq_achieved, [ x1, x2 ], [ P1( 1 ), P1( 2 ) ] );
 eq_achieved2 = subs( eq_achieved, [ x1, x2 ], [ P2( 1 ), P2( 2 ) ] );
 
-% Compute Ia2.
-sol_Ia2 = solve( eq_achieved2, Ia2, 'ReturnConditions', true );
-Ia2 = sol_Ia2.Ia2;
-Ia2 = simplify( Ia2 );
+% Solve the first achieved constraint for Ia2.
+sol_Ia2 = solve( eq_achieved1, Ia2, 'ReturnConditions', true );
+Ia2 = simplify( sol_Ia2.Ia2 );
 
-% Compute gs21.
-eq_achieved1 = subs( eq_achieved1, 'Ia2', Ia2 );
-sol_gs21 = solve( eq_achieved1, gs21, 'ReturnConditions', true );
-gs21 = sol_gs21.gs21;
-gs21 = simplify( gs21 );
+% Solve the second achieved constraint for gs21.
+eq_achieved2 = subs( eq_achieved2, 'Ia2', Ia2 );
+sol_gs21 = solve( eq_achieved2, gs21, 'ReturnConditions', true );
+gs21 = simplify( sol_gs21.gs21 );
+
+
+%% Derive Similarity Constraints.
 
 % Update the encoded desired and achieved mappings.
-eq_desired = subs( eq_desired, { 'x2max', 'Ia2', 'gs21' }, [ x2max, Ia2, gs21 ] );
-eq_achieved = subs( eq_achieved, { 'x2max', 'Ia2', 'gs21' }, [ x2max, Ia2, gs21 ] );
+eq_desired = subs( eq_desired, { 'x2max', 'c2', 'Ia2', 'gs21' }, [ x2max, c2, Ia2, gs21 ] );
+eq_achieved = subs( eq_achieved, { 'x2max', 'c2', 'Ia2', 'gs21' }, [ x2max, c2, Ia2, gs21 ] );
 
 % Define the similarity constraints.
 [ num_desired, den_desired ] = numden( rhs( eq_desired ) );

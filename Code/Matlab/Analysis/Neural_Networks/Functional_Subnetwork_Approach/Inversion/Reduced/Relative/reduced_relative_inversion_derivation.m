@@ -1,14 +1,14 @@
-%% Relative Inversion Subnetwork Derivation
+%% Reduced Relative Inversion Subnetwork Derivation
 
 % Clear Everything.
 clear, close( 'all' ), clc
 
 
-%% Setup the Relative Inversion Subnetwork Constraints
+%% Setup the Reduced Relative Inversion Subnetwork Constraints
 
 % Define the symbolic variables.
 syms x1 x2 U1 U2 real
-syms c1 c2 c3 x1max x2max delta real positive
+syms c1 c2 x1max x2max delta real positive
 syms R1 R2 Gm1 Gm2 real positive
 syms gs21 real positive
 syms dEs21 real
@@ -22,7 +22,7 @@ U1 = ( R1/x1max )*x1;
 U2 = ( R2/x2max )*x2;
 
 % Define the decoded desired mapping.
-eq_desired = x2 == c1/( c2*x1 + c3 );
+eq_desired = x2 == c1/( x1 + c2 );
 
 % Define the decoded achieved mapping.
 eq_achieved = U2 == ( gs21*dEs21*U1 + R1*Ia2 )/( gs21*U1 + R1*Gm2 );
@@ -45,6 +45,10 @@ x2max = simplify( sol_x2max.x2max );
 % Solve the second desired constraint for c2.
 sol_c2 = solve( eq_desired2, c2, 'ReturnConditions', true );
 c2 = simplify( sol_c2.c2 );
+
+% Substitute c2 into x2max.
+x2max = subs( x2max, 'c2', c2 );
+x2max = simplify( x2max );
 
 
 %% Derive Achieved Relative Inversion Constraints.
@@ -77,9 +81,9 @@ eq_achieved = subs( eq_achieved, { 'x2max', 'c2', 'Ia2', 'gs21' }, [ x2max, c2, 
 sol_x2 = solve( eq_achieved, x2, 'ReturnConditions', true );
 eq_achieved = x2 == sol_x2.x2;
 
-% Retrieve the similarity constraints.
-[ num_desired, den_desired ] = numden( rhs( eq_desired ) );
-[ num_achieved, den_achieved ] = numden( rhs( eq_achieved ) );
+% Define the similarity constraints.
+[ num_desired, den_desired ] = numden( simplify( rhs( eq_desired ) ) );
+[ num_achieved, den_achieved ] = numden( simplify( rhs( eq_achieved ) ) );
 eq_similarity = num_desired*den_achieved - num_achieved*den_desired == 0;
 eq_similarity = collect( eq_similarity, [ x1, x2 ] );
 [ similarity_coeffs, similarity_terms ] = coeffs( lhs( eq_similarity ), [ x1, x2 ] );

@@ -1,4 +1,4 @@
-%% Absolute Transmission Derivation.
+%% Relative Transmission Derivation.
 
 % Clear everything.
 clear, close( 'all' ), clc
@@ -21,12 +21,8 @@ assume( dEs21 >= 0 );
 %% Derive Design Constraints.
 
 % Define the encoded state variables.
-U1 = x1;
-U2 = x2;
-
-% Define the maximum encoded states.
-R1 = x1max;
-R2 = x2max;
+U1 = ( R1/x1max )*x1;
+U2 = ( R2/x2max )*x2;
 
 % Define the decoded desired mapping.
 eq_desired = x2 == c*x1;
@@ -49,6 +45,9 @@ x2max = simplify( x2max );
 
 % Substitute the x2max constraint into the first decoded target point.
 P1 = subs( P1, 'x2max', x2max );
+
+% Substitute the x2max constraint into the decoded achieved mapping.
+eq_achieved = subs( eq_achieved, 'x2max', x2max );
 
 % Create the achieved constraints.
 eq_achieved1 = subs( eq_achieved, [ x1, x2 ], [ P1( 1 ), P1( 2 ) ] );
@@ -76,4 +75,13 @@ eq_similarity = num_desired*den_achieved - num_achieved*den_desired == 0;
 eq_similarity = collect( eq_similarity, [ x1, x2 ] );
 [ similarity_coeffs, similarity_terms ] = coeffs( lhs( eq_similarity ), [ x1, x2 ] );
 similarity_coeffs = simplify( similarity_coeffs );
+
+% Solve the second similarity constraint for dEs21.
+sol_dEs21 = solve( similarity_coeffs( 2 ), dEs21, 'ReturnConditions', true );
+dEs21 = sol_dEs21.dEs21;
+dEs21 = simplify( dEs21 );
+
+% Substitute dEs21 into gs21.
+gs21 = subs( gs21, 'dEs21', dEs21 );
+gs21 = simplify( gs21 );
 
