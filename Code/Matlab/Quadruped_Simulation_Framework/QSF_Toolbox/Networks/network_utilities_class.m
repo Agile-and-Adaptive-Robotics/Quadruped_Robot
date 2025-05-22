@@ -2959,18 +2959,564 @@ classdef network_utilities_class
         
         % ---------- Division Subnetwork Functions ----------
         
+        % Implement a function to encode the absolute division input 1.
+        function U1 = encode_absolute_division_input1( ~, x1 )
+        
+            % Encode the input.
+            U1 = x1;
+        
+        end
+        
+            
+        % Implement a function to encode the absolute division input 2.
+        function U2 = encode_absolute_division_input2( ~, x2 )
+           
+            % Encode the input.
+            U2 = x2;
+            
+        end
+        
+        
+        % Implement a function to encode the absolute division output.
+        function U3 = encode_absolute_division_output( ~, x3 )
+        
+            % Encode the output.
+            U3 = x3;
+        
+        end
+        
+        
+        % Implement a function to decode the absolute division input 1.
+        function x1 = decode_absolute_division_input1( ~, U1 )
+        
+            % Decode the input.
+            x1 = U1;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute division input 1.
+        function x2 = decode_absolute_division_input2( ~, U2 )
+            
+            % Decode the input.
+            x2 = U2;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute division output.
+        function x3 = decode_absolute_division_output( ~, U3 )
+        
+            % Decode the output.
+            x3 = U3;
+            
+        end
+        
+        
+        % Implement a function to encode the relative division input 1.
+        function U1 = encode_relative_division_input1( self, x1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Encode the input.
+            U1 = ( R1./x1_max ).*x1;
+            
+        end
+
+        
+        % Implement a function to encode the relative division input 2.
+        function U2 = encode_relative_division_input2( self, x2, x2_max, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Encode the input.
+            U2 = ( R2./x2_max ).*x2;
+            
+        end
+        
+        
+        % Implement a function to encode the relative division output.
+        function U3 = encode_relative_division_output( self, x3, c1, c3, x1_max, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, c3 = c3_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Encode the input.
+            U3 = ( ( c3.*R3 )./( c1.*x1_max ) ).*x3;
+            
+        end
+        
+        
+        % Implement a function to decode the relative division input 1.
+        function x1 = decode_relative_division_input1( self, U1, x1_max, R1 )
+
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Decode the input.
+            x1 = ( x1_max./R1 ).*U1;
+            
+        end
+        
+        
+        % Implement a function to decode the relative division input 2.
+        function x2 = decode_relative_division_input2( self, U2, x2_max, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Decode the input.
+            x2 = ( x2_max./R2 ).*U2;
+            
+        end
+        
+        
+        % Implement a function to decode the relative division output.
+        function x3 = decode_relative_division_output( self, U3, c1, c3, x1_max, R3 )
+
+            % Set the default input arguments.
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, c3 = c3_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Decode the input.
+            x3 = ( ( c1.*x1_max )./( c3.*R3 ) ).*U3;
+            
+        end
         
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to encode the absolute division after inversion input 1.
+        function U1 = encode_absolute_dai_input1( ~, x1 )
+        
+            % Encode the input.
+            U1 = x1;
+        
+        end
+        
+            
+        % Implement a function to encode the absolute division after inversion input 2.
+        function U2 = encode_absolute_dai_input2( ~, x2 )
+           
+            % Encode the input.
+            U2 = x2;
+            
+        end
+        
+        
+        % Implement a function to encode the absolute division after inversion output.
+        function U3 = encode_absolute_dai_output( ~, x3 )
+        
+            % Encode the output.
+            U3 = x3;
+        
+        end
+        
+        
+        % Implement a function to decode the absolute division after inversion input 1.
+        function x1 = decode_absolute_dai_input1( ~, U1 )
+        
+            % Decode the input.
+            x1 = U1;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute division after inversion input 1.
+        function x2 = decode_absolute_dai_input2( ~, U2 )
+            
+            % Decode the input.
+            x2 = U2;
+            
+        end
+        
+        
+        % Implement a function to decode the absolute division after inversion output.
+        function x3 = decode_absolute_dai_output( ~, U3 )
+        
+            % Decode the output.
+            x3 = U3;
+            
+        end
+        
+        
+        % Implement a function to encode the relative division after inversion input 1.
+        function U1 = encode_relative_dai_input1( self, x1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Encode the input.
+            U1 = ( R1./x1_max ).*x1;
+            
+        end
+        
+        
+        % Implement a function to encode the relative division after inversion input 2.
+        function U2 = encode_relative_dai_input2( self, x2, x2_max, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Encode the input.
+            U2 = ( R2./x2_max ).*x2;
+            
+        end
+        
+        
+        % Implement a function to encode the relative division after inversion output.
+        function U3 = encode_relative_dai_output( self, x3, c1, c3, delta1, delta2, x1_max, x2_max, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 9, R3 = self.R_DEFAULT; end
+            if nargin < 8, x2_max = self.x2max_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta2 = self.delta2_DEFAULT; end
+            if nargin < 5, delta1 = self.delta1_DEFAULT; end
+            if nargin < 4, c3 = c3_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Encode the input.
+            U3 = ( ( ( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 ).*R3 )./( delta2.*c1.*x1_max.*x2_max ) ).*x3;
+            
+        end
+        
+        
+        % Implement a function to decode the relative division after inversion input 1.
+        function x1 = decode_relative_dai_input1( self, U1, x1_max, R1 )
+
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Decode the input.
+            x1 = ( x1_max./R1 ).*U1;
+            
+        end
+        
+        
+        % Implement a function to decode the relative division after inversion input 2.
+        function x2 = decode_relative_dai_input2( self, U2, x2_max, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Decode the input.
+            x2 = ( x2_max./R2 ).*U2;
+            
+        end
+        
+        
+        % Implement a function to decode the relative division after inversion output.
+        function x3 = decode_relative_dai_output( self, U3, c1, c3, x1_max, R3 )
+
+            % Set the default input arguments.
+            if nargin < 9, R3 = self.R_DEFAULT; end
+            if nargin < 8, x2_max = self.x2max_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta2 = self.delta2_DEFAULT; end
+            if nargin < 5, delta1 = self.delta1_DEFAULT; end
+            if nargin < 4, c3 = c3_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Encode the input.
+            x3 = ( ( delta2.*c1.*x1_max.*x2_max )./( ( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 ).*R3 ) ).*U3;
+            
+        end
         
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
+        % Implement a function to encode the reduced absolute division input 1.
+        function U1 = encode_reduced_absolute_division_input1( ~, x1 )
+        
+            % Encode the input.
+            U1 = x1;
+        
+        end
+        
+            
+        % Implement a function to encode the reduced absolute division input 2.
+        function U2 = encode_reduced_absolute_division_input2( ~, x2 )
+           
+            % Encode the input.
+            U2 = x2;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced absolute division output.
+        function U3 = encode_reduced_absolute_division_output( ~, x3 )
+        
+            % Encode the output.
+            U3 = x3;
+        
+        end
+        
+        
+        % Implement a function to decode the reduced absolute division input 1.
+        function x1 = decode_reduced_absolute_division_input1( ~, U1 )
+        
+            % Decode the input.
+            x1 = U1;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced absolute division input 1.
+        function x2 = decode_reduced_absolute_division_input2( ~, U2 )
+            
+            % Decode the input.
+            x2 = U2;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced absolute division output.
+        function x3 = decode_reduced_absolute_division_output( ~, U3 )
+        
+            % Decode the output.
+            x3 = U3;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced relative division input 1.
+        function U1 = encode_reduced_relative_division_input1( self, x1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Encode the input.
+            U1 = ( R1./x1_max ).*x1;
+            
+        end
+
+        
+        % Implement a function to encode the reduced relative division input 2.
+        function U2 = encode_reduced_relative_division_input2( self, x2, x2_max, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Encode the input.
+            U2 = ( R2./x2_max ).*x2;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced relative division output.
+        function U3 = encode_reduced_relative_division_output( self, x3, c1, delta, x1_max, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = delta_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Encode the input.
+            U3 = ( ( ( c1.*x1_max - delta*x2_max ).*R3 )./( delta.*c1.*x1_max ) ).*x3;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced relative division input 1.
+        function x1 = decode_reduced_relative_division_input1( self, U1, x1_max, R1 )
+
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Decode the input.
+            x1 = ( x1_max./R1 ).*U1;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced relative division input 2.
+        function x2 = decode_reduced_relative_division_input2( self, U2, x2_max, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Decode the input.
+            x2 = ( x2_max./R2 ).*U2;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced relative division output.
+        function x3 = decode_reduced_relative_division_output( self, U3, c1, delta, x1_max, R3 )
+
+            % Set the default input arguments.
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = delta_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Decode the input.
+            x3 = ( ( delta.*c1.*x1_max )./( ( c1.*x1_max - delta*x2_max ).*R3 ) ).*U3;
+            
+        end
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to encode the reduced absolute division after inversion input 1.
+        function U1 = encode_reduced_absolute_dai_input1( ~, x1 )
+        
+            % Encode the input.
+            U1 = x1;
+        
+        end
+        
+            
+        % Implement a function to encode the reduced absolute division after inversion input 2.
+        function U2 = encode_reduced_absolute_dai_input2( ~, x2 )
+           
+            % Encode the input.
+            U2 = x2;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced absolute division after inversion output.
+        function U3 = encode_reduced_absolute_dai_output( ~, x3 )
+        
+            % Encode the output.
+            U3 = x3;
+        
+        end
+        
+        
+        % Implement a function to decode the reduced absolute division after inversion input 1.
+        function x1 = decode_reduced_absolute_dai_input1( ~, U1 )
+        
+            % Decode the input.
+            x1 = U1;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced absolute division after inversion input 1.
+        function x2 = decode_reduced_absolute_dai_input2( ~, U2 )
+            
+            % Decode the input.
+            x2 = U2;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced absolute division after inversion output.
+        function x3 = decode_reduced_absolute_dai_output( ~, U3 )
+        
+            % Decode the output.
+            x3 = U3;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced relative division after inversion input 1.
+        function U1 = encode_reduced_relative_dai_input1( self, x1, x1_max, R1 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Encode the input.
+            U1 = ( R1./x1_max ).*x1;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced relative division after inversion input 2.
+        function U2 = encode_reduced_relative_dai_input2( self, x2, x2_max, R2 )
+            
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Encode the input.
+            U2 = ( R2./x2_max ).*x2;
+            
+        end
+        
+        
+        % Implement a function to encode the reduced relative division after inversion output.
+        function U3 = encode_reduced_relative_dai_output( self, x3, c1, delta1, delta2, x1_max, x2_max, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 8, R3 = self.R_DEFAULT; end
+            if nargin < 7, x2_max = self.x2max_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_DEFAULT; end
+            if nargin < 5, delta2 = self.delta2_DEFAULT; end
+            if nargin < 4, delta1 = self.delta1_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Encode the input.
+            U3 = ( ( ( delta1.*delta2 + c1.*x1_max - delta2.*x2_max ).*R3 )./( delta2.*c1.*x1_max ) ).*x3;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced relative division after inversion input 1.
+        function x1 = decode_reduced_relative_dai_input1( self, U1, x1_max, R1 )
+
+            % Set the default input arguments.
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 3, x1_max = self.x1max_DEFAULT; end
+            
+            % Decode the input.
+            x1 = ( x1_max./R1 ).*U1;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced relative division after inversion input 2.
+        function x2 = decode_reduced_relative_dai_input2( self, U2, x2_max, R2 )
+        
+            % Set the default input arguments.
+            if nargin < 4, R2 = self.R_DEFAULT; end
+            if nargin < 3, x2_max = self.x2max_DEFAULT; end
+            
+            % Decode the input.
+            x2 = ( x2_max./R2 ).*U2;
+            
+        end
+        
+        
+        % Implement a function to decode the reduced relative division after inversion output.
+        function x3 = decode_reduced_relative_dai_output( self, U3, c1, delta1, delta2, x1_max, x2_max, R3 )
+
+            % Set the default input arguments.
+            if nargin < 8, R3 = self.R_DEFAULT; end
+            if nargin < 7, x2_max = self.x2max_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_DEFAULT; end
+            if nargin < 5, delta2 = self.delta2_DEFAULT; end
+            if nargin < 4, delta1 = self.delta1_DEFAULT; end
+            if nargin < 3, c1 = c1_DEFAULT; end
+            
+            % Encode the input.
+            x3 = ( ( delta2.*c1.*x1_max )./( ( delta1.*delta2 + c1.*x1_max - delta2.*x2_max ).*R3 ) ).*U3;
+                        
+        end
         
         
         % ---------- Multiplication Subnetwork Functions ----------
