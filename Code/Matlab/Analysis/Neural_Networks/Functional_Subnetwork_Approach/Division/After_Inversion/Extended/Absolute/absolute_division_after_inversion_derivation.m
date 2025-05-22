@@ -1,70 +1,99 @@
-%% Absolute Division After Inversion Subnetwork Derivation.
+%% Absolute Division After Inversion Subnetwork Derivation
 
 % Clear Everything.
 clear, close( 'all' ), clc
 
 
-%% Setup the Absolute Division After Inversion Subnetwork Constraints.
+%% Setup the Absolute Division After Inversion Subnetwork Constraints
 
-% Define symbolic variables.
-syms R1 R2 R3 R3_target Cm1 Cm2 Cm3 Gm1 Gm2 Gm3 gs31 gs32 dEs31 dEs32 Ia3 c1 c2 c3 delta1 delta2 U1 U2
+% Define the symbolic variables.
+syms x1 x2 x3 U1 U2 U3 real
+syms c1 c2 c3 x1max x2max x3max delta1 delta2 real positive
+syms R1 R2 R3 Gm1 Gm2 Gm3 real positive
+syms gs31 gs32 real positive
+syms dEs31 dEs32 real
+syms Ia3 real
 
-% Define the target points.
-P1 = [ R1; delta1; R3 ];
-P2 = [ 0; R2; 0 ];
-P3 = [ R1; R2; delta2 ];
-P4 = [ 0; delta1; 0 ];
+% Create additional symbolic assumptions.
+assume( [ dEs31, dEs32 ] >= 0 );
 
-% Define the desired reduced absolute division after inversion subnetwork steady state output.
-U3d = ( c1*U1 )/( c2*U2 + c3 );
+% Define the encoded state variables.
+U1 = x1;
+U2 = x2;
+U3 = x3;
 
-% Define the achieved reduced absolute division after inversion subnetwork steady state output.
-U3a = ( R2*gs31*dEs31*U1 + R1*gs32*dEs32*U2 + R1*R2*Ia3 )/( R2*gs31*U1 + R1*gs32*U2 + R1*R2*Gm3 );
+% Define the maximum encoded states.
+R1 = x1max;
+R2 = x2max;
+R3 = x3max;
 
+% Define the decoded desired mapping.
+eq_desired = x3 == ( c1*x1 )/( c2*x2 + c3 );
 
-%% Compute the Desired Constraints.
+% Define the decoded achieved mapping.
+eq_achieved = U3 == ( R2*gs31*dEs31*U1 + R1*gs32*dEs32*U2 + R1*R2*Ia3 )/( R2*gs31*U1 + R1*gs32*U2 + R1*R2*Gm3 );
 
-% Define the desired constraint equations.
-eq1d = P1( 3 ) == subs( U3d, [ U1, U2 ], [ P1( 1 ), P1( 2 ) ] );
-eq2d = P2( 3 ) == subs( U3d, [ U1, U2 ], [ P2( 1 ), P2( 2 ) ] );
-eq3d = P3( 3 ) == subs( U3d, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
-eq4d = P4( 3 ) == subs( U3d, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
-
-% Compute the maximum membrane voltage of the output neuron.
-R3 = simplify( solve( eq1d, R3 ) );
-
-% Compute the second design constant.
-c2 = simplify( solve( eq3d, c2 ) );
+% Define the points of interest.
+P1 = [ 0; x2max; 0 ];
+P2 = [ x1max; delta1; x3max ];
+P3 = [ 0; delta1; 0 ];
+P4 = [ x1max; x2max; delta2 ];
 
 
-%% Compute the Achieved Constraints.
+%% Derive Desired Absolute Division After Inversion Constraints.
 
-% Define the achieved constraint equations.
-eq1a = P1( 3 ) == subs( U3a, [ U1, U2 ], [ P1( 1 ), P1( 2 ) ] );
-eq2a = P2( 3 ) == subs( U3a, [ U1, U2 ], [ P2( 1 ), P2( 2 ) ] );
-eq3a = P3( 3 ) == subs( U3a, [ U1, U2 ], [ P3( 1 ), P3( 2 ) ] );
-eq4a = P4( 3 ) == subs( U3a, [ U1, U2 ], [ P4( 1 ), P4( 2 ) ] );
+% Create the desired constraints.
+eq_desired1 = subs( eq_desired, [ x1, x2, x3 ], [ P1( 1 ), P1( 2 ), P1( 3 ) ] );
+eq_desired2 = subs( eq_desired, [ x1, x2, x3 ], [ P2( 1 ), P2( 2 ), P2( 3 ) ] );
+eq_desired3 = subs( eq_desired, [ x1, x2, x3 ], [ P3( 1 ), P3( 2 ), P3( 3 ) ] );
+eq_desired4 = subs( eq_desired, [ x1, x2, x3 ], [ P4( 1 ), P4( 2 ), P4( 3 ) ] );
 
-% Compute the applied current (neuron 3) and the synaptic reversal potential (synapse 32).
-sol = solve( [ eq2a, eq4a ], [ dEs32, Ia3 ] );
+% Solve the fourth desired constraint for c2.
+sol_c2 = solve( eq_desired4, c2, 'ReturnConditions', true );
+c2 = simplify( sol_c2.c2 );
 
-% Retrieve the applied current (neuron 3) and the synaptic reversal potential (synapse 32).
+% Solve the second desired constraint for x3max.
+eq_desired2 = subs( eq_desired2, 'c2', c2 );
+sol_x3max = solve( eq_desired2, x3max, 'ReturnConditions', true );
+x3max = simplify( sol_x3max.x3max );
+
+
+%% Derive Achieved Absolute Division After Inversion Constraints.
+
+% Substitute the x3max constraint into the second decoded target point.
+P2 = subs( P2, 'x3max', x3max );
+R3 = subs( R3, 'x3max', x3max );
+
+% Create the achieved constraints.
+eq_achieved1 = subs( eq_achieved, [ x1, x2, x3 ], [ P1( 1 ), P1( 2 ), P1( 3 ) ] );
+eq_achieved2 = subs( eq_achieved, [ x1, x2, x3 ], [ P2( 1 ), P2( 2 ), P2( 3 ) ] );
+eq_achieved3 = subs( eq_achieved, [ x1, x2, x3 ], [ P3( 1 ), P3( 2 ), P3( 3 ) ] );
+eq_achieved4 = subs( eq_achieved, [ x1, x2, x3 ], [ P4( 1 ), P4( 2 ), P4( 3 ) ] );
+
+% Solve the first and third constraints for Ia3 and dEs32.
+sol = solve( [ eq_achieved1, eq_achieved3 ], { 'Ia3', 'dEs32' }, 'ReturnConditions', true );
 Ia3 = simplify( sol.Ia3 );
 dEs32 = simplify( sol.dEs32 );
 
-% Compute the synaptic conductances.
-sol = solve( [ eq1a, eq3a ], [ gs31, gs32 ] );
+% Solve the second and fourth constraints for gs31 and gs32.
+eq_achieved2 = subs( eq_achieved2, { 'Ia3', 'dEs32' }, [ Ia3, dEs32 ] );
+eq_achieved4 = subs( eq_achieved4, { 'Ia3', 'dEs32', 'gs31' }, [ Ia3, dEs32, gs31 ] );
+sol = solve( [ eq_achieved2, eq_achieved4 ], { 'gs31', 'gs32' }, 'ReturnConditions', true );
+gs31 = simplify( sol.gs31( 1 ) );
+gs32 = simplify( sol.gs32( 1 ) );
 
-% Retrieve the synaptic conductances.
-gs31 = simplify( subs(  sol.gs31, { 'Ia3', 'dEs32' }, [ Ia3, dEs32 ] ) );
-gs32 = simplify( subs( sol.gs32, { 'Ia3', 'dEs32' }, [ Ia3, dEs32 ] ) );
 
+%% Derive Similarity Constraints.
 
-%% Determine how to Compute c1 to Achieve a Target R3.
+% Update the encoded desired and achieved mappings.
+eq_desired = subs( eq_desired, { 'x3max', 'c2', 'Ia3', 'dEs32', 'gs31', 'gs32' }, [ x3max, c2, Ia3, dEs32, gs31, gs32 ] );
+eq_achieved = subs( eq_achieved, { 'x3max', 'c2', 'Ia3', 'dEs32', 'gs31', 'gs32' }, [ x3max, c2, Ia3, dEs32, gs31, gs32 ] );
 
-% Define the target R3 equation.
-eq = R3_target == subs( R3, 'c2', c2 );
-
-% Solve for the first design constant.
-c1 = simplify( solve( eq, c1 ) );
+% Define the similarity constraints.
+[ num_desired, den_desired ] = numden( rhs( eq_desired ) );
+[ num_achieved, den_achieved ] = numden( rhs( eq_achieved ) );
+eq_similarity = num_desired*den_achieved - num_achieved*den_desired == 0;
+eq_similarity = collect( eq_similarity, [ x1, x2, x3 ] );
+[ similarity_coeffs, similarity_terms ] = coeffs( lhs( eq_similarity ), [ x1, x2, x3 ] );
+similarity_coeffs = simplify( similarity_coeffs );
 
