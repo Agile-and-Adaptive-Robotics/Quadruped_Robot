@@ -109,7 +109,7 @@ network = network_class( network_dt, network_tf );
 [ transmission_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_transmission_subnetwork( transmission_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
 % Unpack the transmission output parameters.
-[ x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2 ] = network.unpack_absolute_transmission_output_parameters( transmission_output_parameters, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option );
+[ x2_max, R1, R2, Gna1, Gna2, dEs21, gs21, Ia2 ] = network.unpack_absolute_transmission_output_params( transmission_output_parameters, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option );
 
 % Create the input applied current.
 [ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID, input_current_name, input_current_to_neuron_ID, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );

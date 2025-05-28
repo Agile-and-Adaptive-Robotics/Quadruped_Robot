@@ -125,7 +125,7 @@ classdef neuron_manager_class
         % ---------- Division Properties ----------
 
         % Define the number of division neurons.
-        n_division_neurons_DEFAULT = 3;                                         % [#] Number of Division Neurons.
+        num_division_neurons_DEFAULT = 3;                                         % [#] Number of Division Neurons.
 
         % Define the absolute division subnetwork gains.
         c1_absolute_division_DEFAULT = 1.0;                                     % [-] Absolute Division Gain 1.
@@ -160,7 +160,7 @@ classdef neuron_manager_class
         % ---------- Division After Inversion Properties ----------
 
         % Define the number of division after inversion neurons.
-        n_dai_neurons_DEFAULT = 3;                                              % [#] Number of Division After Inversion Neurons.
+        num_dai_neurons_DEFAULT = 3;                                              % [#] Number of Division After Inversion Neurons.
         
         % Define the absolute division after inversion subnetwork gains.
         c1_absolute_dai_DEFAULT = 1.0;                                          % [-] Absolute Division Gain 1.
@@ -3436,12 +3436,112 @@ classdef neuron_manager_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to process the division subnetwork output activation domain params.
-        function division_R3_params = process_division_R3_params( self, division_R3_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to process the division subnetwork input 1 activation domain params.
+        function division_R1_params = process_division_R1_params( self, division_R1_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Otion.
-            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, division_R1_params = struct( [  ] ); end                                                           % [cell] Division R3 Parameters Cell.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( division_R1_params )                                                                    % If no params were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    x1_max = self.x1max_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    
+                    % Store the required params.
+                    division_R1_params.x1_max = x1_max;
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( division_R1_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( division_R1_params )                                                                   % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division subnetwork input 2 activation domain params.
+        function division_R2_params = process_division_R2_params( self, division_R2_params, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, division_R2_params = struct( [  ] ); end                                                           % [cell] Division R3 Parameters Cell.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( division_R2_params )                                                                    % If no params were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    x2_max = self.x2max_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    
+                    % Store the required params.
+                    division_R2_params.x2_max = x2_max;
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( division_R2_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( division_R2_params )                                                                   % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division subnetwork output activation domain params.
+        function division_R3_params = process_division_R3_params( self, division_R3_params, encoding_scheme )
+            
+            % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, division_R3_params = struct( [  ] ); end                                                           % [cell] Division R3 Parameters Cell.
             
@@ -3454,12 +3554,12 @@ classdef neuron_manager_class
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 1.
                     c3 = self.c3_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 3.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );   	% [V] Activation Domain.
+                    x1_max = self.x1max_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
                     
                     % Store the required params.
                     division_R3_params.c1 = c1;
                     division_R3_params.c3 = c3;
-                    division_R3_params.R1 = R1;
+                    division_R3_params.x1_max = x1_max;
                     
                 else                                                                                                    % Otherwise...
                     
@@ -3494,34 +3594,34 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the division subnetwork params.
-        function division_params = process_division_params( self, division_params, encoding_scheme, neurons, undetected_option )
+        function division_params = process_division_params( self, division_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, division_params = struct( [  ] ); end                                                                  	% [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                       	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, division_params = struct( [  ] ); end                                                      	% [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the params.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                 	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
-                if isempty( division_params )                                                                            	% If no params were provided...
+                if isempty( division_params )                                                                        	% If no params were provided...
                                                          
-                    % Set the default parameter values.
-                    c1 = self.c1_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 1.
-                    c3 = self.c3_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 3.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
-   
+                    % Set the default input and output voltage offsets.
+                    c1 = self.c1_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 1.
+                    c3 = self.c3_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 3.
+                    x1_max = self.x1max_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    x2_max = self.x2max_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 2.
+
                     % Store the required params.
                     division_params.c1 = c1;
                     division_params.c3 = c3;
-                    division_params.R1 = R1;
+                    division_params.x1_max = x1_max;
+                    division_params.x2_max = x2_max;
 
-                else                                                                                                         	% Otherwise...
+                else                                                                                                  	% Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( division_params ) ) ~= 3                                                                    	% If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( division_params ) ) ~= 4                                                   	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3530,10 +3630,10 @@ classdef neuron_manager_class
                     
                 end
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                            	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether the params has a valid number of entries.
-                if length( fieldnames( division_params ) ) ~= 3                                                                           % If there is anything other than four parameter entries...
+                if length( fieldnames( division_params ) ) ~= 4                                                       	% If there is anything other than four parameter entries...
 
                     % Throw an error.
                     error( 'Invalid params detected.' )
@@ -3552,39 +3652,141 @@ classdef neuron_manager_class
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to process the division after inversion subnetwork output activation domain params.
-        function dai_R3_params = process_dai_R3_params( self, dai_R3_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to process the division after inversion subnetwork input 1 activation domain params.
+        function dai_R1_params = process_dai_R1_params( self, dai_R1_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                    	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, dai_R1_params = struct( [  ] ); end                                                     	% [struct] Division After Inversion R3 Parameters Structure.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( dai_R1_params )                                                                         % If no params were provided...
+                    
+                    % Retrieve the parameters.
+                    x1_max = self.x1max_absolute_dai_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    
+                    % Store the required params.
+                    dai_R1_params.x1_max = x1_max;
+                    
+                else                                                                                                % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( dai_R1_params ) ) ~= 1                                                 	% If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( dai_R1_params )                                                                        % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                  	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division after inversion subnetwork input 2 activation domain params.
+        function dai_R2_params = process_dai_R2_params( self, dai_R2_params, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                    	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, dai_R2_params = struct( [  ] ); end                                                     	% [struct] Division After Inversion R3 Parameters Structure.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                               % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( dai_R2_params )                                                                         % If no params were provided...
+                    
+                    % Retrieve the parameters.
+                    x2_max = self.x2max_absolute_dai_DEFAULT;                                                      % [-] Decoded Maximum Input 2.
+                    
+                    % Store the required params.
+                    dai_R2_params.x2_max = x2_max;
+                    
+                else                                                                                                % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( dai_R2_params ) ) ~= 1                                                 	% If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                           % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( dai_R2_params )                                                                        % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                  	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the division after inversion subnetwork output activation domain params.
+        function dai_R3_params = process_dai_R3_params( self, dai_R3_params, encoding_scheme )
+            
+            % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, dai_R3_params = struct( [  ] ); end                                                                % [cell] Division After Inversion R3 Parameters Cell.
+            if nargin < 2, dai_R3_params = struct( [  ] ); end                                                      	% [struct] Division After Inversion R3 Parameters Structure.
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
-                if isempty( dai_R3_params )                                                                         % If no params were provided...
+                if isempty( dai_R3_params )                                                                             % If no params were provided...
                     
-                    % Set the default input and output voltage offsets.
+                    % Set the default parameters.
                     c1 = self.c1_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 1.
-                    c2 = self.c2_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 2.
                     c3 = self.c3_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 3.
-                    delta1 = self.delta_absolute_inversion_DEFAULT;                                                     % [-] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    delta1 = self.delta1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Decoded Minimum Interneuron Value.
+                    delta2 = self.delta2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Decoded Minimum Output Value.
+                    x1_max = self.x1max_absolute_dai_DEFAULT;                                                           % [-] Absolute Division After Inversion Decoded Maximum Input 1 Value.
+                    x2_max = self.x2max_absolute_dai_DEFAULT;                                                           % [-] Absolute Division After Inversion Decoded Maximum Input 2 Value.
                     
                     % Store the required params.
                     dai_R3_params.c1 = c1;
-                    dai_R3_params.c2 = c2;
                     dai_R3_params.c3 =c3;
                     dai_R3_params.delta1 = delta1;
-                    dai_R3_params.R1 = R1;
-                    
+                    dai_R3_params.delta2 = delta2;
+                    dai_R3_params.x1_max = x1_max;
+                    dai_R3_params.x2_max = x2_max;
+                                        
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( dai_R3_params ) ) ~= 5                                                                 % If there is anything other than four parameter entries...
+                    if length( fieldnames( dai_R3_params ) ) ~= 6                                                                 % If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3614,11 +3816,9 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the division after inversion subnetwork params.
-        function dai_params = process_dai_params( self, dai_params, encoding_scheme, neurons, undetected_option )
+        function dai_params = process_dai_params( self, dai_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, dai_params = struct( [  ] ); end                                                                           % [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
@@ -3628,24 +3828,26 @@ classdef neuron_manager_class
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( dai_params )                                                                                    % If no params were provided...
                          
-                    % Set the default params.
-                    c1 = self.c1_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 1.
-                    c2 = self.c2_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 2.
-                    c3 = self.c3_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 3.
-                    delta1 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 1.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
-
+                    % Set the default parameters.
+                    c1 = self.c1_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 1.
+                    c3 = self.c3_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 3.
+                    delta1 = self.delta1_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Decoded Minimum Interneuron Value.
+                    delta2 = self.delta2_absolute_dai_DEFAULT;                                                          % [-] Absolute Division After Inversion Decoded Minimum Output Value.
+                    x1_max = self.x1max_absolute_dai_DEFAULT;                                                           % [-] Absolute Division After Inversion Decoded Maximum Input 1 Value.
+                    x2_max = self.x2max_absolute_dai_DEFAULT;                                                           % [-] Absolute Division After Inversion Decoded Maximum Input 2 Value.
+                    
                     % Store the required params.
                     dai_params.c1 = c1;
-                    dai_params.c2 = c2;
                     dai_params.c3 =c3;
                     dai_params.delta1 = delta1;
-                    dai_params.R1 = R1;
+                    dai_params.delta2 = delta2;
+                    dai_params.x1_max = x1_max;
+                    dai_params.x2_max = x2_max;
 
                 else                                                                                                         	% Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( dai_params ) ) ~= 5                                                                            % If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( dai_params ) ) ~= 6                                                                            % If there is anything other than the required number of parameter entries...
 
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3676,12 +3878,112 @@ classdef neuron_manager_class
 
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        % Implement a function to process the reduced division subnetwork output activation domain params.
-        function reduced_division_R3_params = process_reduced_division_R3_params( self, reduced_division_R3_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to process the reduced division subnetwork input 1 activation domain params.
+        function reduced_division_R1_params = process_reduced_division_R1_params( self, reduced_division_R1_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_division_R1_params = struct( [  ] ); end                                                           % [struct] Reduced Division R3 Parameters Structure.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_division_R1_params )                                                                    % If no params were provided...
+                    
+                    % Retrieve the default parameters.
+                    x1_max = self.x1max_reduce_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    
+                    % Store the required params.
+                    reduced_division_R1_params.x1_max = x1_max;
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( reduced_division_R1_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( reduced_division_R1_params )                                                                   % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the reduced division subnetwork input 2 activation domain params.
+        function reduced_division_R2_params = process_reduced_division_R2_params( self, reduced_division_R2_params, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_division_R2_params = struct( [  ] ); end                                                           % [struct] Reduced Division R3 Parameters Structure.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_division_R2_params )                                                                    % If no params were provided...
+                    
+                    % Retrieve the default parameters.
+                    x2_max = self.x2max_reduce_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    
+                    % Store the required params.
+                    reduced_division_R2_params.x1_max = x2_max;
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( reduced_division_R2_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( reduced_division_R2_params )                                                                   % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the reduced division subnetwork output activation domain params.
+        function reduced_division_R3_params = process_reduced_division_R3_params( self, reduced_division_R3_params, encoding_scheme )
+            
+            % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, reduced_division_R3_params = struct( [  ] ); end                                                   % [struct] Parameters Structure.
             
@@ -3693,18 +3995,20 @@ classdef neuron_manager_class
                     
                     % Set the default input and output voltage offsets.
                     c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 1.
-                    c2 = self.c2_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 2.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    delta = self.delta_reduced_absolute_division_DEFAULT;
+                    x1_max = self.x1max_reduced_absolute_division_DEFAULT;
+                    x2_max = self.x2max_reduced_absolute_division_DEFAULT;
                     
                     % Store the required params.
                     reduced_division_R3_params.c1 = c1;
-                    reduced_division_R3_params.c2 = c2;
-                    reduced_division_R3_params.R1 = R1;
+                    reduced_division_R3_params.delta = delta;
+                    reduced_division_R3_params.x1_max = x1_max;
+                    reduced_division_R3_params.x2_max = x2_max;
                     
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( reduced_division_R3_params ) ) ~= 3                                                 	% If there is anything other than four parameter entries...
+                    if length( fieldnames( reduced_division_R3_params ) ) ~= 4                                                 	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3734,11 +4038,9 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the reduced division subnetwork params.
-        function reduced_division_params = process_reduced_division_params( self, reduced_division_params, encoding_scheme, neurons, undetected_option )
+        function reduced_division_params = process_reduced_division_params( self, reduced_division_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 2, reduced_division_params = struct( [  ] ); end                                                            	% [cell] Reduced Division Parameters Cell.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
@@ -3747,16 +4049,18 @@ classdef neuron_manager_class
                 
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
                 if isempty( reduced_division_params )                                                                     	% If no params were provided...
-                              
-                    % Set the default parameter values.
-                    c1 = self.c1_absolute_reduced_division_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
-                    c2 = self.c2_absolute_reduced_division_DEFAULT;                                                             % [-] Subnetwork Gain 2.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                            
+                    % Retrieve the default parameters.
+                    c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 1.
+                    delta = self.delta_reduced_absolute_division_DEFAULT;
+                    x1_max = self.x1max_reduced_absolute_division_DEFAULT;
+                    x2_max = self.x2max_reduced_absolute_division_DEFAULT;
                     
                     % Store the required params.
                     reduced_division_params.c1 = c1;
-                    reduced_division_params.c2 = c2;
-                    reduced_division_params.R1 = R1;
+                    reduced_division_params.delta = delta;
+                    reduced_division_params.x1_max = x1_max;
+                    reduced_division_params.x2_max = x2_max;
 
                 else                                                                                                         	% Otherwise...
                     
@@ -3792,37 +4096,139 @@ classdef neuron_manager_class
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to process the reduced division after inversion subnetwork output activation domain params.
-        function reduced_dai_R3_params = process_reduced_dai_R3_params( self, reduced_dai_R3_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to process the reduced division after inversion subnetwork input 1 activation domain params.
+        function reduced_dai_R1_params = process_reduced_dai_R1_params( self, reduced_dai_R1_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                      % [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                  % [class] Array of Neuron Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, reduced_dai_R3_params = struct( [  ] ); end                                                        % [struct] Parameters Structure.
+            if nargin < 2, reduced_dai_R1_params = struct( [  ] ); end                                                           % [struct] Reduced Division R3 Parameters Structure.
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
-                if isempty( reduced_dai_R3_params )                                                                 % If no params were provided...
+                if isempty( reduced_dai_R1_params )                                                                    % If no params were provided...
                     
-                    % Set the default input and output voltage offsets.
-                    c1 = self.c1_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 1.
-                    c2 = self.c2_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 2.
-                    delta1 = self.delta_absolute_inversion_DEFAULT;                                                     % [V] Absolute Inversion Offset.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                    % Retrieve the default parameters.
+                    x1_max = self.x1max_reduced_absolute_dai_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
                     
                     % Store the required params.
-                    reduced_dai_R3_params.c1 = c1;
-                    reduced_dai_R3_params.c2 = c2;
-                    reduced_dai_R3_params.delta1 = delta1;
-                    reduced_dai_R3_params.R1 = R1;
+                    reduced_dai_R1_params.x1_max = x1_max;
                     
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( reduced_dai_R3_params ) ) ~= 4                                                         % If there is anything other than four parameter entries...
+                    if length( fieldnames( reduced_dai_R1_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( reduced_dai_R1_params )                                                                   % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the reduced division after inversion subnetwork input 2 activation domain params.
+        function reduced_dai_R2_params = process_reduced_dai_R2_params( self, reduced_dai_R2_params, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_dai_R2_params = struct( [  ] ); end                                                           % [struct] Reduced Division R3 Parameters Structure.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_dai_R2_params )                                                                    % If no params were provided...
+                    
+                    % Retrieve the default parameters.
+                    x2_max = self.x2max_reduced_absolute_dai_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
+                    
+                    % Store the required params.
+                    reduced_dai_R2_params.x1_max = x2_max;
+                    
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( reduced_dai_R2_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                        
+                        % Throw an error.
+                        error( 'Invalid params detected.' )
+                        
+                    end
+                    
+                end
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
+                
+                % Determine whether params is valid given that this operation is using a relative encoding scheme.
+                if ~isempty( reduced_dai_R2_params )                                                                   % If the params cell is not empty...
+                    
+                    % Throw an error.
+                    error( 'Invalid params detected.' )
+                    
+                end
+                
+            else                                                                                                       	% Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to process the reduced division after inversion subnetwork output activation domain params.
+        function reduced_dai_R3_params = process_reduced_dai_R3_params( self, reduced_dai_R3_params, encoding_scheme )
+            
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                  	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 2, reduced_dai_R3_params = struct( [  ] ); end                                            	% [struct] Parameters Structure.
+            
+            % Determine how to create the params.
+            if strcmpi( encoding_scheme, 'absolute' )                                                            	% If this operation is using an absolute encoding scheme...
+                
+                % Determine how to create the params given that this operation is using an absolute encoding scheme.
+                if isempty( reduced_dai_R3_params )                                                                 % If no params were provided...
+                    
+                    % Set the default input and output voltage offsets.
+                    c1 = self.c1_reduced_absolute_dai_DEFAULT;                                                    	% [-] Reduced Absolute Division After Inversion Gain 1.
+                    delta1 = self.delta_reduced_absolute_dai_DEFAULT;                                              	% [-] Reduced Absolute Division After Inversion Decoded Minimum Interneuron Value.
+                    delta2 = self.delta_reduced_absolute_dai_DEFAULT;                                             	% [-] Reduced Absolute Division After Inversion Decoded Minium Output Value.
+                    x1_max = self.x1max_reduced_absolute_dai_DEFAULT;                                               % [-] Reduced Absolute Division After Inversion Decoded Maximum Input Value 1.
+                    x2_max = self.x2max_reduced_absolute_dai_DEFAULT;                                               % [-] Reduced Absolute Division After Inversion Decoded Maximum Input Value 2.
+                    
+                    % Store the required params.
+                    reduced_dai_R3_params.c1 = c1;
+                    reduced_dai_R3_params.delta1 = delta1;
+                    reduced_dai_R3_params.delta2 = delta2;
+                    reduced_dai_R3_params.x1_max = x1_max;
+                    reduced_dai_R3_params.x2_max = x2_max;
+
+                else                                                                                                    % Otherwise...
+                    
+                    % Determine whether the params has a valid number of entries.
+                    if length( fieldnames( reduced_dai_R3_params ) ) ~= 5                                                         % If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3852,36 +4258,36 @@ classdef neuron_manager_class
         
         
         % Implement a function to process the reduced division after inversion subnetwork params.
-        function reduced_dai_params = process_reduced_dai_params( self, reduced_dai_params, encoding_scheme, neurons, undetected_option )
+        function reduced_dai_params = process_reduced_dai_params( self, reduced_dai_params, encoding_scheme )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end                                            	% [-] Undetected Option.
-            if nargin < 4, neurons = self.neurons; end                                                                       	% [class] Array of Neuron Class Objects.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                	% [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, reduced_dai_params = struct( [  ] ); end                                                                   % [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
+            if nargin < 2, reduced_dai_params = struct( [  ] ); end                                                          	% [struct] Parameters Structure.  (Absolute: , Ia2; Relative: R2, Gm2, dEs21, Ia2)
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                        	% If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
-                if isempty( reduced_dai_params )                                                                        	% If no params were provided...
+                if isempty( reduced_dai_params )                                                                                % If no params were provided...
                      
-                    % Set the default params.
-                    c1 = self.c1_reduced_dai_DEFAULT;                                                                           % [-] Subnetwork Gain 1.
-                    c2 = self.c2_reduced_dai_DEFAULT;                                                                           % [-] Subnetwork Gain 2.
-                    delta1 = self.delta_reduced_dai_DEFAULT;                                                                    % [V] Bifurcation Parameter 1.
-                    R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
-
+                    % Set the default parameters.
+                    c1 = self.c1_reduced_absolute_dai_DEFAULT;                                                                  % [-] Reduced Absolute Division After Inversion Gain 1.
+                    delta1 = self.delta_reduced_absolute_dai_DEFAULT;                                                           % [-] Reduced Absolute Division After Inversion Decoded Minimum Interneuron Value.
+                    delta2 = self.delta_reduced_absolute_dai_DEFAULT;                                                           % [-] Reduced Absolute Division After Inversion Decoded Minium Output Value.
+                    x1_max = self.x1max_reduced_absolute_dai_DEFAULT;                                                           % [-] Reduced Absolute Division After Inversion Decoded Maximum Input Value 1.
+                    x2_max = self.x2max_reduced_absolute_dai_DEFAULT;                                                           % [-] Reduced Absolute Division After Inversion Decoded Maximum Input Value 2.
+                    
                     % Store the required params.
                     reduced_dai_params.c1 = c1;
-                    reduced_dai_params.c2 = c2;
                     reduced_dai_params.delta1 = delta1;
-                    reduced_dai_params.R1 = R1;
+                    reduced_dai_params.delta2 = delta2;
+                    reduced_dai_params.x1_max = x1_max;
+                    reduced_dai_params.x2_max = x2_max;
 
                 else                                                                                                         	% Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( reduced_dai_params ) ) ~= 4                                                                    % If there is anything other than the required number of parameter entries...
+                    if length( fieldnames( reduced_dai_params ) ) ~= 5                                                        	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3893,7 +4299,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                                                                     	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether params is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( reduced_dai_params )                                                                           % If the params cell is not empty...
+                if ~isempty( reduced_dai_params )                                                                               % If the params structure is not empty...
                     
                     % Throw an error.
                     error( 'Invalid params detected.' )
@@ -4889,30 +5295,82 @@ classdef neuron_manager_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to unpack the params for computing R3 of an absolute division subnetwork.
-        function [ c1, c3, R1 ] = unpack_absolute_division_R3_params( self, division_R3_params, neurons, undetected_option )
+        % Implement a function to unpack the parameters for computing R1 of an absolute division subnetwork.
+        function x1_max = unpack_absolute_division_R1_params( self, division_R1_params )
             
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
-            if nargin < 2, division_R3_params = struct( [  ] ); end                                                       % [-] Division Parameters Cell.
+            if nargin < 2, division_R1_params = struct( [  ] ); end                 % [struct] Division Parameters Structure.
             
             % Determine how to set the params.
-            if isempty( division_R3_params )                                                                    % If the params are empty...
+            if isempty( division_R1_params )                                       	% If the params are empty...
             
                 % Set the params to default values.
-                c1 = self.c1_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 1.
-                c3 = self.c3_absolute_division_DEFAULT;                                                             % [-] Absolute Division Gain 3.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                x1_max = self.x1max_absolute_division_DEFAULT;                     	% [-] Maximum Decoded Input 1 Value.
                 
-            elseif length( fieldnames( division_R3_params ) ) == 3                                                            % If there are a specific number of params...
+            elseif length( fieldnames( division_R1_params ) ) == 1                 	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_R3_params.c1;                                                                   % [V] Activation Domain.
-                c3 = division_R3_params.c3;                                                                   % [S] Membrane Conductance.
-                R1 = division_R3_params.R1;                                                                   % [S] Membrane Conductance.
+                x1_max = division_R1_params.x1_max;                              	% [-] Maximum Decoded Input 1 Value.
 
-            else                                                                                                    % Otherwise...
+            else                                                                  	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for computing R2 of an absolute division subnetwork.
+        function x2_max = unpack_absolute_division_R2_params( self, division_R2_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_R2_params = struct( [  ] ); end                 % [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( division_R2_params )                                       	% If the params are empty...
+            
+                % Set the params to default values.
+                x2_max = self.x2max_absolute_division_DEFAULT;                     	% [-] Maximum Decoded Input 1 Value.
+                
+            elseif length( fieldnames( division_R2_params ) ) == 1                 	% If there are a specific number of params...
+                
+                % Unpack the params.
+                x2_max = division_R2_params.x2_max;                              	% [-] Maximum Decoded Input 1 Value.
+
+            else                                                                  	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the params for computing R3 of an absolute division subnetwork.
+        function [ c1, c3, x1_max ] = unpack_absolute_division_R3_params( self, division_R3_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, division_R3_params = struct( [  ] ); end       	% [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( division_R3_params )                              	% If the params are empty...
+            
+                % Set the params to default values.
+                c1 = self.c1_absolute_division_DEFAULT;                   	% [-] Absolute Division Gain 1.
+                c3 = self.c3_absolute_division_DEFAULT;                    	% [-] Absolute Division Gain 3.
+                x1_max = self.x1max_absolute_division_DEFAULT;            	% [-] Absolute Division Maximum Decoded Input Value 1.
+                
+            elseif length( fieldnames( division_R3_params ) ) == 3          % If there are a specific number of params...
+                
+                % Unpack the params.
+                c1 = division_R3_params.c1;                              	% [-] Absolute Division Gain 1.
+                c3 = division_R3_params.c3;                              	% [-] Absolute Division Gain 3.
+                x1_max = division_R3_params.R1;                           	% [-] Absolute Division Maximum Decoded Input Value 2.
+
+            else                                                          	% Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack params.' )
@@ -4923,29 +5381,29 @@ classdef neuron_manager_class
         
         
        	% Implement a function to unpack the params for designing an absolute division subnetwork.
-        function [ c1, c3, R1 ] = unpack_absolute_division_params( self, division_params, neurons, undetected_option )
+        function [ c1, c3, x1_max, x2_max ] = unpack_absolute_division_params( self, division_params )
 
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
-            if nargin < 2, division_params = struct( [  ] ); end                                                                  % [struct] Input Parameters Structure.
+            if nargin < 2, division_params = struct( [  ] ); end          	% [struct] Input Parameters Structure.
 
             % Determine how to set the params.
-            if isempty( division_params )                                                                               % If the params are empty...
+            if isempty( division_params )                                  	% If the params are empty...
 
                 % Set the params to default values.                
-                c1 = self.c1_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 1.
-                c3 = self.c3_absolute_division_DEFAULT;                                                                     % [-] Subnetwork Gain 3.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                c1 = self.c1_absolute_division_DEFAULT;                   	% [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_division_DEFAULT;                   	% [-] Subnetwork Gain 3.
+                x1_max = self.x1max_absolute_division_DEFAULT;            	% [-] Absolute Division Maximum Decoded Input Value 1.
+                x2_max = self.x2max_absolute_division_DEFAULT;            	% [-] Absolute Division Maximum Decoded Input Value 2.
 
-            elseif length( fieldnames( division_params ) ) == 3                                                                       % If there are a specific number of params...
+            elseif length( fieldnames( division_params ) ) == 4             % If there are a specific number of params...
 
                 % Unpack the params.
-                c1 = division_params.c1;                                                                              % [-] Subnetwork Gain 1.
-                c3 = division_params.c3;                                                                              % [-] Subnetwork Gain 3.
-                R1 = division_params.R1;                                                                              % [V] Maximum Membrane Voltage 1.
-                
-            else                                                                                                            % Otherwise...
+                c1 = division_params.c1;                                  	% [-] Subnetwork Gain 1.
+                c3 = division_params.c3;                                  	% [-] Subnetwork Gain 3.
+                x1_max = division_params.x1_max;                           	% [-] Maximum Decoded Input Value 1.
+                x2_max = division_params.x2_max;                           	% [-] Maximum Decoded Input Value 2.
+
+            else                                                          	% Otherwise...
 
                 % Throw an error.
                 error( 'Unable to unpack params.' )
@@ -4957,29 +5415,83 @@ classdef neuron_manager_class
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        % Implement a function to unpack the params for computing R3 of a reduced absolute division subnetwork.
-        function [ c1, c2, R1 ] = unpack_reduced_absolute_division_R3_params( self, division_R3_params, neurons, undetected_option )
+        % Implement a function to unpack the parameters for computing R1 of a reduced absolute division subnetwork.
+        function x1_max = unpack_reduced_absolute_division_R1_params( self, reduced_division_R1_params )
             
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
-            if nargin < 2, division_R3_params = struct( [  ] ); end                                                       % [-] Division Parameters Cell.
+            if nargin < 2, reduced_division_R1_params = struct( [  ] ); end      	% [struct] Division Parameters Structure.
             
             % Determine how to set the params.
-            if isempty( division_R3_params )                                                                    % If the params are empty...
+            if isempty( reduced_division_R1_params )                            	% If the params are empty...
             
                 % Set the params to default values.
-                c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 1.
-                c2 = self.c2_reduced_absolute_division_DEFAULT;                                                     % [-] Reduced Absolute Division Gain 2.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );  	% [V] Activation Domain.
-
-            elseif length( fieldnameS( division_R3_params ) ) == 3                                                            % If there are a specific number of params...
+                x1_max = self.x1max_absolute_division_DEFAULT;                     	% [-] Maximum Decoded Input 1 Value.
+                
+            elseif length( fieldnames( reduced_division_R1_params ) ) == 1        	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = division_R3_params.c1;                                                                   % [-] Subnetwork Gain 1.
-                c2 = division_R3_params.c2;                                                                   % [-] Subnetwork Gain 2.
-                R1 = division_R3_params.R1;                                                                   % [V] Maximum Membrane Voltage 1.
+                x1_max = reduced_division_R1_params.x1_max;                      	% [-] Maximum Decoded Input 1 Value.
 
+            else                                                                  	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for computing R2 of an absolute division subnetwork.
+        function x2_max = unpack_reduced_absolute_division_R2_params( self, reduced_division_R2_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, reduced_division_R2_params = struct( [  ] ); end         % [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( reduced_division_R2_params )                               	% If the params are empty...
+            
+                % Set the params to default values.
+                x2_max = self.x2max_absolute_division_DEFAULT;                     	% [-] Maximum Decoded Input 1 Value.
+                
+            elseif length( fieldnames( reduced_division_R2_params ) ) == 1         	% If there are a specific number of params...
+                
+                % Unpack the params.
+                x2_max = reduced_division_R2_params.x2_max;                       	% [-] Maximum Decoded Input 1 Value.
+
+            else                                                                  	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the params for computing R3 of a reduced absolute division subnetwork.
+        function [ c1, delta, x1_max, x2_max ] = unpack_reduced_absolute_division_R3_params( self, reduced_division_R3_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, reduced_division_R3_params = struct( [  ] ); end                                     	% [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( reduced_division_R3_params )                                                               	% If the params are empty...
+            
+                % Set the params to default values.
+                c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Subnetwork Gain 1.
+                delta = self.delta_reduced_absolute_division_DEFAULT;                                             	% [-] Minimum Decoded Output Value.
+                x1_max = self.x1max_reduced_absolute_division_DEFAULT;                                              % [-] Maximum Decoded Input Value 1.
+                x2_max = self.x2max_reduced_absolute_division_DEFAULT;                                              % [-] Maximum Decoded Input Value 2.
+
+            elseif length( fieldnameS( reduced_division_R3_params ) ) == 4                                          % If there are a specific number of params...
+                
+                % Unpack the params.
+                c1 = reduced_division_R3_params.c1;                                                                	% [-] Subnetwork Gain 1.
+                delta = reduced_division_R3_params.delta;                                                           % [-] Minimum Decoded Output Value.
+                x1_max = reduced_division_R3_params.x1_max;                                                         % [-] Maximum Decoded Input Value 1.
+                x2_max = reduced_division_R3_params.x2_max;                                                         % [-] Maximum Decoded Input Value 2.
+                
             else                                                                                                    % Otherwise...
                
                 % Throw an error.
@@ -4991,29 +5503,29 @@ classdef neuron_manager_class
         
         
         % Implement a function to unpack the params for designing a reduced absolute division subnetwork.
-        function [ c1, c2, R1 ] = unpack_reduced_absolute_division_params( self, division_params, neurons, undetected_option )
+        function [ c1, delta, x1_max, x2_max ] = unpack_reduced_absolute_division_params( self, division_params )
 
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
-            if nargin < 2, division_params = struct( [  ] ); end                                                                  % [-] Reduced Absolute Parameters Cell.
+            if nargin < 2, division_params = struct( [  ] ); end                                                    % [struct] Division Parameters Structure.
 
             % Determine how to set the params.
-            if isempty( division_params )                                                                               % If the params are empty...
+            if isempty( division_params )                                                                           % If the params are empty...
 
                 % Set the params to default values.                
-                c1 = self.c1_absolute_reduced_division_DEFAULT;                                                          	% [-] Subnetwork Gain 1.
-                c2 = self.c2_absolute_reduced_division_DEFAULT;                                                             % [-] Subnetwork Gain 2.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                c1 = self.c1_reduced_absolute_division_DEFAULT;                                                     % [-] Subnetwork Gain 1.
+                delta = self.delta_reduced_absolute_division_DEFAULT;                                             	% [-] Minimum Decoded Output Value.
+                x1_max = self.x1max_reduced_absolute_division_DEFAULT;                                              % [-] Maximum Decoded Input Value 1.
+                x2_max = self.x2max_reduced_absolute_division_DEFAULT;                                              % [-] Maximum Decoded Input Value 2.
 
-            elseif length( division_params ) == 3                                                                       % If there are a specific number of params...
+            elseif length( division_params ) == 4                                                                	% If there are a specific number of params...
 
                 % Unpack the params.
-                c1 = division_params.c1;                                                                              % [-] Subnetwork Gain 1.
-                c2 = division_params.c3;                                                                              % [-] Subnetwork Gain 2.
-                R1 = division_params.R1;                                                                              % [V] Maximum Membrane Voltage 1.
+                c1 = reduced_division_R3_params.c1;                                                                	% [-] Subnetwork Gain 1.
+                delta = reduced_division_R3_params.delta;                                                           % [-] Minimum Decoded Output Value.
+                x1_max = reduced_division_R3_params.x1_max;                                                         % [-] Maximum Decoded Input Value 1.
+                x2_max = reduced_division_R3_params.x2_max;                                                         % [-] Maximum Decoded Input Value 2.
                 
-            else                                                                                                            % Otherwise...
+            else                                                                                                   	% Otherwise...
 
                 % Throw an error.
                 error( 'Unable to unpack params.' )
@@ -5025,34 +5537,88 @@ classdef neuron_manager_class
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to unpack the params for computing R3 of an absolute division after inversion subnetwork.
-        function [ c1, c2, c3, delta1, R1 ] = unpack_absolute_dai_R3_params( self, dai_R3_params, neurons, undetected_option )
+        % Implement a function to unpack the parameters for computing R1 of an absolute division after inversion subnetwork.
+        function x1_max = unpack_absolute_dai_R1_params( self, dai_R1_params )
             
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
-            if nargin < 2, dai_R3_params = struct( [  ] ); end                                                            % [-] Division After Inversion Parameters Cell.
+            if nargin < 2, dai_R1_params = struct( [  ] ); end                  % [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( dai_R1_params )                                       	% If the params are empty...
+            
+                % Set the params to default values.
+                x1_max = self.x1max_absolute_division_DEFAULT;                 	% [-] Maximum Decoded Input 1 Value.
+                
+            elseif length( fieldnames( dai_R1_params ) ) == 1                 	% If there are a specific number of params...
+                
+                % Unpack the params.
+                x1_max = dai_R1_params.x1_max;                              	% [-] Maximum Decoded Input 1 Value.
+
+            else                                                               	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for computing R2 of an absolute division after inversion subnetwork.
+        function x2_max = unpack_absolute_dai_R2_params( self, dai_R2_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, dai_R2_params = struct( [  ] ); end                  % [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( dai_R2_params )                                       	% If the params are empty...
+            
+                % Set the params to default values.
+                x2_max = self.x2max_absolute_division_DEFAULT;                 	% [-] Maximum Decoded Input 2 Value.
+                
+            elseif length( fieldnames( dai_R2_params ) ) == 1                 	% If there are a specific number of params...
+                
+                % Unpack the params.
+                x2_max = dai_R2_params.x1_max;                              	% [-] Maximum Decoded Input 2 Value.
+
+            else                                                               	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the params for computing R3 of an absolute division after inversion subnetwork.
+        function [ c1, c3, delta1, delta2, x1_max, x2_max ] = unpack_absolute_dai_R3_params( self, dai_R3_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, dai_R3_params = struct( [  ] ); end                                                	% [-] Division After Inversion Parameters Structure.
             
             % Determine how to set the params.
             if isempty( dai_R3_params )                                                                         % If the params are empty...
             
                 % Set the params to default values.
-                c1 = self.c1_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 1.
-                c2 = self.c2_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 2.
-                c3 = self.c3_absolute_dai_DEFAULT;                                                                  % [-] Absolute Division After Inversion Gain 3.
-                delta1 = self.delta_absolute_inversion_DEFAULT;                                                     % [-] Absolute Inversion Offset.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                c1 = self.c1_absolute_dai_DEFAULT;                                                            	% [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_dai_DEFAULT;                                                            	% [-] Subnetwork Gain 3.
+                delta1 = self.delta1_absolute_dai_DEFAULT;                                                      % [-] Minimum Decoded Interneuron Value.
+                delta2 = self.delta2_absolute_dai_DEFAULT;                                                      % [-] Minimum Decoded Output Value.
+                x1_max = self.x1max_absolute_dai_DEFAULT;                                                       % [-] Maximum Decoded Input Value 1.
+                x2_max = self.x2max_absolute_dai_DEFAULT;                                                       % [-] Maximum Decoded Input Value 2.
                 
-            elseif length( fieldnames( dai_R3_params ) ) == 5                                                                 % If there are a specific number of params...
+            elseif length( fieldnames( dai_R3_params ) ) == 6                                                  	% If there are a specific number of params...
                 
                 % Unpack the params.
-                c1 = dai_R3_params.c1;                                                                        % [-] Subnetwork Gain 1.
-                c2 = dai_R3_params.c2;                                                                        % [-] Subnetwork Gain 2.
-                c3 = dai_R3_params.c3;                                                                        % [-] Subnetwork Gain 3.
-                delta1 = dai_R3_params.delta1;                                                                    % [V] Bifurcation Parameter.
-                R1 = dai_R3_params.R1;                                                                        % [V] Maximum Membrane Voltage 1.
+                c1 = dai_R3_params.c1;                                                                          % [-] Subnetwork Gain 1.
+                c3 = dai_R3_params.c3;                                                                          % [-] Subnetwork Gain 3.
+                delta1 = dai_R3_params.delta1;                                                               	% [-] Minimum Decoded Interneuron Value.
+                delta2 = dai_R3_params.delta2;                                                               	% [-] Minimum Decoded Output Value.
+                x1_max = dai_R3_params.x1_max;                                                               	% [-] Maximum Decoded Input Value 1.
+                x2_max = dai_R3_params.x2_max;                                                               	% [-] Maximum Decoded Input Value 2.
 
-            else                                                                                                    % Otherwise...
+            else                                                                                            	% Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack params.' )
@@ -5063,33 +5629,33 @@ classdef neuron_manager_class
         
         
         % Implement a function to unpack the params for designing an absolute division after inversion subnetwork.
-        function [  c1, c2, c3, delta1, R1 ] = unpack_absolute_dai_params( self, dai_params, neurons, undetected_option )
+        function [ c1, c3, delta1, delta2, x1_max, x2_max ] = unpack_absolute_dai_params( self, dai_params )
 
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
-            if nargin < 2, dai_params = struct( [  ] ); end                                                                       % [struct] Input Parameters Structure.
+            if nargin < 2, dai_params = struct( [  ] ); end                                                   	% [struct] Input Parameters Structure.
 
             % Determine how to set the params.
-            if isempty( dai_params )                                                                                    % If the params are empty...
+            if isempty( dai_params )                                                                          	% If the params are empty...
 
-                % Set the params to default values.                
-                c1 = self.c1_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 1.
-                c2 = self.c2_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 2.
-                c3 = self.c3_dai_DEFAULT;                                                                                   % [-] Subnetwork Gain 3.
-                delta1 = self.delta_dai_DEFAULT;                                                                            % [V] Bifurcation Parameter 1.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
+                % Set the params to default values.
+                c1 = self.c1_absolute_dai_DEFAULT;                                                            	% [-] Subnetwork Gain 1.
+                c3 = self.c3_absolute_dai_DEFAULT;                                                            	% [-] Subnetwork Gain 3.
+                delta1 = self.delta1_absolute_dai_DEFAULT;                                                      % [-] Minimum Decoded Interneuron Value.
+                delta2 = self.delta2_absolute_dai_DEFAULT;                                                      % [-] Minimum Decoded Output Value.
+                x1_max = self.x1max_absolute_dai_DEFAULT;                                                       % [-] Maximum Decoded Input Value 1.
+                x2_max = self.x2max_absolute_dai_DEFAULT;                                                       % [-] Maximum Decoded Input Value 2.
 
-            elseif length( fieldnames( dai_params ) ) == 5                                                                            % If there are a specific number of params...
+            elseif length( fieldnames( dai_params ) ) == 6                                                     	% If there are a specific number of params...
 
                 % Unpack the params.
-                c1 = dai_params.c1;                                                                                   % [-] Subnetwork Gain 1.
-                c2 = dai_params.c2;                                                                                   % [-] Subnetwork Gain 2.
-                c3 = dai_params.c3;                                                                                   % [-] Subnetwork Gain 3.
-                delta1 = dai_params.delta1;                                                                               % [V] Bifurcation Parameter 1.
-                R1 = dai_params.R1;                                                                                   % [V] Maximum Membrane Voltage 1.
+                c1 = dai_R3_params.c1;                                                                          % [-] Subnetwork Gain 1.
+                c3 = dai_R3_params.c3;                                                                          % [-] Subnetwork Gain 3.
+                delta1 = dai_R3_params.delta1;                                                               	% [-] Minimum Decoded Interneuron Value.
+                delta2 = dai_R3_params.delta2;                                                               	% [-] Minimum Decoded Output Value.
+                x1_max = dai_R3_params.x1_max;                                                               	% [-] Maximum Decoded Input Value 1.
+                x2_max = dai_R3_params.x2_max;                                                               	% [-] Maximum Decoded Input Value 2.
                 
-            else                                                                                                            % Otherwise...
+            else                                                                                              	% Otherwise...
 
                 % Throw an error.
                 error( 'Unable to unpack params.' )
@@ -5101,30 +5667,84 @@ classdef neuron_manager_class
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to unpack the params for computing R3 of a reduced absolute division after inversion subnetwork.
-        function [ c1, c2, delta1, R1 ] = unpack_reduced_absolute_dai_R3_params( self, dai_R3_params, neurons, undetected_option )
-
+        % Implement a function to unpack the parameters for computing R1 of a reduced absolute division after inversion subnetwork.
+        function x1_max = unpack_reduced_absolute_dai_R1_params( self, reduced_dai_R1_params )
+            
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                  % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                              % [class] Array of Neuron Class Objects.
-            if nargin < 2, dai_R3_params = struct( [  ] ); end                                                            % [-] Reduced Division After Inversion Parameters Cell.
+            if nargin < 2, reduced_dai_R1_params = struct( [  ] ); end                  % [struct] Reduced Division Parameters Structure.
             
             % Determine how to set the params.
-            if isempty( dai_R3_params )                                                                         % If the params are empty...
+            if isempty( reduced_dai_R1_params )                                       	% If the params are empty...
+            
+                % Set the params to default values.
+                x1_max = self.x1max_reduced_absolute_division_DEFAULT;                 	% [-] Maximum Decoded Input 1 Value.
+                
+            elseif length( fieldnames( reduced_dai_R1_params ) ) == 1                 	% If there are a specific number of params...
+                
+                % Unpack the params.
+                x1_max = reduced_dai_R1_params.x1_max;                              	% [-] Maximum Decoded Input 1 Value.
+
+            else                                                                        % Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the parameters for computing R2 of a reduced absolute division after inversion subnetwork.
+        function x2_max = unpack_reduced_absolute_dai_R2_params( self, reduced_dai_R2_params )
+            
+            % Set the default input arguments.
+            if nargin < 2, reduced_dai_R2_params = struct( [  ] ); end                  % [struct] Division Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( reduced_dai_R2_params )                                       	% If the params are empty...
+            
+                % Set the params to default values.
+                x2_max = self.x2max_absolute_division_DEFAULT;                 	% [-] Maximum Decoded Input 2 Value.
+                
+            elseif length( fieldnames( reduced_dai_R2_params ) ) == 1                 	% If there are a specific number of params...
+                
+                % Unpack the params.
+                x2_max = reduced_dai_R2_params.x1_max;                              	% [-] Maximum Decoded Input 2 Value.
+
+            else                                                               	% Otherwise...
+               
+                % Throw an error.
+                error( 'Unable to unpack params.' )
+                
+            end 
+            
+        end
+        
+        
+        % Implement a function to unpack the params for computing R3 of a reduced absolute division after inversion subnetwork.
+        function [ c1, delta1, delta2, x1_max, x2_max ] = unpack_reduced_absolute_dai_R3_params( self, reduced_dai_R3_params )
+
+            % Set the default input arguments.
+            if nargin < 2, reduced_dai_R3_params = struct( [  ] ); end                                             	% [struct] Reduced Division After Inversion Parameters Structure.
+            
+            % Determine how to set the params.
+            if isempty( reduced_dai_R3_params )                                                                 	% If the params are empty...
             
                 % Set the params to default values.
                 c1 = self.c1_reduced_absolute_dai_DEFAULT;                                                          % [-] Reduced Absolute Division Gain 1.
-                c2 = self.c2_reduced_absolute_dai_DEFAULT;                                                          % [-] Reduced Absolute Division Gain 2.
-                delta1 = self.delta_absolute_inversion_DEFAULT;                                                     % [V] Bifurcation Parameter 1.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );    % [V] Activation Domain.
+                delta1 = self.delta1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Minimum Decoded Interneuron.
+                delta2 = self.delta2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Minimum Decoded Output.
+                x1_max = self.x1max_reduced_absolute_dai_DEFAULT;                                                   % [-] Reduced Absolute Division After Inversion Maximum Decoded Input 1.
+                x2_max = self.x1max_reduced_absolute_dai_DEFAULT;                                                   % [-] Reduced Absolute Division After Inversion Maximum Decoded Input 2.
                 
-            elseif length( fieldnames( dai_R3_params ) ) == 4                                                                 % If there are a specific number of params...
+            elseif length( fieldnames( reduced_dai_R3_params ) ) == 5                                            	% If there are a specific number of params...
 
                 % Unpack the params.
-                c1 = dai_R3_params.c1;                                                                        % [-] Subnetwork Gain 1.
-                c2 = dai_R3_params.c2;                                                                        % [-] Subnetwork Gain 2.
-                delta1 = dai_R3_params.delta1;                                                                    % [V] Bifurcation Parameter 1.
-                R1 = dai_R3_params.R1;                                                                        % [V] Maxmimum Membrane Voltage 1.
+                c1 = reduced_dai_R3_params.c1;                                                                     	% [-] Subnetwork Gain 1.
+                delta1 = reduced_dai_R3_params.delta1;                                                             	% [-] Reduced Absolute Division After Inversion Minimum Decoded Interneuron.
+                delta2 = reduced_dai_R3_params.delta2;                                                             	% [-] Reduced Absolute Division After Inversion Minimum Decoded Output.
+                x1_max = reduced_dai_R3_params.x1_max;                                                            	% [-] Reduced Absolute Division After Inversion Maximum Decoded Input 1.
+                x2_max = reduced_dai_R3_params.x2_max;                                                             	% [-] Reduced Absolute Division After Inversion Maximum Decoded Input 2.
 
             else                                                                                                    % Otherwise...
                
@@ -5137,31 +5757,31 @@ classdef neuron_manager_class
         
         
         % Implement a function to unpack the params for designing a reduced absolute division after inversion subnetwork.
-        function [ c1, c2, delta1, R1 ] = unpack_reduced_absolute_dai_params( self, dai_params, neurons, undetected_option )
+        function [ c1, delta1, delta2, x1_max, x2_max ] = unpack_reduced_absolute_dai_params( self, dai_params )
 
             % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end                                          % [-] Undetected Option.
-            if nargin < 3, neurons = self.neurons; end                                                                      % [class] Array of Neuron Class Objects.
-            if nargin < 2, dai_params = struct( [  ] ); end                                                                       % [-] Reduced Division After Inversion Parameters Cell.
+            if nargin < 2, dai_params = struct( [  ] ); end                                                     	% [-] Reduced Division After Inversion Parameters Cell.
 
             % Determine how to set the params.
-            if isempty( dai_params )                                                                                    % If the params are empty...
+            if isempty( dai_params )                                                                               	% If the params are empty...
 
                 % Set the params to default values.                
-                c1 = self.c1_reduced_dai_DEFAULT;                                                                           % [-] Subnetwork Gain 1.
-                c2 = selr.c2_reduced_dai_DEFAULT;                                                                           % [-] Subnetwork Gain 2.
-                delta1 = self.delta_reduced_dai_DEFAULT;                                                                    % [V] Bifurcation Parameter 1.
-                R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option );            % [V] Maximum Membrane Voltage 1.
-
-            elseif length( fieldnames( dai_params ) ) == 4                                                                          	% If there are a specific number of params...
+                c1 = self.c1_reduced_absolute_dai_DEFAULT;                                                          % [-] Reduced Absolute Division Gain 1.
+                delta1 = self.delta1_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Minimum Decoded Interneuron.
+                delta2 = self.delta2_reduced_absolute_dai_DEFAULT;                                                  % [-] Reduced Absolute Division After Inversion Minimum Decoded Output.
+                x1_max = self.x1max_reduced_absolute_dai_DEFAULT;                                                   % [-] Reduced Absolute Division After Inversion Maximum Decoded Input 1.
+                x2_max = self.x1max_reduced_absolute_dai_DEFAULT;                                                   % [-] Reduced Absolute Division After Inversion Maximum Decoded Input 2.
+                
+            elseif length( fieldnames( dai_params ) ) == 5                                                         	% If there are a specific number of params...
 
                 % Unpack the params.
-                c1 = dai_params.c1;                                                                                   % [-] Subnetwork Gain 1.
-                c2 = dai_params.c2;                                                                                   % [-] Subnetwork Gain.
-                delta1 = dai_params.delta1;                                                                               % [V] Bifurcation Parameter 1.
-                R1 = dai_params.R1;                                                                                   % [V] Maximum Member Voltage 1.
-                
-            else                                                                                                            % Otherwise...
+                c1 = reduced_dai_R3_params.c1;                                                                     	% [-] Subnetwork Gain 1.
+                delta1 = reduced_dai_R3_params.delta1;                                                             	% [-] Reduced Absolute Division After Inversion Minimum Decoded Interneuron.
+                delta2 = reduced_dai_R3_params.delta2;                                                             	% [-] Reduced Absolute Division After Inversion Minimum Decoded Output.
+                x1_max = reduced_dai_R3_params.x1_max;                                                            	% [-] Reduced Absolute Division After Inversion Maximum Decoded Input 1.
+                x2_max = reduced_dai_R3_params.x2_max;                                                             	% [-] Reduced Absolute Division After Inversion Maximum Decoded Input 2.
+
+            else                                                                                                  	% Otherwise...
 
                 % Throw an error.
                 error( 'Unable to unpack params.' )
@@ -5493,26 +6113,7 @@ classdef neuron_manager_class
             R2_params.x1_max = x1_max;
             
         end
-        
-        %{
-%         % Implement a function to pack the params for computing the R2 of an absolute transmission subetwork.
-%         function transmission_params_R2 = pack_absolute_transmission_R2_params( self, c, R1, neurons, undetected_option )
-%             
-%             % Set the default input arguments.
-%             if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-%             if nargin < 4, neurons = self.neurons; end
-%             if nargin < 3, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-%             if nargin < 2, c = self.c_absolute_transmission_DEFAULT; end
-%             
-%             % Preallocate a cell array to store the params.
-%             transmission_params_R2 = cell( 1, 2 );
-%             
-%             % Pack the params.
-%             transmission_params_R2{ 1 } = c;
-%             transmission_params_R2{ 2 } = R1;
-%             
-%         end
-        %}
+
         
         % Implement a function to pack the params of an absolute transmission subnetwork.
         function transmission_params = pack_absolute_transmission_params( self, c, x1_max )
@@ -5524,20 +6125,6 @@ classdef neuron_manager_class
             % Pack the params.
             transmission_params.c = c;
             transmission_params.x1_max = x1_max;
-            
-        end
-        
-        
-        % Implement a function to pack the params of a relative transmission subnetwork.
-        function transmission_params = pack_relative_transmission_params( self, R2, neurons, undetected_option )
-
-            % Set the default input arguments.
-            if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 3, neurons = self.neurons; end
-            if nargin < 2, R2 = self.get_neuron_property( neurons( 2 ).ID, 'R', true, neurons, undetected_option ); end
-            
-            % Pack the params.
-            transmission_params.R2 = R2;
             
         end
         
@@ -5598,7 +6185,6 @@ classdef neuron_manager_class
         
         % Implement a function to pack the params for an absolute subtraction subnetwork.
         function subtraction_params = pack_absolute_subtraction_params( self, cs, ss, Rs_input, neurons, undetected_option )
-        % function subtraction_params = pack_absolute_subtraction_params( self, cs, ss, Rs_input, Gms, Cms, neurons, undetected_option )
 
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
@@ -5707,164 +6293,258 @@ classdef neuron_manager_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to pack the params for computing the R3 of an absolute division subnetwork.
-        function division_params_R3 = pack_absolute_division_R3_params( self, c1, c3, R1, neurons, undetected_option )
+        % Implement a function to pack the parameters for computing the R1 of an absolute division subnetwork.
+        function division_params_R1 = pack_absolute_division_R1_params( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
+            if nargin < 2, x1_max = self.x1max_absolute_division_DEFAULT; end
+            
+            % Pack the params.
+            division_params_R1.x1_max = x1_max;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R2 of an absolute division subnetwork.
+        function division_params_R2 = pack_absolute_division_R2_params( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_absolute_division_DEFAULT; end
+            
+            % Pack the params.
+            division_params_R2.x2_max = x2_max;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R3 of an absolute division subnetwork.
+        function division_params_R3 = pack_absolute_division_R3_params( self, c1, c3, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 4, x1_max = self.x1max_absolute_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
             % Pack the params.
             division_params_R3.c1 = c1;
             division_params_R3.c3 = c3;
-            division_params_R3.R1 = R1;
+            division_params_R3.x1_max = x1_max;
             
         end
         
         
         % Implement a function to pack the params for an absolute division subnetwork.
-        function division_params = pack_absolute_division_params( self, c1, c3, R1, neurons, undetected_option )
+        function division_params = pack_absolute_division_params( self, c1, c3, x1_max, x2_max )
 
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
+            if nargin < 5, x2_max = self.x2max_absolute_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_absolute_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
 
             % Pack the params.
             division_params.c1 = c1;
             division_params.c3 = c3;
-            division_params.R1 = R1;
-
+            division_params.x1_max = x1_max;
+            division_params.x2_max = x2_max;
+            
         end
         
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        % Implement a function to pack the params for computing the R3 of a reduced absolute division subnetwork.
-        function division_params_R3 = pack_reduced_absolute_division_R3_params( self, c1, c2, R1, neurons, undetected_option )
+        % Implement a function to pack the parameters for computing the R1 of a reduced absolute division subnetwork.
+        function reduced_division_params_R1 = pack_reduced_absolute_division_R1_params( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
             
-            % Pack the params.
-            division_params_R3.c1 = c1;
-            division_params_R3.c2 = c2;
-            division_params_R3.R1 = R1;
+            % Pack the parameters.
+            reduced_division_params_R1.x1_max = x1_max;
             
         end
         
         
-        % Implement a function to pack the params for a reduced absolute division subnetwork.
-        function division_params = pack_reduced_absolute_division_params( self, c1, c2, R1, neurons, undetected_option )
+        % Implement a function to pack the parameters for computing the R2 of a reduced absolute division subnetwork.
+        function reduced_division_params_R2 = pack_reduced_absolute_division_R2_params( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            
+            % Pack the parameters.
+            reduced_division_params_R2.x2_max = x2_max;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R3 of a reduced absolute division subnetwork.
+        function reduced_division_params_R3 = pack_reduced_absolute_division_R3_params( self, c1, delta, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Pack the params.
+            reduced_division_params_R3.c1 = c1;
+            reduced_division_params_R3.delta = delta;
+            reduced_division_params_R3.x1_max = x1_max;
+            reduced_division_params_R3.x2_max = x2_max;
+
+        end
+        
+        
+        % Implement a function to pack the parameters for a reduced absolute division subnetwork.
+        function reduced_division_params = pack_reduced_absolute_division_params( self, c1, delta, x1_max, x2_max )
 
             % Set the default input arguments.
-            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 5, neurons = self.neurons; end
-            if nargin < 4, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
+            if nargin < 5, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
-
+            
             % Pack the params.
-            division_params.c1 = c1;
-            division_params.c2 = c2;
-            division_params.R1 = R1;
+            reduced_division_params.c1 = c1;
+            reduced_division_params.delta = delta;
+            reduced_division_params.x1_max = x1_max;
+            reduced_division_params.x2_max = x2_max;
 
         end
         
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to pack the params for computing the R3 of an absolute division after inversion subnetwork.
-        function dai_params_R3 = pack_absolute_dai_R3_params( self, c1, c2, c3, delta1, R1, neurons, undetected_option )
+        % Implement a function to pack the parameters for computing the R1 of a reduced absolute division after inversion subnetwork.
+        function dai_params_R1 = pack_absolute_dai_R1_params( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, neurons = self.neurons; end
-            if nargin < 6, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 5, delta1 = self.delta_absolute_division_DEFAULT; end
-            if nargin < 4, c3 = self.c3_absolute_division_DEFAULT; end
-            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_absolute_dai_DEFAULT; end
+            
+            % Pack the parameters.
+            dai_params_R1.x2_max = x1_max;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R2 of a reduced absolute division after inversion subnetwork.
+        function dai_params_R2 = pack_absolute_dai_R2_params( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_absolute_dai_DEFAULT; end
+            
+            % Pack the parameters.
+            dai_params_R2.x2_max = x2_max;
+            
+        end
+        
+        
+        % Implement a function to pack the params for computing the R3 of an absolute division after inversion subnetwork.
+        function dai_params_R3 = pack_absolute_dai_R3_params( self, c1, c3, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 8, x2_max = self.x2max_absolute_dai_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_absolute_dai_DEFAULT; end
+            if nargin < 6, delta2 = self.delta2_absolute_dai_DEFAULT; end
+            if nargin < 5, delta1 = self.delta1_absolute_dai_DEFAULT; end
+            if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
             % Pack the params.
             dai_params_R3.c1 = c1;
-            dai_params_R3.c2 = c2;
             dai_params_R3.c3 = c3;
             dai_params_R3.delta1 = delta1;
-            dai_params_R3.R1 = R1;
+            dai_params_R3.delta2 = delta2;
+            dai_params_R3.x1_max = x1_max;
+            dai_params_R3.x2_max = x2_max;
 
         end
         
         
         % Implement a function to pack the params of an absolute division after inversion subnetwork.
-        function dai_params = pack_absolute_dai_params( self, c1, c2, c3, delta1, R1, neurons, undetected_option )
+        function dai_params = pack_absolute_dai_params( self, c1, c3, delta1, delta2, x1_max, x2_max )
 
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, neurons = self.neurons; end
-            if nargin < 6, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 5, delta1 = self.delta1_absolute_division_DEFAULT; end
+            if nargin < 8, x2_max = self.x2max_absolute_dai_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_absolute_dai_DEFAULT; end
+            if nargin < 6, delta2 = self.delta2_absolute_dai_DEFAULT; end
+            if nargin < 5, delta1 = self.delta1_absolute_dai_DEFAULT; end
             if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
-            if nargin < 3, c2 = self.c2_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
-
+            
             % Pack the params.
             dai_params.c1 = c1;
-            dai_params.c2 = c2;
             dai_params.c3 = c3;
             dai_params.delta1 = delta1;
-            dai_params.R1 = R1;
+            dai_params.delta2 = delta2;
+            dai_params.x1_max = x1_max;
+            dai_params.x2_max = x2_max;
 
         end
         
 
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to pack the parameters for computing the R1 of a reduced absolute division after inversion subnetwork.
+        function reduced_dai_params_R1 = pack_reduced_absolute_dai_R1_params( self, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            
+            % Pack the parameters.
+            reduced_dai_params_R1.x1_max = x1_max;
+            
+        end
+        
+        
+        % Implement a function to pack the parameters for computing the R2 of a reduced absolute division after inversion subnetwork.
+        function reduced_dai_params_R2 = pack_reduced_absolute_dai_R2_params( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            
+            % Pack the parameters.
+            reduced_dai_params_R2.x2_max = x2_max;
+            
+        end
+        
+        
         % Implement a function to pack the params for computing the R3 of a reduced absolute division after inversion subnetwork.
-        function dai_params_R3 = pack_reduced_absolute_dai_R3_params( self, c1, c2, delta1, R1, neurons, undetected_option )
+        function reduced_dai_params_R3 = pack_reduced_absolute_dai_R3_params( self, c1, delta1, delta2, x1_max, x2_max )
 
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, neurons = self.neurons; end
-            if nargin < 5, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 4, delta1 = self.delta_absolute_inversion_DEFAULT; end
-            if nargin < 3, c2 = self.c2_absolute_division_DEFAULT; end
+            if nargin < 6, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
             % Pack the params.
-            dai_params_R3.c1 = c1;
-            dai_params_R3.c2 = c2;
-            dai_params_R3.delta1 = delta1;
-            dai_params_R3.R1 = R1;
-
+            reduced_dai_params_R3.c1 = c1;
+            reduced_dai_params_R3.delta1 = delta1;
+            reduced_dai_params_R3.delta2 = delta2;
+            reduced_dai_params_R3.x1_max = x1_max;
+            reduced_dai_params_R3.x2_max = x2_max;
+            
         end
         
         
         % Implement a function to pack the params of a reduced absolute division after inversion subnetwork.
-        function dai_params = pack_reduced_absolute_dai_params( self, c1, c2, delta1, R1, neurons, undetected_option )
+        function reduced_dai_params = pack_reduced_absolute_dai_params( self, c1, delta1, delta2, x1_max, x2_max )
             
             % Set the default input arguments.
-            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, neurons = self.neurons; end
-            if nargin < 5, R1 = self.get_neuron_property( neurons( 1 ).ID, 'R', true, neurons, undetected_option ); end
-            if nargin < 4, delta1 = self.delta1_absolute_division_DEFAULT; end
-            if nargin < 3, c2 = self.c2_reduced_absolute_dai_DEFAULT; end
-            if nargin < 2, c1 = self.c1_reduced_absolute_dai_DEFAULT; end
-
+            if nargin < 6, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
             % Pack the params.
-            dai_params.c1 = c1;
-            dai_params.c2 = c2;
-            dai_params.delta1 = delta1;
-            dai_params.R1 = R1;
+            reduced_dai_params.c1 = c1;
+            reduced_dai_params.delta1 = delta1;
+            reduced_dai_params.delta2 = delta2;
+            reduced_dai_params.x1_max = x1_max;
+            reduced_dai_params.x2_max = x2_max;
 
         end
         
@@ -6347,12 +7027,10 @@ classdef neuron_manager_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to convert division params to division R3 design params.
-        function division_R3_params = division_params2division_R3_params( self, division_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to convert division params to division R1 design params.
+        function division_R1_params = division_params2R1_params( self, division_params, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, division_params = struct( [  ] ); end
             
@@ -6360,10 +7038,72 @@ classdef neuron_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
-                [ c1, c3, R1 ] = self.unpack_absolute_division_params( division_params, neurons, undetected_option );
+                [ ~, ~, x1_max, ~ ] = self.unpack_absolute_division_params( division_params );
+                
+                % Pack the absolute division R1 params.
+                division_R1_params = self.pack_absolute_division_R1_params( x1_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative division R1 params.
+                division_R1_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert division params to division R2 design params.
+        function division_R2_params = division_params2R2_params( self, division_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, division_params = struct( [  ] ); end
+            
+            % Determine how to create the params cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute division params.
+                [ ~, ~, ~, x2_max ] = self.unpack_absolute_division_params( division_params );
+                
+                % Pack the absolute division R2 params.
+                division_R2_params = self.pack_absolute_division_R2_params( x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative division R2 params.
+                division_R2_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert division params to division R3 design params.
+        function division_R3_params = division_params2R3_params( self, division_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, division_params = struct( [  ] ); end
+            
+            % Determine how to create the params cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute division params.
+                [ c1, c3, x1_max, ~ ] = self.unpack_absolute_division_params( division_params );
                 
                 % Pack the absolute division R3 params.
-                division_R3_params = self.pack_absolute_division_R3_params( c1, c3, R1, neurons, undetected_option );
+                division_R3_params = self.pack_absolute_division_R3_params( c1, c3, x1_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
@@ -6382,12 +7122,41 @@ classdef neuron_manager_class
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        % Implement a function to convert reduced division params to reduced division R3 design params.
-        function reduced_division_R3_params = reduced_division_params2reduced_division_R3_params( self, reduced_division_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to convert reduced division params to reduced division R1 design params.
+        function reduced_division_R1_params = reduced_division_params2R1_params( self, reduced_division_params, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, reduced_division_params = struct( [  ] ); end
+            
+            % Determine how to create the parameters structure.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the reduced absolute division params.
+                [ ~, ~, x1_max, ~ ] = self.unpack_reduced_absolute_division_params( reduced_division_params );
+                
+                % Pack the reduced absolute division R1 params.
+                reduced_division_R1_params = self.pack_reduced_absolute_division_R1_params( x1_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the reduced relative division R1 params.
+                reduced_division_R1_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert reduced division params to reduced division R2 design params.
+        function reduced_division_R2_params = reduced_division_params2R2_params( self, reduced_division_params, encoding_scheme )
+        
+            % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, reduced_division_params = struct( [  ] ); end
             
@@ -6395,10 +7164,41 @@ classdef neuron_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the reduced absolute division params.
-                [ c1, c2, R1 ] = self.unpack_reduced_absolute_division_params( reduced_division_params, neurons, undetected_option );
+                [ ~, ~, ~, x2_max ] = self.unpack_reduced_absolute_division_params( reduced_division_params );
+                
+                % Pack the reduced absolute division R2 params.
+                reduced_division_R2_params = self.pack_reduced_absolute_division_R2_params( x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the reduced relative division R2 params.
+                reduced_division_R2_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert reduced division params to reduced division R3 design params.
+        function reduced_division_R3_params = reduced_division_params2R3_params( self, reduced_division_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, reduced_division_params = struct( [  ] ); end
+            
+            % Determine how to create the params cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the reduced absolute division params.
+                [ c1, delta, x1_max, x2_max ] = self.unpack_reduced_absolute_division_params( reduced_division_params );
                 
                 % Pack the reduced absolute division R3 params.
-                reduced_division_R3_params = self.pack_reduced_absolute_division_R3_params( c1, c2, R1, neurons, undetected_option );
+                reduced_division_R3_params = self.pack_reduced_absolute_division_R3_params( c1, delta, x1_max, x2_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
@@ -6417,12 +7217,10 @@ classdef neuron_manager_class
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to convert division after inversion params to division after inversion R3 design params.
-        function dai_R3_params = dai_params2dai_R3_params( self, dai_params, encoding_scheme, neurons, undetected_option )
+        % Implement a function to convert division after inversion parameters to division after inversion R1 design params.
+        function dai_R1_params = dai_params2R1_params( self, dai_params, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, dai_params = struct( [  ] ); end
             
@@ -6430,10 +7228,72 @@ classdef neuron_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division after inversion params.
-                [ c1, c2, c3, delta1, R1 ] = self.unpack_absolute_dai_params( dai_params, neurons, undetected_option );
+                [ ~, ~, ~, ~, x1_max, ~ ] = self.unpack_absolute_dai_params( dai_params );
+                
+                % Pack the absolute division after inversion R1 params.
+                dai_R1_params = self.pack_absolute_dai_R1_params( x1_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative division after inversion R1 params.
+                dai_R1_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert division after inversion params to division after inversion R2 design params.
+        function dai_R2_params = dai_params2R2_params( self, dai_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, dai_params = struct( [  ] ); end
+            
+            % Determine how to create the params cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute division after inversion params.
+                [ ~, ~, ~, ~, ~, x2_max ] = self.unpack_absolute_dai_params( dai_params );
+                
+                % Pack the absolute division after inversion R2 params.
+                dai_R2_params = self.pack_absolute_dai_R2_params( x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the relative division after inversion R2 params.
+                dai_R2_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert division after inversion params to division after inversion R3 design params.
+        function dai_R3_params = dai_params2R3_params( self, dai_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, dai_params = struct( [  ] ); end
+            
+            % Determine how to create the params cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the absolute division after inversion params.
+                [ c1, c3, delta1, delta2, x1_max, x2_max ] = self.unpack_absolute_dai_params( dai_params );
                 
                 % Pack the absolute division after inversion R3 params.
-                dai_R3_params = self.pack_absolute_dai_R3_params( c1, c2, c3, delta1, R1, neurons, undetected_option );
+                dai_R3_params = self.pack_absolute_dai_R3_params( c1, c3, delta1, delta2, x1_max, x2_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
@@ -6451,13 +7311,42 @@ classdef neuron_manager_class
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
-        
-        % Implement a function to convert reduced division after inversion params to reduced division after inversion R3 design params.
-        function reduced_dai_R3_params = reduced_dai_params2dai_R3_params( self, reduced_dai_params, encoding_scheme, neurons, undetected_option )
+
+        % Implement a function to convert reduced division after inversion params to reduced division after inversion R1 design params.
+        function reduced_dai_R1_params = reduced_dai_params2R1_params( self, reduced_dai_params, encoding_scheme )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, neurons = self.neurons; end
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, reduced_dai_params = struct( [  ] ); end
+            
+            % Determine how to create the parameters structure.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the reduced absolute division after inversion params.
+                [ ~, ~, ~, x1_max, ~ ] = self.unpack_reduced_absolute_dai_params( reduced_dai_params );
+                
+                % Pack the reduced absolute division after inversion R1 params.
+                reduced_dai_R1_params = self.pack_reduced_absolute_dai_R1_params( x1_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the reduced relative division after inversion R1 params.
+                reduced_dai_R1_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+
+        
+        % Implement a function to convert reduced division after inversion params to reduced division after inversion R2 design params.
+        function reduced_dai_R2_params = reduced_dai_params2R2_params( self, reduced_dai_params, encoding_scheme )
+        
+            % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 2, reduced_dai_params = struct( [  ] ); end
             
@@ -6465,10 +7354,41 @@ classdef neuron_manager_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the reduced absolute division after inversion params.
-                [ c1, c2, delta1, R1 ] = self.unpack_reduced_absolute_dai_params( reduced_dai_params, neurons, undetected_option );
+                [ ~, ~, ~, ~, x2_max ] = self.unpack_reduced_absolute_dai_params( reduced_dai_params );
+                
+                % Pack the reduced absolute division after inversion R2 params.
+                reduced_dai_R2_params = self.pack_reduced_absolute_dai_R2_params( x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
+                
+                % Pack the reduced relative division after inversion R2 params.
+                reduced_dai_R2_params = struct( [  ] );
+                
+            else                                                                                                            % Otherwise...
+                
+                % Throw an error.
+                error( 'Invalid encoding scheme.  Must be either: ''absolute'' or ''relative''.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to convert reduced division after inversion params to reduced division after inversion R3 design params.
+        function reduced_dai_R3_params = reduced_dai_params2R3_params( self, reduced_dai_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, reduced_dai_params = struct( [  ] ); end
+            
+            % Determine how to create the params cell.
+            if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
+                
+                % Unpack the reduced absolute division after inversion params.
+                [ c1, delta1, delta2, x1_max, x2_max ] = self.unpack_reduced_absolute_dai_params( reduced_dai_params );
                 
                 % Pack the reduced absolute division after inversion R3 params.
-                reduced_dai_R3_params = self.pack_reduced_absolute_dai_R3_params( c1, c2, delta1, R1, neurons, undetected_option );
+                reduced_dai_R3_params = self.pack_reduced_absolute_dai_R3_params( c1, delta1, delta2, x1_max, x2_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
@@ -6933,6 +7853,64 @@ classdef neuron_manager_class
         
         % ---------- Division Subnetwork Functions ----------
 
+        % Implement a function to compute the operational domain of the division subnetwork input neuron 1.
+        function [ R1, neurons, self ] = compute_division_R1( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_division_R1_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R1( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the division subnetwork input neuron 2.
+        function [ R2, neurons, self ] = compute_division_R2( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_division_R2_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R2( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the division subnetwork output neurons.
         function [ R3, neurons, self ] = compute_division_R3( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
             
@@ -6941,7 +7919,7 @@ classdef neuron_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                           % [struct] Parameters Structure.
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -6964,6 +7942,64 @@ classdef neuron_manager_class
         
         % ---------- Division After Inversion Subnetwork Functions ----------
 
+        % Implement a function to compute the operational domain of the division after inversion subnetwork input neuron 1.
+        function [ R1, neurons, self ] = compute_dai_R1( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_dai_R1_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_dai_R1( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the division after inversion subnetwork input neuron 2.
+        function [ R2, neurons, self ] = compute_dai_R2( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_dai_R2_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_dai_R2( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the division after inversion subnetwork output neurons.
         function [ R3, neurons, self ] = compute_dai_R3( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
             
@@ -6995,6 +8031,64 @@ classdef neuron_manager_class
         
         % ---------- Reduced Division Subnetwork Functions ----------
 
+        % Implement a function to compute the operational domain of the reduced division subnetwork input neuron 1.
+        function [ R1, neurons, self ] = compute_reduced_division_R1( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                   	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_reduced_division_R1_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_division_R1( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced division subnetwork input neuron 2.
+        function [ R2, neurons, self ] = compute_reduced_division_R2( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                   	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_reduced_division_R2_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_division_R2( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the reduced division subnetwork output neurons.
         function [ R3, neurons, self ] = compute_reduced_division_R3( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
             
@@ -7003,7 +8097,7 @@ classdef neuron_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                           % [struct] Parameters Structure.
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -7026,6 +8120,64 @@ classdef neuron_manager_class
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
+        % Implement a function to compute the operational domain of the reduced division after inversion subnetwork input neuron 1.
+        function [ R1, neurons, self ] = compute_reduced_dai_R1( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_reduced_dai_R1_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_dai_R1( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced division after inversion subnetwork input neuron 2.
+        function [ R2, neurons, self ] = compute_reduced_dai_R2( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
+            
+            % Set the default input arguments.
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
+            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
+            if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            
+            % Validate the neuron IDs.
+            neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
+            
+            % Process the params.
+            params = self.process_reduced_dai_R2_params( params, encoding_scheme, neurons );
+            
+            % Retrieve the index associated with the output neuron.
+            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            
+            % Compute and set the membrane conductance for the output neuron.
+            [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_reduced_dai_R2( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+            
+            % Determine whether to update the neuron manager.
+            if set_flag, self.neurons = neurons; end
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the reduced division after inversion subnetwork output neurons.
         function [ R3, neurons, self ] = compute_reduced_dai_R3( self, neuron_IDs, params, encoding_scheme, neurons, set_flag, undetected_option )
             
@@ -7034,7 +8186,7 @@ classdef neuron_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                           % [struct] Parameters Structure.
+            if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -8056,7 +9208,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_division_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_division_neurons_DEFAULT;
+            n_neurons = self.num_division_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -8168,7 +9320,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_dai_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_dai_neurons_DEFAULT;
+            n_neurons = self.num_dai_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9736,14 +10888,14 @@ classdef neuron_manager_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to design the neurons for a division subnetwork.
-        function [ Gnas, R3, neurons, self ] = design_division_neurons( self, neuron_IDs, division_params, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ neuron_output_params, neurons, self ] = design_division_neurons( self, neuron_IDs, division_params, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, division_params = struct( [  ] ); end                                 	% [cell] Division Parameters Cell.
+            if nargin < 3, division_params = struct( [  ] ); end                            % [struct] Division Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [#] Neuron IDs.
             
             % Validate the neuron IDs.
@@ -9755,11 +10907,54 @@ classdef neuron_manager_class
             % Compute the sodium channel conductance of the division subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_division_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
             
-            % Convert the division params to division R3 params.
-            division_R3_params = self.division_params2division_R3_params( division_params, encoding_scheme, neurons, undetected_option );
+            % Determine whether to compute the maximum encoded input and output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Convert the neuron input params to R1 params.
+                R1_params = self.division_params2R1_params( division_params, encoding_scheme );
+                R2_params = self.division_params2R2_params( division_params, encoding_scheme );
+                R3_params = self.division_params2R3_params( division_params, encoding_scheme );
+
+                % Compute the maximum encoded input and output.
+                [ R1, neurons, neuron_manager ] = neuron_manager.compute_division_R1( neuron_IDs, R1_params, encoding_scheme, neurons, true, undetected_option );
+                [ R2, neurons, neuron_manager ] = neuron_manager.compute_division_R2( neuron_IDs, R2_params, encoding_scheme, neurons, true, undetected_option );
+                [ R3, neurons, neuron_manager ] = neuron_manager.compute_division_R3( neuron_IDs, R3_params, encoding_scheme, neurons, true, undetected_option );
+
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
-            % Compute the activation domain of the division subnetwork neurons.
-            [ R3, neurons, neuron_manager ] = neuron_manager.compute_division_R3( neuron_IDs, division_R3_params, encoding_scheme, neurons, true, undetected_option );
+            % Determine how to create the neuron output params.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Store the neuron output params.
+                neuron_output_params.R1 = R1;
+                neuron_output_params.R2 = R2;
+                neuron_output_params.R3 = R3;
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                                
+                % Store the neuron output params.
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end   
@@ -9770,7 +10965,7 @@ classdef neuron_manager_class
         % ---------- Reduced Division Subnetwork Functions ----------
 
         % Implement a function to design the neurons for a reduced division subnetwork.
-        function [ Gnas, R3, neurons, self ] = design_reduced_division_neurons( self, neuron_IDs, reduced_division_params, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ neuron_output_params, neurons, self ] = design_reduced_division_neurons( self, neuron_IDs, reduced_division_params, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -9789,11 +10984,54 @@ classdef neuron_manager_class
             % Compute the sodium channel conductance of the division subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_reduced_division_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
             
-            % Convert the reduced division params to reduced division R3 params.
-            reduced_division_R3_params = self.reduced_division_params2reduced_division_R3_params( reduced_division_params, encoding_scheme, neurons, undetected_option );
+            % Determine whether to compute the maximum encoded input and output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Convert the neuron input params.
+                R1_params = self.reduced_division_params2R1_params( reduced_division_params, encoding_scheme );
+                R2_params = self.reduced_division_params2R2_params( reduced_division_params, encoding_scheme );
+                R3_params = self.reduced_division_params2R3_params( reduced_division_params, encoding_scheme );
+
+                % Compute the maximum encoded input and output.
+                [ R1, neurons, neuron_manager ] = neuron_manager.compute_reduced_division_R1( neuron_IDs, R1_params, encoding_scheme, neurons, true, undetected_option );
+                [ R2, neurons, neuron_manager ] = neuron_manager.compute_reduced_division_R2( neuron_IDs, R2_params, encoding_scheme, neurons, true, undetected_option );
+                [ R3, neurons, neuron_manager ] = neuron_manager.compute_reduced_division_R3( neuron_IDs, R3_params, encoding_scheme, neurons, true, undetected_option );
+
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
-            % Compute the activation domain of the division subnetwork neurons.
-            [ R3, neurons, neuron_manager ] = neuron_manager.compute_reduced_division_R3( neuron_IDs, reduced_division_R3_params, encoding_scheme, neurons, true, undetected_option );
+            % Determine how to create the neuron output params.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Store the neuron output params.
+                neuron_output_params.R1 = R1;
+                neuron_output_params.R2 = R2;
+                neuron_output_params.R3 = R3;
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                                
+                % Store the neuron output params.
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end   
@@ -9804,14 +11042,14 @@ classdef neuron_manager_class
         % ---------- Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the neurons for a division after inversion subnetwork.
-        function [ Gnas, R3, neurons, self ] = design_dai_neurons( self, neuron_IDs, dai_params, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ neuron_output_params, neurons, self ] = design_dai_neurons( self, neuron_IDs, dai_params, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, dai_params = struct( [  ] ); end                                    	% [cell] Division After Inversion Parameters Cell.
+            if nargin < 3, dai_params = struct( [  ] ); end                                	% [struct] Division After Inversion Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [#] Neuron IDs.
             
             % Validate the neuron IDs.
@@ -9823,11 +11061,54 @@ classdef neuron_manager_class
             % Compute the sodium channel conductance of the division after inversion subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_dai_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
             
-            % Convert the division after inversion params.
-            dai_R3_params = self.dai_params2dai_R3_params( dai_params, encoding_scheme, neurons, undetected_option );
+            % Determine whether to compute the maximum encoded input and output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Convert the neuron input params.
+                R1_params = self.dai_params2R1_params( dai_params, encoding_scheme );
+                R2_params = self.dai_params2R2_params( dai_params, encoding_scheme );
+                R3_params = self.dai_params2R3_params( dai_params, encoding_scheme );
+
+                % Compute the maximum encoded input and output.
+                [ R1, neurons, neuron_manager ] = neuron_manager.compute_dai_R1( neuron_IDs, R1_params, encoding_scheme, neurons, true, undetected_option );
+                [ R2, neurons, neuron_manager ] = neuron_manager.compute_dai_R2( neuron_IDs, R2_params, encoding_scheme, neurons, true, undetected_option );
+                [ R3, neurons, neuron_manager ] = neuron_manager.compute_dai_R3( neuron_IDs, R3_params, encoding_scheme, neurons, true, undetected_option );
+
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
-            % Compute the activation domain of the division after inversion subnetwork neurons.
-            [ R3, neurons, neuron_manager ] = neuron_manager.compute_dai_R3( neuron_IDs, dai_R3_params, encoding_scheme, neurons, true, undetected_option );
+            % Determine how to create the neuron output params.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Store the neuron output params.
+                neuron_output_params.R1 = R1;
+                neuron_output_params.R2 = R2;
+                neuron_output_params.R3 = R3;
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                                
+                % Store the neuron output params.
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end   
@@ -9838,14 +11119,14 @@ classdef neuron_manager_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the neurons for a reduced division after inversion subnetwork.
-        function [ Gnas, R3, neurons, self ] = design_reduced_dai_neurons( self, neuron_IDs, reduced_dai_params, encoding_scheme, neurons, set_flag, undetected_option )
+        function [ neuron_output_params, neurons, self ] = design_reduced_dai_neurons( self, neuron_IDs, reduced_dai_params, encoding_scheme, neurons, set_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end          % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                            % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_dai_params = struct( [  ] ); end                             	% [cell] Reduced Division After Inversion Parameters Cell.
+            if nargin < 3, reduced_dai_params = struct( [  ] ); end                        	% [struct] Reduced Division After Inversion Parameters Structure.
             if nargin < 2, neuron_IDs = 'all'; end                                          % [#] Neuron IDs.
             
             % Validate the neuron IDs.
@@ -9857,11 +11138,54 @@ classdef neuron_manager_class
             % Compute the sodium channel conductance of the reduced division after inversion subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_reduced_dai_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
             
-            % Convert the reduced division after inversion to reduced division after inversion R3 params.
-            reduced_dai_R3_params = self.reduced_dai_params2reduced_dai_R3_params( reduced_dai_params, encoding_scheme, neurons, undetected_option );
+            % Determine whether to compute the maximum encoded input and output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Convert the neuron input params.
+                R1_params = self.dai_params2R1_params( reduced_dai_params, encoding_scheme );
+                R2_params = self.dai_params2R2_params( reduced_dai_params, encoding_scheme );
+                R3_params = self.dai_params2R3_params( reduced_dai_params, encoding_scheme );
+
+                % Compute the maximum encoded input and output.
+                [ R1, neurons, neuron_manager ] = neuron_manager.compute_reduced_dai_R1( neuron_IDs, R1_params, encoding_scheme, neurons, true, undetected_option );
+                [ R2, neurons, neuron_manager ] = neuron_manager.compute_reduced_dai_R2( neuron_IDs, R2_params, encoding_scheme, neurons, true, undetected_option );
+                [ R3, neurons, neuron_manager ] = neuron_manager.compute_reduced_dai_R3( neuron_IDs, R3_params, encoding_scheme, neurons, true, undetected_option );
+
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                
+                
+                
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
-            % Compute the activation domain of the reduced division after inversion subnetwork neurons.
-            [ R3, neurons, neuron_manager ] = neuron_manager.compute_reduced_dai_R3( neuron_IDs, reduced_dai_R3_params, encoding_scheme, neurons, true, undetected_option );
+            % Determine how to create the neuron output params.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is 'absolute'...
+                
+                % Store the neuron output params.
+                neuron_output_params.R1 = R1;
+                neuron_output_params.R2 = R2;
+                neuron_output_params.R3 = R3;
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is 'relative'...
+                                
+                % Store the neuron output params.
+                neuron_output_params.Gna1 = Gnas( 1 );
+                neuron_output_params.Gna2 = Gnas( 2 );
+                neuron_output_params.Gna3 = Gnas( 3 );
+
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
             
             % Determine whether to update the neuron manager object.
             if set_flag, self = neuron_manager; end   

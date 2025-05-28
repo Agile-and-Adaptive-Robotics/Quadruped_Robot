@@ -598,27 +598,29 @@ classdef synapse_class
         % ---------- Division Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to unpack the parameters required to compute the absolute division synaptic conductance.
-        function [ R3, Gm3, dEs31, Ia3 ] = unpack_absolute_division_gs31_parameters( self, parameters )
+        function [ c1, c3, x1_max, Gm3, dEs31 ] = unpack_absolute_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                   % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end       	% [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R3 = self.R_DEFAULT;                                % [V] Activation Domain.
-                Gm3 = self.Gm_DEFAULT;                              % [S] Membrane Conductance.
-                dEs31 = self.dEs;                                   % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;            % [A] Applied Current.
+                c1 = self.c1_absolute_division_DEFAULT;
+                c3 = self.c3_absolute_division_DEFAULT;
+                x1_max = self.x1max_absolute_division_DEFAULT;
+                Gm3 = self.Gm_absolute_division_DEFAULT;
+                dEs31 = self.dEs;
                 
-            elseif length( fieldnames( parameters ) ) == 4                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5          % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters.R3;                               % [V] Activation Domain.
-                Gm3 = parameters.Gm3;                              % [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                          	% [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                              % [A] Applied Current.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                x1_max = parameters.x1_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
             else                                                    % Otherwise...
                
@@ -631,10 +633,10 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative division synaptic conductance.
-        function [ R3, Gm3, dEs31, Ia3 ] = unpack_relative_division_gs31_parameters( self, parameters )
+        function [ R3, Gm3, dEs31 ] = unpack_relative_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                   % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end       	% [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                % If the parameters are empty...
@@ -643,15 +645,13 @@ classdef synapse_class
                 R3 = self.R_DEFAULT;                                % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                              % [S] Membrane Conductance.
                 dEs31 = self.dEs;                                   % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_relative_division_DEFAULT;            % [A] Applied Current.
 
-            elseif length( fieldnames( parameters ) ) == 4                        % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 3      	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters.R3;                               % [V] Activation Domain.
+                R3 = parameters.R3;                                 % [V] Activation Domain.
                 Gm3 = parameters.Gm3;                             	% [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                            % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                              % [A] Applied Current.
+                dEs31 = parameters.dEs31;                        	% [V] Synaptic Reversal Potential.
             
             else                                                    % Otherwise...
                
@@ -666,7 +666,7 @@ classdef synapse_class
         % ---------- Division Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to unpack the parameters required to compute the absolute division synaptic conductance.
-        function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_absolute_division_gs32_parameters( self, parameters )
+        function [ c1, c3, delta, x1_max, Gm3, dEs31 ] = unpack_absolute_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
@@ -675,22 +675,22 @@ classdef synapse_class
             if isempty( parameters )                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta = self.delta_absolute_division_DEFAULT;           % [V] Absolute Division Offset.
-                Gm3 = self.Gm_DEFAULT;                                  % [S] Membrane Conductance.
-                gs31 = self.gs_DEFAULT;                                 % [S] Synaptic Conductance.
-                dEs31 = self.dEs_DEFAULT;                               % [V] Synaptic Reversal Potential.
-                dEs32 = self.dEs;                                       % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                % [A] Applied Current.
+                c1 = self.c1_absolute_division_DEFAULT;
+                c3 = self.c3_absolute_division_DEFAULT;
+                delta = self.delta_absolute_division_DEFAULT;
+                x1_max = self.x1max_absolute_division_DEFAULT;
+                Gm3 = self.Gm_absolute_division_DEFAULT;
+                dEs31 = self.dEs;
                 
             elseif length( fieldnames( parameters ) ) == 6                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters.delta;                                % [V] Absolute Division Offset.
-                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
-                gs31 = parameters.gs31;                                 % [S] Synaptic Conductance.
-                dEs31 = parameters.dEs31;                                % [V] Synaptic Reversal Potential.
-                dEs32 = parameters.dEs32;                                % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                                  % [A] Applied Current.
+                c1 = parameters.c1;
+                c3 = parameter.c3;
+                delta = parameter.delta;
+                x1_max = parameter.x1_max;
+                Gm3 = parameter.Gm3;
+                dEs31 = parameter.dEs31;
                 
             else                                                        % Otherwise...
                
@@ -703,31 +703,33 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative division synaptic conductance.
-        function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_relative_division_gs32_parameters( self, parameters )
+        function [ c1, c3, delta, x1_max, R3, Gm3, dEs31 ] = unpack_relative_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                       % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end           	% [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta = self.delta_absolute_division_DEFAULT;           % [V] Absolute Division Offset.
-                Gm3 = self.Gm_DEFAULT;                                  % [S] Membrane Conductance.
-                gs31 = self.gs_DEFAULT;                                 % [S] Synaptic Conductance.
-                dEs31 = self.dEs_DEFAULT;                               % [V] Synaptic Reversal Potential.
-                dEs32 = self.dEs;                                       % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_absolute_division_DEFAULT;                % [A] Applied Current.
+                c1 = self.c1_absolute_division_DEFAULT;
+                c3 = self.c3_absolute_division_DEFAULT;
+                delta = self.delta_absolute_division_DEFAULT;
+                x1_max = self.x1max_absolute_division_DEFAULT;
+                R3 = self.R_absolute_division_DEFAULT;
+                Gm3 = self.Gm_absolute_division_DEFAULT;
+                dEs31 = self.dEs;
                 
-            elseif length( fieldnames( parameters ) ) == 6                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 7          	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters.delta;                                % [V] Absolute Division Offset.
-                Gm3 = parameters.Gm3;                                  % [S] Membrane Conductance.
-                gs31 = parameters.gs31;                                 % [S] Synaptic Conductance.
-                dEs31 = parameters.dEs31;                               	% [V] Synaptic Reversal Potential.
-                dEs32 = parameters.dEs32;                                % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                                  % [A] Applied Current.
+                c1 = parameters.c1;
+                c3 = parameter.c3;
+                delta = parameter.delta;
+                x1_max = parameter.x1_max;
+                R3 = parameter.R3;
+                Gm3 = parameter.Gm3;
+                dEs31 = parameter.dEs31;
                 
             else                                                        % Otherwise...
                
@@ -742,7 +744,7 @@ classdef synapse_class
         % ---------- Reduced Division Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to unpack the parameters required to compute the reduced absolute division synaptic conductance.
-        function [ R3, Gm3, dEs31, Ia3 ] = unpack_reduced_absolute_division_gs31_parameters( self, parameters )
+        function [ c1, delta, x1_max, x2_max, Gm3, dEs31 ] = unpack_reduced_absolute_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Input Parameters Structure.
@@ -751,18 +753,22 @@ classdef synapse_class
             if isempty( parameters )                                        % If the parameters are empty...
             
                 % Set the parameters to default values.
-                R3 = self.R_DEFAULT;                                        % [V] Activation Domain.
-                Gm3 = self.Gm_DEFAULT;                                      % [S] Membrane Conductance.
-                dEs31 = self.dEs;                                           % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_reduced_absolute_division_DEFAULT;            % [A] Applied Current.
+                c1 = self.c1_reduced_absolute_division_DEFAULT;
+                delta = self.delta_reduced_absolute_division_DEFAULT;
+                x1_max = self.x1max_reduced_absolute_division_DEFAULT;
+                x2_max = self.x2max_reduced_absolute_division_DEFAULT;
+                Gm3 = self.Gm3_reduced_absolute_division_DEFAULT;
+                dEs31 = self.dEs;
                 
-            elseif length( fieldnames( parameters ) ) == 4                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                                % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters.R3;                                       % [V] Activation Domain.
-                Gm3 = parameters.Gm3;                                      % [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                                    % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                                      % [A] Applied Current.
+                c1 = parameters.c1;
+                delta = parameters.delta;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
             else                                                            % Otherwise...
                
@@ -775,10 +781,10 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the reduced relative division synaptic conductance.
-        function [ R3, Gm3, dEs31, Ia3 ] = unpack_reduced_relative_division_gs31_parameters( self, parameters )
+        function [ R3, Gm3, dEs31 ] = unpack_reduced_relative_division_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                           % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end                	% [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                        % If the parameters are empty...
@@ -787,15 +793,13 @@ classdef synapse_class
                 R3 = self.R_DEFAULT;                                        % [V] Activation Domain.
                 Gm3 = self.Gm_DEFAULT;                                      % [S] Membrane Conductance.
                 dEs31 = self.dEs;                                           % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_reduced_relative_division_DEFAULT;            % [A] Applied Current.
 
-            elseif length( fieldnames( parameters ) ) == 4                                % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 3                  % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                R3 = parameters.R3;                                       % [V] Activation Domain.
-                Gm3 = parameters.Gm3;                                      % [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                                    % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                                      % [A] Applied Current.
+                R3 = parameters.R3;                                         % [V] Activation Domain.
+                Gm3 = parameters.Gm3;                                       % [S] Membrane Conductance.
+                dEs31 = parameters.dEs31;                                  	% [V] Synaptic Reversal Potential.
             
             else                                                            % Otherwise...
                
@@ -810,31 +814,31 @@ classdef synapse_class
         % ---------- Reduced Division Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to unpack the parameters required to compute the reduced absolute division synaptic conductance.
-        function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_reduced_absolute_division_gs32_parameters( self, parameters )
+        function [ c1, delta, x1_max, x2_max, Gm3, dEs31 ] = unpack_reduced_absolute_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end                    	% [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta = self.delta_reduced_absolute_division_DEFAULT;           % [V] Reduced Absolute Division Offset.
-                Gm3 = self.Gm_DEFAULT;                                          % [S] Membrane Conductance.
-                gs31 = self.gs_DEFAULT;                                         % [S] Synaptic Conductance.
-                dEs31 = self.dEs_DEFAULT;                                       % [V] Synaptic Reversal Potential.
-                dEs32 = self.dEs;                                               % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_reduced_absolute_division_DEFAULT;                % [A] Applied Current.
+                c1 = self.c1_reduced_absolute_division_DEFAULT;
+                delta = self.delta_reduced_absolute_division_DEFAULT;
+                x1_max = self.x1max_reduced_absolute_division_DEFAULT;
+                x2_max = self.x2max_reduced_absolute_division_DEFAULT;
+                Gm3 = self.Gm3_reduced_absolute_division_DEFAULT;
+                dEs31 = self.dEs;
                 
-            elseif length( fieldnames( parameters ) ) == 6                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                    	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters.delta;                                        % [V] Reduced Absolute Division Offset.
-                Gm3 = parameters.Gm3;                                          % [S] Membrane Conductance.
-                gs31 = parameters.gs31;                                         % [S] Synaptic Conductance.
-                dEs31 = parameters.dEs31;                                        % [V] Synaptic Reversal Potential.
-                dEs32 = parameters.dEs32;                                        % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                                          % [A] Applied Current.
+                c1 = parameters.c1;
+                delta = parameters.delta;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
                 
             else                                                                % Otherwise...
                
@@ -847,7 +851,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the reduced relative division synaptic conductance.
-        function [ delta, Gm3, gs31, dEs31, dEs32, Ia3 ] = unpack_reduced_relative_division_gs32_parameters( self, parameters )
+        function [ c1, delta, x2_max, R3, Gm3, dEs31 ] = unpack_reduced_relative_division_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                               % [struct] Input Parameters Structure.
@@ -856,22 +860,22 @@ classdef synapse_class
             if isempty( parameters )                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta = self.delta_reduced_relative_division_DEFAULT;           % [V] Reduced Relative Division Offset.
-                Gm3 = self.Gm_DEFAULT;                                          % [S] Membrane Conductance.
-                gs31 = self.gs_DEFAULT;                                         % [S] Synaptic Conductance.
-                dEs31 = self.dEs_DEFAULT;                                       % [V] Synaptic Reversal Potential.
-                dEs32 = self.dEs;                                               % [V] Synaptic Reversal Potential.
-                Ia3 = self.Ia_DEFAULT;                                          % [A] Applied Current.
+                c1 = self.c1_reduced_relative_division_DEFAULT;
+                delta = self.delta_reduced_relative_division_DEFAULT;
+                x2_max = self.x2max_reduced_relative_division_DEFAULT;
+                R3 = self.R_reduced_relative_division_DEFAULT;
+                Gm3 = self.Gm_reduced_relative_division_DEFAULT;
+                dEs31 = self.dEs;
                 
             elseif length( fieldnames( parameters ) ) == 6                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta = parameters.delta;                                        % [V] Reduced Relative Division Offset.
-                Gm3 = parameters.Gm3;                                          % [S] Membrane Conductance.
-                gs31 = parameters.gs31;                                         % [S] Synaptic Conductance.
-                dEs31 = parameters.dEs31;                                        % [V] Synaptic Reversal Potential.
-                dEs32 = parameters.dEs32;                                        % [V] Synaptic Reversal Potential.
-                Ia3 = parameters.Ia3;                                          % [A] Applied Current.
+                c1 = parameters.c1;
+                delta = parameters.delta;
+                x2_max = parameters.x2_max;
+                R3 = parameters.R3;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
                 
             else                                                              	% Otherwise...
                
@@ -886,7 +890,7 @@ classdef synapse_class
         % ---------- Division After Inversion Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to unpack the parameters required to compute the absolute division after inversion synaptic conductance.
-        function [ c1, c3, delta1, delta2, R1, R2 ] = unpack_absolute_dai_gs31_parameters( self, parameters )
+        function [ c1, c3, x1_max, Gm3, dEs31 ] = unpack_absolute_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
@@ -895,22 +899,20 @@ classdef synapse_class
             if isempty( parameters )                                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                c1 = self.c1_absolute_dai_DEFAULT;                                      % [-] Absolute Division After Inversion Gain 1.
-                c3 = self.c3_absolute_dai_DEFAULT;                                      % [-] Absolute Division After Inversion Gain 3.
-                delta1 = self.delta_absolute_inversion_DEFAULT;                         % [V] Absolute Inversion Offset.
-                delta2 = self.delta_absolute_dai_DEFAULT;                               % [V] Absolute Division After Inversion Offset.
-                R1 = self.R_DEFAULT;                                                    % [V] Activation Domain.
-                R2 = self.R_DEFAULT;                                                    % [V] Activation Domain.
+                c1 = self.c1_absolute_dai_DEFAULT;
+                c3 = self.c3_absolute_dai_DEFAULT;
+                x1_max = self.x1max_absolute_dai_DEFAULT;
+                Gm3 = self.Gm_absolute_dai_DEFAULT;
+                dEs31 = self.dEs;
                 
-            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 5                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters.c1;                                                   % [-] Absolute Division After Inversion Gain 1.
-                c3 = parameters.c3;                                                   % [-] Absolute Division After Inversion Gain 3.
-                delta1 = parameters.delta1;                                               % [V] Absolute Inversion Offset.
-                delta2 = parameters.delta2;                                               % [V] Absolute Division After Inversion Offset.
-                R1 = parameters.R1;                                                   % [V] Activation Domain.
-                R2 = parameters.R2;                                                   % [V] Activation Domain.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                x1_max = parameters.x1_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
             else                                                                        % Otherwise...
                
@@ -923,7 +925,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative division after inversion synaptic conductance.
-        function [ c1, c3, delta1, delta2, R2, dEs31 ] = unpack_relative_dai_gs31_parameters( self, parameters )
+        function [ c1, c3, x1_max, R1, Gm3, dEs31 ] = unpack_relative_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                                   % [struct] Input Parameters Structure.
@@ -932,22 +934,22 @@ classdef synapse_class
             if isempty( parameters )                                                % If the parameters are empty...
             
                 % Set the parameters to default values.
-                c1 = c1_relative_dai_DEFAULT;                                       % [-] Relative Division After Inversion Gain 1.
-                c3 = c3_relative_dai_DEFAULT;                                     	% [-] Relative Division After Inversion Gain 3.
-                delta1 = delta_relative_inversion_DEFAULT;                          % [V] Relative Inversion Offset.
-                delta2 = delta_relative_dai_DEFAULT;                                % [V] Relative Division After Inversion Offset.
-                R2 = self.R_DEFAULT;                                                % [V] Activation Domain.
-                dEs31 = self.dEs;                                                   % [V] Synaptic Reversal Potential.
+                c1 = self.c1_relative_dai_DEFAULT;
+                c3 = self.c3_relative_dai_DEFAULT;
+                x1_max = self.x1max_relative_dai_DEFAULT;
+                R1 = self.R_relative_dai_DEFAULT;
+                Gm3 = self.Gm_relative_dai_DEFAULT;
+                dEs31 = self.dEs;
 
             elseif length( fieldnames( parameters ) ) == 6                                        % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters.c1;                                               % [-] Relative Division After Inversion Gain 1.
-                c3 = parameters.c3;                                               % [-] Relative Division After Inversion Gain 3.
-                delta1 = parameters.delta1;                                           % [V] Relative Inversion Offset.
-                delta2 = parameters.delta2;                                           % [V] Relative Division After Inversion Offset.
-                R2 = parameters.R2;                                               % [V] Activation Domain.
-                dEs31 = parameters.dEs31;                                            % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                x1_max = parameters.x1_max;
+                R1 = parameters.R1;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
             else                                                                    % Otherwise...
                
@@ -962,31 +964,31 @@ classdef synapse_class
         % ---------- Division After Inversion Subnetwork Functions (Synapse 32) ----------
 
         % Implement a function to unpack the parameters required to compute the absolute division after inversion synaptic conductance.
-        function [ c1, c3, delta2, R1, R2, dEs31 ] = unpack_absolute_dai_gs32_parameters( self, parameters )
+        function [ c1, c3, delta2, x1_max, Gm3, dEs31 ] = unpack_absolute_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end                             % [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
             if isempty( parameters )                                                    % If the parameters are empty...
             
                 % Set the parameters to default values.
-                c1 = self.c1_absolute_dai_DEFAULT;                                      % [-] Absolute Division After Inversion Gain 1.
-                c3 = self.c3_absolute_dai_DEFAULT;                                      % [-] Absolute Division After Inversion Gain 3.
-                delta2 = self.delta_absolute_dai_DEFAULT;                            	% [V] Absolute Division After Inversion Offset.
-                R1 = self.R_DEFAULT;                                                    % [V] Activation Domain.
-                R2 = self.R_DEFAULT;                                                    % [V] Activation Domain.
-                dEs31 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
+                c1 = self.c1_absolute_dai_DEFAULT;
+                c3 = self.c3_absolute_dai_DEFAULT;
+                delta2 = self.delta2_absolute_dai_DEFAULT;
+                x1_max = self.x1max_absolute_dai_DEFAULT;
+                Gm3 = self.Gm_absolute_dai_DEFAULT;
+                dEs31 = self.dEs;
                 
-            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                              % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters.c1;                                                   % [-] Absolute Division After Inversion Gain 1.
-                c3 = parameters.c3;                                                   % [-] Absolute Division After Inversion Gain 3.
-                delta2 = parameters.delta2;                                             	% [V] Absolute Division After Inversion Offset.
-                R1 = parameters.R1;                                                   % [V] Activation Domain.
-                R2 = parameters.R2;                                               	% [V] Activation Domain.
-                dEs31 = parameters.dEs31;                                               	% [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                delta2 = parameters.delta2;
+                x1_max = parameters.x1_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
                 
             else                                                                        % Otherwise...
                
@@ -999,7 +1001,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative division after inversion synaptic conductance.
-        function [ c1, c3, delta1, delta2, R2, dEs31 ] = unpack_relative_dai_gs32_parameters( self, parameters )
+        function [ c1, c3, delta2, x1_max, x2_max, R2, Gm3, dEs31 ] = unpack_relative_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                                       % [struct] Input Parameters Structure.
@@ -1010,20 +1012,24 @@ classdef synapse_class
                 % Set the parameters to default values.
                 c1 = self.c1_relative_dai_DEFAULT;                                      % [-] Relative Division After Inversion Gain 1.
                 c3 = self.c3_relative_dai_DEFAULT;                                     	% [-] Relative Division After Inversion Gain 3.
-                delta1 = self.delta_relative_inversion_DEFAULT;                         % [V] Relative Inversion Offset.
                 delta2 = self.delta_relative_dai_DEFAULT;                               % [V] Relative Division After Inversion Offset.
-                R2 = self.R_DEFAULT;                                                    % [V] Activation Domain.
-                dEs31 = self.dEs_DEFAULT;                                               % [V] Synaptic Reversal Potential.
-                
-            elseif length( fieldnames( parameters ) ) == 6                                            % If there are a specific number of parameters...
+                x1_max = self.x1max_relative_dai_DEFAULT;
+                x2_max = self.x2max_relative_dai_DEFAULT;
+                R2 = self.R_relative_dai_DEFAULT;
+                Gm3 = self.Gm_relative_dai_DEFAULT;
+                dEs31 = self.dEs;
+                                
+            elseif length( fieldnames( parameters ) ) == 8                                            % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                c1 = parameters.c1;                                                   % [-] Relative Division After Inversion Gain 1.
-                c3 = parameters.c3;                                                   % [-] Relative Division After Inversion Gain 3.
-                delta1 = parameters.delta1;                                               % [V] Relative Inversion Offset.
-                delta2 = parameters.delta2;                                               % [V] Relative Division After Inversion Offset.
-                R2 = parameters.R2;                                                  	% [V] Activation Domain.
-                dEs31 = parameters.dEs31;                                                % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                c3 = parameters.c3;
+                delta2 = parameters.delta2;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                R2 = parameters.R2;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
                 
             else                                                                        % Otherwise...
                
@@ -1038,33 +1044,33 @@ classdef synapse_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 31) ----------
         
         % Implement a function to unpack the parameters required to compute the reduced absolute division after inversion synaptic conductance.
-        function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_absolute_dai_gs31_parameters( self, parameters )
+        function [ c1, delta2, x1_max, x2_max, Gm3, dEs31 ] = unpack_reduced_absolute_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
-            if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end                   	% [struct] Input Parameters Structure.
             
             % Determine how to set the parameters.
-            if isempty( parameters )                                                            % If the parameters are empty...
+            if isempty( parameters )                                        	% If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                         % [V] Reduced Absolute Inversion Offset.
-                delta2 = self.delta_reduced_absolute_dai_DEFAULT;                               % [V] Reduced Absolute Division After Inversion Offset.
-                R2 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                Gm3 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
-                dEs31 = self.dEs;                                                               % [V] Synaptic Reversal Potential.
+                c1 = self.c1_reduced_absolute_dai_DEFAULT;
+                delta2 = self.delta2_reduced_absolute_dai_DEFAULT;
+                x1_max = self.x1max_reduced_absolute_dai_DEFAULT;
+                x2_max = self.x2max_reduced_absolute_dai_DEFAULT;
+                Gm3 = self.Gm_reduced_absolute_dai_DEFAULT;
+                dEs31 = self.dEs_reduce_absolute_dai_DEFAULT;
                 
-            elseif length( fieldnames( parameters ) ) == 6                                                	% If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 6                      % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters.delta1;                                                       % [V] Reduced Absolute Inversion Offset.
-                delta2 = parameters.delta2;                                                       % [V] Reduced Absolute Division After Inversion Offset.
-                R2 = parameters.R2;                                                           % [V] Activation Domain.
-                R3 = parameters.R3;                                                         	% [V] Activation Domain.
-                Gm3 = parameters.Gm3;                                                          % [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                                                        % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                delta2 = parameters.delta2;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
-            else                                                                                % Otherwise...
+            else                                                             	% Otherwise...
                
                 % Throw an error.
                 error( 'Unable to unpack parameters.' )
@@ -1075,7 +1081,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative division after inversion synaptic conductance.
-        function [ delta1, delta2, R2, R3, dEs31 ] = unpack_reduced_relative_dai_gs31_parameters( self, parameters )
+        function [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31 ] = unpack_reduced_relative_dai_gs31_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
@@ -1084,20 +1090,26 @@ classdef synapse_class
             if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta1 = self.delta_reduced_relative_inversion_DEFAULT;                         % [V] Reduced Relative Inversion Offset.
-                delta2 = self.delta_reduced_relative_dai_DEFAULT;                               % [V] Reduced Rleative Division After Inversion Offset.
-                R2 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                dEs31 = self.dEs;                                                               % [V] Synaptic Reversal Potential.
+                c1 = self.c1_reduced_relative_dai_DEFAULT;
+                delta1 = self.delta1_reduced_relative_dai_DEFAULT;
+                delta2 = self.delta2_reduced_relative_dai_DEFAULT;
+                x1_max = self.x1max_reduced_relative_dai_DEFAULT;
+                x2_max = self.x2max_reduced_relative_dai_DEFAULT;
+                R3 = self.R_reduced_relative_dai_DEFAULT;
+                Gm3 = self.Gm_reduced_relative_dai_DEFAULT;
+                dEs31 = self.dEs;
 
-            elseif length( fieldnames( parameters ) ) == 5                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 8                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters.delta1;                                                       % [V] Reduced Relative Inversion Offset.
-                delta2 = parameters.detla2;                                                       % [V] Reduced Rleative Division After Inversion Offset.
-                R2 = parameters.R2;                                                           % [V] Activation Domain.
-                R3 = parameters.R3;                                                           % [V] Activation Domain.
-                dEs31 = parameters.dEs31;                                                        % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                delta1 = parameters.delta1;
+                delta2 = parameters.delta2;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                R3 = parameters.R3;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
             else                                                                                % Otherwise...
                
@@ -1112,7 +1124,7 @@ classdef synapse_class
         % ---------- Reduced Division After Inversion Subnetwork Functions (Synapse 32) ----------
         
         % Implement a function to unpack the parameters required to compute the reduced absolute division after inversion synapse 32.
-        function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_absolute_dai_gs32_parameters( self, parameters )
+        function [ c1, delta2, x1_max, x2_max, Gm3, dEs31 ] = unpack_reduced_absolute_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
@@ -1121,22 +1133,22 @@ classdef synapse_class
             if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta1 = self.delta_reduced_absolute_inversion_DEFAULT;                         % [V] Reduced Absolute Inversion Offset.
-                delta2 = self.delta_reduced_absolute_dai_DEFAULT;                               % [V] Reduced Absolute Division After Inversion Offset.
-                R2 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                Gm3 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
-                dEs31 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
+                c1 = self.c1_reduce_absolute_dai_DEFAULT;
+                delta2 = self.delta2_reduced_absolute_dai_DEFAULT;
+                x1_max = self.x1max_reduced_absolute_dai_DEFAULT;
+                x2_max = self.x2max_reduced_absolute_dai_DEFAULT;
+                Gm3 = self.Gm_reduced_asbolute_dai_DEFAULT;
+                dEs31 = self.dEs;
                 
             elseif length( fieldnames( parameters ) ) == 6                                                  	% If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters.delta1;                                                       % [V] Reduced Absolute Inversion Offset.
-                delta2 = parameters.delta2;                                                       % [V] Reduced Absolute Division After Inversion Offset.
-                R2 = parameters.R2;                                                           % [V] Activation Domain.
-                R3 = parameters.R3;                                                           % [V] Activation Domain.
-                Gm3 = parameters.Gm3;                                                          % [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                                                        % [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                delta2 = parameters.delta2;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dE31;
             
             else                                                                                % Otherwise...
                
@@ -1149,7 +1161,7 @@ classdef synapse_class
         
         
         % Implement a function to unpack the parameters required to compute the relative division after inversion synapse 32.
-        function [ delta1, delta2, R2, R3, Gm3, dEs31 ] = unpack_reduced_relative_dai_gs32_parameters( self, parameters )
+        function [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31 ] = unpack_reduced_relative_dai_gs32_parameters( self, parameters )
         
             % Set the default input arguments.
             if nargin < 2, parameters = struct( [  ] ); end                                               % [struct] Input Parameters Structure.
@@ -1158,22 +1170,26 @@ classdef synapse_class
             if isempty( parameters )                                                            % If the parameters are empty...
             
                 % Set the parameters to default values.
-                delta1 = self.delta_reduced_relative_inversion_DEFAULT;                         % [V] Reduced Relative Inversion Offset.
-                delta2 = self.delta_reduced_relative_dai_DEFAULT;                               % [V] Reduced Relative Division After Inversion Offset.
-                R2 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                R3 = self.R_DEFAULT;                                                            % [V] Activation Domain.
-                Gm3 = self.Gm_DEFAULT;                                                          % [S] Membrane Conductance.
-                dEs31 = self.dEs_DEFAULT;                                                       % [V] Synaptic Reversal Potential.
+                c1 = self.c1_reduce_relative_dai_DEFAULT;
+                delta1 = self.delta1_reduced_relative_dai_DEFAULT;
+                delta2 = self.delta2_reduced_relative_dai_DEFAULT;
+                x1_max = self.x1max_reduced_relative_dai_DEFAULT;
+                x2_max = self.x2max_reduced_relative_dai_DEFAULT;
+                R3 = self.R3_reduced_relative_dai_DEFAULT;
+                Gm3 = self.Gm3_reduce_relative_dai_DEFAULT;
+                dEs31 = self.dEs;
 
-            elseif length( fieldnames( parameters ) ) == 6                                                    % If there are a specific number of parameters...
+            elseif length( fieldnames( parameters ) ) == 8                                                    % If there are a specific number of parameters...
                 
                 % Unpack the parameters.
-                delta1 = parameters.delta1;                                                       % [V] Reduced Relative Inversion Offset.
-                delta2 = parameters.delta2;                                                       % [V] Reduced Relative Division After Inversion Offset.
-                R2 = parameters.R2;                                                           % [V] Activation Domain.
-                R3 = parameters.R3;                                                           % [V] Activation Domain.
-                Gm3 = parameters.Gm3;                                                          % [S] Membrane Conductance.
-                dEs31 = parameters.dEs31;                                                     	% [V] Synaptic Reversal Potential.
+                c1 = parameters.c1;
+                delta1 = parameters.delta1;
+                delta2 = parameters.delta2;
+                x1_max = parameters.x1_max;
+                x2_max = parameters.x2_max;
+                R3 = parameters.R3;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
             
             else                                                                                % Otherwise...
                
@@ -2627,24 +2643,24 @@ classdef synapse_class
             if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                            	% [T/F] Validation Flag.
             if nargin < 4, set_flag = true; end                                                                             % [T/F] Set Flag.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = struct( [  ] ); end                                                                           % [struct] Input Parameters Structure.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                	% [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ R3, Gm3, dEs31, Ia3 ] = self.unpack_absolute_division_gs31_parameters( parameters );
+                [ c1, c3, x1_max, Gm3, dEs31 ] = self.unpack_absolute_division_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs31 = synapse_utilities.compute_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );            % [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_absolute_division_gs31( c1, c3, x1_max, Gm3, dEs31, validation_flag );    	 % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  R3, Gm3, dEs31, Ia3 ] = self.unpack_relative_division_gs31_parameters( parameters );
+                [  R3, Gm3, dEs31 ] = self.unpack_relative_division_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs31 = synapse_utilities.compute_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );          	% [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_relative_division_gs31( R3, Gm3, dEs31, validation_flag );          	% [V] Synaptic Reversal Potential.
                 
             else                                                                                                            % Otherwise...
                 
@@ -2673,18 +2689,18 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ delta2, Gm3, gs31, dEs31, dEs32, Ia3 ] = self.unpack_absolute_division_gs32_parameters( parameters );
+                [ c1, c3, delta, x1_max, Gm3, dEs31 ] = self.unpack_absolute_division_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs32 = synapse_utilities.compute_absolute_division_gs32( delta2, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );           % [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_absolute_division_gs32( c1, c3, delta, x1_max, Gm3, dEs31, validation_flag );              % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                                   % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  delta2, Gm3, gs31, dEs31, dEs32, Ia3 ] = self.unpack_relative_division_gs32_parameters( parameters );
+                [  c1, c3, delta, x1_max, R3, Gm3, dEs31 ] = self.unpack_relative_division_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs32 = synapse_utilities.compute_relative_division_gs32( delta2, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );           % [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_relative_division_gs32( c1, c3, delta, x1_max, R3, Gm3, dEs31, validation_flag );           % [V] Synaptic Reversal Potential.
                 
             else                                                                                                                            % Otherwise...
                 
@@ -2715,18 +2731,18 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ R3, Gm3, dEs31, Ia3 ] = self.unpack_reduced_absolute_division_gs31_parameters( parameters );
+                [ c1, delta, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_division_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs31 = synapse_utilities.compute_reduced_absolute_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );            % [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_reduced_absolute_division_gs31( c1, delta, x1_max, x2_max, Gm3, dEs31, validation_flag );            % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                           % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  R3, Gm3, dEs31, Ia3 ] = self.unpack_reduced_relative_division_gs31_parameters( parameters );
+                [  R3, Gm3, dEs31 ] = self.unpack_reduced_relative_division_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs31 = synapse_utilities.compute_reduced_relative_division_gs31( R3, Gm3, dEs31, Ia3, validation_flag );          	% [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_reduced_relative_division_gs31( R3, Gm3, dEs31, validation_flag );          	% [V] Synaptic Reversal Potential.
                 
             else                                                                                                                    % Otherwise...
                 
@@ -2755,18 +2771,18 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                                               % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ delta2, Gm3, gs31, dEs31, dEs32, Ia3 ] = self.unpack_reduced_absolute_division_gs32_parameters( parameters );
+                [ c1, delta, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_division_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs32 = synapse_utilities.compute_reduced_absolute_division_gs32( delta2, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );           % [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_reduced_absolute_division_gs32( c1, delta, x1_max, x2_max, Gm3, dEs31, validation_flag );        	% [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                                           % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  delta2, Gm3, gs31, dEs31, dEs32, Ia3 ] = self.unpack_reduced_relative_division_gs32_parameters( parameters );
+                [ c1, delta, x2_max, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_division_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs32 = synapse_utilities.compute_reduced_relative_division_gs32( delta2, Gm3, gs31, dEs31, dEs32, Ia3, validation_flag );         	% [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_reduced_relative_division_gs32( c1, delta, x2_max, R3, Gm3, dEs31, validation_flag );         	% [V] Synaptic Reversal Potential.
                 
             else                                                                                                                                    % Otherwise...
                 
@@ -2797,18 +2813,18 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ c1, c3, delta1, delta2, R1, R2 ] = self.unpack_absolute_dai_gs31_parameters( parameters );
+                [ c1, c3, x1_max, Gm3, dEs31 ] = self.unpack_absolute_dai_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs31 = synapse_utilities.compute_absolute_dai_gs31( c1, c3, delta1, delta2, R1, R2, validation_flag );              % [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_absolute_dai_gs31( c1, c3, x1_max, Gm3, dEs31, validation_flag );              % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                           % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  c1, c3, delta1, delta2, R2, dEs31 ] = self.unpack_relative_dai_gs31_parameters( parameters );
+                [ c1, c3, x1_max, R1, Gm3, dEs31 ] = self.unpack_relative_dai_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs31 = synapse_utilities.compute_relative_dai_gs31( c1, c3, delta1, delta2, R2, dEs31, validation_flag );           % [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_relative_dai_gs31( c1, c3, x1_max, R1, Gm3, dEs31, validation_flag );           % [V] Synaptic Reversal Potential.
                 
             else                                                                                                                    % Otherwise...
                 
@@ -2827,30 +2843,30 @@ classdef synapse_class
         function [ gs32, self ] = compute_dai_gs32( self, parameters, encoding_scheme, set_flag, validation_flag, synapse_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, synapse_utilities = self.synapse_utilities; end                                                          % [class] Synapse Utilities.
-            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                      % [T/F] Validation Flag.
-            if nargin < 4, set_flag = true; end                                                                                     % [T/F] Set Flag.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                      % [str] Encoding Scheme.
-            if nargin < 2, parameters = struct( [  ] ); end                                                                                   % [struct] Input Parameters Structure.
+            if nargin < 6, synapse_utilities = self.synapse_utilities; end                                                                      % [class] Synapse Utilities.
+            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                  % [T/F] Validation Flag.
+            if nargin < 4, set_flag = true; end                                                                                                 % [T/F] Set Flag.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                  % [str] Encoding Scheme.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                     % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                               % If the encoding scheme is set to absolute...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                                           % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ c1, c3, delta2, R1, R2, dEs31 ] = self.unpack_absolute_dai_gs32_parameters( parameters );
+                [ c1, c3, delta2, x1_max, Gm3, dEs31 ] = self.unpack_absolute_dai_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs32 = synapse_utilities.compute_absolute_dai_gs32( c1, c3, delta2, R1, R2, dEs31, validation_flag );              	% [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_absolute_dai_gs32( c1, c3, delta2, x1_max, Gm3, dEs31, validation_flag );                      % [V] Synaptic Reversal Potential.
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                                           % If the encoding scheme is set to relative...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                                       % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  c1, c3, delta1, delta2, R2, dEs31 ] = self.unpack_relative_dai_gs32_parameters( parameters );
+                [ c1, c3, delta2, x1_max, x2_max, R2, Gm3, dEs31 ] = self.unpack_relative_dai_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs32 = synapse_utilities.compute_relative_dai_gs32( c1, c3, delta1, delta2, R2, dEs31, validation_flag );           % [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_relative_dai_gs32( c1, c3, delta2, x1_max, x2_max, R2, Gm3, dEs31, validation_flag );          % [V] Synaptic Reversal Potential.
                 
-            else                                                                                                                    % Otherwise...
+            else                                                                                                                                % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )
@@ -2879,18 +2895,18 @@ classdef synapse_class
             if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs31_parameters( parameters );
+                [ c1, delta2, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs31 = synapse_utilities.compute_reduced_absolute_dai_gs31( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );          % [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_reduced_absolute_dai_gs31( c1, delta2, x1_max, x2_max, Gm3, dEs31, validation_flag );          % [V] Synaptic Reversal Potential.
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                                   % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [  delta1, delta2, R2, R3, dEs31 ] = self.unpack_reduced_relative_dai_gs31_parameters( parameters );
+                [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs31_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs31 = synapse_utilities.compute_reduced_relative_dai_gs31( delta1, delta2, R2, R3, dEs31, validation_flag );              	% [V] Synaptic Reversal Potential.
+                gs31 = synapse_utilities.compute_reduced_relative_dai_gs31( c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31, validation_flag );              	% [V] Synaptic Reversal Potential.
                 
             else                                                                                                                            % Otherwise...
                 
@@ -2909,30 +2925,30 @@ classdef synapse_class
         function [ gs32, self ] = compute_reduced_dai_gs32( self, parameters, encoding_scheme, set_flag, validation_flag, synapse_utilities )
             
             % Set the default input arguments.
-            if nargin < 6, synapse_utilities = self.synapse_utilities; end                                                                  % [class] Synapse Utilities.
-            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                              % [T/F] Validation Flag.
-            if nargin < 4, set_flag = true; end                                                                                             % [T/F] Set Flag.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                              % [str] Encoding Scheme.
-            if nargin < 2, parameters = struct( [  ] ); end                                                                                           % [struct] Input Parameters Structure.
+            if nargin < 6, synapse_utilities = self.synapse_utilities; end                                                                                  % [class] Synapse Utilities.
+            if nargin < 5, validation_flag = self.validation_flag_DEFAULT; end                                                                              % [T/F] Validation Flag.
+            if nargin < 4, set_flag = true; end                                                                                                             % [T/F] Set Flag.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                                                              % [str] Encoding Scheme.
+            if nargin < 2, parameters = struct( [  ] ); end                                                                                                 % [struct] Input Parameters Structure.
             
             % Determine how to compute the synaptic conductance for an division subnetwork.
-            if strcmpi( encoding_scheme, 'absolute' )                                                                                       % If the encoding scheme is set to absolute...
+            if strcmpi( encoding_scheme, 'absolute' )                                                                                                       % If the encoding scheme is set to absolute...
                 
                 % Unpack the parameters required to compute the synaptic conductance for an absolute division subnetwork.
-                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs32_parameters( parameters );
+                [ c1, delta2, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for an absolue division subnetwork.
-                gs32 = synapse_utilities.compute_reduced_absolute_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );          % [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_reduced_absolute_dai_gs32( c1, delta2, x1_max, x2_max, Gm3, dEs31, validation_flag );                      % [V] Synaptic Reversal Potential.
                 
-            elseif strcmpi( encoding_scheme, 'relative' )                                                                                   % If the encoding scheme is set to relative...
+            elseif strcmpi( encoding_scheme, 'relative' )                                                                                                   % If the encoding scheme is set to relative...
             
                 % Unpack the parameters required to compute the synaptic conductance for a relative division subnetwork.
-                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs32_parameters( parameters );
+                [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs32_parameters( parameters );
                 
                 % Compute the synaptic conductance for a relative division subnetwork.
-                gs32 = synapse_utilities.compute_reduced_relative_dai_gs32( delta1, delta2, R2, R3, Gm3, dEs31, validation_flag );          % [V] Synaptic Reversal Potential.
+                gs32 = synapse_utilities.compute_reduced_relative_dai_gs32( c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31, validation_flag );          % [V] Synaptic Reversal Potential.
                 
-            else                                                                                                                            % Otherwise...
+            else                                                                                                                                            % Otherwise...
                 
                 % Throw an error.
                 error( 'Invalid encoding scheme %s.  Encoding scheme must be one of: ''absolute'', ''relative''', encoding_scheme )

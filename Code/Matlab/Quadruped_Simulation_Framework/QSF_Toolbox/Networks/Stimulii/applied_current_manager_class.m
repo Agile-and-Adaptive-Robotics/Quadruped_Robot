@@ -904,11 +904,10 @@ classdef applied_current_manager_class
         
         
         % Implement a function to return the applied currents associated with given neuron IDs.
-        function [ ts, Ias ] = to_neuron_IDs2Ias( self, to_neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, process_option, undetected_option )
+        function [ ts, Ias ] = to_neuron_IDs2Ias( self, to_neuron_IDs, dt, tf, applied_currents, filter_disabled_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
-            if nargin < 7, process_option = self.process_option_DEFAULT; end                        % [str] Process Option. (Must be either 'max', 'min', 'mean', or 'none'.)
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
             if nargin < 6, filter_disabled_flag = self.filter_disabled_flag_DEFAULT; end            % [T/F] Filter Disabled Flag. (Determines whether to considered disabled applied currents.)  
             if nargin < 5, applied_currents = self.applied_currents_DEFAULT; end                    % [class] Array of Applied Current Class Objects.
             if nargin < 4, tf = [  ]; end                                                           % [s] Final Simulation Time.

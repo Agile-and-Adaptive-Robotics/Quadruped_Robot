@@ -4997,7 +4997,7 @@ classdef network_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to pack the params for an absolute division subnetwork.
-        function division_params = pack_absolute_division_params( self, c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neuron_manager, undetected_option )
+        function division_params = pack_absolute_division_params( self, c1, c3, delta, x1_max, x2_max, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neuron_manager, undetected_option )
             
             % Set the default input arguments.
             if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end
@@ -5008,18 +5008,18 @@ classdef network_class
             if nargin < 9, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 8, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
             if nargin < 7, Gm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 6, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 5, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, x2_max = self.x2max_absolute_division_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_absolute_division_DEFAULT; end
             if nargin < 4, delta = self.delta_absolute_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
-            % Pack the params.
+            % Pack the parameters.
             division_params.c1 = c1;
             division_params.c3 = c3;
             division_params.delta = delta;
-            division_params.R1 = R1;
-            division_params.R2 = R2;
+            division_params.x1_max = x1_max;
+            division_params.x2_max = x2_max;
             division_params.Gm1 = Gm1;
             division_params.Gm2 = Gm2;
             division_params.Gm3 = Gm3;
@@ -5031,26 +5031,32 @@ classdef network_class
         
         
         % Implement a function to pack the params for a relative division subnetwork.
-        function division_params = pack_relative_division_params( self, c3, delta, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neuron_manager, undetected_option )
+        function division_params = pack_relative_division_params( self, c1, c3, delta, x1_max, x2_max, R1, R2, R3, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3, neuron_manager, undetected_option )
                        
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 6, neuron_manager = self.neuron_manager; end
-            if nargin < 4, Cm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Cm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Cm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 4, Gm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 3, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 3, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 3, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
-            if nargin < 2, delta = self.delta_relative_division_DEFAULT; end
-            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
-            
-            % Pack the params.
+            if nargin < 17, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 16, neuron_manager = self.neuron_manager; end
+            if nargin < 15, Cm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 14, Cm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 13, Cm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 12, Gm3 = neuron_manager.get_neuron_property( neuron_manager.neuron.neuron_IDs( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 11, Gm2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 10, Gm1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 9, R3 = neuron_manager.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 8, R2 = neuron_manager.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 7, R1 = neuron_manager.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, x2_max = self.x2max_relative_division_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_relative_division_DEFAULT; end
+            if nargin < 4, delta = self.delta_relative_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_division_DEFAULT; end
+
+            % Pack the parameters.
+            division_params.c1 = c1;
             division_params.c3 = c3;
             division_params.delta = delta;
+            division_params.x1_max = x1_max;
+            division_params.x2_max = x2_max;
             division_params.R1 = R1;
             division_params.R2 = R2;
             division_params.R3 = R3;
@@ -7923,7 +7929,7 @@ classdef network_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to unpack the params for an absolute division subnetwork.
-        function [ c1, c3, delta, R1, R2, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_absolute_division_params( self, division_params, neuron_manager, undetected_option )
+        function [ c1, c3, delta, x1_max, x2_max, Gm1, Gm2, Gm3, Cm1, Cm2, Cm3 ] = unpack_absolute_division_params( self, division_params, neuron_manager, undetected_option )
            
             % Set the default input arguments.
             if nargin < 4, undetected_option = self.undetected_option_DEFAULT; end
@@ -7932,13 +7938,13 @@ classdef network_class
             
             % Determine how to unpack the params.
             if isempty( division_params )                	% If the params are empty...
-                 
+                                 
                 % Set the params to default values.
                 c1 = self.c1_absolute_division_DEFAULT;
                 c3 = self.c3_absolute_division_DEFAULT;
                 delta = self.delta_absolute_division_DEFAULT;
-                R1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
-                R2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'R', true, neuron_manager.neurons, undetected_option );
+                x1_max = self.x1max_absolute_division_DEFAULT;
+                x2_max = self.x2max_absolute_division_DEFAULT;
                 Gm1 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 1 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
                 Gm2 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons( 2 ).ID, 'Gm', true, neuron_manager.neurons, undetected_option );
                 Gm3 = neuron_manager.neurons.get_neuron_property( neuron_manager.neurons.ID( 3 ), 'Gm', true, neuron_manager.neurons, undetected_option );
@@ -7952,8 +7958,8 @@ classdef network_class
                 c1 = division_params.c1;
                 c3 = division_params.c3;
                 delta = division_params.delta;
-                R1 = division_params.R1;
-                R2 = division_params.R2;
+                x1_max = division_params.x1_max;
+                x2_max = division_params.x2_max;
                 Gm1 = division_params.Gm1;
                 Gm2 = division_params.Gm2;
                 Gm3 = division_params.Gm3;
@@ -17644,36 +17650,35 @@ classdef network_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to create a division subnetwork ( generating neurons, synapses, etc. as necessary ).
-        function [ cs, Gnas, R3, dEs, gs, Ia3, neurons, synapses, neuron_manager, synapse_manager, self ] = create_division_subnetwork( self, division_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, validation_flag, as_cell_flag, undetected_option )
+        % Implement a function to create a reduced division subnetwork ( generating neurons, syanpses, etc. as necessary ).
+        function [ division_output_params, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_division_subnetwork( self, division_input_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, validation_flag, as_cell_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                     % [str] Undetected Option.
-            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end                                % [T/F] As Cell Flag.
-            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end                          % [T/F] Validation Flag.
-            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                        % [T/F] Set Flag.
-            if nargin < 6, applied_current_manager = self.applied_current_manager; end              	% [class] Applied Current Manager Class.
-            if nargin < 5, synapse_manager = self.synapse_manager; end                                  % [class] Synapse Manager Class.
-            if nargin < 4, neuron_manager = self.neuron_manager; end                                    % [class] Neuron Manager Class.
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                          % [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
-            if nargin < 2, division_params = pack_division_params( encoding_scheme ); end       % [-] Division Parameters.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                             % [str] Undetected Option.
+            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end                                        % [T/F] As Cell Flag.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end                                  % [T/F] Validation Flag.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                % [T/F] Set Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                          % [class] Applied Current Manager Class.
+            if nargin < 5, synapse_manager = self.synapse_manager; end                                          % [class] Synapse Manager Class.
+            if nargin < 4, neuron_manager = self.neuron_manager; end                                            % [class] Neuron Manager Class.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
             
             % Create an instance of the network object.
             network = self;
             
-            % Convert the division params into network params.
-            [ neuron_input_params, synapse_input_params ] = network.division_params2network_params( division_params, encoding_scheme, neuron_manager, synapse_manager, undetected_option );
+            % Convert the design parameters into network parameters.
+            [ neuron_input_params, synapse_input_params, applied_current_input_params ] = network.division_params2network_params( division_input_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, undetected_option );
             
-            % Create division subnetwork components.
-            [ neuron_output_params, synapse_output_params, network ] = network.create_division_subnetwork_components( encoding_scheme, neuron_input_params, synapse_input_params, neuron_manager, synapse_manager, true, as_cell_flag );
+            % Create the subnetwork components.
+            [ neuron_output_params, synapse_output_params, applied_current_output_params, network ] = network.create_division_subnetwork_components( encoding_scheme, neuron_input_params, synapse_input_params, applied_current_input_params, neuron_manager, synapse_manager, applied_current_manager, true, as_cell_flag );
             
             % Unpack the neuron, synapse, and applied current properties.
-            neuron_IDs = neuron_output_params{ 1 };
-            neuron_manager = neuron_output_params{ 4 };
-            synapse_manager = synapse_output_params{ 4 };
+            [ neuron_IDs, ~, ~, neuron_manager ] = self.unpack_neuron_output_params( neuron_output_params );
+            [ ~, ~, ~, synapse_manager ] = self.unpack_synapse_output_params( synapse_output_params );
+            [ ~, ~, ~, applied_current_manager ] = self.unpack_applied_current_output_params( applied_current_output_params );
             
-            % Design the division subnetwork.
-            [ cs, Gnas, R3, dEs, gs, Ia3, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_division_subnetwork( neuron_IDs, division_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, true, validation_flag, undetected_option );
+            % Design the subnetwork.            
+            [ division_output_params, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.design_division_subnetwork( neuron_IDs, division_input_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, true, validation_flag, undetected_option );
             
             % Determine whether to update the network object.
             if set_flag, self = network; end

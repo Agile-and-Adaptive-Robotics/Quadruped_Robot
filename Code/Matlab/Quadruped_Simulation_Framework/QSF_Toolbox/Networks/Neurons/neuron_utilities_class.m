@@ -1241,7 +1241,6 @@ classdef neuron_utilities_class
         end
         
         
-        
         % ---------- Reduced Inversion Subnetwork Functions ----------
         
         % Implement a function to compute the maximum encoded input of a reduced absolute inversion subnetwork.
@@ -1272,66 +1271,166 @@ classdef neuron_utilities_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to compute the operational domain of the absolute division subnetwork output neuron.
-        function R3 = compute_absolute_division_R3( self, c1, c3, R1 )
+        % Implement a function to compute the operational doamin of the absolute division subnetwork input neuron 1.
+        function R1 = compute_absolute_division_R1( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 4, R1 = self.R_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R1 = x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the operational doamin of the absolute division subnetwork input neuron 2.
+        function R2 = compute_absolute_division_R2( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R2 = x2_max;
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division subnetwork output neuron.
+        function R3 = compute_absolute_division_R3( self, c1, c3, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 4, x1_max = self.x1max_absolute_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
             % Compute the operational domain.
-            R3 = ( c1*R1 )/c3;
+            R3 = ( c1.*x1_max )./c3;
 
         end
-
-                
+        
+        
         % ---------- Reduced Division Subnetwork Functions ----------
         
+        % Implement a function to compute the opertional domain of the reduced absolute division subnetwork input neuron 1.
+        function R1 = compute_reduced_absolute_division_R1( self, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R1 = x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the opertional domain of the reduced absolute division subnetwork input neuron 2.
+        function R2 = compute_reduced_absolute_division_R2( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R2 = x2_max;
+            
+        end
+        
+        
         % Implement a function to compute the operational domain of the reduced absolute division subnetwork output neuron.
-        function R3 = compute_reduced_absolute_division_R3( self, c1, c2, R1 )
+        function R3 = compute_reduced_absolute_division_R3( self, c1, delta, x1_max, x2_max )
         
             % Set the default input arguments.
-            if nargin < 4, R1 = self.R_DEFAULT; end
-            if nargin < 3, c2 = self.c2_reduced_absolute_division_DEFAULT; end
-            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            if nargin < 5, x2_max = self.x2max_reduced_absolute_division; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_division; end
+            if nargin < 3, delta = self.delta_reduced_absolute_division; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division; end
             
             % Compute the operational domain.
-            R3 = ( c1*R1 )/c2;
+            R3 = ( delta.*c1.*x1_max )./( c1.*x1_max - delta.*x2_max );
             
         end
 
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the operational domain of the absolute division after inversion subnetwork output neuron.
-        function R3 = compute_absolute_dai_R3( self, c1, c2, c3, delta1, R1 )
+        % Implement a function to compute the operational domain of the absolute division after inversion subnetwork input neuron 1.
+        function R1 = compute_absolute_dai_R1( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, c3 = self.c3_absolute_dai_DEFAULT; end
-            if nargin < 3, c2 = self.c2_absolute_dai_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R1 = x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division after inversion subnetwork input neuron 2.
+        function R2 = compute_absolute_dai_R2( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R2 = x2_max;
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the absolute division after inversion subnetwork output neuron.
+        function R3 = compute_absolute_dai_R3( self, c1, c3, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 7, x2_max = self.x2max_absolute_dai_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_absolute_dai_DEFAULT; end
+            if nargin < 5, delta2 = self.delta2_absolute_dai_DEFAULT; end
+            if nargin < 4, delta1 = self.delta1_absolute_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
             
             % Compute the operational domain.
-            R3 = ( c1*R1 )/( c2*delta1 + c3 );
+            R3 = ( delta2.*c1.*x1_max.*x2_max )./( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 );
 
         end
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
-        % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork output neuron.
-        function R3 = compute_reduced_absolute_dai_R3( self, c1, c2, delta1, R1 )
+        % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork input neuron 1.
+        function R1 = compute_reduced_absolute_dai_R1( self, x1_max )
             
             % Set the default input arguments.
-            if nargin < 5, R1 = self.R_DEFAULT; end
-            if nargin < 4, delta1 = self.delta_reduced_absolute_inversion_DEFAULT; end
-            if nargin < 3, c2 = self.c2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R1 = x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork input neuron 2.
+        function R2 = compute_reduced_absolute_dai_R2( self, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 2, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            
+            % Compute the maximum encoded input.
+            R2 = x2_max;
+            
+        end
+        
+        
+        % Implement a function to compute the operational domain of the reduced absolute division after inversion subnetwork output neuron.
+        function R3 = compute_reduced_absolute_dai_R3( self, c1, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 6, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_reduced_absolute_dai_DEFAULT; end
             if nargin < 2, c1 = self.c1_reduced_absolute_dai_DEFAULT; end
-
+            
             % Compute the opertional domain.
-            R3 = ( c1*R1 )/( delta1 + c2 );
+            R3 = ( delta2*c1*x1_max )./( delta1*delta2 + c1*x1_max - delta2*x2_max );
             
         end
         

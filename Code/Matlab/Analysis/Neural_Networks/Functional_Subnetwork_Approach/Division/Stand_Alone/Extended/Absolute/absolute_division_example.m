@@ -87,30 +87,32 @@ f_decode = @( Us ) [ f_decode1( Us( :, 1 ) ), f_decode2( Us( :, 2 ) ), f_decode3
 
 %% Define the Desired Input Signal.
 
-% Define the desired decoded input signal.
+% Define the first desired decoded input signal.
 % xs1_desired = 0*ones( n_timesteps, 1 );
 xs1_desired = x1_max*ones( n_timesteps, 1 );
 
+% Define the second desired decoded input signal.
 % xs2_desired = 0*ones( n_timesteps, 1 );
 xs2_desired = x2_max*ones( n_timesteps, 1 );
 
-% Encode the input signal.
+% Encode the input signals.
 Us1_desired = f_encode1( xs1_desired );
 Us2_desired = f_encode2( xs2_desired );
 
 
 %% Define the Subnetwork Input Current Parameters.
 
-% Define the current identification properties.
+% Define the identification properties for the first input current.
 input_current_ID1 = 1;                               % [#] Input Current ID.
 input_current_name1 = 'Applied Current 1';           % [str] Input Current Name.
 input_current_to_neuron_ID1 = 1;                     % [#] Neuron ID to Which Input Current is Applied.
 
+% Define the identification properties for the second input current.
 input_current_ID2 = 2;                               % [#] Input Current ID.
 input_current_name2 = 'Applied Current 2';           % [str] Input Current Name.
 input_current_to_neuron_ID2 = 2;                     % [#] Neuron ID to Which Input Current is Applied.
 
-% Define the magnitudes of the applied current input.
+% Define the magnitudes of the input currents.
 Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
 Ias2 = Us2_desired*Gm2;                           	% [A] Applied Currents.
 
