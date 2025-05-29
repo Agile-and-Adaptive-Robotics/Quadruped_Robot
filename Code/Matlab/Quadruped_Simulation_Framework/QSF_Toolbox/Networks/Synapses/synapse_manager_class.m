@@ -8729,31 +8729,31 @@ classdef synapse_manager_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to convert division gs params into division gs31 params.
-        function params_gs31 = convert_division_gs_params2gs31_params( self, division_gs_params, encoding_scheme, synapses, undetected_option )
+        function params_gs31 = convert_division_gs_params2gs31_params( self, synapse_IDs, division_gs_params, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_gs_params = struct( [  ] ); end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, division_gs_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute division params.
-                [ ~, R3, Gm3, dEs31, ~, Ia3 ] = self.unpack_absolute_division_gs_params( division_gs_params, synapses, undetected_option );
+                % Unpack the absolute division params.                
+                [ c1, c3, ~, x1_max, Gm3, dEs31 ] = self.unpack_absolute_division_gs_params( synapse_IDs, division_gs_params, synapses, undetected_option );
                 
-                % Pack the absolute division gs31 params.
-                params_gs31 = self.pack_absolute_division_gs31_params( R3, Gm3, dEs31, Ia3, synapses, undetected_option );
+                % Pack the absolute division gs31 params.                
+                params_gs31 = self.pack_absolute_division_gs31_params( synapse_IDs, c1, c3, x1_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.
-                [ ~, R3, Gm3, dEs31, ~, Ia3 ] = self.unpack_relative_division_gs_params( division_gs_params, synapses, undetected_option );
+                % Unpack the relative division params.                
+                [ ~, ~, ~, ~, R3, Gm3, dEs31 ] = self.unpack_relative_division_gs_params( synapse_IDs, division_gs_params, synapses, undetected_option );
                 
-                % Pack the relative division gs31 params.
-                params_gs31 = self.pack_relative_division_gs31_params( R3, Gm3, dEs31, Ia3, synapses, undetected_option );
-                
+                % Pack the relative division gs31 params.                
+                params_gs31 = self.pack_relative_division_gs31_params( synapse_IDs, R3, Gm3, dEs31, synapses, undetected_option );
+
             else                                                                                                            % Otherwise...
                 
                 % Throw an error.
@@ -8765,31 +8765,30 @@ classdef synapse_manager_class
         
             
         % Implement a function to convert division gs params into division gs32 design params.
-        function params_gs32 = convert_division_gs_params2gs32_params( self, division_gs_params, gs31, encoding_scheme, synapses, undetected_option )
+        function params_gs32 = convert_division_gs_params2gs32_params( self, synapse_IDs, division_gs_params, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, gs31 = self.get_synapse_property( synapse_IDs( 1 ), 'gs', true, synapses, undetected_option ); end            % [V] Synaptic Reversal Potential.
-            if nargin < 2, division_gs_params = struct( [  ] ); end
+            if nargin < 3, division_gs_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
-                [ delta, ~, Gm3, dEs31, dEs32, Ia3 ] = self.unpack_absolute_division_gs_params( division_gs_params, synapses, undetected_option );
-                
+                [ c1, c3, delta, x1_max, Gm3, dEs31 ] = self.unpack_absolute_division_gs_params( synapse_IDs, division_gs_params, synapses, undetected_option );
+
                 % Pack the absolute division gs32 params.
-                params_gs32 = self.pack_absolute_division_gs32_params( delta, Gm3, gs31, dEs31, dEs32, Ia3, synapses, undetected_option );
-                
+                params_gs32 = self.pack_absolute_division_gs32_params( synapse_IDs, c1, c3, delta, x1_max, Gm3, dEs31, synapses, undetected_option );
+
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
                 % Unpack the relative division params.
-                [ delta, ~, Gm3, dEs31, dEs32, Ia3 ] = self.unpack_relative_division_gs_params( division_gs_params, synapses, undetected_option );
-                
+                [ c1, c3, delta, x1_max, R3, Gm3, dEs31 ] = self.unpack_relative_division_gs_params( synapse_IDs, division_gs_params, synapses, undetected_option );
+
                 % Pack the relative division gs32 params.
-                params_gs32 = self.pack_relative_division_gs32_params( delta, Gm3, gs31, dEs31, dEs32, Ia3, synapses, undetected_option );
+                params_gs32 = self.pack_relative_division_gs32_params( synapse_IDs, c1, c3, delta, x1_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -8802,32 +8801,31 @@ classdef synapse_manager_class
         
         
         % Implement a function to convert division params into division gs params.
-        function division_gs_params = convert_division_params2gs_params( self, synapse_IDs, division_params, dEs31, dEs32, encoding_scheme, synapses, undetected_option )
+        function division_gs_params = convert_division_params2gs_params( self, synapse_IDs, division_params, dEs31, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 5, dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, synapses = self.synapses; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute division params.
-                [ delta, R3, Gm3, Ia3 ] = self.unpack_absolute_division_params( division_params );
+                % Unpack the absolute division params.                
+                [ c1, c3, delta, x1_max, Gm3 ] = self.unpack_absolute_division_params( division_params );
                 
-                % Pack the absolute division gs params.
-                division_gs_params = self.pack_absolute_division_gs_params( synapse_IDs, delta, R3, Gm3, dEs31, dEs32, Ia3, synapses, undetected_option );
+                % Pack the absolute division gs params.                
+                division_gs_params = self.pack_absolute_division_gs_params( synapse_IDs, c1, c3, delta, x1_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.
-                [ delta, R3, Gm3, Ia3 ] = self.unpack_relative_division_params( division_params );
+                % Unpack the relative division params.                
+                [ c1, c3, delta, x1_max, R3, Gm3 ] = self.unpack_relative_division_params( division_params );
                 
-                % Pack the relative division gs params.
-                division_gs_params = self.pack_relative_division_gs_params( synapse_IDs, delta, R3, Gm3, dEs31, dEs32, Ia3, synapses, undetected_option );
+                % Pack the relative division gs params.                
+                division_gs_params = self.pack_relative_division_gs_params( synapse_IDs, c1, c3, delta, x1_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -8842,30 +8840,30 @@ classdef synapse_manager_class
         % ---------- Reduced Division Subnetwork Functions ----------
         
         % Implement a function to convert reduced division gs params into reduced division gs31 design params.
-        function params_gs31 = convert_reduced_division_gs_params2gs31_params( self, division_params, encoding_scheme, synapses, undetected_option )
+        function params_gs31 = convert_reduced_division_gs_params2gs31_params( self, synapse_IDs, division_params, encoding_scheme, synapses, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_params = struct( [  ] ); end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute division params.
-                [ ~, R3, Gm3, dEs31, ~, Ia3 ] = self.unpack_reduced_absolute_division_gs_params( division_params, synapses, undetected_option );
+                % Unpack the absolute division params.                
+                [ c1, delta, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_division_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the reduced absolute division gs31 params.                
-                params_gs31 = self.pack_reduced_absolute_division_gs31_params( R3, Gm3, dEs31, Ia3, synapses, undetected_option );
+                % Pack the reduced absolute division gs31 params.                                
+                params_gs31 = self.pack_reduced_absolute_division_gs31_params( synapse_IDs, c1, delta, x1_max, x2_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.
-                [ ~, R3, Gm3, dEs31, ~, Ia3 ] = self.unpack_reduced_relative_division_gs_params( division_params, synapses, undetected_option );
+                % Unpack the relative division params.                
+                [ ~, ~, ~, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_division_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the relative division gs31 params.
-                params_gs31 = self.pack_reduced_relative_division_gs31_params( R3, Gm3, dEs31, Ia3, synapses, undetected_option );
+                % Pack the relative division gs31 params.                
+                params_gs31 = self.pack_reduced_relative_division_gs31_params( synapse_IDs, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -8878,31 +8876,30 @@ classdef synapse_manager_class
         
         
         % Implement a function to convert reduced division gs params into reduced division gs32 design params.
-        function params_gs32 = convert_reduced_division_gs_params2gs32_params( self, division_params, gs31, encoding_scheme, synapses, undetected_option )
+        function params_gs32 = convert_reduced_division_gs_params2gs32_params( self, synapse_IDs, division_params, encoding_scheme, synapses, undetected_option )
                     
             % Set the default input arguments.
             if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
             if nargin < 5, synapses = self.synapses; end
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 3, gs31 = self.get_synapse_property( synapse_IDs( 1 ), 'gs', true, synapses, undetected_option ); end            % [V] Synaptic Reversal Potential.
-            if nargin < 2, division_params = struct( [  ] ); end
+            if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute division params.
-                [ delta, ~, Gm3, dEs31, dEs32, Ia3 ] = self.unpack_reduced_absolute_division_gs_params( division_params, synapses, undetected_option );
+                % Unpack the absolute division params.                
+                [ c1, delta, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_division_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the absolute division gs32 params.
-                params_gs32 = self.pack_reduced_absolute_division_gs32_params( delta, Gm3, gs31, dEs31, dEs32, Ia3, synapses, undetected_option );
+                % Pack the absolute division gs32 params.                
+                params_gs32 = self.pack_reduced_absolute_division_gs32_params( synapse_IDs, c1, delta, x1_max, x2_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.
-                [ delta, ~, Gm3, dEs31, dEs32, Ia3 ] = self.unpack_reduced_relative_division_gs_params( division_params, synapses, undetected_option );
+                % Unpack the relative division params.                
+                [ c1, delta, x2_max, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_division_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the relative division gs32 params.
-                params_gs32 = self.pack_reduced_relative_division_gs32_params( delta, Gm3, gs31, dEs31, dEs32, Ia3, synapses, undetected_option );
+                % Pack the relative division gs32 params.                
+                params_gs32 = self.pack_reduced_relative_division_gs32_params( synapse_IDs, c1, delta, x2_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -8915,32 +8912,31 @@ classdef synapse_manager_class
         
         
         % Implement a function to convert reduced division params into reduced division gs params.
-        function reduced_division_gs_params = convert_reduced_division_params2gs_params( self, synapse_IDs, reduced_division_params, dEs31, dEs32, encoding_scheme, synapses, undetected_option )
+        function reduced_division_gs_params = convert_reduced_division_params2gs_params( self, synapse_IDs, reduced_division_params, dEs31, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 7, synapses = self.synapses; end
-            if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 5, dEs32 = self.get_synapse_property( synapse_IDs( 2 ), 'dEs', true, synapses, undetected_option ); end
+            if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 6, synapses = self.synapses; end
+            if nargin < 5, encoding_scheme = self.encoding_scheme_DEFAULT; end
             if nargin < 4, dEs31 = self.get_synapse_property( synapse_IDs( 1 ), 'dEs', true, synapses, undetected_option ); end
             if nargin < 3, reduced_division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute reduced division params.
-                [ delta, R3, Gm3, Ia3 ] = self.unpack_reduced_absolute_division_params( reduced_division_params );
+                % Unpack the absolute reduced division params.                
+                [ c1, delta, x1_max, x2_max, Gm3 ] = self.unpack_reduced_absolute_division_params( reduced_division_params );
                 
-                % Pack the absolute reduced division gs params.
-                reduced_division_gs_params = self.pack_reduced_absolute_division_gs_params( synapse_IDs, delta, R3, Gm3, dEs31, dEs32, Ia3, synapses, undetected_option );
+                % Pack the absolute reduced division gs params.                
+                reduced_division_gs_params = self.pack_reduced_absolute_division_gs_params( synapse_IDs, c1, delta, x1_max, x2_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative reduced division params.
-                [ delta, R3, Gm3, Ia3 ] = self.unpack_reduced_relative_division_params( division_params );
+                % Unpack the relative reduced division params.                
+                [ c1, delta, x2_max, R3, Gm3 ] = self.unpack_reduced_relative_division_params( reduced_division_params );
                 
                 % Pack the relative reduced division gs params.
-                reduced_division_gs_params = self.pack_reduced_relative_division_gs_params( synapse_IDs, delta, R3, Gm3, dEs31, dEs32, Ia3, synapses, undetected_option );
+                reduced_division_gs_params = self.pack_reduced_relative_division_gs_params( synapse_IDs, c1, delta, x2_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -8955,30 +8951,30 @@ classdef synapse_manager_class
         % ---------- Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to convert division after inversion gs params into division after inversion gs31 params.
-        function params_gs31 = convert_dai_gs_params2gs31_params( self, division_params, encoding_scheme, synapses, undetected_option )
+        function params_gs31 = convert_dai_gs_params2gs31_params( self, synapse_IDs, division_params, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_params = struct( [  ] ); end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute division params.
-                [ c1, c3, delta1, delta2, R1, R2, ~ ] = self.unpack_absolute_dai_gs_params( division_params, synapses, undetected_option );
+                % Unpack the absolute division params.                
+                [ c1, c3, ~, x1_max, Gm3, dEs31 ] = self.unpack_absolute_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the absolute division gs31 params.
-                params_gs31 = self.pack_absolute_dai_gs31_params( c1, c3, delta1, delta2, R1, R2 );
+                % Pack the absolute division gs31 params.                
+                params_gs31 = self.pack_absolute_dai_gs31_params( c1, c3, x1_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.                
-                [ c1, c3, delta1, delta2, R2, dEs31 ] = self.unpack_relative_dai_gs_params( division_params, synapses, undetected_option );
+                % Unpack the relative division params.                                
+                [ c1, c3, ~, x1_max, ~, R1, ~, Gm3, dEs31 ] = self.unpack_relative_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the relative division gs31 params.                
-                params_gs31 = self.pack_relative_dai_gs31_params( c1, c3, delta1, delta2, R2, dEs31, synapses, undetected_option );
+                % Pack the relative division gs31 params.                                
+                params_gs31 = self.pack_relative_dai_gs31_params( synapse_IDs, c1, c3, x1_max, R1, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -8991,30 +8987,30 @@ classdef synapse_manager_class
         
         
         % Implement a function to convert division after inversion gs params into division after inversion gs32 params.
-        function params_gs32 = convert_dai_gs_params2gs32_params( self, division_params, encoding_scheme, synapses, undetected_option )
+        function params_gs32 = convert_dai_gs_params2gs32_params( self, synapse_IDs, division_params, encoding_scheme, synapses, undetected_option )
                     
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_params = struct( [  ] ); end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
-                [ c1, c3, ~, delta2, R1, R2, dEs31 ] = self.unpack_absolute_dai_gs_params( division_params, synapses, undetected_option );
-
-                % Pack the absolute division gs32 params.                
-                params_gs32 = self.pack_absolute_dai_gs32_params( c1, c3, delta2, R1, R2, dEs31, synapses, undetected_option );
+                [ c1, c3, delta2, x1_max, Gm3, dEs31 ] = self.unpack_absolute_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
+                                
+                % Pack the absolute division gs32 params.                                
+                params_gs32 = self.pack_absolute_dai_gs32_params( synapse_IDs, c1, c3, delta2, x1_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.                
-                [ c1, c3, delta1, delta2, R2, dEs31 ] = self.unpack_relative_dai_gs_params( division_params, synapses, undetected_option );
+                % Unpack the relative division params.                                
+                [ c1, c3, delta2, x1_max, x2_max, ~, R2, Gm3, dEs31 ] = self.unpack_relative_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the relative division gs32 params.                
-                params_gs32 = self.pack_relative_dai_gs32_params( c1, c3, delta1, delta2, R2, dEs31, synapses, undetected_option );
+                % Pack the relative division gs32 params.                                
+                params_gs32 = self.pack_relative_dai_gs32_params( synapse_IDs, c1, c3, delta2, x1_max, x2_max, R2, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -9039,19 +9035,19 @@ classdef synapse_manager_class
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute dai params.
-                [ c1, c3, delta1, delta2, R1, R2 ] = self.unpack_absolute_dai_params( dai_params );
+                % Unpack the absolute dai params.                
+                [ c1, c3, delta2, x1_max, Gm3 ] = self.unpack_absolute_dai_params( dai_params );
                 
-                % Pack the absolute dai gs params.
-                dai_gs_params = self.pack_absolute_dai_gs_params( synapse_IDs, c1, c3, delta1, delta2, R1, R2, dEs31, synapses, undetected_option );
+                % Pack the absolute dai gs params.                                
+                dai_gs_params = self.pack_absolute_dai_gs_params( synapse_IDs, c1, c3, delta2, x1_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative dai params.
-                [ c1, c3, delta1, delta2, R2 ] = self.unpack_relative_dai_params( dai_params );
+                % Unpack the relative dai params.                
+                [ c1, c3, delta2, x1_max, x2_max, R1, R2, Gm3 ] = self.unpack_relative_dai_params( dai_params );
                 
                 % Pack the relative dai gs params.
-                dai_gs_params = self.pack_relative_dai_gs_params( synapse_IDs, c1, c3, delta1, delta2, R2, dEs31, synapses, undetected_option );
+                dai_gs_params = self.pack_relative_dai_gs_params( synapse_IDs, c1, c3, delta2, x1_max, x2_max, R1, R2, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -9066,30 +9062,30 @@ classdef synapse_manager_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
         % Implement a function to convert reduced division after inversion gs params into reduced division after inversion gs31 params.
-        function params_gs31 = convert_reduced_dai_gs_params2gs31_params( self, division_params, encoding_scheme, synapses, undetected_option )
+        function params_gs31 = convert_reduced_dai_gs_params2gs31_params( self, synapse_IDs, division_params, encoding_scheme, synapses, undetected_option )
         
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_params = struct( [  ] ); end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the absolute division params.                
-                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs_params( division_params, synapses, undetected_option );
+                % Unpack the absolute division params.                                
+                [ c1, delta2, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the absolute division gs31 params.                
-                params_gs31 = self.pack_reduced_absolute_dai_gs31_params( delta1, delta2, R2, R3, Gm3, dEs31, synapses, undetected_option );
+                % Pack the absolute division gs31 params.                                
+                params_gs31 = self.pack_reduced_absolute_dai_gs31_params( synapse_IDs, c1, delta2, x1_max, x2_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.                                
-                [ delta1, delta2, R2, R3, ~, dEs31 ] = self.unpack_reduced_relative_dai_gs_params( division_params, synapses, undetected_option );
+                % Unpack the relative division params.                                                
+                [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the relative division gs31 params.                                
-                params_gs31 = self.pack_reduced_relative_dai_gs31_params( delta1, delta2, R2, R3, dEs31, synapses, undetected_option );
+                % Pack the relative division gs31 params.                                                
+                params_gs31 = self.pack_reduced_relative_dai_gs31_params( synapse_IDs, c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -9102,30 +9098,30 @@ classdef synapse_manager_class
         
         
         % Implement a function to convert reduced division after inversion gs params into reduced division after inversion gs32 params.
-        function params_gs32 = convert_reduced_dai_gs_params2gs32_params( self, division_params, encoding_scheme, synapses, undetected_option )
+        function params_gs32 = convert_reduced_dai_gs_params2gs32_params( self, synapse_IDs, division_params, encoding_scheme, synapses, undetected_option )
                     
             % Set the default input arguments.
-            if nargin < 5, undetected_option = self.undetected_option_DEFAULT; end
-            if nargin < 4, synapses = self.synapses; end
-            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, division_params = struct( [  ] ); end
+            if nargin < 6, undetected_option = self.undetected_option_DEFAULT; end
+            if nargin < 5, synapses = self.synapses; end
+            if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 3, division_params = struct( [  ] ); end
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
                 % Unpack the absolute division params.
-                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs_params( division_params, synapses, undetected_option );
-
-                % Pack the absolute division gs32 params.                                
-                params_gs32 = self.pack_reduced_absolute_dai_gs32_params( delta1, delta2, R2, R3, Gm3, dEs31, synapses, undetected_option );
+                [ c1, delta2, x1_max, x2_max, Gm3, dEs31 ] = self.unpack_reduced_absolute_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
+                
+                % Pack the absolute division gs32 params.                                                
+                params_gs32 = self.pack_reduced_absolute_dai_gs32_params( synapse_IDs, c1, delta2, x1_max, x2_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the relative division params.                
-                [ delta1, delta2, R2, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs_params( division_params, synapses, undetected_option );
+                % Unpack the relative division params.                                
+                [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31 ] = self.unpack_reduced_relative_dai_gs_params( synapse_IDs, division_params, synapses, undetected_option );
                 
-                % Pack the relative division gs32 params.                                
-                params_gs32 = self.pack_reduced_relative_dai_gs32_params( delta1, delta2, R2, R3, Gm3, dEs31, synapses, undetected_option );
+                % Pack the relative division gs32 params.                                                
+                params_gs32 = self.pack_reduced_relative_dai_gs32_params( synapse_IDs, c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -9150,19 +9146,19 @@ classdef synapse_manager_class
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                       % If this operation is using an absolute encoding scheme...
                 
-                % Unpack the reduced absolute dai params.
-                [ delta1, delta2, R2, R3, Gm3 ] = self.unpack_reduced_absolute_dai_params( reduced_dai_params );
+                % Unpack the reduced absolute dai params.                
+                [ c1, delta2, x1_max, x2_max, Gm3 ] = self.unpack_reduced_absolute_dai_params( reduced_dai_params );
                 
-                % Pack the reduced absolute dai gs params.
-                reduced_dai_gs_params = self.pack_reduced_absolute_dai_gs_params( synapse_IDs, delta1, delta2, R2, R3, Gm3, dEs31, synapses, undetected_option );
+                % Pack the reduced absolute dai gs params.                
+                reduced_dai_gs_params = self.pack_reduced_absolute_dai_gs_params( synapse_IDs, c1, delta2, x1_max, x2_max, Gm3, dEs31, synapses, undetected_option );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                                                                   % If this operation uses a relative encoding scheme...
                 
-                % Unpack the reduced relative dai params.
-                [ delta1, delta2, R2, R3, Gm3 ] = self.unpack_reduced_relative_dai_params( division_params );
+                % Unpack the reduced relative dai params.                
+                [ c1, delta1, delta2, x1_max, x2_max, R3, Gm3 ] = self.unpack_reduced_relative_dai_params( reduced_dai_params );
                 
-                % Pack the reduced relative dai gs params.
-                reduced_dai_gs_params = self.pack_reduced_relative_dai_gs_params( synapse_IDs, delta1, delta2, R2, R3, Gm3, dEs31, synapses, undetected_option );
+                % Pack the reduced relative dai gs params.                
+                reduced_dai_gs_params = self.pack_reduced_relative_dai_gs_params( synapse_IDs, c1, delta1, delta2, x1_max, x2_max, R3, Gm3, dEs31, synapses, undetected_option );
                 
             else                                                                                                            % Otherwise...
                 
@@ -9671,7 +9667,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                              	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, params = struct( [  ] ); end                                               % [struct] Parameters Structure.
+            if nargin < 3, params = struct( [  ] ); end                                        	% [struct] Parameters Structure.
             if nargin < 2, synapse_IDs = 'all'; end                                             % [str] Synapse IDs.
             
             % Validate the synapse IDs.
@@ -11546,18 +11542,18 @@ classdef synapse_manager_class
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_division_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
-            n_synapses = self.n_division_synapses_DEFAULT;                                                                % [#] Number of Synpases.
+            n_synapses = self.n_division_synapses_DEFAULT;                                                                  % [#] Number of Synpases.
              
             % Set the default input arguments.
             if nargin < 14, array_utilities = self.array_utilities; end                                                   	% [class] Array Utilities Class.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                   	% [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                             % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -11612,7 +11608,7 @@ classdef synapse_manager_class
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_division_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
-            n_synapses = self.n_division_synapses_DEFAULT;                                                                % [#] Number of Synpases.
+            n_synapses = self.n_division_synapses_DEFAULT;                                                                  % [#] Number of Synpases.
              
             % Set the default input arguments.
             if nargin < 14, array_utilities = self.array_utilities; end                                                   	% [class] Array Utilities Class.
@@ -11678,18 +11674,18 @@ classdef synapse_manager_class
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_division_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
-            n_synapses = self.n_division_synapses_DEFAULT;                                                                % [#] Number of Synpases.
+            n_synapses = self.n_division_synapses_DEFAULT;                                                                  % [#] Number of Synpases.
              
             % Set the default input arguments.
             if nargin < 14, array_utilities = self.array_utilities; end                                                   	% [class] Array Utilities Class.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                     	% [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                             % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -11744,18 +11740,18 @@ classdef synapse_manager_class
             
             % Set the number of neurons and synapses.
             n_neurons = self.num_division_neurons_DEFAULT;                                                                  % [#] Number of Neurons.
-            n_synapses = self.n_division_synapses_DEFAULT;                                                                % [#] Number of Synpases.
+            n_synapses = self.n_division_synapses_DEFAULT;                                                                  % [#] Number of Synpases.
              
             % Set the default input arguments.
             if nargin < 14, array_utilities = self.array_utilities; end                                                   	% [class] Array Utilities Class.
             if nargin < 13, as_cell_flag = self.as_cell_flag_DEFAULT; end                                                   % [T/F] As Cell Flag (Determines whether neurons are returned in an array or a cell.)
             if nargin < 12, set_flag = self.set_flag_DEFAULT; end                                                           % [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 11, synapses = self.synapses; end                                                                   % [class] Array of Synapse Class Objects.
-            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                         % [T/F] Synapse Enabled Flag.
+            if nargin < 10, enabled_flags = true( 1, n_synapses ); end                                                     	% [T/F] Synapse Enabled Flag.
             if nargin < 9, deltas = self.delta_DEFAULT*ones( 1, n_synapses ); end                                           % [-] Subnetwork Output Offset.
-            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                            % [-] To Neuron ID.
-            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                        % [-] From Neuron ID.
-            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                              % [S] Synaptic Conductance.
+            if nargin < 8, to_neuron_IDs = self.to_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                             % [-] To Neuron ID.
+            if nargin < 7, from_neuron_IDs = self.from_neuron_ID_DEFAULT*ones( 1, n_synapses ); end                         % [-] From Neuron ID.
+            if nargin < 6, gs = self.gs_DEFAULT*ones( 1, n_synapses ); end                                                  % [S] Synaptic Conductance.
             if nargin < 5, dEs = self.dEs_DEFAULT*ones( 1, n_synapses ); end                                                % [V] Synaptic Reversal Potential.
             if nargin < 4, names = repmat( { '' }, 1, n_synapses ); end                                                     % [str] Synapse names.
             if nargin < 3, synapse_IDs = self.generate_unique_synapse_IDs( n_synapses, synapses, array_utilities ); end     % [#] Synapse IDs.            
@@ -13143,7 +13139,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, division_params = struct( [  ] ); end                                    	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, division_params = struct( [  ] ); end                               	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13157,8 +13153,8 @@ classdef synapse_manager_class
             % Compute the synaptic reversal potential.
             [ dEs, synapses, synapse_manager ] = self.compute_division_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
 
-            % Convert the generic params into gs params.
-            division_gs_params = self.convert_division_params2gs_params( synapse_IDs, division_params, dEs31, dEs32, encoding_scheme, synapses, undetected_option );
+            % Convert the generic params into gs params.            
+            division_gs_params = self.convert_division_params2gs_params( synapse_IDs, division_params, dEs31, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductances.
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_division_gs( synapse_IDs, division_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
@@ -13180,7 +13176,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, dai_params = struct( [  ] ); end                                          	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, dai_params = struct( [  ] ); end                                    	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13194,7 +13190,7 @@ classdef synapse_manager_class
             % Compute the synaptic reversal potential.
             [ dEs, synapses, synapse_manager ] = self.compute_dai_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
-            % Convert the generic params into gs params.
+            % Convert the generic params into gs params.            
             dai_gs_params = self.convert_dai_params2gs_params( synapse_IDs, dai_params, dEs31, encoding_scheme, synapses, undetected_option );
             
             % Compute the maximum synaptic conductances.            
@@ -13217,7 +13213,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_division_params = struct( [  ] ); end                             	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_division_params = struct( [  ] ); end                       	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13232,8 +13228,8 @@ classdef synapse_manager_class
             [ dEs, synapses, synapse_manager ] = self.compute_reduced_division_dEs( synapse_IDs, encoding_scheme, synapses, true, undetected_option );
             
             % Convert the generic params into gs params.
-            reduced_division_gs_params = self.convert_reduced_division_params2gs_params( synapse_IDs, reduced_division_params, dEs31, dEs32, encoding_scheme, synapses, undetected_option );
-            
+            reduced_division_gs_params = self.convert_reduced_division_params2gs_params( synapse_IDs, reduced_division_params, dEs31, encoding_scheme, synapses, undetected_option );
+                        
             % Compute the maximum synaptic conductances.            
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_reduced_division_gs( synapse_IDs, reduced_division_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
             
@@ -13254,7 +13250,7 @@ classdef synapse_manager_class
             if nargin < 6, set_flag = self.set_flag_DEFAULT; end                             	% [T/F] Set Flag (Determines whether output self object is updated.)
             if nargin < 5, synapses = self.synapses; end                                        % [class] Array of Synapse Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end                  % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 3, reduced_dai_params = struct( [  ] ); end                                 	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
+            if nargin < 3, reduced_dai_params = struct( [  ] ); end                            	% [struct] Parameters Structure. { delta2, R3, Gm3, Ia3 }
             if nargin < 2, neuron_IDs = 1:self.num_division_neurons_DEFAULT; end                % [#] Neuron IDs.
             
             % Get the synapse IDs that connect the first two neurons to the third neuron.
@@ -13270,7 +13266,7 @@ classdef synapse_manager_class
             
             % Convert the generic params into gs params.
             reduced_dai_gs_params = self.convert_reduced_dai_params2gs_params( synapse_IDs, reduced_dai_params, dEs31, encoding_scheme, synapses, undetected_option );
-            
+                        
             % Compute the maximum synaptic conductances.                        
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_reduced_dai_gs( synapse_IDs, reduced_dai_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
             

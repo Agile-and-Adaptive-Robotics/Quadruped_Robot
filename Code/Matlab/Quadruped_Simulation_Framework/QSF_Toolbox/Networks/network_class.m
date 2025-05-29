@@ -1581,77 +1581,139 @@ classdef network_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to compute the gain of a division subnetwork.
-        function [ c1, c2, c3 ] = compute_division_cs( self, gain_params, encoding_scheme )
-           
+        % Implement a function to compute the maximum decoded output for a division subnetwork.
+        function x3_max = compute_division_x3max( self, formulation_input_params, encoding_scheme )
+        
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = struct( [  ] ); end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
             
-            % Determine how to compute the gain.
-            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
+            % Determine how to compute the maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                x1_max = formulation_input_params.x1_max;
                 
-                % Unpack the gain params.
-                c1 = gain_params.c1;
-                c3 = gain_params.c3;
-                delta = gain_params.delta;
-                R1 = gain_params.R1;
-                R2 = gain_params.R2;
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_absolute_division_x3max( c1, c3, x1_max );
                 
-                % Compute the gain c2.
-                c2 = self.network_utilities.compute_absolute_division_c2( c1, c3, delta, R1, R2 );
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
                 
-            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                x1_max = formulation_input_params.x1_max;
                 
-                % Unpack the gain params.
-                c3 = gain_params.c3;
-                delta = gain_params.delta;
-                R3 = gain_params.R3;
-                
-                % Compute the gains c1 & c2.
-                [ c1, c2 ] = self.network_utilities.compute_relative_division_gains( c3, delta, R3 );
-                
-            else                                                        % Otherwise...
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_relative_division_x3max( c1, c3, x1_max );
+            
+            else                                                    % Otherwise...
                 
                 % Throw an error.
                 error( 'Unrecognized encoding scheme.' )
                 
             end
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a division subnetwork.
+        function c2 = compute_division_c2( self, formulation_input_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
+            
+            % Determine how to compute the transmission maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                delta = formulation_input_params.delta;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_absolute_division_c2( c1, c3, delta, x1_max, x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                delta = formulation_input_params.delta;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_relative_division_c2( c1, c3, delta, x1_max, x2_max );
+            
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to design the formulation for a division subnetwork.
+        function formulation_output_params = design_division_formulation( self, formulation_input_params, encoding_scheme )
+            
+            % Set the default input argument.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                     	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, formulation_input_params = struct( [  ] ); end                                        	% [-] Formulation Design Parameters.
+            
+            % Compute the second gain.
+            c2 = self.compute_division_c2( formulation_input_params, encoding_scheme );
+            
+            % Compute the maximum decoded output.
+            x3_max = self.compute_division_x3max( formulation_input_params, encoding_scheme );
+            
+            % Create the formulation output params cell.
+            formulation_output_params.c2 = c2;
+            formulation_output_params.x3_max = x3_max;
             
         end
         
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        % Implement a function to compute the gain of a reduced division subnetwork.
-        function [ c1, c2 ] = compute_reduced_division_cs( self, gain_params, encoding_scheme )
-           
+        % Implement a function to compute the maximum decoded output for a reduced division subnetwork.
+        function x3_max = compute_reduced_division_x3max( self, formulation_input_params, encoding_scheme )
+        
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = struct( [  ] ); end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
             
-            % Determine how to compute the gain.
-            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
+            % Determine how to compute the maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta = formulation_input_params.delta;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
                 
-                % Unpack the gain params.
-                c1 = gain_params.c1;
-                delta = gain_params.delta;
-                R1 = gain_params.R1;
-                R2 = gain_params.R2;
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_reduced_absolute_division_x3max( c1, delta, x1_max, x2_max );
                 
-                % Compute the gain c2.
-                c2 = self.network_utilities.compute_reduced_absolute_division_c2( c1, delta, R1, R2 );
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
                 
-            elseif strcmpi( encoding_scheme, 'relative' )            	% If the encoding scheme is 'relative'...
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta = formulation_input_params.delta;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
                 
-                % Unpack the gain params.
-                delta = gain_params.delta;
-                R3 = gain_params.R3;
-                
-                % Compute the gains c1 & c2.
-                [ c1, c2 ] = self.network_utilities.compute_reduced_relative_division_gains( delta, R3 );
-                
-            else                                                    	% Otherwise...
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_reduced_relative_division_x3max( c1, delta, x1_max, x2_max );
+            
+            else                                                    % Otherwise...
                 
                 % Throw an error.
                 error( 'Unrecognized encoding scheme.' )
@@ -1661,88 +1723,272 @@ classdef network_class
         end
         
         
-        % ---------- Division After Inversion Subnetwork Functions ----------
+        % Implement a function to compute the second gain of a reduced division subnetwork.
+        function c2 = compute_reduced_division_c2( self, formulation_input_params, encoding_scheme )
         
-        % Implement a function to compute the gain of a division after inversion subnetwork.
-        function [ c1, c2, c3 ] = compute_dai_cs( self, gain_params, encoding_scheme )
-           
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = struct( [  ] ); end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
             
-            % Determine how to compute the gain.
-            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
+            % Determine how to compute the transmission maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta = formulation_input_params.delta;
+                x1_max = formulation_input_params.x1_max;
                 
-                % Unpack the gain params.
-                c1 = gain_params.c1;
-                c3 = gain_params.c3;
-                delta2 = gain_params.delta2;
-                R1 = gain_params.R1;
-                R2 = gain_params.R2;
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_reduced_absolute_inversion_c2( c1, delta, x1_max );
                 
-                % Compute the gain c2.
-                c2 = self.network_utilities.compute_absolute_dai_c2( c1, c3, delta2, R1, R2 );
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
                 
-            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta = formulation_input_params.delta;
+                x1_max = formulation_input_params.x1_max;
                 
-                % Unpack the gain params.
-                c3 = gain_params.c3;
-                delta1 = gain_params.delta1;
-                delta2 = gain_params.delta2;
-                R2 = gain_params.R2;
-                R3 = gain_params.R3;
-                
-                % Compute the gains c1 & c2.
-                [ c1, c2 ] = self.network_utilities.compute_relative_dai_gains( c3, delta1, delta2, R2, R3 );
-                
-            else                                                        % Otherwise...
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_reduced_relative_inversion_c2( c1, delta, x1_max );
+            
+            else                                                    % Otherwise...
                 
                 % Throw an error.
                 error( 'Unrecognized encoding scheme.' )
                 
             end
+            
+        end
+        
+        
+        % Implement a function to design the formulation for a reduced division subnetwork.
+        function formulation_output_params = design_reduced_division_formulation( self, formulation_input_params, encoding_scheme )
+            
+            % Set the default input argument.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                     	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, formulation_input_params = struct( [  ] ); end                                        	% [-] Formulation Design Parameters.
+            
+            % Compute the second gain.
+            c2 = self.compute_reduced_division_c2( formulation_input_params, encoding_scheme );
+            
+            % Compute the maximum decoded output.
+            x3_max = self.compute_reduced_division_x3max( formulation_input_params, encoding_scheme );
+            
+            % Create the formulation output params structure.
+            formulation_output_params.c2 = c2;
+            formulation_output_params.x3_max = x3_max;
+            
+        end
+        
+        
+        % ---------- Division After Inversion Subnetwork Functions ----------
+
+        % Implement a function to compute the maximum decoded output for a division after inversion subnetwork.
+        function x3_max = compute_dai_x3max( self, formulation_input_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
+            
+            % Determine how to compute the maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                delta1 = formulation_input_params.delta1;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+                
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_absolute_dai_x3max( c1, c3, delta1, delta2, x1_max, x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                delta1 = formulation_input_params.delta1;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+                
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_relative_dai_x3max( c1, c3, delta1, delta2, x1_max, x2_max );
+            
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a division after inversion subnetwork.
+        function c2 = compute_dai_c2( self, formulation_input_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
+            
+            % Determine how to compute the transmission maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_absolute_dai_c2( c1, c3, delta2, x1_max, x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                c3 = formulation_input_params.c3;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_relative_dai_c2( c1, c3, delta2, x1_max, x2_max );
+            
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to design the formulation for a division after inversion subnetwork.
+        function formulation_output_params = design_dai_formulation( self, formulation_input_params, encoding_scheme )
+            
+            % Set the default input argument.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                     	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, formulation_input_params = struct( [  ] ); end                                        	% [-] Formulation Design Parameters.
+            
+            % Compute the second gain.
+            c2 = self.compute_dai_c2( formulation_input_params, encoding_scheme );
+            
+            % Compute the maximum decoded output.
+            x3_max = self.compute_dai_x3max( formulation_input_params, encoding_scheme );
+            
+            % Create the formulation output params structure.
+            formulation_output_params.c2 = c2;
+            formulation_output_params.x3_max = x3_max;
             
         end
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the gain of a reduced division after inversion subnetwork.
-        function [ c1, c2 ] = compute_reduced_dai_cs( self, gain_params, encoding_scheme )
-           
+        % Implement a function to compute the maximum decoded output for a reduced division after inversion subnetwork.
+        function x3_max = compute_reduced_dai_x3max( self, formulation_input_params, encoding_scheme )
+        
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
-            if nargin < 2, gain_params = struct( [  ] ); end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
             
-            % Determine how to compute the gain.
-            if strcmpi( encoding_scheme, 'absolute' )                   % If the encoding scheme is 'absolute'...
+            % Determine how to compute the maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta1 = formulation_input_params.delta1;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
                 
-                % Unpack the gain params.
-                c1 = gain_params.c1;
-                delta2 = gain_params.delta2;
-                R1 = gain_params.R1;
-                R2 = gain_params.R2;
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_reduced_absolute_dai_x3max( c1, delta1, delta2, x1_max, x2_max );
                 
-                % Compute the gain c2.
-                c2 = self.network_utilities.compute_reduced_absolute_dai_c2( c1, delta2, R1, R2 );
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
                 
-            elseif strcmpi( encoding_scheme, 'relative' )               % If the encoding scheme is 'relative'...
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta1 = formulation_input_params.delta1;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
                 
-                % Unpack the gain params.
-                delta1 = gain_params.delta1;
-                delta2 = gain_params.delta2;
-                R2 = gain_params.R2;
-                R3 = gain_params.R3;
-                
-                % Compute the gains c1 & c2.
-                [ c1, c2 ] = self.network_utilities.compute_reduced_relative_dai_gains( delta1, delta2, R2, R3 );
-                
-            else                                                        % Otherwise...
+                % Compute the maximum decoded output.
+                x3_max = self.network_utilities.compute_reduced_relative_dai_x3max( c1, delta1, delta2, x1_max, x2_max );
+            
+            else                                                    % Otherwise...
                 
                 % Throw an error.
                 error( 'Unrecognized encoding scheme.' )
                 
             end
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a reduced division after inversion subnetwork.
+        function c2 = compute_reduced_dai_c2( self, formulation_input_params, encoding_scheme )
+        
+            % Set the default input arguments.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end
+            if nargin < 2, formulation_input_params = struct( [  ] ); end
+            
+            % Determine how to compute the transmission maximum decoded output.
+            if strcmpi( encoding_scheme, 'absolute' )               % If the encoding scheme is absolute...
+            
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_reduced_absolute_dai_c2( c1, delta2, x1_max, x2_max );
+                
+            elseif strcmpi( encoding_scheme, 'relative' )           % If the encoding scheme is relative...
+                
+                % Retrieve the relevant formulation params.
+                c1 = formulation_input_params.c1;
+                delta2 = formulation_input_params.delta2;
+                x1_max = formulation_input_params.x1_max;
+                x2_max = formulation_input_params.x2_max;
+
+                % Compute the maximum decoded output.
+                c2 = self.network_utilities.compute_reduced_relative_dai_c2( c1, delta2, x1_max, x2_max );
+            
+            else                                                    % Otherwise...
+                
+                % Throw an error.
+                error( 'Unrecognized encoding scheme.' )
+                
+            end
+            
+        end
+        
+        
+        % Implement a function to design the formulation for a reduced division after inversion subnetwork.
+        function formulation_output_params = design_reduced_dai_formulation( self, formulation_input_params, encoding_scheme )
+            
+            % Set the default input argument.
+            if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                     	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
+            if nargin < 2, formulation_input_params = struct( [  ] ); end                                        	% [-] Formulation Design Parameters.
+            
+            % Compute the second gain.
+            c2 = self.compute_reduced_dai_c2( formulation_input_params, encoding_scheme );
+            
+            % Compute the maximum decoded output.
+            x3_max = self.compute_reduced_dai_x3max( formulation_input_params, encoding_scheme );
+            
+            % Create the formulation output params structure.
+            formulation_output_params.c2 = c2;
+            formulation_output_params.x3_max = x3_max;
             
         end
         

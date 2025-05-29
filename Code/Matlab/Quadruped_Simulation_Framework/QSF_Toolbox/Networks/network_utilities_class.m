@@ -608,68 +608,129 @@ classdef network_utilities_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to compute the gain c2 of an absolute division subnetwork.
-        function c2 = compute_absolute_division_c2( self, c1, c3, delta, R1, R2 )
+        % Implement a function to compute the maximum decoded output of an absolute division subnetwork.
+        function x3_max = compute_absolute_division_x3max( self, c1, c3, x1_max )
             
             % Set the default input arguments.
-            if nargin < 6, R2 = self.R_DEFAULT; end
-            if nargin < 5, R1 = self.R_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( c1./c3 ).*x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the maximum decoded output of a relative division subnetwork.
+        function x3_max = compute_relative_division_x3max( self, c1, c3, x1_max )
+            
+            % Set the default input arguments.
+            if nargin < 4, x1_max = self.x1max_relative_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_division_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( c1./c3 ).*x1_max;
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of an absolute division subnetwork.
+        function c2 = compute_absolute_division_c2( self, c1, c3, delta, x1_max, x2_max )
+
+            % Set the default input arguments.
+            if nargin < 6, x2_max = self.x2max_absolute_division_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_absolute_division_DEFAULT; end
             if nargin < 4, delta = self.delta_absolute_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
             
-            % Compute the gain.
-            c2 = ( R1*c1 - delta*c3 )/( delta*R2 );
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta.*c3 )./( delta.*x2_max );
             
         end
         
         
-        % Implement a function to compute the gain c1 of a relative division subnetwork.
-        function c1 = compute_relative_division_c1( self, c3 )
-            
+        % Implement a function to compute the second gain of a relative division subnetwork.
+        function c2 = compute_relative_division_c2( self, c1, c3, delta, x1_max, x2_max )
+
             % Set the default input arguments.
-            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
-            
-            % Compute the gain.
-            c1 = c3;
-            
-        end
-        
-        
-        % Implement a function to compute the gain c2 of a relative division subnetwork.
-        function c2 = compute_relative_division_c2( self, c1, c3, delta, R3 )
-            
-            % Set the default input arguments.
-            if nargin < 5, R3 = self.R_DEFAULT; end
+            if nargin < 6, x2_max = self.x2max_relative_division_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_relative_division_DEFAULT; end
             if nargin < 4, delta = self.delta_relative_division_DEFAULT; end
             if nargin < 3, c3 = self.c3_relative_division_DEFAULT; end
             if nargin < 2, c1 = self.c1_relative_division_DEFAULT; end
             
-            % Compute the gain.
-            c2 = ( R3*c1 - delta*c3 )/delta;
-            
-        end
- 
-        
-        % Implement a function to compute the gains of a relative division subnetwork.
-        function [ c1, c2 ] = compute_relative_division_gains( self, c3, delta, R3 )
-            
-            % Set the default input arguments.
-            if nargin < 4, R3 = self.R_DEFAULT; end
-            if nargin < 3, delta = self.delta_relative_division_DEFAULT; end
-            if nargin < 2, c3 = self.c3_relative_division_DEFAULT; end
-            
-            % Compute the gain c1.
-            c1 = self.compute_relative_division_c1( c3 );
-           
-            % Compute the gain c2.
-            c2 = self.compute_relative_division_c2( c1, c3, delta, R3 );
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta.*c3 )./( delta.*x2_max );
             
         end
         
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
+        % Implement a function to compute the maximum decoded output of a reduced absolute division subnetwork.
+        function x3_max = compute_reduced_absolute_division_x3max( self, c1, delta, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( delta.*c1.*x1_max )./( c1.*x1_max - delta.*x2_max );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum decoded output of a reduced relative division subnetwork.
+        function x3_max = compute_reduced_relative_division_x3max( self, c1, delta, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_reduced_relative_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_relative_division_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_relative_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_relative_division_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( delta.*c1.*x1_max )./( c1.*x1_max - delta.*x2_max );
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a reduced absolute division subnetwork.
+        function c2 = compute_reduced_absolute_division_c2( self, c1, delta, x1_max, x2_max )
+        
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_reduced_absolute_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_absolute_division_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta.*x2_max )./delta;
+        
+        end
+        
+            
+        % Implement a function to compute the second gain of a reduced relative division subnetwork.
+        function c2 = compute_reduced_relative_division_c2( self, c1, delta, x1_max, x2_max )
+        
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_reduced_relative_division_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_reduced_relative_division_DEFAULT; end
+            if nargin < 3, delta = self.delta_reduced_relative_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_division_DEFAULT; end
+            
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta.*x2_max )./delta;
+        
+        end
+        
+        
+        %{
         % Implement a function to compute the gain c2 of a reduced absolute division subnetwork.
         function c2 = compute_reduced_absolute_division_c2( self, c1, delta, R1, R2 )
         
@@ -725,10 +786,72 @@ classdef network_utilities_class
             c2 = self.compute_reduced_relative_division_c2( delta, R3 );
             
         end
+        %}
         
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to compute the maximum decoded output of an absolute division after inversion subnetwork.
+        function x3_max = compute_absolute_dai_x3max( self, c1, c3, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 4, x1_max = self.x1max_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( delta2.*c1.*x1_max.*x2_max )./( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum decoded output of a relative division after inversion subnetwork.
+        function x3_max = compute_relative_dai_x3max( self, c1, c3, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 4, x1_max = self.x1max_relative_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_dai_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( delta2.*c1.*x1_max.*x2_max )./( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 );
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of an absolute division after inversion subnetwork.
+        function c2 = compute_absolute_dai_c2( self, c1, c3, delta2, x1_max, x2_max )
+
+            % Set the default input arguments.
+            if nargin < 6, x2_max = self.x2max_absolute_division_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_absolute_division_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_absolute_division_DEFAULT; end
+            if nargin < 3, c3 = self.c3_absolute_division_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_division_DEFAULT; end
+            
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta2.*c3 )./( delta2.*x2_max );
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a relative division after inversion subnetwork.
+        function c2 = compute_relative_dai_c2( self, c1, c3, delta2, x1_max, x2_max )
+
+            % Set the default input arguments.
+            if nargin < 6, x2_max = self.x2max_relative_dai_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_relative_dai_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_relative_dai_DEFAULT; end
+            if nargin < 3, c3 = self.c3_relative_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_dai_DEFAULT; end
+            
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta2.*c3 )./( delta2.*x2_max );
+            
+        end
+        
+        
+        %{
         % Implement a function to compute the gain c2 of an absolute division after inversion subnetwork.
         function c2 = compute_absolute_dai_c2( self, c1, c3, delta2, R1, R2 )
         
@@ -794,10 +917,74 @@ classdef network_utilities_class
             c2 = self.compute_relative_dai_c2( c3, delta1, delta2, R2, R3 );
             
         end
+        %}
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
+        % Implement a function to compute the maximum decoded output of a reduced absolute division after inversion subnetwork.
+        function x3_max = compute_reduced_absolute_dai_x3max( self, c1, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 6, x2_max = self.x2max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_reduced_absolute_dai_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_reduced_absolute_dai_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_reduced_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_absolute_dai_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( delta2.*c1.*x1_max )./( delta1.*delta2 + c1.*x1_max - delta2.*x2_max );
+            
+        end
+        
+        
+        % Implement a function to compute the maximum decoded output of a reduced relative division after inversion subnetwork.
+        function x3_max = compute_reduced_relative_dai_x3max( self, c1, delta1, delta2, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 6, x2_max = self.x2max_reduced_relative_dai_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_reduced_relative_dai_DEFAULT; end
+            if nargin < 4, delta2 = self.delta2_reduced_relative_dai_DEFAULT; end
+            if nargin < 3, delta1 = self.delta1_reduced_relative_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_reduced_relative_dai_DEFAULT; end
+            
+            % Compute the maximum decoded output.
+            x3_max = ( delta2.*c1.*x1_max )./( delta1.*delta2 + c1.*x1_max - delta2.*x2_max );
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a reduced absolute division after inversion subnetwork.
+        function c2 = compute_reduced_absolute_dai_c2( self, c1, delta2, x1_max, x2_max )
+
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_absolute_dai_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_absolute_dai_DEFAULT; end
+            if nargin < 3, delta2 = self.delta2_absolute_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_absolute_dai_DEFAULT; end
+            
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta2.*x2_max )./delta2;
+            
+        end
+        
+        
+        % Implement a function to compute the second gain of a reduced relative division after inversion subnetwork.
+        function c2 = compute_reduced_relative_dai_c2( self, c1, delta2, x1_max, x2_max )
+
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_relative_dai_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_relative_dai_DEFAULT; end
+            if nargin < 3, delta2 = self.delta2_relative_dai_DEFAULT; end
+            if nargin < 2, c1 = self.c1_relative_dai_DEFAULT; end
+            
+            % Compute the second gain.
+            c2 = ( c1.*x1_max - delta2.*x2_max )./delta2;
+            
+        end
+        
+        
+        %{
         % Implement a function to compute the gain c2 of a reduced vision after inversion subnetwork.
         function c2 = compute_reduced_absolute_dai_c2( self, c1, delta2, R1, R2 )
             
@@ -859,6 +1046,7 @@ classdef network_utilities_class
             c2 = self.compute_reduced_relative_dai_c2( delta1, delta2, R2, R3 );
             
         end
+        %}
         
         
         % ---------- Multiplication Subnetwork Functions ----------
@@ -1503,117 +1691,6 @@ classdef network_utilities_class
         
         % ---------- Inversion Subnetwork Functions ----------
         
-        %{
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of an inversion subnetwork.
-        function ys = compute_desired_inversion_sso( ~, xs, c1, c2, c3 )
-    
-            %{
-            Input(s):
-                xs      =   [-] Decoded Inputs.
-                c1      =   [?] Absolute Inversion Design Constant 1.
-                c2      =   [?] Absolute Inversion Design Constant 2.
-                c3      =   [?] Absolute Inversion Design Constant 3.
-            
-            Output(s):
-                ys      =   [-] Decoded Outputs.
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 5, c3 = 20e-9; end                          % [A] Design Constant 3.
-            if nargin < 4, c2 = 19e-6; end                          % [S] Design Constant 2.
-            if nargin < 3, c1 = 0.40e-9; end                        % [W] Design Constant 1.
-            
-            % Compute the steady state network outputs.
-            ys = c1./( c2*xs + c3 );                                % [-] Decoded Outputs.
-            
-        end
-        
-        
-        % Implement a function to compute the steady state output associated with the desired formulation of an absolute inversion subnetwork.
-        function U2s = compute_da_inversion_sso( ~, U1s, c1, c2, c3 )
-            
-            %{
-            Input(s):
-                U1s     =   [V] Membrane Voltages (Neuron 1).
-                c1      =   [?] Absolute Inversion Design Constant 1.
-                c2      =   [?] Absolute Inversion Design Constant 2.
-                c3      =   [?] Absolute Inversion Design Constant 3.
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 5, c3 = 20e-9; end                          % [A] Design Constant 3.
-            if nargin < 4, c2 = 19e-6; end                          % [S] Design Constant 2.
-            if nargin < 3, c1 = 0.40e-9; end                        % [W] Design Constant 1.
-            
-            % Compute the steady state network outputs.
-            U2s = c1./( c2*U1s + c3 );                              % [V] Membrane Voltage.
-            
-        end
-        
-                
-        % Implement a function to compute the steady state output associated with the desired formulation of a relative inversion subnetwork.
-        function U2s = compute_dr_inversion_sso( ~, Us1, c1, c2, c3, R1, R2 )
-        
-            %{
-            Input(s):
-                Us1 = [V] Membrane Voltages (Neuron 1).
-                c1 = [?] Desired Relative Inversion Design Constant 1.
-                c2 = [?] Desired Relative Inversion Design Constant 2.
-                c3 = [?] Desired Relative Inversion Design Constant 3.
-                R1 = [V] Maximum Membrane Voltage (Neuron 1).
-                R2 = [V] Maximum Membrane Voltage (Neuron 2).
-            
-            Output(s):
-                U2s = [V] Membrane Voltages (Neuron 2).
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 7, R2 = 20e-3; end                          % [V] Maxmimum Membrane Voltage (Neuron 2).
-            if nargin < 6, R1 = 20e-3; end                          % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 5, c3 = 1e-6; end                           % [-] Design Constant 3.
-            if nargin < 4, c2 = 19e-6; end                          % [-] Design Constant 2.
-            if nargin < 3, c1 = 1e-6; end                           % [-] Design Constant 1.
-
-            % Compute the steady state network outputs.
-            U2s = ( c1*R1*R2 )./( c2*Us1 + c3*R1 );                 % [V] Membrane Voltage (Neuron 2).
-            
-        end
-           
-        
-        % Implement a function to compute the steady state output associated with the achieved formulation of an inversion subnetwork.
-        function U2s = compute_achieved_inversion_sso( ~, U1s, R1, Gm2, Ia2, gs21, dEs21 )
-        
-            %{
-            Input(s):
-                U1s     =   [V] Membrane Voltages (Neuron 1).
-                R1      =   [V] Maximum Membrane Voltage (Neuron 1).
-                Gm2     =   [S] Membrane Conductance (Neuron 2).
-                Ia2     =   [A] Applied Current (Neuron 2).
-                gs21    =   [S] Maximum Synaptic Conductance (Synapse 21).
-                dEs21   =   [V] Synaptic Reversal Potential (Synapse 21).
-            
-            Output(s):
-                U2s     =   [V] Membrane Voltages (Neuron 2).
-            %}
-            
-            % Set the default input arguments.
-            if nargin < 7, dEs21 = 0; end                                       % [V] Synaptic Reversal Potential (Synapse 21).
-            if nargin < 6, gs21 = 19e-6; end                                    % [S] Synaptic Conductance (Synapse 21).
-            if nargin < 5, Ia2 = 20e-9; end                                     % [A] Applied Current (Neuron 2).
-            if nargin < 4, Gm2 = 1e-6; end                                      % [S] Membrane Conductance (Neuron 2).
-            if nargin < 3, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            
-            % Compute the steady state network outputs.
-            U2s = ( gs21*dEs21*U1s + R1*Ia2 )./( gs21*U1s + R1*Gm2 );           % [V] Membrane Voltage (Neuron 2).
-            
-        end
-        
-        %}
-        
-        
         % Implement a function to compute the encoded steady state output of the achieved mapping of an inversion subnetwork.
         function U2s = compute_encoded_achieved_inversion_sso( self, U1s, R1, Gm2, gs21, dEs21, Ia2 )
             
@@ -1809,487 +1886,438 @@ classdef network_utilities_class
         
         % ---------- Division Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of a division subnetwork.
-        function ys = compute_desired_division_sso( ~, xs, c1, c2, c3 )
-        
-            %{
-            Input(s):
-                xs = [-] Decoded Inputs.
-                c1 = [?] Absolute Division Design Constant 1.
-                c2 = [?] Absolute Division Design Constant 2.
-                c3 = [?] Absolute Division Design Constant 3.
-            
-            Output(s):
-                ys = [-] Decoded Outputs. 
-            %}
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a division subnetwork.
+        function U3s = compute_encoded_achieved_division_sso( self, U1s, U2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
             
             % Set the default input arguments.
-            if nargin < 5, c3 = 0.40e-9; end           	% [W] Design Constant 3.
-            if nargin < 4, c2 = 380e-9; end          	% [A] Design Constant 2.
-            if nargin < 3, c1 = 0.40e-9; end          	% [W] Design Constant 1.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            xs1 = xs( :, 1 );                         	% [-] Decoded Input 1.
-            xs2 = xs( :, 2 );                           % [-] Decoded Input 2.
+            % Compute the steady state output.
+            U3s = ( R2.*gs31.*dEs31.*U1s + R1.*gs32.*dEs32.*U2s + R1.*R2.*Ia3 )./( R2.*gs31.*U1s + R1.*gs32.*U2s + R1.*R2.*Gm3 );
             
-            % Compute the steady state network outputs.
-            ys = ( c1*xs1 )./( c2*xs2 + c3 );           % [-] Decoded Output.
+        end
+             
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of an absolute division subnetwork.
+        function x3s = compute_decoded_achieved_absolute_division_sso( self, x1s, x2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( R2.*gs31.*dEs31.*x1s + R1.*gs32.*dEs32.*x2s + R1.*R2.*Ia3 )./( R2.*gs31.*x1s + R1.*gs32.*x2s + R1.*R2.*Gm3 );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a relative division subnetwork.
+        function x3s = computed_decoded_achieved_relative_division_sso( self, x1s, x2s, x1_max, x2_max, R3, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 12, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 11, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 10, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 9, gs31 = self.gs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x2_max = self.x2max_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( ( c1.*x1_max )./( c3.*R3 ) ).*( ( x2_max.*gs31.*dEs31.*x1s + x1_max.*gs32.*dEs32.*x2s + x1_max.*x2_max.*Ia3 )./( x2_max.*gs31.*x1s + x1_max.*gs32.*x2s + x1_max.*x2_max.*Gm3 ) );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the desired mapping of an division subnetwork.
+        function x3s = compute_decoded_desired_division_sso( self, x1s, x2s, c1, c3, delta, x1_max, x2_max )
+        
+            % Set the default input arguments.
+            if nargin < 8, x2_max = self.x2max_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta = self.delta_DEFAULT; end
+            if nargin < 5, c3 = self.c3_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( delta.*c1.*x2_max.*x1s )./( ( c1.*x1_max - delta.*c3 ).*x2s + delta.*c3.*x2_max );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of an absolute division subnetwork.
-        function U3s = compute_da_division_sso( ~, U_inputs, c1, c2, c3 )
+        % Implement a function to compute the encoded steady state output of the desired mapping of an absolute division subnetwork.
+        function U3s = compute_encoded_desired_absolute_division_sso( self, U1s, U2s, c1, c3, delta, x1_max, x2_max )
         
-            %{
-            Input(s):
-                U_inputs = [V] Membrane Voltage Inputs.
-                c1 = [?] Absolute Division Design Constant 1.
-                c2 = [?] Absolute Division Design Constant 2.
-                c3 = [?] Absolute Division Design Constant 3.
-            
-            Output(s):
-                U3s = [V] Membrane Voltage (Neuron 3). 
-            %}
-            
             % Set the default input arguments.
-            if nargin < 5, c3 = 0.40e-9; end                                    % [W] Design Constant 3.
-            if nargin < 4, c2 = 380e-9; end                                     % [A] Design Constant 2.
-            if nargin < 3, c1 = 0.40e-9; end                                    % [W] Design Constant 1.
+            if nargin < 8, x2_max = self.x2max_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta = self.delta_DEFAULT; end
+            if nargin < 5, c3 = self.c3_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*U1s )./( c2*U2s + c3 );                                  % [V] Membrane Voltage (Neuron 3).
+            % Compute the steady state output.
+            U3s = ( delta.*c1.*x2_max.*U1s )./( ( c1.*x1_max - delta.*c3 ).*U2s + delta.*c3.*x2_max );
+        
             
         end
         
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a relative division subnetwork.
+        function U3s = compute_encoded_desired_relative_division_sso( self, U1s, U2s, c1, c3, delta, x1_max, R1, R2, R3 )
                 
-        % Implement a function to compute the steady state output associated with the desired formulation of a relative division subnetwork.
-        function U3s = compute_dr_division_sso( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
-        
-            %{
-            Input(s):
-                U_inputs = [V] Membrane Voltage Inputs.
-                c1 = [?] Desired Relative Division Design Constant 1.
-                c2 = [?] Desired Relative Division Design Constant 2.
-                c3 = [?] Desired Relative Division Design Constant 3.
-                R1 = [V] Maximum Membrane Voltage (Neuron 1).
-                R2 = [V] Maximum Membrane Voltage (Neuron 2).
-                R3 = [V] Maximum Membrane Voltage (Neuron 3).
-            
-            Output(s):
-                U3s = [V] Membrane Voltages (Neuron 3).
-            %}
-            
             % Set the default input arguments.
-            if nargin < 8, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
-            if nargin < 7, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 6, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 5, c3 = 1e-6; end                                       % [S] Design Constant 3.
-            if nargin < 4, c2 = 19e-6; end                                      % [S] Design Constant 2.
-            if nargin < 3, c1 = 1e-6; end                                       % [S] Design Constant 1.
+            if nargin < 10, R3 = self.R_DEFAULT; end
+            if nargin < 9, R2 = self.R_DEFAULT; end
+            if nargin < 8, R1 = self.R_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta = self.delta_DEFAULT; end
+            if nargin < 5, c3 = self.c3_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*R2*R3*U1s )./( c2*R1*U2s + R1*R2*c3 );                   % [V] Membrane Voltage (Neuron 3).
-            
-        end
+            % Compute the steady state output.
+            U3s = ( delta.*c3.*R2.*R3.*U1s )./( ( c1.*x1_max - delta.*c3 ).*R1.*U2s + delta.*c3.*R1.*R2 );
         
-        
-        % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
-        function U3s = compute_achieved_division_sso( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
-        
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
-                Gm3         =   [S] Membrane Conductance (Neuron 3).
-                Ia3         =   [A] Applied Current (Neuron 3).
-                gs31        =   [S] Maximum Synaptic Conductance (Synapse 31).
-                gs32        =   [S] Maximum Synaptic Conductance (Synapse 32).
-                dEs31       =   [V] Synaptic Reversal Potential (Synapse 31).
-                dEs32       =   [V] Synaptic Reversal Potential (Synapse 32).
-            
-            Output(s):
-            `   U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
-            
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );
-            U2s = U_inputs( :, 2 );
-            
-           % Compute the steady state network outputs.
-           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
-            
         end
         
         
         % ---------- Reduced Division Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of a reduced division subnetwork.
-        function ys = compute_desired_reduced_division_sso( ~, xs, c1, c2 )
-        
-            %{
-            Input(s):
-                xs = [-] Decoded Inputs.
-                c1 = [?] Reduced Absolute Division Design Constant 1.
-                c2 = [?] Reduced Absolute Division Design Constant 2.
-            
-            Output(s):
-                ys = [-] Decoded Outputs.
-            %}
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a reduced division subnetwork.
+        function U3s = compute_encoded_achieved_reduced_division_sso( self, U1s, U2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
             
             % Set the default input arguments.
-            if nargin < 4, c2 = 1.05e-3; end       	% [V] Design Constant 2.
-            if nargin < 3, c1 = 1.05e-3; end        % [V] Design Constant 1.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            xs1 = xs( :, 1 );                      	% [-] Decoded Input 1.
-            xs2 = xs( :, 2 );                      	% [-] Decoded Input 2.
-            
-            % Compute the steady state network outputs.
-            ys = ( c1*xs1 )./( xs2 + c2 );          % [-] Decoded Output.
+            % Compute the steady state output.
+            U3s = ( R2.*gs31.*dEs31.*U1s + R1.*gs32.*dEs32.*U2s + R1.*R2.*Ia3 )./( R2.*gs31.*U1s + R1.*gs32.*U2s + R1.*R2.*Gm3 );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute division subnetwork.
-        function U3s = compute_dra_division_sso( ~, U_inputs, c1, c2 )
-        
-            %{
-            Input(s):
-                U_inputs = [V] Membrane Voltage Inputs.
-                c1 = [?] Reduced Absolute Division Design Constant 1.
-                c2 = [?] Reduced Absolute Division Design Constant 2.
-            
-            Output(s):
-                U3s = [V] Membrane Voltages (Neuron 3).
-            %}
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced absolute division subnetwork.
+        function x3s = compute_decoded_achieved_reduced_absolute_division_sso( self, x1s, x2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
             
             % Set the default input arguments.
-            if nargin < 4, c2 = 1.05e-3; end                                	% [V] Design Constant 2.
-            if nargin < 3, c1 = 1.05e-3; end                                    % [V] Design Constant 1.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*U1s )./( U2s + c2 );                                     % [V] Membrane Voltage (Neuron 3).
+            % Compute the steady state output.
+            x3s = ( R2.*gs31.*dEs31.*x1s + R1.*gs32.*dEs32.*x2s + R1.*R2.*Ia3 )./( R2.*gs31.*x1s + R1.*gs32.*x2s + R1.*R2.*Gm3 );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division subnetwork.
-        function U3s = compute_drr_division_sso( ~, U_inputs, c1, c2, R1, R2, R3 )
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced relative division subnetwork.
+        function x3s = computed_decoded_achieved_reduced_relative_division_sso( self, x1s, x2s, c1, delta, x1_max, x2_max, R3, dEs31 )
         
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                c1          =   [?] Reduced Relative Division Design Constant 1.
-                c2          =   [?] Reduced Relative Division Design Constant 2.
-                c3          =   [?] Reduced Relative Division Design Constant 3.
-                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
-                R3          =   [V] Maximum Membrane Voltage (Neuron 3).
-            
-            Output(s):
-                U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
-            
             % Set the default input arguments.
-            if nargin < 7, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
-            if nargin < 6, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 5, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 4, c2 = 0.0526; end                                   	% [-] Design Constant 2.
-            if nargin < 3, c1 = 0.0526; end                                   	% [-] Design Constant 1.
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, R3 = self.R_DEFAULT; end
+            if nargin < 7, x2_max = self.x2max_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_DEFAULT; end
+            if nargin < 5, delta = self.delta_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*R2*R3*U1s )./( R1*U2s + R1*R2*c2 );                      % [V] Membrane Voltage (Neuron 3).
+            % Compute the steady state output.
+            x3s = ( delta.*c1.*dEs31.*x1_max.*x1s )./( R3.*( c1.*x1_max - delta.*x2_max ).*x1s + delta.*dEs31.*x1_max.*x2s - ( R3 - dEs31 ).*( c1.*x1_max - delta.*x2_max ).*x1_max );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the achieved formulation of a division subnetwork.
-        function U3s = compute_ra_division_sso( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
+        % Implement a function to compute the decoded steady state output of the desired mapping of a reduced division subnetwork.
+        function x3s = compute_decoded_desired_reduced_division_sso( self, x1s, x2s, c1, delta, x1_max, x2_max )
+            
+            % Set the default input arguments.
+            if nargin < 5, x2_max = self.x2max_DEFAULT; end
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( delta.*c1.*x1s )./( delta.*x2s + ( c1.*x1_max - delta.*x2_max ) );
+            
+        end
         
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
-                Gm3         =   [S] Membrane Conductance (Neuron 3).
-                Ia3         =   [A] Applied Current (Neuron 3).
-                gs31        =   [S] Maximum Synaptic Conductance (Synapse 31).
-                gs32        =   [S] Maximum Synaptic Conductance (Synapse 32).
-                dEs31       =   [V] Synaptic Reversal Potential (Synapse 31).
-                dEs32       =   [V] Synaptic Reversal Potential (Synapse 32).
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced absolute division subnetwork.
+        function U3s = compute_encoded_desired_reduced_absolute_division_sso( self, U1s, U2s, c1, delta, x1_max, x2_max )
             
-            Output(s):
-            `   U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
+            % Set the default input arguments.
+            if nargin < 5, x1_max = self.x1max_DEFAULT; end
+            if nargin < 4, delta = self.delta_DEFAULT; end
+            if nargin < 3, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );
-            U2s = U_inputs( :, 2 );
+            % Compute the steady state output.
+            U3s = ( delta.*c1*U1s )./( delta.*U2s + ( c1*x1_max - delta.*x2_max ) );
             
-           % Compute the steady state network outputs.
-           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
+        end
+        
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced relative division subnetwork.
+        function U3s = compute_encoded_desired_reduced_relative_division_sso( self, U1s, U2s, c1, delta, x1_max, x2_max, R1, R2, R3 )
+            
+            % Set the default input arguments.
+            if nargin < 10, R3 = self.R_DEFAULT; end
+            if nargin < 9, R2 = self.R_DEFAULT; end
+            if nargin < 8, R1 = self.R_DEFAULT; end
+            if nargin < 7, x2_max = self.x2max_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_DEFAULT; end
+            if nargin < 5, delta = self.delta_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
+            
+            % Compute the steady state output.
+            U3s = ( R2.*R3.*( c1.*x1_max - delta.*x2_max ).*U1s )./( delta.*R1.*x2_max.*U2s + R1.*R2.*( c1.*x1_max - delta.*x2_max ) );
             
         end
         
         
         % ---------- Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of a division after inversion subnetwork.
-        function ys = compute_desired_dai_sso( ~, xs, c1, c2, c3 )
-        
-            %{
-            Input(s):
-                xs = [-] Decoded Inputs.
-                c1 = [?] Absolute Division Design Constant 1.
-                c2 = [?] Absolute Division Design Constant 2.
-                c3 = [?] Absolute Division Design Constant 3.
-            
-            Output(s):
-                ys = [-] Decoded Outputs. 
-            %}
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a division after inversion subnetwork.
+        function U3s = compute_encoded_achieved_dai_sso( self, U1s, U2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
             
             % Set the default input arguments.
-            if nargin < 5, c3 = 0.40e-9; end            % [W] Design Constant 3.
-            if nargin < 4, c2 = 380e-9; end             % [A] Design Constant 2.
-            if nargin < 3, c1 = 0.40e-9; end            % [W] Design Constant 1.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            xs1 = xs( :, 1 );                          	% [-] Decoded Input 1.
-            xs2 = xs( :, 2 );                       	% [-] Decoded Input 2.
+            % Compute the steady state output.
+            U3s = ( R2.*gs31.*dEs31.*U1s + R1.*gs32.*dEs32.*U2s + R1.*R2.*Ia3 )./( R2.*gs31.*U1s + R1.*gs32.*U2s + R1.*R2.*Gm3 );
             
-            % Compute the steady state network outputs.
-            ys = ( c1*xs1 )./( c2*xs2 + c3 );           % [V] Membrane Voltage (Neuron 3).
+        end
+             
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of an absolute division after inversion subnetwork.
+        function x3s = compute_decoded_achieved_absolute_dai_sso( self, x1s, x2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( R2.*gs31.*dEs31.*x1s + R1.*gs32.*dEs32.*x2s + R1.*R2.*Ia3 )./( R2.*gs31.*x1s + R1.*gs32.*x2s + R1.*R2.*Gm3 );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a relative division after inversion subnetwork.
+        function x3s = computed_decoded_achieved_relative_dai_sso( self, x1s, x2s, x1_max, x2_max, R3, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 12, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 11, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 10, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 9, gs31 = self.gs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x2_max = self.x2max_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( ( delta2.*c1.*x1_max.*x2_max )./( R3.*( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 ) ) ).*( ( x2_max.*gs31.*dEs31.*x1s + x1_max.*gs32.*dEs32.*x2s + x1_max.*x2_max.*Ia3 )./( x2_max.*gs31.*x1s + x1_max.*gs32.*x2s + x1_max.*x2_max.*Gm3 ) );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the desired mapping of an division after inversion subnetwork.
+        function x3s = compute_decoded_desired_dai_sso( self, x1s, x2s, c1, c3, delta2, x1_max, x2_max )
+        
+            % Set the default input arguments.
+            if nargin < 8, x2_max = self.x2max_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta2 = self.delta2_DEFAULT; end
+            if nargin < 5, c3 = self.c3_DEFAULT; end
+            if anrgin < 4, c1 = self.c1_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( delta2.*c1.*x2_max.*x1s )./( ( c1.*x1_max - delta2.*c3 ).*x2s + delta2.*c3.*x2_max );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of an absolute division after inversion subnetwork.
-        function U3s = compute_da_dai_sso( ~, U_inputs, c1, c2, c3 )
+        % Implement a function to compute the encoded steady state output of the desired mapping of an absolute division after inversion subnetwork.
+        function U3s = compute_encoded_desired_absolute_dai_sso( self, U1s, U2s, c1, c3, delta2, x1_max, x2_max )
         
-            %{
-            Input(s):
-                U_inputs = [V] Membrane Voltage Inputs.
-                c1 = [?] Absolute Division Design Constant 1.
-                c2 = [?] Absolute Division Design Constant 2.
-                c3 = [?] Absolute Division Design Constant 3.
-            
-            Output(s):
-                U3s = [V] Membrane Voltage (Neuron 3). 
-            %}
-            
             % Set the default input arguments.
-            if nargin < 5, c3 = 0.40e-9; end                                    % [W] Design Constant 3.
-            if nargin < 4, c2 = 380e-9; end                                     % [A] Design Constant 2.
-            if nargin < 3, c1 = 0.40e-9; end                                    % [W] Design Constant 1.
+            if nargin < 8, x2_max = self.x2max_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_DEFAULT; end
+            if nargin < 6, delta2 = self.delta2_DEFAULT; end
+            if nargin < 5, c3 = self.c3_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*U1s )./( c2*U2s + c3 );                                  % [V] Membrane Voltage (Neuron 3).
-            
+            % Compute the steady state output.
+            U3s = ( delta2.*c1.*x2_max.*U1s )./( ( c1.*x1_max - delta2.*c3 ).*U2s + delta2.*c3.*x2_max );
+        
         end
         
+        
+        % Implement a function to compute the encoded steady state output of the desired mapping of a relative division after inversion subnetwork.
+        function U3s = compute_encoded_desired_relative_dai_sso( self, U1s, U2s, c1, c3, delta1, delta2, x1_max, x2_max, R1, R2, R3 )
                 
-        % Implement a function to compute the steady state output associated with the desired formulation of a relative division after inversion subnetwork.
-        function U3s = compute_dr_dai_sso( ~, U_inputs, c1, c2, c3, R1, R2, R3 )
-        
-            %{
-            Input(s):
-                U_inputs = [V] Membrane Voltage Inputs.
-                c1 = [?] Desired Relative Division Design Constant 1.
-                c2 = [?] Desired Relative Division Design Constant 2.
-                c3 = [?] Desired Relative Division Design Constant 3.
-                R1 = [V] Maximum Membrane Voltage (Neuron 1).
-                R2 = [V] Maximum Membrane Voltage (Neuron 2).
-                R3 = [V] Maximum Membrane Voltage (Neuron 3).
-            
-            Output(s):
-                U3s = [V] Membrane Voltages (Neuron 3).
-            %}
-            
             % Set the default input arguments.
-            if nargin < 8, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
-            if nargin < 7, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 6, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 5, c3 = 1e-6; end                                       % [S] Design Constant 3.
-            if nargin < 4, c2 = 19e-6; end                                      % [S] Design Constant 2.
-            if nargin < 3, c1 = 1e-6; end                                       % [S] Design Constant 1.
+            if nargin < 12, R3 = self.R_DEFAULT; end
+            if nargin < 11, R2 = self.R_DEFAULT; end
+            if nargin < 10, R1 = self.R_DEFAULT; end
+            if nargin < 9, x2_max = self.x2max_DEFAULT; end
+            if nargin < 8, x1_max = self.x1max_DEFAULT; end
+            if nargin < 7, delta2 = self.delta2_DEFAULT; end
+            if nargin < 6, delta1 = self.delta1_DEFAULT; end
+            if nargin < 5, c3 = self.c3_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*R2*R3*U1s )./( c2*R1*U2s + R1*R2*c3 );                   % [V] Membrane Voltage (Neuron 3).
-            
-        end
+            % Compute the steady state output.
+            U3s = ( ( R2.*R3 )./( R1.*x2_max ) ).*( ( ( delta1.*c1.*x1_max + delta2.*c3.*x2_max - delta1.*delta2.*c3 ).*U1s )./( ( c1.*x1_max - delta2.*c3 ).*U2s + delta2.*c3.*R2 ) );
         
-        
-        % Implement a function to compute the steady state output associated with the achieved formulation of a division after inversion subnetwork.
-        function U3s = compute_achieved_dai_sso( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
-        
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
-                Gm3         =   [S] Membrane Conductance (Neuron 3).
-                Ia3         =   [A] Applied Current (Neuron 3).
-                gs31        =   [S] Maximum Synaptic Conductance (Synapse 31).
-                gs32        =   [S] Maximum Synaptic Conductance (Synapse 32).
-                dEs31       =   [V] Synaptic Reversal Potential (Synapse 31).
-                dEs32       =   [V] Synaptic Reversal Potential (Synapse 32).
-            
-            Output(s):
-            `   U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
-            
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );
-            U2s = U_inputs( :, 2 );
-            
-           % Compute the steady state network outputs.
-           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
-            
         end
         
         
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
         
-        % Implement a function to compute the steady state output associated with the decoded desired formulation of a reduced division after inversion subnetwork.
-        function ys = compute_desired_reduced_dai_sso( ~, xs, c1, c2 )
-        
-            %{
-            Input(s):
-                xs  =   [-] Decoded Inputs.
-                c1  =   [?] Reduced Absolute Division Design Constant 1.
-                c2	=   [?] Reduced Absolute Division Design Constant 2.
-            
-            Output(s):
-                ys  =   [-] Decoded Outputs.
-            %}
+        % Implement a function to compute the encoded steady state output of the achieved mapping of a reduced division after inversion subnetwork.
+        function U3s = compute_encoded_achieved_reduced_dai_sso( self, U1s, U2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
             
             % Set the default input arguments.
-            if nargin < 4, c2 = 1.05e-3; end        % [V] Design Constant 2.
-            if nargin < 3, c1 = 1.05e-3; end        % [V] Design Constant 1.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            xs1 = xs( :, 1 );                       % [V] Decoded Input 1.
-            xs2 = xs( :, 2 );                       % [V] Decoded Input 2.
+            % Compute the steady state output.
+            U3s = ( R2.*gs31.*dEs31.*U1s + R1.*gs32.*dEs32.*U2s + R1.*R2.*Ia3 )./( R2.*gs31.*U1s + R1.*gs32.*U2s + R1.*R2.*Gm3 );
             
-            % Compute the steady state network outputs.
-            ys = ( c1*xs1 )./( xs2 + c2 );          % [V] Decoded Outputs.
+        end
+             
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced absolute division after inversion subnetwork.
+        function x3s = compute_decoded_achieved_reduced_absolute_dai_sso( self, x1s, x2s, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 11, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 10, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 9, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, gs31 = self.gs_DEFAULT; end
+            if nargin < 6, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 5, R2 = self.R_DEFAULT; end
+            if nargin < 4, R1 = self.R_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( R2.*gs31.*dEs31.*x1s + R1.*gs32.*dEs32.*x2s + R1.*R2.*Ia3 )./( R2.*gs31.*x1s + R1.*gs32.*x2s + R1.*R2.*Gm3 );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the achieved mapping of a reduced relative division after inversion subnetwork.
+        function x3s = computed_decoded_achieved_reduced_relative_dai_sso( self, x1s, x2s, x1_max, x2_max, R3, Gm3, gs31, gs32, dEs31, dEs32, Ia3 )
+        
+            % Set the default input arguments.
+            if nargin < 12, Ia3 = self.Ia_DEFAULT; end
+            if nargin < 11, dEs32 = self.dEs_DEFAULT; end
+            if nargin < 10, dEs31 = self.dEs_DEFAULT; end
+            if nargin < 9, gs31 = self.gs_DEFAULT; end
+            if nargin < 8, gs32 = self.gs_DEFAULT; end
+            if nargin < 7, Gm3 = self.Gm_DEFAULT; end
+            if nargin < 6, R3 = self.R_DEFAULT; end
+            if nargin < 5, x2_max = self.x2max_DEFAULT; end
+            if nargin < 4, x1_max = self.x1max_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( ( delta2.*c1.*x1_max )./( R3.*( delta1.*delta2 + c1.*x1_max - delta2.*x2_max ) ) ).*( ( x2_max.*gs31.*dEs31.*x1s + x1_max.*gs32.*dEs32.*x2s + x1_max.*x2_max.*Ia3 )./( x2_max.*gs31.*x1s + x1_max.*gs32.*x2s + x1_max.*x2_max.*Gm3 ) );
+        
+        end
+        
+        
+        % Implement a function to compute the decoded steady state output of the desired mapping of a reduced division after inversion subnetwork.
+        function x3s = compute_decoded_desired_reduced_dai_sso( self, x1s, x2s, c1, delta2, x1_max, x2_max )
+        
+            % Set the default input arguments.
+            if nargin < 7, x2_max = self.x2max_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_DEFAULT; end
+            if nargin < 5, delta2 = self.delta2_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
+            
+            % Compute the steady state output.
+            x3s = ( delta2.*c1.*x1s )./( delta2.*x2s + ( c1.*x1_max - delta2.*x2_max ) );
             
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced absolute division after inversion subnetwork.
-        function U3s = compute_dra_dai_sso( ~, U_inputs, c1, c2 )
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced absolute division after inversion subnetwork.
+        function U3s = compute_encoded_desired_reduced_absolute_dai_sso( self, U1s, U2s, c1, delta2, x1_max, x2_max )
         
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                c1          =   [?] Reduced Absolute Division Design Constant 1.
-                c2          =   [?] Reduced Absolute Division Design Constant 2.
-            
-            Output(s):
-                U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
-            
             % Set the default input arguments.
-            if nargin < 4, c2 = 1.05e-3; end                                	% [V] Design Constant 2.
-            if nargin < 3, c1 = 1.05e-3; end                                    % [V] Design Constant 1.
+            if nargin < 7, x2_max = self.x2max_DEFAULT; end
+            if nargin < 6, x1_max = self.x1max_DEFAULT; end
+            if nargin < 5, delta2 = self.delta2_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*U1s )./( U2s + c2 );                                     % [V] Membrane Voltage (Neuron 3).
-            
+            % Compute the steady state output.
+            U3s = ( delta2.*c1.*U1s )./( delta2.*U2s + ( c1.*x1_max - delta2.*x2_max ) );
+        
         end
         
         
-        % Implement a function to compute the steady state output associated with the desired formulation of a reduced relative division after inversion subnetwork.
-        function U3s = compute_drr_dai_sso( ~, U_inputs, c1, c2, R1, R2, R3 )
-        
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                c1          =   [?] Reduced Relative Division Design Constant 1.
-                c2          =   [?] Reduced Relative Division Design Constant 2.
-                c3          =   [?] Reduced Relative Division Design Constant 3.
-                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
-                R3          =   [V] Maximum Membrane Voltage (Neuron 3).
-            
-            Output(s):
-                U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
-            
+        % Implement a function to compute the encoded steady state output of the desired mapping of a reduced relative division after inversion subnetwork.
+        function U3s = compute_encoded_desired_reduced_relative_dai_sso( self, U1s, U2s, c1, c2, delta1, delta2, x1_max, x2_max, R1, R2, R3 )
+                
             % Set the default input arguments.
-            if nargin < 7, R3 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 3).
-            if nargin < 6, R2 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 2).
-            if nargin < 5, R1 = 20e-3; end                                      % [V] Maximum Membrane Voltage (Neuron 1).
-            if nargin < 4, c2 = 0.0526; end                                   	% [-] Design Constant 2.
-            if nargin < 3, c1 = 0.0526; end                                   	% [-] Design Constant 1.
+            if nargin < 12, R3 = self.R_DEFAULT; end
+            if nargin < 11, R2 = self.R_DEFAULT; end
+            if nargin < 10, R1 = self.R_DEFAULT; end
+            if nargin < 9, x2_max = self.x2max_DEFAULT; end
+            if nargin < 8, x1_max = self.x1max_DEFAULT; end
+            if nargin < 7, delta2 = self.delta2_DEFAULT; end
+            if nargin < 6, delta1 = self.delta1_DEFAULT; end
+            if nargin < 5, c2 = self.c2_DEFAULT; end
+            if nargin < 4, c1 = self.c1_DEFAULT; end
             
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );                                             % [V] Membrane Voltage (Neuron 1).
-            U2s = U_inputs( :, 2 );                                             % [V] Membrane Voltage (Neuron 2).
-            
-            % Compute the steady state network outputs.
-            U3s = ( c1*R2*R3*U1s )./( R1*U2s + R1*R2*c2 );                      % [V] Membrane Voltage (Neuron 3).
-            
-        end
+            % Compute the steady state output.
+            U3s = ( R2.*R3.*( delta1.*delta2 + c1.*x1_max - delta2.*x2_max ).*U1s )./( delta2.*R1.*x2_max.*U2s + delta2.*c2.*R1.*R2 );
         
-        
-        % Implement a function to compute the steady state output associated with the achieved formulation of a division after inversion subnetwork.
-        function U3s = compute_ra_dai_sso( ~, U_inputs, R1, R2, Gm3, Ia3, gs31, gs32, dEs31, dEs32 )
-        
-            %{
-            Input(s):
-                U_inputs    =   [V] Membrane Voltage Inputs.
-                R1          =   [V] Maximum Membrane Voltage (Neuron 1).
-                R2          =   [V] Maximum Membrane Voltage (Neuron 2).
-                Gm3         =   [S] Membrane Conductance (Neuron 3).
-                Ia3         =   [A] Applied Current (Neuron 3).
-                gs31        =   [S] Maximum Synaptic Conductance (Synapse 31).
-                gs32        =   [S] Maximum Synaptic Conductance (Synapse 32).
-                dEs31       =   [V] Synaptic Reversal Potential (Synapse 31).
-                dEs32       =   [V] Synaptic Reversal Potential (Synapse 32).
-            
-            Output(s):
-            `   U3s         =   [V] Membrane Voltages (Neuron 3).
-            %}
-            
-            % Retrieve the steady state inputs.
-            U1s = U_inputs( :, 1 );
-            U2s = U_inputs( :, 2 );
-            
-           % Compute the steady state network outputs.
-           U3s = ( R2*gs31*dEs31*U1s + R1*gs32*dEs32*U2s + R1*R2*Ia3 )./( R2*gs31*U1s + R1*gs32*U2s + R1*R2*Gm3 );
-            
         end
         
         
@@ -4300,6 +4328,7 @@ classdef network_utilities_class
             fprintf( message )
                 
         end
+        
         
     end
 end
