@@ -3839,7 +3839,7 @@ classdef applied_current_manager_class
         % ---------- Division Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a division subnetwork.
-        function Ias3 = design_division_applied_current( self, encoding_scheme, applied_currents, array_utilities )
+        function applied_current_output_params = design_division_applied_current( self, encoding_scheme, applied_currents, array_utilities )
         
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                              % [class] Array Utilities Class Object.
@@ -3847,7 +3847,10 @@ classdef applied_current_manager_class
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
             
             % Compute the applied current magnitudes of this subnetwork.            
-            Ias3 = self.compute_division_Ias3( encoding_scheme, applied_currents, array_utilities );
+            Ia3 = self.compute_division_Ias3( encoding_scheme, applied_currents, array_utilities );
+            
+            % Store the applied current magnitudes in the output params.
+            applied_current_output_params.Ia3 = Ia3;
             
         end
         
@@ -3855,7 +3858,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Division Subnetwork Functions ----------
 
         % Implement a function to design the reduced applied currents for a reduced division subnetwork.
-        function Ias3 = design_reduced_division_applied_current( self, encoding_scheme, applied_currents, array_utilities )
+        function applied_current_output_params = design_reduced_division_applied_current( self, encoding_scheme, applied_currents, array_utilities )
         
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                              % [class] Array Utilities Class Object.
@@ -3863,7 +3866,10 @@ classdef applied_current_manager_class
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
             
             % Compute the applied current magnitudes of this subnetwork.            
-            Ias3 = self.compute_reduced_division_Ias3( encoding_scheme, applied_currents, array_utilities );
+            Ia3 = self.compute_reduced_division_Ias3( encoding_scheme, applied_currents, array_utilities );
+            
+            % Store the applied current magnitudes in the output params.
+            applied_current_output_params.Ia3 = Ia3;
             
         end
         
@@ -3871,7 +3877,7 @@ classdef applied_current_manager_class
         % ---------- Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a division after inversion subnetwork.
-        function Ias3 = design_dai_applied_current( self, encoding_scheme, applied_currents, array_utilities )
+        function applied_current_output_params = design_dai_applied_current( self, encoding_scheme, applied_currents, array_utilities )
         
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                              % [class] Array Utilities Class Object.
@@ -3879,7 +3885,10 @@ classdef applied_current_manager_class
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
             
             % Compute the applied current magnitudes of this subnetwork.            
-            Ias3 = self.compute_dai_Ias3( encoding_scheme, applied_currents, array_utilities );
+            Ia3 = self.compute_dai_Ias3( encoding_scheme, applied_currents, array_utilities );
+            
+            % Store the applied current magnitudes in the output params.
+            applied_current_output_params.Ia3 = Ia3;
             
         end
         
@@ -3887,7 +3896,7 @@ classdef applied_current_manager_class
         % ---------- Reduced Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the applied currents for a reduced division after inversion subnetwork.
-        function Ias3 = design_reduced_dai_applied_current( self, encoding_scheme, applied_currents, array_utilities )
+        function applied_current_output_params = design_reduced_dai_applied_current( self, encoding_scheme, applied_currents, array_utilities )
         
             % Set the default input arguments.
             if nargin < 4, array_utilities = self.array_utilities; end                              % [class] Array Utilities Class Object.
@@ -3895,7 +3904,10 @@ classdef applied_current_manager_class
             if nargin < 2, encoding_scheme = self.encoding_scheme_DEFAULT; end                      % [str] Encoding Scheme.
             
             % Compute the applied current magnitudes of this subnetwork.            
-            Ias3 = self.compute_dai_Ias3( encoding_scheme, applied_currents, array_utilities );
+            Ia3 = self.compute_dai_Ias3( encoding_scheme, applied_currents, array_utilities );
+            
+            % Store the applied current magnitudes in the output params.
+            applied_current_output_params.Ia3 = Ia3;
             
         end
         

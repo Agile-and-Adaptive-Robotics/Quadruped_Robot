@@ -13131,7 +13131,7 @@ classdef synapse_manager_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to design the synapses for a division subnetwork.
-        function [ dEs, gs, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, division_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_params, synapse_IDs, synapses, self ] = design_division_synapses( self, neuron_IDs, division_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -13159,6 +13159,10 @@ classdef synapse_manager_class
             % Compute the maximum synaptic conductances.
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_division_gs( synapse_IDs, division_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
             
+            % Store the synapse output parameters in a structure.
+            synapse_output_params.dEs = dEs;
+            synapse_output_params.gs = gs;
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -13168,7 +13172,7 @@ classdef synapse_manager_class
         % ---------- Division After Inversion Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a division after inversion subnetwork.
-        function [ dEs, gs, synapse_IDs, synapses, self ] = design_dai_synapses( self, neuron_IDs, dai_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_params, synapse_IDs, synapses, self ] = design_dai_synapses( self, neuron_IDs, dai_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -13196,6 +13200,10 @@ classdef synapse_manager_class
             % Compute the maximum synaptic conductances.            
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_dai_gs( synapse_IDs, dai_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
             
+            % Store the synapse output parameters in a structure.
+            synapse_output_params.dEs = dEs;
+            synapse_output_params.gs = gs;
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -13205,7 +13213,7 @@ classdef synapse_manager_class
         % ---------- Reduced Division Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced division subnetwork.
-        function [ dEs, gs, synapse_IDs, synapses, self ] = design_reduced_division_synapses( self, neuron_IDs, reduced_division_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_params, synapse_IDs, synapses, self ] = design_reduced_division_synapses( self, neuron_IDs, reduced_division_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -13233,6 +13241,10 @@ classdef synapse_manager_class
             % Compute the maximum synaptic conductances.            
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_reduced_division_gs( synapse_IDs, reduced_division_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
             
+            % Store the synapse output parameters in a structure.
+            synapse_output_params.dEs = dEs;
+            synapse_output_params.gs = gs;
+            
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
             
@@ -13242,7 +13254,7 @@ classdef synapse_manager_class
         % ---------- Reduced Division After Invesion Subnetwork Functions ----------
 
         % Implement a function to design the synapses for a reduced division after inversion subnetwork.
-        function [ dEs, gs, synapse_IDs, synapses, self ] = design_reduced_dai_synapses( self, neuron_IDs, reduced_dai_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
+        function [ synapse_output_params, synapse_IDs, synapses, self ] = design_reduced_dai_synapses( self, neuron_IDs, reduced_dai_params, encoding_scheme, synapses, set_flag, validation_flag, undetected_option )
             
             % Set the default input arguments.
             if nargin < 8, undetected_option = self.undetected_option_DEFAULT; end              % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -13269,6 +13281,10 @@ classdef synapse_manager_class
                         
             % Compute the maximum synaptic conductances.                        
             [ gs, synapses, synapse_manager ] = synapse_manager.compute_reduced_dai_gs( synapse_IDs, reduced_dai_gs_params, encoding_scheme, synapses, true, validation_flag, undetected_option );
+            
+            % Store the synapse output parameters in a structure.
+            synapse_output_params.dEs = dEs;
+            synapse_output_params.gs = gs;
             
             % Determine whether to update the synapse manager.
             if set_flag, self = synapse_manager; end
