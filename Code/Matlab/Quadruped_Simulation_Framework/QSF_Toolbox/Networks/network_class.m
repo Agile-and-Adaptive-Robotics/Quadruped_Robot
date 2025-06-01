@@ -9642,6 +9642,7 @@ classdef network_class
         
         % ---------- Division Subnetwork Functions ----------
         
+        
         %{
         % Implement a function to convert division params to gain params.
         function gain_params = division_params2gain_params( self, division_params, encoding_scheme, neuron_manager, undetected_option )
@@ -9679,6 +9680,7 @@ classdef network_class
         end
         %}
         
+        
         % Implement a function to convert division parameters to formulation parameters.
         function formulation_input_params = division_input_params2formulation_input_params( self, division_input_params, encoding_scheme, neuron_manager, undetected_option )
             
@@ -9691,19 +9693,19 @@ classdef network_class
             % Determine how to perform the parameter conversion.
             if strcmpi( encoding_scheme, 'absolute' )                       % If the encoding scheme is 'absolute'...
                 
-                % Unpack the absolute transmission params.
-                [ c1, c3, delta, x1_max, ~, ~, ~, ~ ] = self.unpack_absolute_division_input_params( division_input_params, neuron_manager, undetected_option );
+                % Unpack the parameters.                
+                [ c1, c3, delta, x1_max, x2_max, ~, ~, ~, ~, ~, ~ ] = self.unpack_absolute_division_input_params( division_input_params, neuron_manager, undetected_option );
                 
-                % Pack the formulation params.
-                formulation_input_params = self.pack_absolute_division_formulation_params( c1, c3, delta, x1_max );
+                % Pack the formulation params.                
+                formulation_input_params = self.pack_absolute_division_formulation_params( c1, c3, delta, x1_max, x2_max );
                 
             elseif strcmpi( encoding_scheme, 'relative' )                   % If the encoding scheme is 'relative'...
                 
-                % Unpack the relative transmission params.                
-                [ c1, c3, delta, x1_max, ~, ~, ~, ~, ~, ~ ] = self.unpack_relative_division_input_params( division_input_params, neuron_manager, undetected_option );
+                % Unpack the parameters.                                
+                [ c1, c3, delta, x1_max, x2_max, ~, ~, ~, ~, ~, ~, ~, ~, ~ ] = self.unpack_relative_division_input_params( division_input_params, neuron_manager, undetected_option );
                 
-                % Pack the formulation params.
-                formulation_input_params = self.pack_relative_division_formulation_params( c1, c3, delta, x1_max );
+                % Pack the formulation params.                
+                formulation_input_params = self.pack_relative_division_formulation_params( c1, c3, delta, x1_max, x2_max );
                 
             else                                                            % Otherwise...
                 
@@ -9714,9 +9716,7 @@ classdef network_class
             
         end
          
-        
-        
-        
+                
         % Implement a function to convert division params to neuron params.
         function neuron_params = division_params2neuron_params( self, division_params, encoding_scheme, neuron_manager, undetected_option )
             
