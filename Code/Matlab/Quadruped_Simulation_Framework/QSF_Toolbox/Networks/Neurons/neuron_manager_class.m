@@ -53,7 +53,7 @@ classdef neuron_manager_class
         % ---------- Transmission Properties ----------
 
         % Define the number of transmission neurons.
-        n_transmission_neurons_DEFAULT = 2;                                     % [#] Number of Transmission Neurons (Default).
+        num_transmission_neurons_DEFAULT = 2;                                     % [#] Number of Transmission Neurons (Default).
 
         % Define the transmission subnetwork gain.
         c_absolute_transmission_DEFAULT = 1;                                    % [-] Absolute Transmission Subnetwork Gain.
@@ -63,7 +63,7 @@ classdef neuron_manager_class
         % ---------- Addition Properties ----------
 
         % Define the number of addition neurons.
-        n_addition_neurons_DEFAULT = 3;                                     	% [#] Number of Addition Neurons (Default).
+        num_addition_neurons_DEFAULT = 3;                                     	% [#] Number of Addition Neurons (Default).
 
         % Define the addition subnetwork gain.
         c_absolute_addition_DEFAULT = 1.0;                                    	% [-] Absolute Addition Subnetwork Gain.
@@ -73,8 +73,8 @@ classdef neuron_manager_class
         % ---------- Subtraction Properties ----------
 
         % Define the number of subtraction neurons.
-        n_subtraction_neurons_DEFAULT = 3;                                  	% [#] Default Number of Subtraction Neurons.
-        n_double_subtraction_neurons_DEFAULT = 4;                               % [#] Default Number of Double Subtraction Neurons.
+        num_subtraction_neurons_DEFAULT = 3;                                  	% [#] Default Number of Subtraction Neurons.
+        num_double_subtraction_neurons_DEFAULT = 4;                               % [#] Default Number of Double Subtraction Neurons.
 
         % Define subtraction subnetwork params.
         ss_DEFAULT = [ 1, -1 ];                                            	% [-] Default Subtraction Input Signature.
@@ -87,7 +87,7 @@ classdef neuron_manager_class
         % ---------- Inversion Properties ----------
 
         % Define the number of inversion neurons.
-        n_inversion_neurons_DEFAULT = 2;                                        % [#] Default Number of Inversion Neurons.
+        num_inversion_neurons_DEFAULT = 2;                                        % [#] Default Number of Inversion Neurons.
 
         % Define absolute inversion subnetwork gains.
         c1_absolute_inversion_DEFAULT = 1.0;                                    % [-] Absolute Inversion Gain 1.
@@ -107,7 +107,7 @@ classdef neuron_manager_class
         % ---------- Reduced Inversion Properties ----------
 
         % Define the number of reduced inversion neurons.
-        n_reduced_inversion_neurons_DEFAULT = 2;                                        % [#] Default Number of Reduced Inversion Neurons.
+        num_reduced_inversion_neurons_DEFAULT = 2;                                        % [#] Default Number of Reduced Inversion Neurons.
 
         % Define the reduced absolute inversion subnetwork gain.
         c1_reduced_absolute_inversion_DEFAULT = 1.0;                            % [-] Reduced Absolute Inversion Gain 1.
@@ -195,13 +195,13 @@ classdef neuron_manager_class
         % ---------- Multiplication Properties ----------
 
         % Define the number of multiplication neurons.
-        n_multiplication_neurons_DEFAULT = 4;                                   % [#] Default Number of Multiplication Neurons.
+        num_multiplication_neurons_DEFAULT = 4;                               	% [#] Default Number of Multiplication Neurons.
 
         
         % ---------- Derivation Properties ----------
 
         % Define the number of derivation neurons.
-        n_derivation_neurons_DEFAULT = 3;                                       % [#] Default Number of Derivation Neurons.
+        num_derivation_neurons_DEFAULT = 3;                                     % [#] Default Number of Derivation Neurons.
 
         % Define derivation subnetwork params.
         c_derivation_DEFAULT = 1e6;                                          	% [-] Default Derivative Subnetwork Gain.
@@ -212,13 +212,13 @@ classdef neuron_manager_class
         % ---------- Integration Properties ----------
         
         % Define the number of integration neurons.
-        n_integration_neurons_DEFAULT = 2;                                  	% [#] Default Number of Integration Neurons.
-        n_vbi_neurons_DEFAULT = 4;                                              % [#] Default Number of Voltage Based Integration Neurons.
-        n_svbi_neurons_DEFAULT = 9;                                         	% [#] Default Number of Split Voltage Based Integration Neurons.
-        n_new_msvbi_neurons_DEFAULT = 3;                                        % [#] Default Number of New Modulated Subtraction Voltage Based Integration Neurons.
-        n_msvbi_neurons_DEFAULT = 3;                                            % [#] Default Number of Unique Modualted Split Voltage Based Integration Neurons.
-        n_mssvbi_neurons_DEFAULT = 16;                                      	% [#] Default Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
-        n_sll_neurons_DEFAULT = 4;                                              % [#] Default Number of Split Lead Lag Neurons.
+        num_integration_neurons_DEFAULT = 2;                                  	% [#] Default Number of Integration Neurons.
+        num_vbi_neurons_DEFAULT = 4;                                              % [#] Default Number of Voltage Based Integration Neurons.
+        num_svbi_neurons_DEFAULT = 9;                                         	% [#] Default Number of Split Voltage Based Integration Neurons.
+        num_new_msvbi_neurons_DEFAULT = 3;                                        % [#] Default Number of New Modulated Subtraction Voltage Based Integration Neurons.
+        num_msvbi_neurons_DEFAULT = 3;                                            % [#] Default Number of Unique Modualted Split Voltage Based Integration Neurons.
+        num_mssvbi_neurons_DEFAULT = 16;                                      	% [#] Default Total Number of Modualted Split Subtraction Voltage Based Integration Neurons.
+        num_sll_neurons_DEFAULT = 4;                                          	% [#] Default Number of Split Lead Lag Neurons.
         
         % Define integration subnetwork params.
         c_integration_mean_DEFAULT = 0.01e9;                                 	% [-] Default Average Integration Gain.
@@ -227,17 +227,17 @@ classdef neuron_manager_class
         % ---------- Centering Properties ----------
 
         % Define the number of centering neurons.
-        n_centering_neurons_DEFAULT = 5;                                    	% [#] Default Number of Centering Neurons.
-        n_double_centering_neurons_DEFAULT = 7;                                 % [#] Default Number of Double Centering Neurons.
-        n_cds_neurons_DEFAULT = 11;                                             % [#] Default Number of Centered Double Subtraction Neurons.
+        num_centering_neurons_DEFAULT = 5;                                    	% [#] Default Number of Centering Neurons.
+        num_double_centering_neurons_DEFAULT = 7;                              	% [#] Default Number of Double Centering Neurons.
+        num_cds_neurons_DEFAULT = 11;                                          	% [#] Default Number of Centered Double Subtraction Neurons.
 
         
         % ---------- Central Pattern Generator Properties ----------
 
         % Define the number of cpg neurons.
-        n_cpg_neurons_DEFAULT = 2;                                          	% [#] Default Number of CPG Neurons.
-        n_dcpg_neurons_DEFAULT = 3;                                             % [#] Default Number of Driven CPG Neurons.
-        n_dmcpgdcll2cds_neurons_DEFAULT = 1;                                    % [#] Default Number of Driven Multistate CPG Double Centered Lead Lag to Centered Double Subtraction Neurons.
+        num_cpg_neurons_DEFAULT = 2;                                          	% [#] Default Number of CPG Neurons.
+        num_dcpg_neurons_DEFAULT = 3;                                         	% [#] Default Number of Driven CPG Neurons.
+        num_dmcpgdcll2cds_neurons_DEFAULT = 1;                              	% [#] Default Number of Driven Multistate CPG Double Centered Lead Lag to Centered Double Subtraction Neurons.
 
         % Define cpg subnetwork params.
         T_oscillation_DEFAULT = 2;                                            	% [s] Default Oscillation Period.
@@ -1447,7 +1447,7 @@ classdef neuron_manager_class
                 neuron_index = self.get_neuron_index( neuron_IDs( k ), neurons, undetected_option );
                 
                 % Compute and set the sodium channel conductance for this neuron.
-                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Gnas( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
+                [ Gnas( k ), neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_Gna( encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
                 
             end
             
@@ -2190,7 +2190,7 @@ classdef neuron_manager_class
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 5, r = self.r_oscillation_DEFAULT; end                            	% [-] Oscillation Decay
             if nargin < 4, T = self.T_oscillation_DEFAULT; end                            	% [s] Oscillation Period
-            if nargin < 3, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.             	% [#] Number of CPG Neurons
+            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.             	% [#] Number of CPG Neurons
             if nargin < 2, neuron_IDs = 'all'; end                                         	% [-] Neuron IDs
             
             % Validate the neuron IDs.
@@ -3441,13 +3441,13 @@ classdef neuron_manager_class
             
             % Set the default input arguments.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
-            if nargin < 2, division_R1_params = struct( [  ] ); end                                                           % [cell] Division R3 Parameters Cell.
+            if nargin < 2, division_R1_params = struct( [  ] ); end                                                   	% [struct] Division R3 Parameters Structure.
             
             % Determine how to create the params.
             if strcmpi( encoding_scheme, 'absolute' )                                                                   % If this operation is using an absolute encoding scheme...
                 
                 % Determine how to create the params given that this operation is using an absolute encoding scheme.
-                if isempty( division_R1_params )                                                                    % If no params were provided...
+                if isempty( division_R1_params )                                                                        % If no params were provided...
                     
                     % Set the default input and output voltage offsets.
                     x1_max = self.x1max_absolute_division_DEFAULT;                                                      % [-] Decoded Maximum Input 1.
@@ -3458,7 +3458,7 @@ classdef neuron_manager_class
                 else                                                                                                    % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( division_R1_params ) ) ~= 1                                                            % If there is anything other than four parameter entries...
+                    if length( fieldnames( division_R1_params ) ) ~= 1                                               	% If there is anything other than four parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -3470,7 +3470,7 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                                                               % If this operation uses a relative encoding scheme...
                 
                 % Determine whether params is valid given that this operation is using a relative encoding scheme.
-                if ~isempty( division_R1_params )                                                                   % If the params cell is not empty...
+                if ~isempty( division_R1_params )                                                                       % If the params structure is not empty...
                     
                     % Throw an error.
                     error( 'Invalid params detected.' )
@@ -7862,16 +7862,16 @@ classdef neuron_manager_class
             if nargin < 5, neurons = self.neurons; end                                    	% [class] Array of Neuron Class Objects.
             if nargin < 4, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 3, params = struct( [  ] ); end                                    	% [struct] Parameters Structure.
-            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs
+            if nargin < 2, neuron_IDs = 'all'; end                                       	% [-] Neuron IDs.
             
             % Validate the neuron IDs.
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the params.
-            params = self.process_division_R1_params( params, encoding_scheme, neurons );
+            params = self.process_division_R1_params( params, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            neuron_index = self.get_neuron_index( neuron_IDs( 1 ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R1, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R1( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -7897,10 +7897,10 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the params.
-            params = self.process_division_R2_params( params, encoding_scheme, neurons );
+            params = self.process_division_R2_params( params, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
-            neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
+            neuron_index = self.get_neuron_index( neuron_IDs( 2 ), neurons, undetected_option );
             
             % Compute and set the membrane conductance for the output neuron.
             [ R2, neurons( neuron_index ) ] = neurons( neuron_index ).compute_division_R2( params, encoding_scheme, true, neurons( neuron_index ).neuron_utilities );
@@ -7926,7 +7926,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the params.
-            params = self.process_division_R3_params( params, encoding_scheme, neurons );
+            params = self.process_division_R3_params( params, encoding_scheme );
             
             % Retrieve the index associated with the output neuron.
             neuron_index = self.get_neuron_index( neuron_IDs( end ), neurons, undetected_option );
@@ -8676,10 +8676,10 @@ classdef neuron_manager_class
         function [ n_cds_neurons, n_ds_neurons, n_dc_neurons ] = compute_num_cds_neurons( self )
             
             % Compute the number of double subtraction neurons.
-            n_ds_neurons = self.n_double_subtraction_neurons_DEFAULT;
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
             
             % Compute the number of double centering neurons.
-            n_dc_neurons = self.n_double_centering_neurons_DEFAULT;
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;
             
             % Compute the number of centered double subtraction neurons.
             n_cds_neurons = n_ds_neurons + n_dc_neurons;
@@ -8691,7 +8691,7 @@ classdef neuron_manager_class
         function n_mcpg_neurons = compute_num_mcpg_neurons( self, num_cpg_neurons )
         
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.          
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.          
             
             % Compute the number of multistate cpg neurons.
             n_mcpg_neurons = num_cpg_neurons;
@@ -8703,7 +8703,7 @@ classdef neuron_manager_class
         function [ n_dmcpg_neurons, n_mcpg_neurons ] = compute_num_dmcpg_neurons( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of multistate cpg neurons.
             n_mcpg_neurons = self.compute_num_mcpg_neurons( num_cpg_neurons );
@@ -8718,10 +8718,10 @@ classdef neuron_manager_class
         function [ n_msvbi_neurons, n_vsbi_neurons, n_new_msvbi_neurons ] = compute_num_msvbi_neurons( self )
             
             % Compute the number of split voltage based integration neurons.
-            n_vsbi_neurons = self.n_svbi_neurons_DEFAULT;
+            n_vsbi_neurons = self.num_svbi_neurons_DEFAULT;
             
             % Compute the number of new modulated split voltage based integration neurons.
-            n_new_msvbi_neurons = self.n_new_msvbi_neurons_DEFAULT;
+            n_new_msvbi_neurons = self.num_new_msvbi_neurons_DEFAULT;
             
             % Compute the number of modulated split voltaged based integration neurons.
             n_msvbi_neurons = n_vsbi_neurons + n_new_msvbi_neurons;
@@ -8733,7 +8733,7 @@ classdef neuron_manager_class
         function [ n_mssvbi_neurons, n_ds_neurons, n_msvbi_neurons ] = compute_num_mssvbi_neurons( self )
             
             % Compute the number of double subtraction neurons.
-            n_ds_neurons = self.n_double_subtraction_neurons_DEFAULT;
+            n_ds_neurons = self.num_double_subtraction_neurons_DEFAULT;
             
             % Compute the number of modulated split voltage based integration neurons.
             [ n_msvbi_neurons, ~, ~ ] = self.compute_num_msvbi_neurons(  );
@@ -8748,7 +8748,7 @@ classdef neuron_manager_class
         function [ n_dmcpg_sll_neurons, n_dmcpg_neurons, n_mssvbi_neurons, n_sll_neurons ] = compute_num_dmcpg_sll_neurons( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of neurons for a driven multistate cpg.
             [ n_dmcpg_neurons, ~ ] = self.compute_num_dmcpg_neurons( num_cpg_neurons );
@@ -8757,7 +8757,7 @@ classdef neuron_manager_class
             [ n_mssvbi_neurons, ~, ~ ] = self.compute_num_mssvbi_neurons(  );
             
             % Compute the number of neurons for a split lead lag subnetwork.
-            n_sll_neurons = self.n_sll_neurons_DEFAULT;
+            n_sll_neurons = self.num_sll_neurons_DEFAULT;
             
             % Compute the number of driven multistate cpg split lead lag neurons.
             n_dmcpg_sll_neurons = 2*n_dmcpg_neurons + num_cpg_neurons*n_mssvbi_neurons + n_sll_neurons;
@@ -8769,13 +8769,13 @@ classdef neuron_manager_class
         function [ n_dmcpg_dcll_neurons, n_dmcpg_sll_neurons, n_dc_neurons ] = compute_num_dmcpg_dcll_neurons( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of dmcpg sll neurons.
             [ n_dmcpg_sll_neurons, ~, ~, ~ ] = self.compute_num_dmcpg_sll_neurons( num_cpg_neurons );
             
             % Compute the number of double centering neurons.
-            n_dc_neurons = self.n_double_centering_neurons_DEFAULT;
+            n_dc_neurons = self.num_double_centering_neurons_DEFAULT;
             
             % Compute the number of dmcpg dcll neurons.
             n_dmcpg_dcll_neurons = n_dmcpg_sll_neurons + n_dc_neurons;
@@ -8787,7 +8787,7 @@ classdef neuron_manager_class
         function [ n_ol_dmcpg_dclle_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = compute_num_ol_dmcpg_dclle_neurons( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of dmcpg dcll neurons.
             [ n_dmcpg_dcll_neurons, ~, ~ ] = self.compute_num_dmcpg_dcll_neurons( num_cpg_neurons );
@@ -8796,7 +8796,7 @@ classdef neuron_manager_class
             [ n_cds_neurons, ~, ~ ] = self.compute_num_cds_neurons(  );
             
             % Compute the number of dmcpgdcll2cds neurons.
-            n_dmcpgdcll2cds_neurons = self.n_dmcpgdcll2cds_neurons_DEFAULT;
+            n_dmcpgdcll2cds_neurons = self.num_dmcpgdcll2cds_neurons_DEFAULT;
             
             % Compute the number of ol dmcpg dclle neurons.
             n_ol_dmcpg_dclle_neurons = n_dmcpg_dcll_neurons + n_cds_neurons + n_dmcpgdcll2cds_neurons;
@@ -8808,7 +8808,7 @@ classdef neuron_manager_class
         function [ n_clpc_dmcpg_dcll_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = compute_num_clpc_dmcpg_dcll_neurons( self, num_cpg_neurons )
             
             % Set the default input arguments.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end          % [#] Number of CPG Neurons.
             
             % Compute the number of closed loop proportional control driven multistate central pattern generator double centering lead lag subnetwork.
             [ n_clpc_dmcpg_dcll_neurons, n_dmcpg_dcll_neurons, n_cds_neurons, n_dmcpgdcll2cds_neurons ] = self.compute_num_ol_dmcpg_dclle_neurons( num_cpg_neurons );
@@ -8824,7 +8824,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_transmission_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_transmission_neurons_DEFAULT;
+            n_neurons = self.num_transmission_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -8880,7 +8880,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_addition_neurons( self, encoding_scheme, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
-            if nargin < 3, n_neurons = self.n_addition_neurons_DEFAULT; end
+            if nargin < 3, n_neurons = self.num_addition_neurons_DEFAULT; end
             
             % Ensure that the specified number of neurons is valid.
             assert( n_neurons > 1, 'Addition subnetworks must consist of at least two neurons.' );
@@ -8961,7 +8961,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_subtraction_neurons( self, encoding_scheme, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of neurons.
-            if nargin < 3, n_neurons = self.n_subtraction_neurons_DEFAULT; end
+            if nargin < 3, n_neurons = self.num_subtraction_neurons_DEFAULT; end
             
             % Ensure that the specified number of neurons is valid.
             assert( n_neurons > 1, 'Subtraction subnetworks must consist of at least two neurons.' );
@@ -9040,7 +9040,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_double_subtraction_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
-            n_neurons = self.n_double_subtraction_neurons_DEFAULT;
+            n_neurons = self.num_double_subtraction_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9096,7 +9096,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_inversion_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_neurons = self.num_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9152,7 +9152,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_reduced_inversion_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_reduced_inversion_neurons_DEFAULT;
+            n_neurons = self.num_reduced_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9432,7 +9432,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_multiplication_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
-            n_neurons = self.n_multiplication_neurons_DEFAULT;
+            n_neurons = self.num_multiplication_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9544,7 +9544,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_derivation_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_derivation_neurons_DEFAULT;
+            n_neurons = self.num_derivation_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9600,7 +9600,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_integration_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_integration_neurons_DEFAULT;
+            n_neurons = self.num_integration_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9654,7 +9654,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_vbi_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_vbi_neurons_DEFAULT;
+            n_neurons = self.num_vbi_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9708,7 +9708,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_svbi_neurons( self, encoding_scheme, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Define the number of neurons.
-            n_neurons = self.n_svbi_neurons_DEFAULT;
+            n_neurons = self.num_svbi_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9901,7 +9901,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
-            n_neurons = self.n_centering_neurons_DEFAULT;
+            n_neurons = self.num_centering_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -9954,7 +9954,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_double_centering_neurons( self, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the number of neurons.
-            n_neurons = self.n_double_centering_neurons_DEFAULT;
+            n_neurons = self.num_double_centering_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 29, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -10076,7 +10076,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_mcpg_neurons( self, n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of multistate cpg neurons.
-            if nargin < 2, n_neurons = self.n_cpg_neurons_DEFAULT; end                                                % [#] Number of CPG Neurons.
+            if nargin < 2, n_neurons = self.num_cpg_neurons_DEFAULT; end                                                % [#] Number of CPG Neurons.
 
             % Set the default neuron properties.
             if nargin < 30, array_utilities = self.array_utilities; end                                                 % [class] Array Utilities Class.
@@ -10140,7 +10140,7 @@ classdef neuron_manager_class
         function [ IDs_new, neurons_new, neurons, self ] = create_dmcpg_neurons( self, num_cpg_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, Ileaks, Isyns, Inas, Itonics, Ias, Itotals, enabled_flags, neurons, set_flag, as_cell_flag, array_utilities )
             
             % Set the default number of cpg neurons.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Compute the number of drive multistate cpg neurons.
             [ n_neurons, n_mcpg_neurons ] = self.compute_num_dmcpg_neurons( num_cpg_neurons );
@@ -10249,7 +10249,7 @@ classdef neuron_manager_class
             if nargin < 5, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name.
             if nargin < 4, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                          % [str] Encoding Scheme (Must be either 'absolute' or 'relative'.)
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -10343,7 +10343,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage.
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name.
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -10452,7 +10452,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage.
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name.
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -10522,7 +10522,7 @@ classdef neuron_manager_class
             if nargin < 5, Us = zeros( 1, n_neurons ); end                                                              % [V] Membrane Voltage.
             if nargin < 4, names = repmat( { '' }, 1, n_neurons ); end                                                  % [-] Neuron Name.
             if nargin < 3, IDs = self.generate_unique_neuron_IDs( n_neurons, neurons, array_utilities ); end          	% [#] Neuron ID.
-            if nargin < 2, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
+            if nargin < 2, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end                                          % [#] Number of CPG Neurons.
             
             % Process the input information.
             [ ~, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags ] = self.process_neuron_creation_inputs( n_neurons, IDs, names, Us, hs, Cms, Gms, Ers, Rs, Ams, Sms, dEms, Ahs, Shs, dEhs, dEnas, tauh_maxs, Gnas, I_leaks, I_syns, I_nas, I_tonics, I_apps, I_totals, enabled_flags, neurons, array_utilities );
@@ -10633,7 +10633,7 @@ classdef neuron_manager_class
             if nargin < 6, encoding_scheme = self.encoding_scheme_DEFAULT; end              % [str] Encoding Scheme (Either 'absolute' or 'relative'.)
             if nargin < 5, r = self.r_oscillation_DEFAULT; end
             if nargin < 4, T = self.T_oscillation_DEFAULT; end
-            if nargin < 3, num_cpg_neurons = self.n_cpg_neurons_DEFAULT; end              % [#] Number of CPG Neurons.
+            if nargin < 3, num_cpg_neurons = self.num_cpg_neurons_DEFAULT; end              % [#] Number of CPG Neurons.
             
             % Compute the sodium channel conductance of the transmission subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_transmission_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );
@@ -10902,7 +10902,7 @@ classdef neuron_manager_class
             neuron_IDs = self.validate_neuron_IDs( neuron_IDs, neurons );
             
             % Process the division params.
-            division_params = self.process_division_params( division_params, encoding_scheme, neurons, undetected_option );
+            division_params = self.process_division_params( division_params, encoding_scheme );
                         
             % Compute the sodium channel conductance of the division subnetwork neurons.
             [ Gnas, neurons, neuron_manager ] = self.compute_division_Gnas( neuron_IDs, encoding_scheme, neurons, true, undetected_option );

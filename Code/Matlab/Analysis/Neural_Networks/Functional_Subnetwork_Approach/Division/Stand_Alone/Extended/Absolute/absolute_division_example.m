@@ -25,11 +25,11 @@ network_tf = 0.5;                                 	% [s] Simulation Duration.
 % network_tf = 1;                                 	% [s] Simulation Duration.
 % network_tf = 3;                                 	% [s] Simulation Duration.
 
-% Compute the number of simulation timesteps.
-n_timesteps = floor( network_tf/network_dt ) + 1;   % [#] Number of Simulation Timesteps.
-
 % Construct the simulation times associated with the input currents.
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
+
+% Compute the number of simulation timesteps.
+n_timesteps = length( ts );                         % [#] Number of Simulation Timesteps.
 
 % Define the integration method.
 integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
@@ -44,7 +44,8 @@ network_utilities = network_utilities_class(  );
 %% Define Subnetwork Design Parameters.
 
 % Define the subnetwork design parameters.
-c1 = 20e-6;                                         % [-] Subnetwork Gain 1.
+% c1 = 20e-6;                                      	% [-] Subnetwork Gain 1.
+c1 = 1e-3;                                          % [-] Subnetwork Gain 1.
 c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
 delta = 1e-3;                                       % [V] Minimum Decoded Output.
 x1_max = 20e-3;                                    	% [-] Maximum Decoded Input (Neuron 1).
@@ -123,19 +124,21 @@ Ias2 = Us2_desired*Gm2;                           	% [A] Applied Currents.
 network = network_class( network_dt, network_tf );
 
 % Create a division subnetwork.
-[ division_output_parameters, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, network ] = network.create_division_subnetwork( division_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
+[ division_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_division_subnetwork( division_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
-% Update the input current ID and name.
-[ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network.applied_current_manager.applied_currents, true );
-[ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, { 'Applied Current 2' }, 'name', network.applied_current_manager.applied_currents, true );
+% % Update the input current ID and name.
+% [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 3, 'ID', network.applied_current_manager.applied_currents, true );
+% [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, { 'Applied Current 3' }, 'name', network.applied_current_manager.applied_currents, true );
 
 % Create the input applied current.
-[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID, input_current_name, input_current_to_neuron_ID, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID1, input_current_name1, input_current_to_neuron_ID1, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID2, input_current_name2, input_current_to_neuron_ID2, ts, Ias2, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
 
-% Reverse the order of the applied currents in the applied current manager for cleanliness.
-temporary_applied_current = network.applied_current_manager.applied_currents( 1 );
-network.applied_current_manager.applied_currents( 1 ) = network.applied_current_manager.applied_currents( 2 );
-network.applied_current_manager.applied_currents( 2 ) = temporary_applied_current;
+% % Reverse the order of the applied currents in the applied current manager for cleanliness.
+% temporary_applied_current = network.applied_current_manager.applied_currents( 1 );
+% network.applied_current_manager.applied_currents( 1 ) = network.applied_current_manager.applied_currents( 2 );
+% network.applied_current_manager.applied_currents( 2 ) = network.applied_current_manager.applied_currents( 3 );
+% network.applied_current_manager.applied_currents( 3 ) = temporary_applied_current;
 
 
 %% Print Subnetwork Parameters.
@@ -190,14 +193,13 @@ toc
 
 %% Decode the Subnetwork Output.
 
-% Decode the network input.
+% Decode the network input and output signals.
 xs1 = f_decode1( Us( 1, : ) );
-
-% Decode the network output.
 xs2 = f_decode2( Us( 2, : ) );
+xs3 = f_decode3( Us( 3, : ) );
 
-% Concatenate the decoded input and output.
-Xs = [ xs1; xs2 ];
+% Concatenate the decoded input and output signals.
+Xs = [ xs1; xs2; xs3 ];
 
 
 %% Plot the Subnetwork Results.
@@ -215,24 +217,26 @@ fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, 
 fig_network_encoded = figure( 'Color', 'w', 'Name', 'AI: Encoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'AI: Encoded Input & Output, U [V]' ), title( 'AI: Encoded Input & Output vs Time' )
 plot( ts, Us( 1, : ), '-', 'Linewidth', 3 )
 plot( ts, Us( 2, : ), '-', 'Linewidth', 3 )
-legend( 'Encoded Input', 'Encoded Output' )
+plot( ts, Us( 3, : ), '-', 'Linewidth', 3 )
+legend( 'Encoded Input 1', 'Encoded Input 2', 'Encoded Output' )
 saveas( fig_network_encoded, [ save_directory, '\', 'absolute_division_example_encoded' ] )
 
 % Plot the decoded network input and output over time.
 fig_network_decoded = figure( 'Color', 'w', 'Name', 'AI: Decoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'AI: Decoded Input & Output [-]' ), title( 'AI: Decoded Input & Output vs Time' )
 plot( ts, Xs( 1, : ), '-', 'Linewidth', 3 )
 plot( ts, Xs( 2, : ), '-', 'Linewidth', 3 )
-legend( 'Decoded Input', 'Decoded Output' )
+plot( ts, Xs( 3, : ), '-', 'Linewidth', 3 )
+legend( 'Decoded Input 1', 'Decoded Input 2', 'Decoded Output' )
 saveas( fig_network_decoded, [ save_directory, '\', 'absolute_division_example_decoded' ] )
 
 % Plot the encoded network input and output.
-fig_network_encoded = figure( 'Color', 'w', 'Name', 'AI: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Encoded Input, U1 [V]' ), ylabel( 'Encoded Output, U2 [V]' ), title( 'AI: Encoded Output vs Encoded Input' )
-plot( Us( 1, : ), Us( 2, : ), '-', 'Linewidth', 3 )
+fig_network_encoded = figure( 'Color', 'w', 'Name', 'AI: Decoded Output vs Decoded Input' ); hold on, grid on, rotate3d on, view( 45, 30 ), xlabel( 'Encoded Input 1, U1 [V]' ), ylabel( 'Encoded Input 2, U2 [V]' ), zlabel( 'Encoded Output, U3 [V]' ), title( 'AI: Encoded Output vs Encoded Input' )
+plot3( Us( 1, : ), Us( 2, : ), Us( 3, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_encoded, [ save_directory, '\', 'absolute_division_dynamic_example_encoded' ] )
 
 % Plot the decoded network input and output.
-fig_network_decoding = figure( 'Color', 'w', 'Name', 'AI: Decoded Output vs Decoded Input' ); hold on, grid on, xlabel( 'Decoded Input [-]' ), ylabel( 'Decoded Output [-]' ), title( 'AI: Decoded Output vs Decoded Input' )
-plot( Xs( 1, : ), Xs( 2, : ), '-', 'Linewidth', 3 )
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'AI: Decoded Output vs Decoded Input' ); hold on, grid on, rotate3d on, view( 45, 30 ), xlabel( 'Decoded Input 1, X1 [-]' ), ylabel( 'Decoded Input 2, X2 [-]' ), zlabel( 'Decoded Output, X3 [-]' ), title( 'AI: Decoded Output vs Decoded Input' )
+plot3( Xs( 1, : ), Xs( 2, : ), Xs( 3, : ), '-', 'Linewidth', 3 )
 saveas( fig_network_decoding, [ save_directory, '\', 'absolute_division_dynamic_example_decoded' ] )
 
 % Animate the network states over time.

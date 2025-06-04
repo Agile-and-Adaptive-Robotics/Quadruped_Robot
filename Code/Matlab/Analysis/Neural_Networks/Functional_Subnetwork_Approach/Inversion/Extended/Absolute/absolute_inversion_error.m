@@ -1,7 +1,7 @@
 %% Absolute Inversion Subnetwork Error.
 
 % Clear Everything.
-clear, close('all'), clc
+clear, close( 'all' ), clc
 
 
 %% Define Simulation Parameters.
@@ -159,7 +159,7 @@ U1s = linspace( 0, Rs( 1 ), 100  )';
 
 % Compute the desired and achieved absolute inversion steady state output.
 U2s_desired = network.compute_encoded_desired_absolute_inversion_sso( U1s, c1, c3, delta, x1_max, network.network_utilities );
-[ U2s_achieved_theoretical, As, dts, condition_numbers ] = network.achieved_inversion_RK4_stability_analysis( U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, network.neuron_manager, network.synapse_manager, undetected_option, network.network_utilities );
+[ U2s_achieved_theoretical, As, dts, condition_numbers ] = network.achieved_inversion_RK4_stability_analysis_encoded( U1s, Cms, Gms, Rs, Ias, gs, dEs, dt0, network.neuron_manager, network.synapse_manager, undetected_option, network.network_utilities );
 
 % Store the desired and theoretically achieved absolute inversion steady state results in arrays.
 Us_desired = [ U1s, U2s_desired ];

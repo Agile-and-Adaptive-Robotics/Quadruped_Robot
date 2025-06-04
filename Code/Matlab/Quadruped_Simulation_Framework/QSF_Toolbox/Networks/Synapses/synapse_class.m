@@ -686,11 +686,11 @@ classdef synapse_class
                 
                 % Unpack the parameters.
                 c1 = parameters.c1;
-                c3 = parameter.c3;
-                delta = parameter.delta;
-                x1_max = parameter.x1_max;
-                Gm3 = parameter.Gm3;
-                dEs31 = parameter.dEs31;
+                c3 = parameters.c3;
+                delta = parameters.delta;
+                x1_max = parameters.x1_max;
+                Gm3 = parameters.Gm3;
+                dEs31 = parameters.dEs31;
                 
             else                                                        % Otherwise...
                

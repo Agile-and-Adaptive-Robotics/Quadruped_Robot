@@ -27,18 +27,18 @@ classdef applied_current_manager_class
         to_neuron_ID_DEFAULT = -1;                                                                            	% [#] Neuron ID.
         
         % Define subnetwork neuron quantities.
-        n_mcpg_applied_currents_DEFAULT = 1;                                                                	% [#] Number of Multistate CPG Applied Currents.
-        n_centering_applied_currents_DEFAULT = 1;                                                               % [#] Number of Centering Applied Currents.
-        n_dc_applied_currents_DEFAULT = 1;                                                                   	% [#] Number of Double Centering Applied Currents.
-        n_inversion_applied_currents_DEFAULT = 1;                                                           	% [#] Number of Inversion Applied Currents.
-        n_multiplication_applied_currents_DEFAULT = 1;                                                      	% [#] Number of Multiplication Applied Currents.
-        n_integration_applied_currents_DEFAULT = 2;                                                          	% [#] Number of Integration Applied Currents.
-        n_vbi_applied_currents = 2;                                                                             % [#] Number of Voltage Based Integration Applied Currents.
-        n_svbi_applied_currents_DEFAULT = 3;                                                                    % [#] Number of Split Voltage Based Integration Applied Currents.
+        num_mcpg_applied_currents_DEFAULT = 1;                                                                	% [#] Number of Multistate CPG Applied Currents.
+        num_centering_applied_currents_DEFAULT = 1;                                                               % [#] Number of Centering Applied Currents.
+        num_dc_applied_currents_DEFAULT = 1;                                                                   	% [#] Number of Double Centering Applied Currents.
+        num_inversion_applied_currents_DEFAULT = 1;                                                           	% [#] Number of Inversion Applied Currents.
+        num_multiplication_applied_currents_DEFAULT = 1;                                                      	% [#] Number of Multiplication Applied Currents.
+        num_integration_applied_currents_DEFAULT = 2;                                                          	% [#] Number of Integration Applied Currents.
+        num_vbi_applied_currents = 2;                                                                             % [#] Number of Voltage Based Integration Applied Currents.
+        num_svbi_applied_currents_DEFAULT = 3;                                                                    % [#] Number of Split Voltage Based Integration Applied Currents.
         
         % Define the subnetwork neuron quantities.
-        n_inversion_neurons_DEFAULT = 2;                                                                        % [#] Number of Inversion Subnetwork Neurons.
-        n_reduced_inversion_neurons_DEFAULT = 2;                                                               	% [#] Number of Reduced Inversion Subnetwork Neurons.
+        num_inversion_neurons_DEFAULT = 2;                                                                        % [#] Number of Inversion Subnetwork Neurons.
+        num_reduced_inversion_neurons_DEFAULT = 2;                                                               	% [#] Number of Reduced Inversion Subnetwork Neurons.
 
         % Define the default applied current properties.
         ts_DEFAULT = 0;                                                                                         % [s] Applied Current Times.
@@ -3150,7 +3150,7 @@ classdef applied_current_manager_class
         function [ ID_new, applied_current_new, applied_currents, self ] = create_inversion_applied_current( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
         
             % Set the number of neurons.
-            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_neurons = self.num_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
@@ -3185,7 +3185,7 @@ classdef applied_current_manager_class
         function [ ID_new, applied_current_new, applied_currents, self ] = create_reduced_inversion_applied_current( self, neuron_IDs, applied_current_ID, name, to_neuron_ID, ts, Ias, enabled_flag, applied_currents, set_flag, as_cell_flag, array_utilities )
         
             % Set the number of neurons.
-            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_neurons = self.num_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flag = self.enabled_flags_DEFAULT; end
@@ -3318,7 +3318,7 @@ classdef applied_current_manager_class
             
             % Set the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.n_integration_applied_currents_DEFAULT;
+            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
@@ -3362,7 +3362,7 @@ classdef applied_current_manager_class
             
             % Set the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.n_integration_applied_currents_DEFAULT;
+            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
@@ -3396,7 +3396,7 @@ classdef applied_current_manager_class
             
             % Set the number of neurons.
             n_neurons = self.num_integration_neurons_DEFAULT;
-            n_applied_currents = self.n_integration_applied_currents_DEFAULT;
+            n_applied_currents = self.num_integration_applied_currents_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 8, enabled_flags = self.enabled_flags_DEFAULT*ones( 1, n_applied_currents ); end
@@ -3780,7 +3780,7 @@ classdef applied_current_manager_class
         function [ applied_current_output_params, applied_currents, self ] = design_inversion_applied_current( self, neuron_IDs, inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
-            n_neurons = self.n_inversion_neurons_DEFAULT;
+            n_neurons = self.num_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -3811,7 +3811,7 @@ classdef applied_current_manager_class
         function [ applied_current_output_params, applied_currents, self ] = design_reduced_inversion_applied_current( self, neuron_IDs, reduced_inversion_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
-            n_neurons = self.n_reduced_inversion_neurons_DEFAULT;
+            n_neurons = self.num_reduced_inversion_neurons_DEFAULT;
             
             % Set the default input arguments.
             if nargin < 7, undetected_option = self.undetected_option_DEFAULT; end                  % [str] Undetected Option (Determines what to do if neuron ID is not detected.)
@@ -3997,7 +3997,7 @@ classdef applied_current_manager_class
         
         
         % Implement a function to design the applied currents for a voltage based integration subnetwork.
-        function [ Ias, applied_currents, self ] = design_vbi_applied_currents( self, neuron_IDs, vbi_params, encoding_scheme, applied_currents, set_flag, undetected_option )
+        function [ Ias, applied_currents, self ] = designum_vbi_applied_currents( self, neuron_IDs, vbi_params, encoding_scheme, applied_currents, set_flag, undetected_option )
             
             % Compute the number of neurons.
             n_neurons = self.num_vbi_neurons_DEFAULT;

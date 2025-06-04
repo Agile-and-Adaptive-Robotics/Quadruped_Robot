@@ -16947,13 +16947,14 @@ classdef network_class
         % ---------- Division Subnetwork Functions ----------
         
         % Implement a function to create a reduced division subnetwork ( generating neurons, syanpses, etc. as necessary ).
-        function [ division_output_params, neurons, synapses, applied_currents, neuron_manager, synapse_manager, applied_current_manager, self ] = create_division_subnetwork( self, division_input_params, encoding_scheme, neuron_manager, synapse_manager, set_flag, validation_flag, as_cell_flag, undetected_option )
+        function [ division_output_params, neurons, synapses, neuron_manager, synapse_manager, self ] = create_division_subnetwork( self, division_input_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, set_flag, validation_flag, as_cell_flag, undetected_option )
             
             % Set the default input arguments.
-            if nargin < 9, undetected_option = self.undetected_option_DEFAULT; end                              % [str] Undetected Option.
-            if nargin < 8, as_cell_flag = self.as_cell_flag_DEFAULT; end                                        % [T/F] As Cell Flag.
-            if nargin < 7, validation_flag = self.validation_flag_DEFAULT; end                                  % [T/F] Validation Flag.
-            if nargin < 6, set_flag = self.set_flag_DEFAULT; end                                                % [T/F] Set Flag.
+            if nargin < 10, undetected_option = self.undetected_option_DEFAULT; end                             % [str] Undetected Option.
+            if nargin < 9, as_cell_flag = self.as_cell_flag_DEFAULT; end                                        % [T/F] As Cell Flag.
+            if nargin < 8, validation_flag = self.validation_flag_DEFAULT; end                                  % [T/F] Validation Flag.
+            if nargin < 7, set_flag = self.set_flag_DEFAULT; end                                                % [T/F] Set Flag.
+            if nargin < 6, applied_current_manager = self.applied_current_manager; end                          % [class] Applied Current Manager Class.
             if nargin < 5, synapse_manager = self.synapse_manager; end                                          % [class] Synapse Manager Class.
             if nargin < 4, neuron_manager = self.neuron_manager; end                                            % [class] Neuron Manager Class.
             if nargin < 3, encoding_scheme = self.encoding_scheme_DEFAULT; end                                	% [str] Encoding Scheme (Must be either: 'absolute' or 'relative'.)
@@ -16966,11 +16967,10 @@ classdef network_class
             
             % Create the subnetwork components.
             [ neuron_output_params, synapse_output_params, network ] = network.create_division_subnetwork_components( encoding_scheme, neuron_input_params, synapse_input_params, neuron_manager, synapse_manager, true, as_cell_flag );
-            
+                        
             % Unpack the neuron, synapse, and applied current properties.
             [ neuron_IDs, ~, ~, neuron_manager ] = self.unpack_neuron_output_params( neuron_output_params );
             [ ~, ~, ~, synapse_manager ] = self.unpack_synapse_output_params( synapse_output_params );
-            [ ~, ~, applied_currents, applied_current_manager ] = self.unpack_applied_current_output_params( applied_current_output_params );
             
             % Design the subnetwork.
             [ division_output_params, neurons, synapses, neuron_manager, synapse_manager, network ] = network.design_division_subnetwork( neuron_IDs, division_input_params, encoding_scheme, neuron_manager, synapse_manager, applied_current_manager, true, validation_flag, undetected_option );
@@ -18194,13 +18194,14 @@ classdef network_class
         % ---------- Division Functions ----------
             
         % Implement a function to perform RK4 stability analysis on a division subnetwork.
-        function [ U3s, As, dts, condition_numbers ] = achieved_division_RK4_stability_analysis( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function [ U3s, As, dts, condition_numbers ] = achieved_division_RK4_stability_analysis_encoded( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
             
             % Set the default input arguments.
-            if nargin < 14, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 13, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 12, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 11, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 15, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
             if nargin < 10, dt0 = self.dt_DEFAULT; end
             if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
             if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
@@ -18211,8 +18212,8 @@ classdef network_class
             if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
             if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
             
-            % Compute the achieved division steady state output at each of the provided inputs.
-            U3s = self.compute_achieved_division_sso( [ U1s, U2s ], Rs( 1 ), Rs( 2 ), Gms( 3 ), Ias( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
+            % Compute the achieved division steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_division_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
             
             % Create the operating points array.
             Us = [ U1s, U2s, U3s ];
@@ -18224,13 +18225,14 @@ classdef network_class
         
         
         % Implement a function to perform RK4 stability analysis on a division subnetwork given decoded inputs.
-        function [ x2s, As, dts, condition_numbers ] = achieved_reduced_division_RK4_stability_analysis_decoded( self, x1s, x2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, undetected_option, network_utilities )
+        function [ x3s, As, dts, condition_numbers ] = achieved_division_RK4_stability_analysis_decoded( self, x1s, x2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 16, network_utilities = self.network_utilities; end                                              % [class] Network Utilities Class.
-            if nargin < 15, undetected_option = self.undetected_option_DEFAULT; end                                      % [str] Undetected Option.
-            if nargin < 14, synapse_manager = self.synapse_manager; end                                                  % [class] Synapse Manager Class.
-            if nargin < 13, neuron_manager = self.neuron_manager; end                                                    % [class] Neuron Manager Class.
+            if nargin < 17, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 15, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 14, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 13, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
             if nargin < 12, f_decode_output = @( xs ) zeros( size( xs ) ); end
             if nargin < 11, f_encode_input = @( xs ) zeros( size( xs ) ); end
             if nargin < 10, dt0 = self.dt_DEFAULT; end
@@ -18253,31 +18255,257 @@ classdef network_class
             U1s = Us_input( :, 1 );
             U2s = Us_input( :, 2 );
             
-            % Compute the achieved inversion steady state output at each of the provided inputs.
-            U2s = self.compute_encoded_achieved_reduced_inversion_sso( U1s, Rs( 1 ), Gms( 2 ), gs( 2, 1 ), dEs( 2, 1 ), Ias( 2 ), neuron_manager, synapse_manager, undetected_option, network_utilities );
-            
+            % Compute the achieved subnetwork steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_division_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+                        
             % Create the operating points array.
-            Us = [ U1s, U2s ];
+            Us = [ U1s, U2s, U3s ];
             
             % Compute the RK4 stability metrics.
             [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
             
             % Decoded the output signals.
-            x2s = f_decode_output( U2s );
+            x3s = f_decode_output( U3s );
             
         end
         
         
-        
         % ---------- Reduced Division Functions ----------
 
+        % Implement a function to perform RK4 stability analysis on a reduced division subnetwork.
+        function [ U3s, As, dts, condition_numbers ] = achieved_reduced_division_RK4_stability_analysis_encoded( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 15, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
+            if nargin < 10, dt0 = self.dt_DEFAULT; end
+            if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved subnetwork steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_reduced_division_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+                        
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );
+            
+        end
+        
+        
+        % Implement a function to perform RK4 stability analysis on a reduced division subnetwork given decoded inputs.
+        function [ x3s, As, dts, condition_numbers ] = achieved_reduced_division_RK4_stability_analysis_decoded( self, x1s, x2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 17, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 15, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 14, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 13, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
+            if nargin < 12, f_decode_output = @( xs ) zeros( size( xs ) ); end
+            if nargin < 11, f_encode_input = @( xs ) zeros( size( xs ) ); end
+            if nargin < 10, dt0 = self.dt_DEFAULT; end
+            if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, x2s = zeros( 1, 1 ); end
+            if nargin < 2, x1s = zeros( 1, 1 ); end
+            
+            % Concatenate the decoded input signals.
+            xs_input = [ x1s, x2s ];
+            
+            % Compute the encoded input signals.
+            Us_input = f_encode_input( xs_input );
+            
+            % Unpack the encoded input signals.
+            U1s = Us_input( :, 1 );
+            U2s = Us_input( :, 2 );
+            
+            % Compute the achieved subnetwork steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_reduced_division_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
+            
+            % Decoded the output signals.
+            x3s = f_decode_output( U3s );
+            
+        end
+        
         
         % ---------- Division After Inversion Functions ----------
 
+        % Implement a function to perform RK4 stability analysis on a division after inversion subnetwork.
+        function [ U3s, As, dts, condition_numbers ] = achieved_dai_RK4_stability_analysis_encoded( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 15, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
+            if nargin < 10, dt0 = self.dt_DEFAULT; end
+            if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved division steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_dai_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+                        
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );
+            
+        end
+        
+        
+        % Implement a function to perform RK4 stability analysis on a division after inversion subnetwork given decoded inputs.
+        function [ x3s, As, dts, condition_numbers ] = achieved_dai_RK4_stability_analysis_decoded( self, x1s, x2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 17, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 15, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 14, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 13, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
+            if nargin < 12, f_decode_output = @( xs ) zeros( size( xs ) ); end
+            if nargin < 11, f_encode_input = @( xs ) zeros( size( xs ) ); end
+            if nargin < 10, dt0 = self.dt_DEFAULT; end
+            if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, x2s = zeros( 1, 1 ); end
+            if nargin < 2, x1s = zeros( 1, 1 ); end
+            
+            % Concatenate the decoded input signals.
+            xs_input = [ x1s, x2s ];
+            
+            % Compute the encoded input signals.
+            Us_input = f_encode_input( xs_input );
+            
+            % Unpack the encoded input signals.
+            U1s = Us_input( :, 1 );
+            U2s = Us_input( :, 2 );
+            
+            % Compute the achieved subnetwork steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_dai_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
+            
+            % Decoded the output signals.
+            x3s = f_decode_output( U3s );
+            
+        end
         
         
         % ---------- Reduced Division After Inversion Functions ----------
 
+        % Implement a function to perform RK4 stability analysis on a reduced division after inversion subnetwork.
+        function [ U3s, As, dts, condition_numbers ] = achieved_reduced_dai_RK4_stability_analysis_encoded( self, U1s, U2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+            
+            % Set the default input arguments.
+            if nargin < 15, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 14, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 13, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 12, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 11, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
+            if nargin < 10, dt0 = self.dt_DEFAULT; end
+            if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, U2s = linspace( 0, Rs( 2 ), 20 ); end
+            if nargin < 2, U1s = linspace( 0, Rs( 1 ), 20 ); end
+            
+            % Compute the achieved reduced division steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_reduced_dai_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+                                 
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );
+            
+        end
+        
+        
+        % Implement a function to perform RK4 stability analysis on a reduced division after inversion subnetwork given decoded inputs.
+        function [ x3s, As, dts, condition_numbers ] = achieved_reduced_dai_RK4_stability_analysis_decoded( self, x1s, x2s, Cms, Gms, Rs, Ias, gs, dEs, dt0, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities )
+        
+            % Set the default input arguments.
+            if nargin < 17, network_utilities = self.network_utilities; end                                             % [class] Network Utilities Class.
+            if nargin < 16, undetected_option = self.undetected_option_DEFAULT; end                                     % [str] Undetected Option.
+            if nargin < 15, applied_current_manager = self.applied_current_manager; end                                 % [class] Applied Current Manager Class.
+            if nargin < 14, synapse_manager = self.synapse_manager; end                                                 % [class] Synapse Manager Class.
+            if nargin < 13, neuron_manager = self.neuron_manager; end                                                   % [class] Neuron Manager Class.
+            if nargin < 12, f_decode_output = @( xs ) zeros( size( xs ) ); end
+            if nargin < 11, f_encode_input = @( xs ) zeros( size( xs ) ); end
+            if nargin < 10, dt0 = self.dt_DEFAULT; end
+            if nargin < 9, dEs = self.get_dEs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 8, gs = self.get_gs( 'all', neuron_manager, synapse_manager ); end
+            if nargin < 7, Ias = neuron_manager.get_neuron_property( 'all', 'I_tonic', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 6, Rs = neuron_manager.get_neuron_property( 'all', 'R', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 5, Gms = neuron_manager.get_neuron_property( 'all', 'Gm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 4, Cms = neuron_manager.get_neuron_property( 'all', 'Cm', true, neuron_manager.neurons, undetected_option ); end
+            if nargin < 3, x2s = zeros( 1, 1 ); end
+            if nargin < 2, x1s = zeros( 1, 1 ); end
+            
+            % Concatenate the decoded input signals.
+            xs_input = [ x1s, x2s ];
+            
+            % Compute the encoded input signals.
+            Us_input = f_encode_input( xs_input );
+            
+            % Unpack the encoded input signals.
+            U1s = Us_input( :, 1 );
+            U2s = Us_input( :, 2 );
+            
+            % Compute the achieved subnetwork steady state output at each of the provided inputs.            
+            U3s = self.compute_encoded_achieved_reduced_dai_sso( U1s, U2s, Rs( 1 ), Rs( 2 ), Gms( 3 ), gs( 3, 1 ), gs( 3, 2 ), dEs( 3, 1 ), dEs( 3, 2 ), Ias( 3 ), neuron_manager, synapse_manager, applied_current_manager, undetected_option, network_utilities );
+            
+            % Create the operating points array.
+            Us = [ U1s, U2s, U3s ];
+            
+            % Compute the RK4 stability metrics.
+            [ As, dts, condition_numbers ] = self.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, neuron_manager, synapse_manager, undetected_option, network_utilities );  
+            
+            % Decoded the output signals.
+            x3s = f_decode_output( U3s );
+            
+        end
+        
         
         % ---------- Multiplication Functions ----------
 
@@ -19025,17 +19253,18 @@ classdef network_class
         
         
         % Implement a function to compute the encoded steady state output of the desired mapping of an absolute division subnetwork.
-        function U3s = compute_encoded_desired_absolute_division_sso( self, U1s, U2s, c1, delta, x1_max, x2_max, network_utilities )
+        function U3s = compute_encoded_desired_absolute_division_sso( self, U1s, U2s, c1, c3, delta, x1_max, x2_max, network_utilities )
         
             % Set the default input arguments.
-            if nargin < 8, network_utilities = self.network_utilities; end
-            if nargin < 7, x2_max = self.x2max_absolute_division_DEFAULT; end
-            if nargin < 6, x1_max = self.x1max_absolute_division_DEFAULT; end
-            if nargin < 5, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 9, network_utilities = self.network_utilities; end
+            if nargin < 8, x2_max = self.x2max_absolute_division_DEFAULT; end
+            if nargin < 7, x1_max = self.x1max_absolute_division_DEFAULT; end
+            if nargin < 6, delta = self.delta_absolute_division_DEFAULT; end
+            if nargin < 5, c3 = self.c3_absolute_division_DEFAULT; end
             if nargin < 4, c1 = self.c1_absolute_division_DEFAULT; end
             
             % Compute the steady state output.            
-            U3s = network_utilities.compute_encoded_desired_reduced_absolute_division_sso( U1s, U2s, c1, delta, x1_max, x2_max );
+            U3s = network_utilities.compute_encoded_desired_absolute_division_sso( U1s, U2s, c1, c3, delta, x1_max, x2_max );
             
         end
         
@@ -20890,7 +21119,8 @@ classdef network_class
             dEs = self.get_dEs( neuron_IDs, neuron_manager, synapse_manager );
             
             % Retrieve the applied currents.
-            [ ~, Ias ] = applied_current_manager.to_neuron_IDs2Ias( neuron_IDs, dt, tf, applied_current_manager.applied_currents, filter_disabled_flag, process_option, undetected_option ); Ias = Ias';
+            % [ ~, Ias ] = applied_current_manager.to_neuron_IDs2Ias( neuron_IDs, dt, tf, applied_current_manager.applied_currents, filter_disabled_flag, process_option, undetected_option ); Ias = Ias';
+            [ ~, Ias ] = applied_current_manager.to_neuron_IDs2Ias( neuron_IDs, dt, tf, applied_current_manager.applied_currents, filter_disabled_flag, undetected_option ); Ias = Ias';
 
             % Retrieve the applied voltages.            
             [ ~, Vas ] = applied_voltage_manager.to_neuron_IDs2Vas( neuron_IDs, dt, tf, applied_voltage_manager.applied_voltages, filter_disabled_flag, undetected_option ); Vas = Vas';
