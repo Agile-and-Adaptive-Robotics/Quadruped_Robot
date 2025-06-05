@@ -2345,7 +2345,7 @@ classdef synapse_manager_class
                 else                                                                                                        % Otherwise...
                     
                     % Determine whether the params has a valid number of entries.
-                    if length( fieldnames( params ) ) ~= 7                                                                            % If there is anything other than the require number of parameter entries...
+                    if length( fieldnames( params ) ) ~= 6                                                                            % If there is anything other than the require number of parameter entries...
                         
                         % Throw an error.
                         error( 'Invalid params detected.' )
@@ -13148,7 +13148,7 @@ classdef synapse_manager_class
             synapse_ID23 = self.from_to_neuron_ID2synapse_ID( neuron_IDs( 2 ), neuron_IDs( 3 ) );
             synapse_IDs = [ synapse_ID13, synapse_ID23 ];
             
-            % Process the design params.
+            % Process the design parameters.
             division_params = self.process_division_params( division_params, encoding_scheme );
             
             % Compute the synaptic reversal potential.

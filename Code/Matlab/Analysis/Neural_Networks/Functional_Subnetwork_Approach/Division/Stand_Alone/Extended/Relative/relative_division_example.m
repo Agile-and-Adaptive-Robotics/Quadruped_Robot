@@ -1,182 +1,249 @@
 %% Relative Division Subnetwork Example.
 
 % Clear Everything.
-clear, close('all'), clc
+clear, close( 'all' ), clc
 
 
 %% Define Simulation Parameters.
 
-% Set the level of verbosity.
-b_verbose = true;                                                                   % [T/F] Verbosity Flag.
+% Define the save and load directories.
+save_directory = '.\Save';                        	% [str] Save Directory.
+load_directory = '.\Load';                         	% [str] Load Directory.
+
+% Define the level of verbosity.
+verbose_flag = true;                             	% [T/F] Printing Flag.
+
+% Define the undetected option.
+undetected_option = 'error';                        % [str] Undetected Option.
 
 % Define the network integration step size.
-network_dt = 1e-4;                                                                  % [s] Network Integration Time Step.
+% network_dt = 1e-3;                               	% [s] Simulation Timestep.
+network_dt = 1e-4;                                  % [s] Simulation Timestep.
 
-% Define the network integration duration.
-network_tf = 3;                                                                     % [s] Network Simulation Duration.
+% Define the network simulation duration.
+network_tf = 0.5;                                 	% [s] Simulation Duration.
+% network_tf = 1;                                 	% [s] Simulation Duration.
+% network_tf = 3;                                 	% [s] Simulation Duration.
 
+% Construct the simulation times associated with the input currents.
+ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
 
-%% Define Basic Relative Division Subnetwork Parameters.
+% Compute the number of simulation timesteps.
+n_timesteps = length( ts );                         % [#] Number of Simulation Timesteps.
 
-% Define the maximum membrane voltages.
-R1 = 20e-3;                                                                         % [V] Maximum Membrane Voltage (Neuron 1)
-R2 = 20e-3;                                                                         % [V] Maximum Membrane Voltage (Neuron 2)
-R3 = 20e-3;                                                                         % [V] Maximum Membrane Voltage (Neuron 3)
+% Define the integration method.
+integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
 
-% Define the membrane conductances.
-Gm1 = 1e-6;                                                                         % [S] Membrane Conductance (Neuron 1).
-Gm2 = 1e-6;                                                                         % [S] Membrane Conductance (Neuron 2).
-Gm3 = 1e-6;                                                                         % [S] Membrane Conductance (Neuron 3).
+% Define the encoding scheme.
+encoding_scheme = 'relative';
 
-% Define the membrane capacitances.
-Cm1 = 5e-9;                                                                         % [F] Membrance Conductance (Neuron 1).
-Cm2 = 5e-9;                                                                         % [F] Membrance Conductance (Neuron 2).
-Cm3 = 5e-9;                                                                         % [F] Membrance Conductance (Neuron 3).
-
-% Define the sodium channel conductances.
-Gna1 = 0;                                                                           % [S] Sodium Channel Conductance (Neuron 1).
-Gna2 = 0;                                                                           % [S] Sodium Channel Conductance (Neuron 2).
-Gna3 = 0;                                                                           % [S] Sodium Channel Conductance (Neuron3).
-
-% Define the synaptic reversal potential.
-dEs31 = 194e-3;                                                                     % [V] Synaptic Reversal Potential (Synapse 31).
-dEs32 = 0;                                                                          % [V] Synaptic Reversal Potential (Synapse 32).
-
-% Define the applied currents.
-Ia1 = R1*Gm1;                                                                       % [A] Applied Current (Neuron 1).
-Ia2 = R2*Gm2;                                                                       % [A] Applied Current (Neuron 2).
-Ia3 = 0;                                                                            % [A] Applied Current (Neuron 3).
-
-% Define the input current states.
-% current_state1 = 0;                                                               % [%] Applied Current Activity Percentage (Neuron 1). 
-current_state1 = 1;                                                                 % [%] Applied Current Activity Percentage (Neuron 1). 
-% current_state2 = 0;                                                               % [%] Applied Current Activity Percentage (Neuron 2). 
-current_state2 = 1;                                                                 % [%] Applied Current Activity Percentage (Neuron 2). 
-
-% Define network design parameters.
-c3 = 1e-6;                                                                          % [S] Relative Division Parameter 3
-delta = 1e-3;                                                                       % [V] Voltage Offset.
+% Create an instance of the network utilities class.
+network_utilities = network_utilities_class(  );
 
 
-%% Compute Relative Division Subnetwork Derived Parameters.
+%% Define Subnetwork Design Parameters.
 
-% Compute the network design parameters..
-c1 = c3;                                                                            % [S] Relative Division Parameter 1.
-c2 = ( R2*c1 - delta*c3 )/delta;                                                    % [S] Relative Division Parameter 2.
+% Define the subnetwork design parameters.
+% c1 = 20e-6;                                      	% [-] Subnetwork Gain 1.
+c1 = 1e-3;                                          % [-] Subnetwork Gain 1.
+c3 = 1e-3;                                          % [-] Subnetwork Gain 3.
+delta = 1e-3;                                       % [V] Minimum Decoded Output.
+x1_max = 20e-3;                                    	% [-] Maximum Decoded Input (Neuron 1).
+x2_max = 20e-3;                                    	% [-] Maximum Decoded Input (Neuron 2).
+R1 = 20e-3;                                         % [V] Maximum Encoded Input (Neuron 1).
+R2 = 20e-3;                                         % [V] Maximum Encoded Input (Neuron 2).
+R3 = 20e-3;                                         % [V] Maximum Encoded Input (Neuron 3).
+Gm1 = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
+Gm2 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 2).
+Gm3 = 1e-6;                                       	% [S] Membrane Conductance (Neuron 3).
+Cm1 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
+Cm2 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
+Cm3 = 5e-9;                                         % [F] Membrane Capacitance (Neuron 3).
 
-% Compute the synaptic conductances.
-gs31 = ( R3*Gm3 - Ia3 )/( dEs31 - R3 );                                             % [S] Maximum Synaptic Conductance (Synapse 31).
-gs32 = ( ( dEs31 - delta )*gs31 + Ia3 - delta*Gm3 )/( delta - dEs32 );              % [S] Maximum Synaptic Conductance (Synapse 32).
-
-
-%% Print Relative Division Subnetwork Parameters.
-
-% Print out a header.
-fprintf( '\n------------------------------------------------------------\n' )
-fprintf( '------------------------------------------------------------\n' )
-fprintf( 'RELATIVE DIVISION SUBNETWORK PARAMETERS:\n' )
-fprintf( '------------------------------------------------------------\n' )
-
-% Print out neuron information.
-fprintf( 'Neuron Parameters:\n' )
-fprintf( 'R1 \t\t= \t%0.2f \t[mV]\n', R1*( 10^3 ) )
-fprintf( 'R2 \t\t= \t%0.2f \t[mV]\n', R2*( 10^3 ) )
-fprintf( 'R3 \t\t= \t%0.2f \t[mV]\n', R3*( 10^3 ) )
-
-fprintf( 'Gm1 \t= \t%0.2f \t[muS]\n', Gm1*( 10^6 ) )
-fprintf( 'Gm2 \t= \t%0.2f \t[muS]\n', Gm2*( 10^6 ) )
-fprintf( 'Gm3 \t= \t%0.2f \t[muS]\n', Gm3*( 10^6 ) )
-
-fprintf( 'Cm1 \t= \t%0.2f \t[nF]\n', Cm1*( 10^9 ) )
-fprintf( 'Cm2 \t= \t%0.2f \t[nF]\n', Cm2*( 10^9 ) )
-fprintf( 'Cm3 \t= \t%0.2f \t[nF]\n', Cm3*( 10^9 ) )
-
-fprintf( 'Gna1 \t= \t%0.2f \t[muS]\n', Gna1*( 10^6 ) )
-fprintf( 'Gna2 \t= \t%0.2f \t[muS]\n', Gna2*( 10^6 ) )
-fprintf( 'Gna3 \t= \t%0.2f \t[muS]\n', Gna3*( 10^6 ) )
-fprintf( '\n' )
-
-% Print out synapse information.
-fprintf( 'Synapse Parameters:\n' )
-fprintf( 'dEs31 \t= \t%0.2f \t[mV]\n', dEs31*( 10^3 ) )
-fprintf( 'dEs32 \t= \t%0.2f \t[mV]\n', dEs32*( 10^3 ) )
-
-fprintf( 'gs31 \t= \t%0.2f \t[muS]\n', gs31*( 10^6 ) )
-fprintf( 'gs32 \t= \t%0.2f \t[muS]\n', gs32*( 10^6 ) )
-fprintf( '\n' )
-
-% Print out the applied current information.
-fprintf( 'Applied Current Parameters:\n' )
-fprintf( 'Ia1 \t= \t%0.2f \t[nA]\n', current_state1*Ia1*( 10^9 ) )
-fprintf( 'Ia2 \t= \t%0.2f \t[nA]\n', current_state2*Ia2*( 10^9 ) )
-fprintf( 'Ia3 \t= \t%0.2f \t[nA]\n', Ia3*( 10^9 ) )
-fprintf( '\n' )
-
-% Print out design parameters.
-fprintf( 'Design Parameters:\n' )
-fprintf( 'c1 \t\t= \t%0.2f \t[muS]\n', c1*( 10^6 ) )
-fprintf( 'c2 \t\t= \t%0.2f \t[muS]\n', c2*( 10^6 ) )
-fprintf( 'c3 \t\t= \t%0.2f \t[muS]\n', c3*( 10^6 ) )
-fprintf( 'delta \t= \t%0.2f \t[mV]\n', delta*( 10^3 ) )
-
-% Print out ending information.
-fprintf( '------------------------------------------------------------\n' )
-fprintf( '------------------------------------------------------------\n' )
+% Store the subnetwork design parameters in a structure.
+division_input_parameters.c1 = c1;
+division_input_parameters.c3 = c3;
+division_input_parameters.delta = delta;
+division_input_parameters.x1_max = x1_max;
+division_input_parameters.x2_max = x2_max;
+division_input_parameters.R1 = R1;
+division_input_parameters.R2 = R2;
+division_input_parameters.R3 = R3;
+division_input_parameters.Gm1 = Gm1;
+division_input_parameters.Gm2 = Gm2;
+division_input_parameters.Gm3 = Gm3;
+division_input_parameters.Cm1 = Cm1;
+division_input_parameters.Cm2 = Cm2;
+division_input_parameters.Cm3 = Cm3;
 
 
-%% Create Relative Division Subnetwork.
+%% Define the Encoding & Decoding Operations.
+
+% Define the encoding maps.
+f_encode1 = @( x1 ) network_utilities.encode_relative_division_input1( x1, x1_max, R1 );
+f_encode2 = @( x2 ) network_utilities.encode_relative_division_input2( x2, x2_max, R2 );
+f_encode3 = @( x3 ) network_utilities.encode_relative_division_output( x3, c1, c3, x1_max, R3 );
+f_encode = @( Xs ) [ f_encode1( Xs( :, 1 ) ), f_encode2( Xs( :, 2 ) ), f_encode3( Xs( :, 3 ) ) ];
+
+% Define the decoding maps.
+f_decode1 = @( U1 ) network_utilities.decode_relative_division_input1( U1, x1_max, R1 );
+f_decode2 = @( U2 ) network_utilities.decode_relative_division_input2( U2, x2_max, R2 );
+f_decode3 = @( U3 ) network_utilities.decode_relative_division_output( U3, c1, c3, x1_max, R3 );
+f_decode = @( Us ) [ f_decode1( Us( :, 1 ) ), f_decode2( Us( :, 2 ) ), f_decode3( Us( :, 3 ) ) ];
+
+
+%% Define the Desired Input Signal.
+
+% Define the first desired decoded input signal.
+% xs1_desired = 0*ones( n_timesteps, 1 );
+xs1_desired = x1_max*ones( n_timesteps, 1 );
+
+% Define the second desired decoded input signal.
+% xs2_desired = 0*ones( n_timesteps, 1 );
+xs2_desired = x2_max*ones( n_timesteps, 1 );
+
+% Encode the input signals.
+Us1_desired = f_encode1( xs1_desired );
+Us2_desired = f_encode2( xs2_desired );
+
+
+%% Define the Subnetwork Input Current Parameters.
+
+% Define the identification properties for the first input current.
+input_current_ID1 = 1;                               % [#] Input Current ID.
+input_current_name1 = 'Applied Current 1';           % [str] Input Current Name.
+input_current_to_neuron_ID1 = 1;                     % [#] Neuron ID to Which Input Current is Applied.
+
+% Define the identification properties for the second input current.
+input_current_ID2 = 2;                               % [#] Input Current ID.
+input_current_name2 = 'Applied Current 2';           % [str] Input Current Name.
+input_current_to_neuron_ID2 = 2;                     % [#] Neuron ID to Which Input Current is Applied.
+
+% Define the magnitudes of the input currents.
+Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
+Ias2 = Us2_desired*Gm2;                           	% [A] Applied Currents.
+
+
+%% Create the Subnetwork.
 
 % Create an instance of the network class.
 network = network_class( network_dt, network_tf );
 
-% Create the network components.
-[ network.neuron_manager, neuron_IDs ] = network.neuron_manager.create_neurons( 3 );
-[ network.synapse_manager, synapse_IDs ] = network.synapse_manager.create_synapses( 2 );
-[ network.applied_current_manager, applied_current_IDs ] = network.applied_current_manager.create_applied_currents( 3 );
+% Create a division subnetwork.
+[ division_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_division_subnetwork( division_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
-% Set the neuron parameters.
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ R1, R2, R3 ], 'R' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gm1, Gm2, Gm3 ], 'Gm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Cm1, Cm2, Cm3 ], 'Cm' );
-network.neuron_manager = network.neuron_manager.set_neuron_property( neuron_IDs, [ Gna1, Gna2, Gna3 ], 'Gna' );
+% % Update the input current ID and name.
+% [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 3, 'ID', network.applied_current_manager.applied_currents, true );
+% [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, { 'Applied Current 3' }, 'name', network.applied_current_manager.applied_currents, true );
 
-% Set the synapse parameters.
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 1, 2 ], 'from_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ 3, 3 ], 'to_neuron_ID' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ gs31, gs32 ], 'g_syn_max' );
-network.synapse_manager = network.synapse_manager.set_synapse_property( synapse_IDs, [ dEs31, dEs32 ], 'dE_syn' );
+% Create the input applied current.
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID1, input_current_name1, input_current_to_neuron_ID1, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID2, input_current_name2, input_current_to_neuron_ID2, ts, Ias2, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
 
-% Set the applied current parameters.
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ 1, 2, 3 ], 'neuron_ID' );
-network.applied_current_manager = network.applied_current_manager.set_applied_current_property( applied_current_IDs, [ current_state1*Ia1, current_state2*Ia2, Ia3 ], 'I_apps' );
+% % Reverse the order of the applied currents in the applied current manager for cleanliness.
+% temporary_applied_current = network.applied_current_manager.applied_currents( 1 );
+% network.applied_current_manager.applied_currents( 1 ) = network.applied_current_manager.applied_currents( 2 );
+% network.applied_current_manager.applied_currents( 2 ) = network.applied_current_manager.applied_currents( 3 );
+% network.applied_current_manager.applied_currents( 3 ) = temporary_applied_current;
 
 
-%% Compute the Relative Division Numerical Stability Analysis Parameters.
+%% Print Subnetwork Parameters.
+
+% Print division subnetwork information.
+network.print( network.neuron_manager, network.synapse_manager, network.applied_current_manager, verbose_flag );
+
+
+%% Compute Numerical Stability Analysis Parameters.
+
+% Define the property retrieval settings.
+as_matrix_flag = true;
+
+% Retrieve properties from the existing network.
+Cms = network.neuron_manager.get_neuron_property( 'all', 'Cm', as_matrix_flag, network.neuron_manager.neurons, undetected_option );         % [F] Membrane Capacitance.
+Gms = network.neuron_manager.get_neuron_property( 'all', 'Gm', as_matrix_flag, network.neuron_manager.neurons, undetected_option );         % [S] Membrane Conductance.
+Rs = network.neuron_manager.get_neuron_property( 'all', 'R', as_matrix_flag, network.neuron_manager.neurons, undetected_option );           % [V] Maximum Membrane Voltage.
+gs = network.get_gs( 'all', network.neuron_manager, network.synapse_manager );                                                              % [S] Synaptic Conductance.
+dEs = network.get_dEs( 'all', network.neuron_manager, network.synapse_manager );                                                            % [V] Synaptic Reversal Potential.
+Us = zeros( 1, network.neuron_manager.num_neurons );                                                                                        % [V] Membrane Voltage.
+
+% Define the stability analysis timestep seed.
+dt0 = 1e-6;                                                                                                                                 % [s] Stability Analysis Time Step Seed.
 
 % Compute the maximum RK4 step size and condition number.
-[ A, dt_max, condition_number ] = network.RK4_stability_analysis( cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Cm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'Gm' ) ), cell2mat( network.neuron_manager.get_neuron_property( 'all', 'R' ) ), network.get_gsynmaxs( 'all' ), network.get_dEsyns( 'all' ), zeros( network.neuron_manager.num_neurons, 1 ), 1e-6 );
+[ As, dts, condition_numbers ] = network.RK4_stability_analysis( Cms, Gms, Rs, gs, dEs, Us, dt0, network.neuron_manager, network.synapse_manager, undetected_option, network.network_utilities );
+
+
+%% Print the Numerical Stability Information.
 
 % Print out the stability information.
-fprintf( '\nSTABILITY SUMMARY:\n' )
-fprintf( 'Linearized System Matrix: A =\n\n' ), disp( A )
-fprintf( 'Max RK4 Step Size: \tdt_max = %0.3e [s]\n', dt_max )
-fprintf( 'Proposed Step Size: \tdt = %0.3e [s]\n', network_dt )
-fprintf( 'Condition Number: \tcond( A ) = %0.3e [-]\n', condition_number )
+network.numerical_method_utilities.print_numerical_stability_info( As, dts, network_dt, condition_numbers );
 
 
-%% Simulate the Relative Division Subnetwork.
+%% Simulate the Subnetwork.
+
+% Set additional simulation properties.
+filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
+set_flag = true;                            % [T/F] Set Flag.
+process_option = 'None';                    % [str] Process Option.
+undetected_option = 'Ignore';               % [str] Undetected Option.
+
+% Start the timer.
+tic
 
 % Simulate the network.
-[ network, ts, Us, hs, dUs, dhs, G_syns, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neuron_IDs ] = network.compute_set_simulation(  );
+[ ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, ~, ~, ~, ~, network ] = network.compute_simulation( network_dt, network_tf, integration_method, network.neuron_manager, network.synapse_manager, network.applied_current_manager, network.applied_voltage_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network.network_utilities );
+
+% End the timer.
+toc
 
 
-%% Plot the Relative Division Subnetwork Results.
+%% Decode the Subnetwork Output.
+
+% Decode the network input and output signals.
+xs1 = f_decode1( Us( 1, : ) );
+xs2 = f_decode2( Us( 2, : ) );
+xs3 = f_decode3( Us( 3, : ) );
+
+% Concatenate the decoded input and output signals.
+Xs = [ xs1; xs2; xs3 ];
+
+
+%% Plot the Subnetwork Results.
+
+% Retrieve the neuron IDs.
+neuron_IDs = network.neuron_manager.get_all_neuron_IDs( network.neuron_manager.neurons );
 
 % Plot the network currents over time.
 fig_network_currents = network.network_utilities.plot_network_currents( ts, I_leaks, I_syns, I_nas, I_apps, I_totals, neuron_IDs );
 
 % Plot the network states over time.
 fig_network_states = network.network_utilities.plot_network_states( ts, Us, hs, neuron_IDs );
+
+% Plot the encoded network input and output over time.
+fig_network_encoded = figure( 'Color', 'w', 'Name', 'RI: Encoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'RI: Encoded Input & Output, U [V]' ), title( 'RI: Encoded Input & Output vs Time' )
+plot( ts, Us( 1, : ), '-', 'Linewidth', 3 )
+plot( ts, Us( 2, : ), '-', 'Linewidth', 3 )
+plot( ts, Us( 3, : ), '-', 'Linewidth', 3 )
+legend( 'Encoded Input 1', 'Encoded Input 2', 'Encoded Output' )
+saveas( fig_network_encoded, [ save_directory, '\', 'relative_division_example_encoded' ] )
+
+% Plot the decoded network input and output over time.
+fig_network_decoded = figure( 'Color', 'w', 'Name', 'RI: Decoded Input & Output vs Time' ); hold on, grid on, xlabel( 'Time, t [s]' ), ylabel( 'RI: Decoded Input & Output [-]' ), title( 'RI: Decoded Input & Output vs Time' )
+plot( ts, Xs( 1, : ), '-', 'Linewidth', 3 )
+plot( ts, Xs( 2, : ), '-', 'Linewidth', 3 )
+plot( ts, Xs( 3, : ), '-', 'Linewidth', 3 )
+legend( 'Decoded Input 1', 'Decoded Input 2', 'Decoded Output' )
+saveas( fig_network_decoded, [ save_directory, '\', 'relative_division_example_decoded' ] )
+
+% Plot the encoded network input and output.
+fig_network_encoded = figure( 'Color', 'w', 'Name', 'RI: Decoded Output vs Decoded Input' ); hold on, grid on, rotate3d on, view( 45, 30 ), xlabel( 'Encoded Input 1, U1 [V]' ), ylabel( 'Encoded Input 2, U2 [V]' ), zlabel( 'Encoded Output, U3 [V]' ), title( 'RI: Encoded Output vs Encoded Input' )
+plot3( Us( 1, : ), Us( 2, : ), Us( 3, : ), '-', 'Linewidth', 3 )
+saveas( fig_network_encoded, [ save_directory, '\', 'relative_division_dynamic_example_encoded' ] )
+
+% Plot the decoded network input and output.
+fig_network_decoding = figure( 'Color', 'w', 'Name', 'RI: Decoded Output vs Decoded Input' ); hold on, grid on, rotate3d on, view( 45, 30 ), xlabel( 'Decoded Input 1, X1 [-]' ), ylabel( 'Decoded Input 2, X2 [-]' ), zlabel( 'Decoded Output, X3 [-]' ), title( 'RI: Decoded Output vs Decoded Input' )
+plot3( Xs( 1, : ), Xs( 2, : ), Xs( 3, : ), '-', 'Linewidth', 3 )
+saveas( fig_network_decoding, [ save_directory, '\', 'relative_division_dynamic_example_decoded' ] )
 
 % Animate the network states over time.
 fig_network_animation = network.network_utilities.animate_network_states( Us, hs, neuron_IDs );

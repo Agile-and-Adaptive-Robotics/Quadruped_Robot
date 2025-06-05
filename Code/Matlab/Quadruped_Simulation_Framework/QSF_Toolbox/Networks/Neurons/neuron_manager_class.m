@@ -3624,7 +3624,7 @@ classdef neuron_manager_class
                     if length( fieldnames( division_params ) ) ~= 4                                                   	% If there is anything other than the required number of parameter entries...
                         
                         % Throw an error.
-                        error( 'Invalid params detected.' )
+                        error( 'Invalid parameters detected.' )
                         
                     end
                     
@@ -3633,10 +3633,10 @@ classdef neuron_manager_class
             elseif strcmpi( encoding_scheme, 'relative' )                                                            	% If this operation uses a relative encoding scheme...
                 
                 % Determine whether the params has a valid number of entries.
-                if length( fieldnames( division_params ) ) ~= 4                                                       	% If there is anything other than four parameter entries...
+                if ~isempty( fieldnames( division_params ) )                                                       	% If there is anything other than four parameter entries...
 
                     % Throw an error.
-                    error( 'Invalid params detected.' )
+                    error( 'Invalid parameters detected.' )
 
                 end
                 
