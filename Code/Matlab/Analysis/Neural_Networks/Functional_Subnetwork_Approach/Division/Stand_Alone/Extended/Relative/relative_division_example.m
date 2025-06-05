@@ -132,19 +132,9 @@ network = network_class( network_dt, network_tf );
 % Create a division subnetwork.
 [ division_output_parameters, neurons, synapses, neuron_manager, synapse_manager, network ] = network.create_division_subnetwork( division_input_parameters, encoding_scheme, network.neuron_manager, network.synapse_manager, network.applied_current_manager, true, true, false, undetected_option );
 
-% % Update the input current ID and name.
-% [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, 3, 'ID', network.applied_current_manager.applied_currents, true );
-% [ ~, network.applied_current_manager ] = network.applied_current_manager.set_applied_current_property( network.applied_current_manager.applied_currents( 1 ).ID, { 'Applied Current 3' }, 'name', network.applied_current_manager.applied_currents, true );
-
 % Create the input applied current.
 [ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID1, input_current_name1, input_current_to_neuron_ID1, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
 [ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID2, input_current_name2, input_current_to_neuron_ID2, ts, Ias2, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
-
-% % Reverse the order of the applied currents in the applied current manager for cleanliness.
-% temporary_applied_current = network.applied_current_manager.applied_currents( 1 );
-% network.applied_current_manager.applied_currents( 1 ) = network.applied_current_manager.applied_currents( 2 );
-% network.applied_current_manager.applied_currents( 2 ) = network.applied_current_manager.applied_currents( 3 );
-% network.applied_current_manager.applied_currents( 3 ) = temporary_applied_current;
 
 
 %% Print Subnetwork Parameters.
