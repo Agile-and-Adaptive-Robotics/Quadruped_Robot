@@ -348,18 +348,15 @@ end
 
 %% Compute the Desired & Achieved (Theory) Subnetwork Output.
 
-
-% IN PROGRESS
-
 % Retrieve the grid encoded achieved numerical signals.
 Us1_grid = Us_grid_achieved_numerical( :, :, 1 );
 Us2_grid = Us_grid_achieved_numerical( :, :, 2 );
 Us3_grid_achieved_numerical = Us_grid_achieved_numerical( :, :, 3 );
 
 % Retrieve the grid decoded achieved numerical signals.
-Xs1_grid = Xs_grid_achieved_numerical( :, :, 1 );
-Xs2_grid = Xs_grid_achieved_numerical( :, :, 2 );
-Xs3_grid_achieved_numerical = Xs_grid_achieved_numerical( :, :, 3 );
+xs1_grid = Xs_grid_achieved_numerical( :, :, 1 );
+xs2_grid = Xs_grid_achieved_numerical( :, :, 2 );
+xs3_grid_achieved_numerical = Xs_grid_achieved_numerical( :, :, 3 );
 
 % Retrieve the flat encoded achieved numerical signals.
 Us1_flat = reshape( Us1_grid, [ numel( Us1_grid ), 1 ] );
@@ -368,9 +365,9 @@ Us3_flat_achieved_numerical = reshape( Us3_grid_achieved_numerical, [ numel( Us3
 Us_flat_achieved_numerical = [ Us1_flat, Us2_flat, Us3_flat_achieved_numerical ];
 
 % Retrieve the flat decoded achieved numerical signals.
-xs1_flat = reshape( Xs1_grid, [ numel( Xs1_grid ), 1 ] );
-xs2_flat = reshape( Xs2_grid, [ numel( Xs2_grid ), 1 ] );
-xs3_flat_achieved_numerical = reshape( Xs3_grid_achieved_numerical, [ numel( Xs3_grid_achieved_numerical ), 1 ] );
+xs1_flat = reshape( xs1_grid, [ numel( xs1_grid ), 1 ] );
+xs2_flat = reshape( xs2_grid, [ numel( xs2_grid ), 1 ] );
+xs3_flat_achieved_numerical = reshape( xs3_grid_achieved_numerical, [ numel( xs3_grid_achieved_numerical ), 1 ] );
 Xs_flat_achieved_numerical = [ xs1_flat, xs2_flat, xs3_flat_achieved_numerical ];
 
 % Compute the encoded desired and achieved (theory) result output.
@@ -380,10 +377,10 @@ Us3_grid_desired = reshape( Us3_flat_desired, size( Us3_grid_achieved_numerical 
 Us3_grid_achieved_theoretical = reshape( Us3_flat_achieved_theoretical, size( Us3_grid_achieved_numerical ) );
 
 % Compute the decoded desired and achieved (theory) result output.
-Xs3_flat_desired = f_decode3( Us3_flat_desired );
-Xs3_flat_achieved_theoretical = f_decode3( Us3_flat_achieved_theoretical );
-Xs3_grid_desired = reshape( Xs3_flat_desired, size( Xs3_grid_achieved_numerical ) );
-Xs3_grid_achieved_theoretical = reshape( Xs3_flat_achieved_theoretical, size( Xs3_grid_achieved_numerical ) );
+xs3_flat_desired = f_decode3( Us3_flat_desired );
+xs3_flat_achieved_theoretical = f_decode3( Us3_flat_achieved_theoretical );
+xs3_grid_desired = reshape( xs3_flat_desired, size( xs3_grid_achieved_numerical ) );
+xs3_grid_achieved_theoretical = reshape( xs3_flat_achieved_theoretical, size( xs3_grid_achieved_numerical ) );
 
 % Concatenate the encoded desired and achieved (theory) result.
 Us_flat_desired = [ Us1_flat, Us2_flat, Us3_flat_desired ];
@@ -401,33 +398,49 @@ Xs_grid_achieved_theoretical = cat( 3, xs1_grid, xs2_grid, xs3_grid_achieved_the
 %% Compute the Subnetwork Error.
 
 % Compute the error between the encoded theoretical output and the desired output.
-[ errors_theoretical_encoded, error_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_theoretical, Us_desired, Rs( 2 ) );
+[ errors_flat_theoretical_encoded, error_flat_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_flat_achieved_theoretical, Us_flat_desired, R3 );
+
+% Convert the flat errors to grid errors.
+errors_grid_theoretical_encoded = reshape( errors_flat_theoretical_encoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
+error_grid_percentages_theoretical_encoded = reshape( error_flat_percentages_theoretical_encoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
 
 % Compute the error between the encoded numerical output and the desired output.
-[ errors_numerical_encoded, error_percentages_numerical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_numerical_encoded, error_min_percentage_numerical_encoded, index_min_numerical_encoded, error_max_numerical_encoded, error_max_percentage_numerical_encoded, index_max_numerical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_achieved_numerical, Us_desired, Rs( 2 ) );
+[ errors_flat_numerical_encoded, error_flat_percentages_numerical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_numerical_encoded, error_min_percentage_numerical_encoded, index_min_numerical_encoded, error_max_numerical_encoded, error_max_percentage_numerical_encoded, index_max_numerical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_flat_achieved_numerical, Us_flat_desired, R3 );
+
+% Convert the flat errors to grid errors.
+errors_grid_numerical_encoded = reshape( errors_flat_numerical_encoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
+error_grid_percentages_numerical_encoded = reshape( error_flat_percentages_numerical_encoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
 
 % Compute the error between the decoded theoretical output and the desired output.
-[ errors_theoretical_decoded, error_percentages_theoretical_decoded, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, index_min_theoretical_decoded, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, index_max_theoretical_decoded, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_achieved_theoretical, Xs_desired, x2_max );
+[ errors_flat_theoretical_decoded, error_flat_percentages_theoretical_decoded, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, index_min_theoretical_decoded, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, index_max_theoretical_decoded, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_flat_achieved_theoretical, Xs_flat_desired, x3_max );
+
+% Convert the flat errors to grid errors.
+errors_grid_theoretical_decoded = reshape( errors_flat_theoretical_decoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
+error_grid_percentages_theoretical_decoded = reshape( error_flat_percentages_theoretical_decoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
 
 % Compute the error between the decoded numerical output and the desired output.
-[ errors_numerical_decoded, error_percentages_numerical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_numerical_decoded, error_min_percentage_numerical_decoded, index_min_numerical_decoded, error_max_numerical_decoded, error_max_percentage_numerical_decoded, index_max_numerical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_grid_achieved_numerical, Xs_desired, x2_max );
+[ errors_flat_numerical_decoded, error_flat_percentages_numerical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_numerical_decoded, error_min_percentage_numerical_decoded, index_min_numerical_decoded, error_max_numerical_decoded, error_max_percentage_numerical_decoded, index_max_numerical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_flat_achieved_numerical, Xs_flat_desired, x3_max );
+
+% Convert the flat errors to grid errors.
+errors_grid_numerical_decoded = reshape( errors_flat_numerical_decoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
+error_grid_percentages_numerical_decoded = reshape( error_flat_percentages_numerical_decoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
 
 
 %% Print the Subnetwork Summary Statistics.
 
 % Define the header strings.
-header_str_encoded = 'Absolute Inversion Encoded Summary Statistics\n';
-header_str_decoded = 'Absolute Inversion Decoded Summary Statistics\n';
+header_str_encoded = 'Absolute Division Encoded Summary Statistics\n';
+header_str_decoded = 'Absolute Division Decoded Summary Statistics\n';
 
 % Define the unit strings.
 unit_str_encoded = 'mV';
 unit_str_decoded = '-';
 
 % Retrieve the minimum and maximum encoded theoretical and numerical network results.
-Us_critmin_achieved_theoretical_steady = Us_achieved_theoretical( index_min_theoretical_encoded, : );
-Us_critmin_achieved_numerical_steady = Us_achieved_numerical( index_min_numerical_encoded, : );
-Us_critmax_achieved_theoretical_steady = Us_achieved_theoretical( index_max_theoretical_encoded, : );
-Us_critmax_achieved_numerical_steady = Us_achieved_numerical( index_max_numerical_encoded, : );
+Us_critmin_achieved_theoretical_steady = Us_flat_achieved_theoretical( index_min_theoretical_encoded, : );
+Us_critmin_achieved_numerical_steady = Us_flat_achieved_numerical( index_min_numerical_encoded, : );
+Us_critmax_achieved_theoretical_steady = Us_flat_achieved_theoretical( index_max_theoretical_encoded, : );
+Us_critmax_achieved_numerical_steady = Us_flat_achieved_numerical( index_max_numerical_encoded, : );
 
 % Retrieve the minimum and maximum decoded theoretical and numerical network results.
 ys_critmin_achieved_theoretical_steady = f_decode( Us_critmin_achieved_theoretical_steady );
@@ -443,81 +456,78 @@ network.numerical_method_utilities.print_error_statistics( header_str_decoded, u
 %% Plot the Subnetwork Results.
 
 % Create a plot of the encoded desired network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Output, U2 [mV]' ), title( 'AD: Encoded Steady State Response (Desired)' )
-plot( scale*Us_desired( :, 1 ), scale*Us_desired( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_desired_encoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Desired)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Output, U3 [mV]' ), title( 'AD: Encoded Steady State Response (Desired)' )
+surf( scale*Us_grid_desired( :, :, 1 ), scale*Us_grid_desired( :, :, 2 ), scale*Us_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_desired_encoded' ] )
 
 % Create a plot of the decoded desired network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Desired)' ); hold on, grid on, xlabel( 'Decoded Input, x1 [-]' ), ylabel( 'Decoded Output, x2 [-]' ), title( 'AD: Decoded Steady State Response (Desired)' )
-plot( scale*Xs_desired( :, 1 ), scale*Xs_desired( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_desired_decoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Desired)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Desired)' )
+surf( scale*Xs_grid_desired( :, :, 1 ), scale*Xs_grid_desired( :, :, 2 ), scale*Xs_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_desired_decoded' ] )
 
 % Create a plot of the encoded achieved numerical network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Output, U2 [mV]' ), title( 'AD: Encoded Steady State Response (Achieved Theoretical)' )
-plot( scale*Us_achieved_theoretical( :, 1 ), scale*Us_achieved_theoretical( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_achieved_theoretical_encoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Output, U3 [mV]' ), title( 'AD: Encoded Steady State Response (Achieved Theoretical)' )
+surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*Us_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_theoretical_encoded' ] )
 
 % Create a plot of the decoded achieved numerical network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, xlabel( 'Decoded Input, x1 [-]' ), ylabel( 'Decoded Output, x2 [-]' ), title( 'AD: Decoded Steady State Response (Achieved Theoretical)' )
-plot( scale*Xs_achieved_theoretical( :, 1 ), scale*Xs_achieved_theoretical( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_achieved_theoretical_decoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Achieved Theoretical)' )
+surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*Xs_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_theoretical_decoded' ] )
 
 % Create a plot of the encoded achieved numerical network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Achieved Numerical)' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Input, U2 [mV]' ), title( 'AD: Encoded Steady State Response (Achieved Numerical)' )
-plot( scale*Us_achieved_numerical( :, 1 ), scale*Us_achieved_numerical( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_achieved_numerical_encoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Achieved Numerical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Output, U3 [mV]' ), title( 'AD: Encoded Steady State Response (Achieved Numerical)' )
+surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), scale*Us_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_numerical_encoded' ] )
 
 % Create a plot of the decoded achieved numerical network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Achieved Numerical)' ); hold on, grid on, xlabel( 'Decoded Input, x1 [-]' ), ylabel( 'Decoded Output, x2 [-]' ), title( 'AD: Decoded Steady State Response (Achieved Numerical)' )
-plot( scale*Xs_grid_achieved_numerical( :, 1 ), scale*Xs_grid_achieved_numerical( :, 2 ), '-', 'Linewidth', 3 )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_achieved_numerical_decoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Achieved Numerical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Achieved Numerical)' )
+surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), scale*Xs_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_numerical_decoded' ] )
 
 % Create a plot of the encoded desired, achieved (theory), and achieved (numerical) network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Output, U2 [mV]' ), title( 'AD: Encoded Steady State Response (Comparison)' )
-h1 = plot( scale*Us_desired( :, 1 ), scale*Us_desired( :, 2 ), '-', 'Linewidth', 3 );
-h2 = plot( scale*Us_achieved_theoretical( :, 1 ), scale*Us_achieved_theoretical( :, 2 ), '-.', 'Linewidth', 3 );
-h3 = plot( Us_achieved_numerical( :, 1 )*( 10^3 ), Us_achieved_numerical( :, 2 )*( 10^3 ), '--', 'Linewidth', 3 );
+fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Output, U2 [mV]' ), title( 'AD: Encoded Steady State Response (Comparison)' )
+h1 = surf( scale*Us_grid_desired( :, :, 1 ), scale*Us_grid_desired( :, :, 2 ), scale*Us_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.7 );
+h2 = surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*Us_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 );
+h3 = surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), scale*Us_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best' )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_comparison_encoded' ] )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_comparison_encoded' ] )
 
 % Create a plot of the decoded desired, achieved (theory), and achieved (numerical) network behavior.
-fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Comparison)' ); hold on, grid on, xlabel( 'Decoded Input, x1 [-]' ), ylabel( 'Decoded Output, x2 [-]' ), title( 'AD: Decoded Steady State Response (Comparison)' )
-h1 = plot( scale*Xs_desired( :, 1 ), scale*Xs_desired( :, 2 ), '-', 'Linewidth', 3 );
-h2 = plot( scale*Xs_achieved_theoretical( :, 1 ), scale*Xs_achieved_theoretical( :, 2 ), '-.', 'Linewidth', 3 );
-h3 = plot( scale*Xs_grid_achieved_numerical( :, 1 ), scale*Xs_grid_achieved_numerical( :, 2 ), '--', 'Linewidth', 3 );
+fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Comparison)' )
+h1 = surf( scale*Xs_grid_desired( :, :, 1 ), scale*Xs_grid_desired( :, :, 2 ), scale*Xs_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.7 );
+h2 = surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*Xs_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 );
+h3 = surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), scale*Xs_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best' )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_comparison_decoded' ] )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_comparison_decoded' ] )
 
 % Create a plot of the encoded theoretical and numerical error.
-fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Error' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Error, E [mV]' ), title( 'AD: Encoded Steady State Error' )
-plot( scale*Us_achieved_theoretical( :, 1 ), scale*errors_theoretical_encoded, '-', 'Linewidth', 3 )
-plot( scale*Us_achieved_numerical( :, 1 ), scale*errors_numerical_encoded, '--', 'Linewidth', 3 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_error_encoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Error' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'AD: Encoded Steady State Error' )
+surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*errors_grid_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), scale*errors_grid_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+saveas( fig, [ save_directory, '\', 'absolute_division_sse_encoded' ] )
 
 % Create a plot of the decoded theoretical and numerical error.
-fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Error' ); hold on, grid on, xlabel( 'Decoded Input, x1 [-]' ), ylabel( 'Decoded Error, E [-]' ), title( 'AD: Decoded Steady State Error' )
-plot( scale*Xs_achieved_theoretical( :, 1 ), scale*errors_theoretical_decoded, '-', 'Linewidth', 3 )
-plot( scale*Xs_grid_achieved_numerical( :, 2 ), scale*errors_numerical_decoded, '--', 'Linewidth', 3 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_error_decoded' ] )
+fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Error' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'AD: Decoded Steady State Error' )
+surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*errors_grid_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), scale*errors_grid_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+saveas( fig, [ save_directory, '\', 'absolute_division_sse_decoded' ] )
 
-% Create a plot of the encoded theoretical and numerical percentage error.
-fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Error Percentage' ); hold on, grid on, xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Error Percentage, E [%]' ), title( 'AD: Encoded Steady State Error Percentage' )
-plot( scale*Us_achieved_theoretical( :, 1 ), error_percentages_theoretical_encoded, '-', 'Linewidth', 3 )
-plot( scale*Us_achieved_numerical( :, 1 ), error_percentages_numerical_encoded, '--', 'Linewidth', 3 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_error_percentage_encoded' ] )
+% Create a plot of the encoded theoretical and numerical percentage error. 
+fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Error Percentage' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Error Percentage, E [%]' ), title( 'AD: Encoded Steady State Error Percentage' )
+surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), error_grid_percentages_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), error_grid_percentages_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+saveas( fig, [ save_directory, '\', 'absolute_division_ssep_encoded' ] )
 
 % Create a plot of the decoded theoretical and numerical percentage error.
-fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Error Percentage' ); hold on, grid on, xlabel( 'Decoded Input, x1 [-]' ), ylabel( 'Decoded Error Percentage, E [%]' ), title( 'AD: Decoded Steady State Error Percentage' )
-plot( scale*Xs_achieved_theoretical( :, 1 ), error_percentages_theoretical_decoded, '-', 'Linewidth', 3 )
-plot( scale*Xs_grid_achieved_numerical( :, 2 ), error_percentages_numerical_decoded, '--', 'Linewidth', 3 )
-legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Horizontal' )
-saveas( fig, [ save_directory, '\', 'absolute_inversion_ss_response_error_percentage_decoded' ] )
-
-
-
+fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Error Percentage' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), xlabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Error Percentage, E [%]' ), title( 'AD: Decoded Steady State Error Percentage' )
+surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), error_grid_percentages_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), error_grid_percentages_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+saveas( fig, [ save_directory, '\', 'absolute_division_ssep_decoded' ] )
 
 
 %{
