@@ -96,16 +96,16 @@ f_decode = @( Us ) [ f_decode1( Us( :, 1 ) ), f_decode2( Us( :, 2 ) ), f_decode3
 %% Define the Desired Input Signal.
 
 % Define the first desired decoded input signal.
-% xs1_desired = 0*ones( n_timesteps, 1 );
-xs1_desired = x1_max*ones( n_timesteps, 1 );
+% xs1_initial = 0*ones( n_timesteps, 1 );
+xs1_initial = x1_max*ones( n_timesteps, 1 );
 
 % Define the second desired decoded input signal.
-% xs2_desired = 0*ones( n_timesteps, 1 );
-xs2_desired = x2_max*ones( n_timesteps, 1 );
+% xs2_initial = 0*ones( n_timesteps, 1 );
+xs2_initial = x2_max*ones( n_timesteps, 1 );
 
 % Encode the input signals.
-Us1_desired = f_encode1( xs1_desired );
-Us2_desired = f_encode2( xs2_desired );
+us1_initial = f_encode1( xs1_initial );
+us2_initial = f_encode2( xs2_initial );
 
 
 %% Define the Subnetwork Input Current Parameters.
@@ -121,8 +121,8 @@ input_current_name2 = 'Applied Current 2';           % [str] Input Current Name.
 input_current_to_neuron_ID2 = 2;                     % [#] Neuron ID to Which Input Current is Applied.
 
 % Define the magnitudes of the input currents.
-Ias1 = Us1_desired*Gm1;                           	% [A] Applied Currents.
-Ias2 = Us2_desired*Gm2;                           	% [A] Applied Currents.
+Ias1_initial = us1_initial*Gm1;                           	% [A] Applied Currents.
+Ias2_initial = us2_initial*Gm2;                           	% [A] Applied Currents.
 
 
 %% Create the Subnetwork.
@@ -137,8 +137,8 @@ network = network_class( network_dt, network_tf );
 [ c2, x3_max, R1, R2, R3, Gna1, Gna2, Gna3, dEs31, dEs32, gs31, gs32, Ia3 ] = network.unpack_absolute_division_output_params( division_output_params, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option );
 
 % Create the input applied current.
-[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID1, input_current_name1, input_current_to_neuron_ID1, ts, Ias1, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
-[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID2, input_current_name2, input_current_to_neuron_ID2, ts, Ias2, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID1, input_current_name1, input_current_to_neuron_ID1, ts, Ias1_initial, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
+[ ~, ~, ~, network.applied_current_manager ] = network.applied_current_manager.create_applied_current( input_current_ID2, input_current_name2, input_current_to_neuron_ID2, ts, Ias2_initial, true, network.applied_current_manager.applied_currents, true, false, network.applied_current_manager.array_utilities );
 
 
 %% Print Subnetwork Parameters.
@@ -167,35 +167,39 @@ Ias( 3 ) = Ias( 3 ) + Ia3;
 dt0 = 1e-6;                                                                                                                                 % [s] Numerical Stability Time Step.
 
 % Define the division subnetwork inputs.
-U1s = linspace( 0, Rs( 1 ), 20  );
-U2s = linspace( 0, Rs( 2 ), 20  );
+us1 = linspace( 0, Rs( 1 ), 20  );
+us2 = linspace( 0, Rs( 2 ), 20  );
 
 % Create an input grid.
-[ U1s_grid, U2s_grid ] = meshgrid( U1s, U2s );
+[ us1_grid, us2_grid ] = meshgrid( us1, us2 );
 
 % Create the input points.
-U1s_flat = reshape( U1s_grid, [ numel( U1s_grid ), 1 ] );
-U2s_flat = reshape( U2s_grid, [ numel( U2s_grid ), 1 ] );
+us1_flat = reshape( us1_grid, [ numel( us1_grid ), 1 ] );
+us2_flat = reshape( us2_grid, [ numel( us2_grid ), 1 ] );
 
 % Compute the desired and achieved absolute division steady state output.
-U3s_flat_desired = network.compute_encoded_desired_absolute_division_sso( U1s_flat, U2s_flat, c1, c3, delta, x1_max, x2_max, network.network_utilities );
-[ U3s_flat_achieved_theoretical, As, dts_flat, condition_numbers_flat ] = network.achieved_division_RK4_stability_analysis_encoded( U1s_flat, U2s_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0, network.neuron_manager, network.synapse_manager, undetected_option, network.network_utilities );
+us3_flat_desired = network.compute_encoded_desired_absolute_division_sso( us1_flat, us2_flat, c1, c3, delta, x1_max, x2_max, network.network_utilities );
+[ us3_flat_theoretical, As, dts_flat, condition_numbers_flat ] = network.achieved_division_RK4_stability_analysis_encoded( us1_flat, us2_flat, Cms, Gms, Rs, Ias, gs, dEs, dt0, network.neuron_manager, network.synapse_manager, undetected_option, network.network_utilities );
 
 % Convert the flat steady state output results to grids.
-dts_grid = reshape( dts_flat, size( U1s_grid ) );
-condition_numbers_grid = reshape( condition_numbers_flat, size( U1s_grid ) );
-U3s_grid_desired = reshape( U3s_flat_desired, size( U1s_grid ) );
-U3s_grid_achieved_theoretical = reshape( U3s_flat_achieved_theoretical, size( U1s_grid ) );
+dts_grid = reshape( dts_flat, size( us1_grid ) );
+condition_numbers_grid = reshape( condition_numbers_flat, size( us1_grid ) );
+us3_grid_desired = reshape( us3_flat_desired, size( us1_grid ) );
+us3_grid_theoretical = reshape( us3_flat_theoretical, size( us1_grid ) );
 
 % Retrieve the maximum RK4 step size and condition number.
 [ dt_max, indexes_dt ] = max( dts_flat );
 [ condition_number_max, indexes_condition_number ] = max( condition_numbers_flat );
 
 % Concatenate the encoded input and output signals.
-Us_flat_desired = [ U1s_flat, U2s_flat, U3s_flat_desired ];
-Us_flat_achieved_theoretical = [ U1s_flat, U2s_flat, U3s_flat_achieved_theoretical ];
-Us_grid_desired = cat( 3, U1s_grid, U2s_grid, U3s_grid_desired );
-Us_grid_achieved_theoretical = cat( 3, U1s_grid, U2s_grid, U3s_grid_achieved_theoretical );
+Us_flat_desired = [ us1_flat, us2_flat, us3_flat_desired ];
+Us_flat_theoretical = [ us1_flat, us2_flat, us3_flat_theoretical ];
+Us_grid_desired = cat( 3, us1_grid, us2_grid, us3_grid_desired );
+Us_grid_theoretical = cat( 3, us1_grid, us2_grid, us3_grid_theoretical );
+
+% Retrieve the flat and grid encoded numerical input signal.
+Us_flat_numerical_input = [ us1_flat, us2_flat ];
+Us_grid_numerical_input = cat( 3, us1_grid, us2_grid );
 
 
 %% Print the Numerical Stability Information.
@@ -210,19 +214,23 @@ network.numerical_method_utilities.print_numerical_stability_info( As, dts_flat,
 xs1_flat = f_decode1( Us_flat_desired( :, 1 ) );
 xs2_flat = f_decode2( Us_flat_desired( :, 2 ) );
 xs3_flat_desired = f_decode3( Us_flat_desired( :, 3 ) );
-xs3_flat_achieved_theoretical = f_decode3( Us_flat_achieved_theoretical( :, 3 ) );
+xs3_flat_theoretical = f_decode3( Us_flat_theoretical( :, 3 ) );
 
 % Compute the grid decoded input and output signals.
 xs1_grid = f_decode1( Us_grid_desired( :, :, 1 ) );
 xs2_grid = f_decode2( Us_grid_desired( :, :, 2 ) );
 xs3_grid_desired = f_decode3( Us_grid_desired( :, :, 3 ) );
-xs3_grid_achieved_theoretical = f_decode3( Us_grid_achieved_theoretical( :, :, 3 ) );
+xs3_grid_theoretical = f_decode3( Us_grid_theoretical( :, :, 3 ) );
 
 % Concatenate the flat and grid decoded input and output signals.
 Xs_flat_desired = [ xs1_flat, xs2_flat, xs3_flat_desired ];
-Xs_flat_achieved_theoretical = [ xs1_flat, xs2_flat, xs3_flat_achieved_theoretical ];
+Xs_flat_theoretical = [ xs1_flat, xs2_flat, xs3_flat_theoretical ];
 Xs_grid_desired = cat( 3, xs1_grid, xs2_grid, xs3_grid_desired );
-Xs_grid_achieved_theoretical = cat( 3, xs1_grid, xs2_grid, xs3_grid_achieved_theoretical );
+Xs_grid_theoretical = cat( 3, xs1_grid, xs2_grid, xs3_grid_theoretical );
+
+% Retrieve the flat numerical input signal.
+Xs_flat_numerical_input = [ xs1_flat, xs2_flat ];
+Xs_grid_numerical_input = cat( 3, xs1_grid, xs2_grid );
 
 
 %% Plot the Desired and Achieved Formulation Results.
@@ -233,14 +241,14 @@ scale = 1e3;
 % Plot the encoded desired and achieved absolute subnetwork formulation results.
 fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Desired & Achieved (Theory) SS Behavior' ); hold on, grid on, rotate3d on, view( 135, 15 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Output, U3 [mV]' ), title( 'AD: Encoded Desired & Achieved (Theory) SS Behavior' )
 surf( scale*Us_grid_desired( :, :, 1 ), scale*Us_grid_desired( :, :, 2 ), scale*Us_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.70 )
-surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*Us_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.70 )
+surf( scale*Us_grid_theoretical( :, :, 1 ), scale*Us_grid_theoretical( :, :, 2 ), scale*Us_grid_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.70 )
 legend( 'Desired', 'Theoretically Achieved', 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_division_desired_achieved_theory_encoded' ] )
 
 % Plot the decoded desired and achieved absolute subnetwork formulation results.
 fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Desired & Achieved (Theory) SS Behavior' ); hold on, grid on, rotate3d on, view( 135, 15 ), xlabel( 'Decoded Input 1, x1 [-]' ), xlabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Desired & Achieved (Theory) SS Behavior' )
 surf( scale*Xs_grid_desired( :, :, 1 ), scale*Xs_grid_desired( :, :, 2 ), scale*Xs_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.70 )
-surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*Xs_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.70 )
+surf( scale*Xs_grid_theoretical( :, :, 1 ), scale*Xs_grid_theoretical( :, :, 2 ), scale*Xs_grid_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.70 )
 legend( 'Desired', 'Theoretically Achieved', 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_division_desired_achieved_theory_decoded' ] )
 
@@ -288,19 +296,19 @@ if simulate_flag                            % If we want to simulate the network
     xs2_input = linspace( 0, x2_max, num_input_signals2 );
 
     % Encode the input signals.
-    Us1_input = f_encode1( xs1_input );
-    Us2_input = f_encode2( xs2_input );
+    us1_input = f_encode1( xs1_input );
+    us2_input = f_encode2( xs2_input );
     
     % Create the applied current inputs.
-    Ias1_input = Gm1*Us1_input;
-    Ias2_input = Gm2*Us2_input;
+    Ias1_input = Gm1*us1_input;
+    Ias2_input = Gm2*us2_input;
 
     % Create grids of the applied current inputs.
     % [ Ias1_input_grid, Ias2_input_grid ] = meshgrid( Ias1_input, Ias2_input );
     [ Ias1_input_grid, Ias2_input_grid ] = ndgrid( Ias1_input, Ias2_input );
 
     % Create a matrix to store the membrane voltages.
-    Us_grid_achieved_numerical = zeros( num_input_signals1, num_input_signals2, num_neurons );
+    Us_grid_numerical = zeros( num_input_signals1, num_input_signals2, num_neurons );
     
     % Simulate the network for each of the applied current combinations.
     for k1 = 1:num_input_signals1               % Iterate through each of the currents applied to the first input neuron...
@@ -314,19 +322,19 @@ if simulate_flag                            % If we want to simulate the network
             [ ts, Us, hs, dUs, dhs, Gs, I_leaks, I_syns, I_nas, I_apps, I_totals, m_infs, h_infs, tauhs, neurons, synapses, neuron_manager, synapse_manager, network ] = network.compute_simulation( network_dt, network_tf, integration_method, network.neuron_manager, network.synapse_manager, network.applied_current_manager, network.applied_voltage_manager, filter_disabled_flag, set_flag, process_option, undetected_option, network.network_utilities );
             
             % Retrieve the final membrane voltages.
-            Us_grid_achieved_numerical( k1, k2, : ) = Us( :, end );
+            Us_grid_numerical( k1, k2, : ) = Us( :, end );
             
         end
     end
     
     % Decode the achieved membrane voltages.
-    xs1_grid_achieved_numerical = f_decode1( Us_grid_achieved_numerical( :, :, 1 ) );
-    xs2_grid_achieved_numerical = f_decode2( Us_grid_achieved_numerical( :, :, 2 ) );
-    xs3_grid_achieved_numerical = f_decode3( Us_grid_achieved_numerical( :, :, 3 ) );
-    Xs_grid_achieved_numerical = cat( 3, xs1_grid_achieved_numerical, xs2_grid_achieved_numerical, xs3_grid_achieved_numerical );
+    xs1_grid_numerical = f_decode1( Us_grid_numerical( :, :, 1 ) );
+    xs2_grid_numerical = f_decode2( Us_grid_numerical( :, :, 2 ) );
+    xs3_grid_numerical = f_decode3( Us_grid_numerical( :, :, 3 ) );
+    Xs_grid_numerical = cat( 3, xs1_grid_numerical, xs2_grid_numerical, xs3_grid_numerical );
     
     % Save the simulation results.
-    save( [ save_directory, '\', 'absolute_division_subnetwork_error' ], 'xs1_input', 'xs2_input', 'Us1_input', 'Us2_input', 'Ias1_input', 'Ias2_input', 'Us_grid_achieved_numerical', 'Xs_grid_achieved_numerical' )
+    save( [ save_directory, '\', 'absolute_division_subnetwork_error' ], 'xs1_input', 'xs2_input', 'us1_input', 'us2_input', 'Ias1_input', 'Ias2_input', 'Us_grid_numerical', 'Xs_grid_numerical' )
     
 else                % Otherwise... ( We must want to load data from an existing simulation... )
     
@@ -336,12 +344,12 @@ else                % Otherwise... ( We must want to load data from an existing 
     % Store the simulation results in separate variables.
     xs1_input = data.xs1_input;
     xs2_input = data.xs2_input;
-    Us1_input = data.Us1_input;
-    Us2_input = data.Us2_input;
+    us1_input = data.Us1_input;
+    us2_input = data.Us2_input;
     Ias1_input = data.Ias1_input;
     Ias2_input = data.Ias2_input;
-    Us_grid_achieved_numerical = data.Us_grid_achieved_numerical;
-    Xs_grid_achieved_numerical = data.Xs_grid_achieved_numerical;
+    Us_grid_numerical = data.Us_grid_numerical;
+    Xs_grid_numerical = data.Xs_grid_numerical;
 
 end
 
@@ -349,81 +357,81 @@ end
 %% Compute the Desired & Achieved (Theory) Subnetwork Output.
 
 % Retrieve the grid encoded achieved numerical signals.
-Us1_grid = Us_grid_achieved_numerical( :, :, 1 );
-Us2_grid = Us_grid_achieved_numerical( :, :, 2 );
-Us3_grid_achieved_numerical = Us_grid_achieved_numerical( :, :, 3 );
+Us1_grid = Us_grid_numerical( :, :, 1 );
+Us2_grid = Us_grid_numerical( :, :, 2 );
+Us3_grid_numerical = Us_grid_numerical( :, :, 3 );
 
 % Retrieve the grid decoded achieved numerical signals.
-xs1_grid = Xs_grid_achieved_numerical( :, :, 1 );
-xs2_grid = Xs_grid_achieved_numerical( :, :, 2 );
-xs3_grid_achieved_numerical = Xs_grid_achieved_numerical( :, :, 3 );
+xs1_grid = Xs_grid_numerical( :, :, 1 );
+xs2_grid = Xs_grid_numerical( :, :, 2 );
+xs3_grid_numerical = Xs_grid_numerical( :, :, 3 );
 
 % Retrieve the flat encoded achieved numerical signals.
 Us1_flat = reshape( Us1_grid, [ numel( Us1_grid ), 1 ] );
 Us2_flat = reshape( Us2_grid, [ numel( Us2_grid ), 1 ] );
-Us3_flat_achieved_numerical = reshape( Us3_grid_achieved_numerical, [ numel( Us3_grid_achieved_numerical ), 1 ] );
-Us_flat_achieved_numerical = [ Us1_flat, Us2_flat, Us3_flat_achieved_numerical ];
+Us3_flat_numerical = reshape( Us3_grid_numerical, [ numel( Us3_grid_numerical ), 1 ] );
+Us_flat_numerical = [ Us1_flat, Us2_flat, Us3_flat_numerical ];
 
 % Retrieve the flat decoded achieved numerical signals.
 xs1_flat = reshape( xs1_grid, [ numel( xs1_grid ), 1 ] );
 xs2_flat = reshape( xs2_grid, [ numel( xs2_grid ), 1 ] );
-xs3_flat_achieved_numerical = reshape( xs3_grid_achieved_numerical, [ numel( xs3_grid_achieved_numerical ), 1 ] );
-Xs_flat_achieved_numerical = [ xs1_flat, xs2_flat, xs3_flat_achieved_numerical ];
+xs3_flat_numerical = reshape( xs3_grid_numerical, [ numel( xs3_grid_numerical ), 1 ] );
+Xs_flat_numerical = [ xs1_flat, xs2_flat, xs3_flat_numerical ];
 
 % Compute the encoded desired and achieved (theory) result output.
 Us3_flat_desired = network.compute_encoded_desired_absolute_division_sso( Us1_flat, Us2_flat, c1, c3, delta, x1_max, x2_max, network.network_utilities );
-Us3_flat_achieved_theoretical = network.compute_encoded_achieved_division_sso( Us1_flat, Us2_flat, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
-Us3_grid_desired = reshape( Us3_flat_desired, size( Us3_grid_achieved_numerical ) );
-Us3_grid_achieved_theoretical = reshape( Us3_flat_achieved_theoretical, size( Us3_grid_achieved_numerical ) );
+Us3_flat_theoretical = network.compute_encoded_achieved_division_sso( Us1_flat, Us2_flat, R1, R2, Gm3, gs31, gs32, dEs31, dEs32, Ia3, network.neuron_manager, network.synapse_manager, network.applied_current_manager, undetected_option, network.network_utilities );
+Us3_grid_desired = reshape( Us3_flat_desired, size( Us3_grid_numerical ) );
+Us3_grid_theoretical = reshape( Us3_flat_theoretical, size( Us3_grid_numerical ) );
 
 % Compute the decoded desired and achieved (theory) result output.
 xs3_flat_desired = f_decode3( Us3_flat_desired );
-xs3_flat_achieved_theoretical = f_decode3( Us3_flat_achieved_theoretical );
-xs3_grid_desired = reshape( xs3_flat_desired, size( xs3_grid_achieved_numerical ) );
-xs3_grid_achieved_theoretical = reshape( xs3_flat_achieved_theoretical, size( xs3_grid_achieved_numerical ) );
+xs3_flat_theoretical = f_decode3( Us3_flat_theoretical );
+xs3_grid_desired = reshape( xs3_flat_desired, size( xs3_grid_numerical ) );
+xs3_grid_theoretical = reshape( xs3_flat_theoretical, size( xs3_grid_numerical ) );
 
 % Concatenate the encoded desired and achieved (theory) result.
 Us_flat_desired = [ Us1_flat, Us2_flat, Us3_flat_desired ];
-Us_flat_achieved_theoretical = [ Us1_flat, Us2_flat, Us3_flat_achieved_theoretical ];
+Us_flat_theoretical = [ Us1_flat, Us2_flat, Us3_flat_theoretical ];
 Us_grid_desired = cat( 3, Us1_grid, Us2_grid, Us3_grid_desired );
-Us_grid_achieved_theoretical = cat( 3, Us1_grid, Us2_grid, Us3_grid_achieved_theoretical );
+Us_grid_theoretical = cat( 3, Us1_grid, Us2_grid, Us3_grid_theoretical );
 
 % Concatenate the decoded desired and achieved (theory) result.
 Xs_flat_desired = [ xs1_flat, xs2_flat, xs3_flat_desired ];
-Xs_flat_achieved_theoretical = [ xs1_flat, xs2_flat, xs3_flat_achieved_theoretical ];
+Xs_flat_theoretical = [ xs1_flat, xs2_flat, xs3_flat_theoretical ];
 Xs_grid_desired = cat( 3, xs1_grid, xs2_grid, xs3_grid_desired );
-Xs_grid_achieved_theoretical = cat( 3, xs1_grid, xs2_grid, xs3_grid_achieved_theoretical );
+Xs_grid_theoretical = cat( 3, xs1_grid, xs2_grid, xs3_grid_theoretical );
 
 
 %% Compute the Subnetwork Error.
 
 % Compute the error between the encoded theoretical output and the desired output.
-[ errors_flat_theoretical_encoded, error_flat_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_flat_achieved_theoretical, Us_flat_desired, R3 );
+[ errors_flat_theoretical_encoded, error_flat_percentages_theoretical_encoded, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, index_min_theoretical_encoded, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, index_max_theoretical_encoded, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_flat_theoretical, Us_flat_desired, R3 );
 
 % Convert the flat errors to grid errors.
-errors_grid_theoretical_encoded = reshape( errors_flat_theoretical_encoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
-error_grid_percentages_theoretical_encoded = reshape( error_flat_percentages_theoretical_encoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
+errors_grid_theoretical_encoded = reshape( errors_flat_theoretical_encoded, size( Us_grid_theoretical( :, :, 3 ) ) );
+error_grid_percentages_theoretical_encoded = reshape( error_flat_percentages_theoretical_encoded, size( Us_grid_theoretical( :, :, 3 ) ) );
 
 % Compute the error between the encoded numerical output and the desired output.
-[ errors_flat_numerical_encoded, error_flat_percentages_numerical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_numerical_encoded, error_min_percentage_numerical_encoded, index_min_numerical_encoded, error_max_numerical_encoded, error_max_percentage_numerical_encoded, index_max_numerical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_flat_achieved_numerical, Us_flat_desired, R3 );
+[ errors_flat_numerical_encoded, error_flat_percentages_numerical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_numerical_encoded, error_min_percentage_numerical_encoded, index_min_numerical_encoded, error_max_numerical_encoded, error_max_percentage_numerical_encoded, index_max_numerical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded ] = network.numerical_method_utilities.compute_error_statistics( Us_flat_numerical, Us_flat_desired, R3 );
 
 % Convert the flat errors to grid errors.
-errors_grid_numerical_encoded = reshape( errors_flat_numerical_encoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
-error_grid_percentages_numerical_encoded = reshape( error_flat_percentages_numerical_encoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
+errors_grid_numerical_encoded = reshape( errors_flat_numerical_encoded, size( Us_grid_numerical( :, :, 3 ) ) );
+error_grid_percentages_numerical_encoded = reshape( error_flat_percentages_numerical_encoded, size( Us_grid_numerical( :, :, 3 ) ) );
 
 % Compute the error between the decoded theoretical output and the desired output.
-[ errors_flat_theoretical_decoded, error_flat_percentages_theoretical_decoded, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, index_min_theoretical_decoded, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, index_max_theoretical_decoded, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_flat_achieved_theoretical, Xs_flat_desired, x3_max );
+[ errors_flat_theoretical_decoded, error_flat_percentages_theoretical_decoded, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, index_min_theoretical_decoded, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, index_max_theoretical_decoded, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_flat_theoretical, Xs_flat_desired, x3_max );
 
 % Convert the flat errors to grid errors.
-errors_grid_theoretical_decoded = reshape( errors_flat_theoretical_decoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
-error_grid_percentages_theoretical_decoded = reshape( error_flat_percentages_theoretical_decoded, size( Us_grid_achieved_theoretical( :, :, 3 ) ) );
+errors_grid_theoretical_decoded = reshape( errors_flat_theoretical_decoded, size( Us_grid_theoretical( :, :, 3 ) ) );
+error_grid_percentages_theoretical_decoded = reshape( error_flat_percentages_theoretical_decoded, size( Us_grid_theoretical( :, :, 3 ) ) );
 
 % Compute the error between the decoded numerical output and the desired output.
-[ errors_flat_numerical_decoded, error_flat_percentages_numerical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_numerical_decoded, error_min_percentage_numerical_decoded, index_min_numerical_decoded, error_max_numerical_decoded, error_max_percentage_numerical_decoded, index_max_numerical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_flat_achieved_numerical, Xs_flat_desired, x3_max );
+[ errors_flat_numerical_decoded, error_flat_percentages_numerical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_numerical_decoded, error_min_percentage_numerical_decoded, index_min_numerical_decoded, error_max_numerical_decoded, error_max_percentage_numerical_decoded, index_max_numerical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded ] = network.numerical_method_utilities.compute_error_statistics( Xs_flat_numerical, Xs_flat_desired, x3_max );
 
 % Convert the flat errors to grid errors.
-errors_grid_numerical_decoded = reshape( errors_flat_numerical_decoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
-error_grid_percentages_numerical_decoded = reshape( error_flat_percentages_numerical_decoded, size( Us_grid_achieved_numerical( :, :, 3 ) ) );
+errors_grid_numerical_decoded = reshape( errors_flat_numerical_decoded, size( Us_grid_numerical( :, :, 3 ) ) );
+error_grid_percentages_numerical_decoded = reshape( error_flat_percentages_numerical_decoded, size( Us_grid_numerical( :, :, 3 ) ) );
 
 
 %% Print the Subnetwork Summary Statistics.
@@ -437,20 +445,20 @@ unit_str_encoded = 'mV';
 unit_str_decoded = '-';
 
 % Retrieve the minimum and maximum encoded theoretical and numerical network results.
-Us_critmin_achieved_theoretical_steady = Us_flat_achieved_theoretical( index_min_theoretical_encoded, : );
-Us_critmin_achieved_numerical_steady = Us_flat_achieved_numerical( index_min_numerical_encoded, : );
-Us_critmax_achieved_theoretical_steady = Us_flat_achieved_theoretical( index_max_theoretical_encoded, : );
-Us_critmax_achieved_numerical_steady = Us_flat_achieved_numerical( index_max_numerical_encoded, : );
+Us_critmin_theoretical_steady = Us_flat_theoretical( index_min_theoretical_encoded, : );
+Us_critmin_numerical_steady = Us_flat_numerical( index_min_numerical_encoded, : );
+Us_critmax_theoretical_steady = Us_flat_theoretical( index_max_theoretical_encoded, : );
+Us_critmax_numerical_steady = Us_flat_numerical( index_max_numerical_encoded, : );
 
 % Retrieve the minimum and maximum decoded theoretical and numerical network results.
-ys_critmin_achieved_theoretical_steady = f_decode( Us_critmin_achieved_theoretical_steady );
-ys_critmin_achieved_numerical_steady = f_decode( Us_critmin_achieved_numerical_steady );
-ys_critmax_achieved_theoretical_steady = f_decode( Us_critmax_achieved_theoretical_steady );
-ys_critmax_achieved_numerical_steady = f_decode( Us_critmax_achieved_numerical_steady );
+ys_critmin_theoretical_steady = f_decode( Us_critmin_theoretical_steady );
+ys_critmin_numerical_steady = f_decode( Us_critmin_numerical_steady );
+ys_critmax_theoretical_steady = f_decode( Us_critmax_theoretical_steady );
+ys_critmax_numerical_steady = f_decode( Us_critmax_numerical_steady );
 
 % Print the absolute subnetwork encoded summary statistics.
-network.numerical_method_utilities.print_error_statistics( header_str_encoded, unit_str_encoded, 1/scale, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, Us_critmin_achieved_theoretical_steady, error_min_numerical_encoded, error_min_percentage_numerical_encoded, Us_critmin_achieved_numerical_steady, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, Us_critmax_achieved_theoretical_steady, error_max_numerical_encoded, error_max_percentage_numerical_encoded, Us_critmax_achieved_numerical_steady, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded )    
-network.numerical_method_utilities.print_error_statistics( header_str_decoded, unit_str_decoded, 1/scale, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, ys_critmin_achieved_theoretical_steady, error_min_numerical_decoded, error_min_percentage_numerical_decoded, ys_critmin_achieved_numerical_steady, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, ys_critmax_achieved_theoretical_steady, error_max_numerical_decoded, error_max_percentage_numerical_decoded, ys_critmax_achieved_numerical_steady, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded )    
+network.numerical_method_utilities.print_error_statistics( header_str_encoded, unit_str_encoded, 1/scale, error_rmse_theoretical_encoded, error_rmse_percentage_theoretical_encoded, error_rmse_numerical_encoded, error_rmse_percentage_numerical_encoded, error_std_theoretical_encoded, error_std_percentage_theoretical_encoded, error_std_numerical_encoded, error_std_percentage_numerical_encoded, error_min_theoretical_encoded, error_min_percentage_theoretical_encoded, Us_critmin_theoretical_steady, error_min_numerical_encoded, error_min_percentage_numerical_encoded, Us_critmin_numerical_steady, error_max_theoretical_encoded, error_max_percentage_theoretical_encoded, Us_critmax_theoretical_steady, error_max_numerical_encoded, error_max_percentage_numerical_encoded, Us_critmax_numerical_steady, error_range_theoretical_encoded, error_range_percentage_theoretical_encoded, error_range_numerical_encoded, error_range_percentage_numerical_encoded )    
+network.numerical_method_utilities.print_error_statistics( header_str_decoded, unit_str_decoded, 1/scale, error_rmse_theoretical_decoded, error_rmse_percentage_theoretical_decoded, error_rmse_numerical_decoded, error_rmse_percentage_numerical_decoded, error_std_theoretical_decoded, error_std_percentage_theoretical_decoded, error_std_numerical_decoded, error_std_percentage_numerical_decoded, error_min_theoretical_decoded, error_min_percentage_theoretical_decoded, ys_critmin_theoretical_steady, error_min_numerical_decoded, error_min_percentage_numerical_decoded, ys_critmin_numerical_steady, error_max_theoretical_decoded, error_max_percentage_theoretical_decoded, ys_critmax_theoretical_steady, error_max_numerical_decoded, error_max_percentage_numerical_decoded, ys_critmax_numerical_steady, error_range_theoretical_decoded, error_range_percentage_theoretical_decoded, error_range_numerical_decoded, error_range_percentage_numerical_decoded )    
 
 
 %% Plot the Subnetwork Results.
@@ -467,65 +475,65 @@ saveas( fig, [ save_directory, '\', 'absolute_division_sso_desired_decoded' ] )
 
 % Create a plot of the encoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Output, U3 [mV]' ), title( 'AD: Encoded Steady State Response (Achieved Theoretical)' )
-surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*Us_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
-saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_theoretical_encoded' ] )
+surf( scale*Us_grid_theoretical( :, :, 1 ), scale*Us_grid_theoretical( :, :, 2 ), scale*Us_grid_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_theoretical_encoded' ] )
 
 % Create a plot of the decoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Achieved Theoretical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Achieved Theoretical)' )
-surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*Xs_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
-saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_theoretical_decoded' ] )
+surf( scale*Xs_grid_theoretical( :, :, 1 ), scale*Xs_grid_theoretical( :, :, 2 ), scale*Xs_grid_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_theoretical_decoded' ] )
 
 % Create a plot of the encoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Achieved Numerical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Output, U3 [mV]' ), title( 'AD: Encoded Steady State Response (Achieved Numerical)' )
-surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), scale*Us_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
-saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_numerical_encoded' ] )
+surf( scale*Us_grid_numerical( :, :, 1 ), scale*Us_grid_numerical( :, :, 2 ), scale*Us_grid_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_numerical_encoded' ] )
 
 % Create a plot of the decoded achieved numerical network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Achieved Numerical)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Achieved Numerical)' )
-surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), scale*Xs_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
-saveas( fig, [ save_directory, '\', 'absolute_division_sso_achieved_numerical_decoded' ] )
+surf( scale*Xs_grid_numerical( :, :, 1 ), scale*Xs_grid_numerical( :, :, 2 ), scale*Xs_grid_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+saveas( fig, [ save_directory, '\', 'absolute_division_sso_numerical_decoded' ] )
 
 % Create a plot of the encoded desired, achieved (theory), and achieved (numerical) network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input, U1 [mV]' ), ylabel( 'Encoded Output, U2 [mV]' ), title( 'AD: Encoded Steady State Response (Comparison)' )
 h1 = surf( scale*Us_grid_desired( :, :, 1 ), scale*Us_grid_desired( :, :, 2 ), scale*Us_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.7 );
-h2 = surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*Us_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 );
-h3 = surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), scale*Us_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 );
+h2 = surf( scale*Us_grid_theoretical( :, :, 1 ), scale*Us_grid_theoretical( :, :, 2 ), scale*Us_grid_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 );
+h3 = surf( scale*Us_grid_numerical( :, :, 1 ), scale*Us_grid_numerical( :, :, 2 ), scale*Us_grid_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_division_sso_comparison_encoded' ] )
 
 % Create a plot of the decoded desired, achieved (theory), and achieved (numerical) network behavior.
 fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Response (Comparison)' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Output, x3 [-]' ), title( 'AD: Decoded Steady State Response (Comparison)' )
 h1 = surf( scale*Xs_grid_desired( :, :, 1 ), scale*Xs_grid_desired( :, :, 2 ), scale*Xs_grid_desired( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'b', 'Facealpha', 0.7 );
-h2 = surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*Xs_grid_achieved_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 );
-h3 = surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), scale*Xs_grid_achieved_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 );
+h2 = surf( scale*Xs_grid_theoretical( :, :, 1 ), scale*Xs_grid_theoretical( :, :, 2 ), scale*Xs_grid_theoretical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 );
+h3 = surf( scale*Xs_grid_numerical( :, :, 1 ), scale*Xs_grid_numerical( :, :, 2 ), scale*Xs_grid_numerical( :, :, 3 ), 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 );
 legend( [ h1, h2, h3 ], { 'Desired', 'Achieved (Theoretical)', 'Achieved (Numerical)' }, 'Location', 'Best' )
 saveas( fig, [ save_directory, '\', 'absolute_division_sso_comparison_decoded' ] )
 
 % Create a plot of the encoded theoretical and numerical error.
 fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Error' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Error, E [mV]' ), title( 'AD: Encoded Steady State Error' )
-surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), scale*errors_grid_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
-surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), scale*errors_grid_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+surf( scale*Us_grid_theoretical( :, :, 1 ), scale*Us_grid_theoretical( :, :, 2 ), scale*errors_grid_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Us_grid_numerical( :, :, 1 ), scale*Us_grid_numerical( :, :, 2 ), scale*errors_grid_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'absolute_division_sse_encoded' ] )
 
 % Create a plot of the decoded theoretical and numerical error.
 fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Error' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), ylabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Error, E [-]' ), title( 'AD: Decoded Steady State Error' )
-surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), scale*errors_grid_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
-surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), scale*errors_grid_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+surf( scale*Xs_grid_theoretical( :, :, 1 ), scale*Xs_grid_theoretical( :, :, 2 ), scale*errors_grid_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Xs_grid_numerical( :, :, 1 ), scale*Xs_grid_numerical( :, :, 2 ), scale*errors_grid_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'absolute_division_sse_decoded' ] )
 
 % Create a plot of the encoded theoretical and numerical percentage error. 
 fig = figure( 'Color', 'w', 'Name', 'AD: Encoded Steady State Error Percentage' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Encoded Input 1, U1 [mV]' ), ylabel( 'Encoded Input 2, U2 [mV]' ), zlabel( 'Encoded Error Percentage, E [%]' ), title( 'AD: Encoded Steady State Error Percentage' )
-surf( scale*Us_grid_achieved_theoretical( :, :, 1 ), scale*Us_grid_achieved_theoretical( :, :, 2 ), error_grid_percentages_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
-surf( scale*Us_grid_achieved_numerical( :, :, 1 ), scale*Us_grid_achieved_numerical( :, :, 2 ), error_grid_percentages_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+surf( scale*Us_grid_theoretical( :, :, 1 ), scale*Us_grid_theoretical( :, :, 2 ), error_grid_percentages_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Us_grid_numerical( :, :, 1 ), scale*Us_grid_numerical( :, :, 2 ), error_grid_percentages_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'absolute_division_ssep_encoded' ] )
 
 % Create a plot of the decoded theoretical and numerical percentage error.
 fig = figure( 'Color', 'w', 'Name', 'AD: Decoded Steady State Error Percentage' ); hold on, grid on, rotate3d on, view( 135, 30 ), xlabel( 'Decoded Input 1, x1 [-]' ), xlabel( 'Decoded Input 2, x2 [-]' ), zlabel( 'Decoded Error Percentage, E [%]' ), title( 'AD: Decoded Steady State Error Percentage' )
-surf( scale*Xs_grid_achieved_theoretical( :, :, 1 ), scale*Xs_grid_achieved_theoretical( :, :, 2 ), error_grid_percentages_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
-surf( scale*Xs_grid_achieved_numerical( :, :, 1 ), scale*Xs_grid_achieved_numerical( :, :, 2 ), error_grid_percentages_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
+surf( scale*Xs_grid_theoretical( :, :, 1 ), scale*Xs_grid_theoretical( :, :, 2 ), error_grid_percentages_theoretical_encoded, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+surf( scale*Xs_grid_numerical( :, :, 1 ), scale*Xs_grid_numerical( :, :, 2 ), error_grid_percentages_numerical_encoded, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 saveas( fig, [ save_directory, '\', 'absolute_division_ssep_decoded' ] )
 

@@ -8941,16 +8941,14 @@ classdef network_class
         
         
         % Implement a function to unpack steady state simulation data.
-        function [ xs_numerical, Us_numerical, Ias_magnitude ] = unpack_steady_state_simulation_data( ~, data )
+        function [ Xs_flat_numerical, Us_flat_numerical, Xs_grid_numerical, Us_grid_numerical, Ias_magnitude ] = unpack_steady_state_simulation_data( ~, data )
             
-            % Retrieve the applied current magnitudes.
+            % Unpack the steady state simulation data. 
+            Xs_flat_numerical = data.Xs_flat_numerical;
+            Us_flat_numerical = data.Us_flat_numerical;
+            Xs_grid_numerical = data.Xs_grid_numerical;
+            Us_grid_numerical = data.Us_grid_numerical;
             Ias_magnitude = data.Ias_magnitude;
-            
-            % Retrieve the encoded steady state response.
-            Us_numerical = data.Us_numerical;
-            
-            % Retrieve the decoded steady state response.
-            xs_numerical = data.xs_numerical;
             
         end
         
@@ -21219,7 +21217,7 @@ classdef network_class
         
         
         % Implement a function to simulate steady state network results for multiple sets of input signals.
-        function Us_numerical = compute_steady_state_simulation( self, dts, tfs, integration_method, input_current_ID, applied_current_magnitudes, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
+        function Us_numerical = compute_steady_state_simulation( self, dts, tfs, integration_method, input_current_IDs, applied_current_magnitudes, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
 
             % Set the default simulation duration.
             if nargin < 14, network_utilities = self.network_utilities; end                                                                                                                                         % [class] Network Utilities Class.
@@ -21231,7 +21229,7 @@ classdef network_class
             if nargin < 8, synapse_manager = self.synapse_manager; end                                                                                                                                              % [class] Synapse Manager Class.
             if nargin < 7, neuron_manager = self.neuron_manager; end                                                                                                                                                % [class] Neuron Manager Class.
             if nargin < 6, applied_current_magnitudes = zeros( 1, 1 ); end                                                                                                                                          % [A] Applied Current Magnitudes.
-            if nargin < 5, input_current_ID = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
+            if nargin < 5, input_current_IDs = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
             if nargin < 4, integration_method = 'RK4'; end                                                                                                                                                          % [str] Integration Method.
             if nargin < 3, tfs = self.tf; end                                                                                                                                                                        % [s] Simulation Duration.
             if nargin < 2, dts = self.dt; end                                                                                                                                                                        % [s] Simulation Time Step.
@@ -21287,7 +21285,7 @@ classdef network_class
             for k = 1:num_input_signals         	% Iterate through each of the currents applied to the input neuron...
                 
                 % Create applied currents.
-                [ ~, applied_current_manager ] = applied_current_manager.set_applied_current_property( input_current_ID, applied_current_magnitudes( k ), 'Ias', applied_current_manager.applied_currents, true );
+                [ ~, applied_current_manager ] = applied_current_manager.set_applied_current_property( input_current_IDs, applied_current_magnitudes( k, : ), 'Ias', applied_current_manager.applied_currents, true );
 
                 % Simulate the network.
                 [ ~, Us, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~ ] = self.compute_simulation( dts( k ), tfs( k ), integration_method, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, false, process_option, undetected_option, network_utilities );
@@ -21301,7 +21299,7 @@ classdef network_class
         
         
         % Implement a function to simulate encoded steady state network results for multiple sets of encoded input signals.
-        function [ Us_numerical, Ias_magnitude ] = compute_steady_state_simulation_encoded( self, dt, tf, integration_method, input_current_ID, Us_numerical_input, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
+        function [ Us_numerical, Ias_magnitude ] = compute_steady_state_simulation_encoded( self, dt, tf, integration_method, input_current_IDs, Us_numerical_input, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
             
             % Set the default simulation duration.
             if nargin < 14, network_utilities = self.network_utilities; end                                                                                                                                         % [class] Network Utilities Class.
@@ -21313,28 +21311,28 @@ classdef network_class
             if nargin < 8, synapse_manager = self.synapse_manager; end                                                                                                                                              % [class] Synapse Manager Class.
             if nargin < 7, neuron_manager = self.neuron_manager; end                                                                                                                                                % [class] Neuron Manager Class.
             if nargin < 6, Us_numerical_input = zeros( 1, 1 ); end                                                                                                                                                  % [V] Encoded Input (Target Voltage for Input Neurons).
-            if nargin < 5, input_current_ID = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
+            if nargin < 5, input_current_IDs = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
             if nargin < 4, integration_method = 'RK4'; end                                                                                                                                                          % [str] Integration Method.
             if nargin < 3, tf = self.tf; end                                                                                                                                                                        % [s] Simulation Duration.
             if nargin < 2, dt = self.dt; end                                                                                                                                                                        % [s] Simulation Time Step.
             
             % Retrieve the ID of the neuron to which the input current is being applied.
-            neuron_ID = applied_current_manager.get_applied_current_property( input_current_ID, 'to_neuron_ID', true, applied_current_manager.applied_currents, undetected_option );
+            neuron_IDs = applied_current_manager.get_applied_current_property( input_current_IDs, 'to_neuron_ID', true, applied_current_manager.applied_currents, undetected_option );
             
             % Retrieve the membrane conductance.
-            Gm = neuron_manager.get_neuron_property( neuron_ID, 'Gm', true, neuron_manager.neurons, undetected_option );
+            Gms = neuron_manager.get_neuron_property( neuron_IDs, 'Gm', true, neuron_manager.neurons, undetected_option );
                         
             % Create the applied current magnitudes that are necessary to achieve the encoded input signals.
-            Ias_magnitude = Gm*Us_numerical_input;
+            Ias_magnitude = Gms.*Us_numerical_input;
 
             % Compute the encoded steady state simulation results.
-            Us_numerical = self.compute_steady_state_simulation( dt, tf, integration_method, input_current_ID, Ias_magnitude, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities );
+            Us_numerical = self.compute_steady_state_simulation( dt, tf, integration_method, input_current_IDs, Ias_magnitude, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities );
             
         end
         
                 
         % Implement a function to simulate decoded steady state network results for multiple sets of decoded input signals.
-        function [ xs_numerical, Us_numerical, Ias_magnitude ] = compute_steady_state_simulation_decoded( self, dt, tf, integration_method, input_current_ID, xs_numerical_input, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
+        function [ xs_numerical, Us_numerical, Ias_magnitude ] = compute_steady_state_simulation_decoded( self, dt, tf, integration_method, input_current_IDs, xs_numerical_input, f_encode_input, f_decode_output, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities )
         
             % Set the default simulation duration.
             if nargin < 16, network_utilities = self.network_utilities; end                                                                                                                                         % [class] Network Utilities Class.
@@ -21348,7 +21346,7 @@ classdef network_class
             if nargin < 8, f_decode_output = @( xs ) zeros( size( xs ) ); end
             if nargin < 7, f_encode_input = @( xs ) zeros( size( xs ) ); end
             if nargin < 6, xs_numerical_input = zeros( 1, 1 ); end                                                                                                                                                  % [V] Encoded Input (Target Voltage for Input Neurons).
-            if nargin < 5, input_current_ID = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
+            if nargin < 5, input_current_IDs = applied_current_manager.to_neuron_ID2applied_current_ID( neuron_manager.neurons( 1 ).ID, applied_current_manager.applied_currents, undetected_option ); end           % [#] Applied Current ID.
             if nargin < 4, integration_method = 'RK4'; end                                                                                                                                                          % [str] Integration Method.
             if nargin < 3, tf = self.tf; end                                                                                                                                                                        % [s] Simulation Duration.
             if nargin < 2, dt = self.dt; end     
@@ -21357,13 +21355,13 @@ classdef network_class
             Us_numerical_input = f_encode_input( xs_numerical_input );
                         
             % Compute the encoded steady state simulation results.
-            [ Us_numerical, Ias_magnitude ] = self.compute_steady_state_simulation_encoded( dt, tf, integration_method, input_current_ID, Us_numerical_input, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities );
+            [ Us_numerical, Ias_magnitude ] = self.compute_steady_state_simulation_encoded( dt, tf, integration_method, input_current_IDs, Us_numerical_input, neuron_manager, synapse_manager, applied_current_manager, applied_voltage_manager, filter_disabled_flag, process_option, undetected_option, network_utilities );
             
             % Initialize an array to store the decoded steady state simulation results.
             xs_numerical = [ xs_numerical_input, zeros( size( xs_numerical_input, 1 ), 1 ) ];
             
             % Compute the decoded output signals.
-            xs_numerical( :, 2 ) = f_decode_output( Us_numerical( :, 2 ) );
+            xs_numerical( :, end ) = f_decode_output( Us_numerical( :, end ) );
             
         end
         

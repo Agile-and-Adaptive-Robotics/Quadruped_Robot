@@ -1457,16 +1457,17 @@ classdef plotting_utilities_class
         
         
         % Implement a function to create a surface plot of the steady state error of a subnetwork for a specific gain.
-        function fig = surf_steady_state_error_comparison( ~, Xs_absolute, Ys_absolute, Es_theoretical_absolute, Es_numerical_absolute, color_absolute, Xs_relative, Ys_relative, Es_theoretical_relative, Es_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variables_string, units, title_tag, compact_flag, save_flag, save_directory, save_tag )
+        function fig = surf_steady_state_error_comparison( ~, Xs_absolute, Ys_absolute, Es_theoretical_absolute, Es_numerical_absolute, color_absolute, Xs_relative, Ys_relative, Es_theoretical_relative, Es_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, compact_flag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 22, save_tag = ''; end
-            if nargin < 21, save_directory = './'; end
-            if nargin < 20, save_flag = true; end
-            if nargin < 19, compact_flag = true; end
-            if nargin < 18, title_tag = ''; end
-            if nargin < 17, units = { '-', 'mV', 'mV' }; end
-            if nargin < 16, variables_string = { 'c1', 'U1', 'E' }; end
+            if nargin < 23, save_tag = ''; end
+            if nargin < 22, save_directory = './'; end
+            if nargin < 21, save_flag = true; end
+            if nargin < 20, compact_flag = true; end
+            if nargin < 19, title_tag = ''; end
+            if nargin < 18, units = { '-', 'mV', 'mV' }; end
+            if nargin < 17, variables_symbol_string = { 'u1', 'u2', 'E' }; end
+            if nargin < 16, variables_text_string = { 'Input 1', 'Input 2', 'E' }; end
             if nargin < 15, encoded_string = 'Encoded'; end
             if nargin < 14, subnetwork_name = 'Transmission'; end
             if nargin < 13, viewing_angle = [ 145, 15 ]; end
@@ -1476,9 +1477,9 @@ classdef plotting_utilities_class
             title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error %s', subnetwork_name, encoded_string, title_tag );
             
             % Create the figure labels.
-            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units{ 1 } );
-            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 2 }, units{ 2 } );
-            zlabel_string = sprintf( '%s Error, %s [%s]', encoded_string, variables_string{ 3 }, units{ 3 } );
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
             
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string );
@@ -1490,12 +1491,12 @@ classdef plotting_utilities_class
                 hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )            
 
                 % Plot the absolute theoretical and numerical steady state errors.
-                surf( Xs_absolute, scale*Ys_absolute, scale*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
-                surf( Xs_absolute, scale*Ys_absolute, scale*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 ) 
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 ) 
 
                 % Plot the relative theoretical and numerical steady state errors.
-                surf( Xs_relative, scale*Ys_relative, scale*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
-                surf( Xs_relative, scale*Ys_relative, scale*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 ) 
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 ) 
 
                 % Add a legend to the figure.
                 legend( { 'Absolute Theoretical', 'Absolute Numerical', 'Relative Theoretical', 'Relative Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
@@ -1508,14 +1509,14 @@ classdef plotting_utilities_class
 
                 % Create the first subplot.
                 subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title1 )            
-                surf( Xs_absolute, scale*Ys_absolute, scale*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
-                surf( Xs_absolute, scale*Ys_absolute, scale*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
                 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 
                 % Create the second subplot.
                 subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title2 )            
-                surf( Xs_relative, scale*Ys_relative, scale*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
-                surf( Xs_relative, scale*Ys_relative, scale*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
                 legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
 
             end
@@ -2234,15 +2235,16 @@ classdef plotting_utilities_class
         
         
         % Implement a function to create a surface plot of the steady state response of a subnetwork for a specific encoding scheme and gain.
-        function fig = surf_steady_state_error_difference( ~, Xs, Ys, Es_theoretical, Es_numerical, scale, viewing_angle, subnetwork_name, encoded_string, variables_string, units, title_tag, save_flag, save_directory, save_tag )
+        function fig = surf_steady_state_error_difference( ~, Xs, Ys, Es_theoretical, Es_numerical, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 15, save_tag = ''; end
-            if nargin < 14, save_directory = './'; end
-            if nargin < 13, save_flag = true; end
-            if nargin < 12, title_tag = ''; end
-            if nargin < 11, units = { '-', 'mV', 'mV' }; end
-            if nargin < 10, variables_string = { 'c1', 'U1', 'E' }; end
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, title_tag = ''; end
+            if nargin < 12, units = { 'mV', 'mV', 'mV' }; end
+            if nargin < 11, variables_symbol_string = { 'u1', 'u2', 'dE' }; end
+            if nargin < 10, variables_text_string = { 'Input 1', 'Input 2', 'Error Difference' }; end
             if nargin < 9, encoded_string = 'Encoded'; end
             if nargin < 8, subnetwork_name = 'Transmission'; end
             if nargin < 7, viewing_angle = [ 145, 15 ]; end
@@ -2252,16 +2254,16 @@ classdef plotting_utilities_class
             title_string = sprintf( '%s: %s Steady State Error Difference %s', subnetwork_name, encoded_string, title_tag );
             
             % Compute the figure labels.
-            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units{ 1 } );
-            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 2 }, units{ 2 } );
-            zlabel_string = sprintf( '%s Error Difference, %s [%s]', encoded_string, variables_string{ 3 }, units{ 3 } );
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
             
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
             
             % Plot the theoretical and numerical errors.
-            surf( Xs, scale*Ys, scale*Es_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-            surf( Xs, scale*Ys, scale*Es_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*Es_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*Es_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
             
             % Add a legend to the figure.
             legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
@@ -3144,6 +3146,85 @@ classdef plotting_utilities_class
         end
         
         
+        % Implement a function to create a surface plot of the steady state error percentage of a subnetwork for a specific gain.
+        function fig = surf_steady_state_error_percentage_comparison( ~, Xs_absolute, Ys_absolute, Es_theoretical_absolute, Es_numerical_absolute, color_absolute, Xs_relative, Ys_relative, Es_theoretical_relative, Es_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 23, save_tag = ''; end
+            if nargin < 22, save_directory = './'; end
+            if nargin < 21, save_flag = true; end
+            if nargin < 20, compact_flag = true; end
+            if nargin < 19, title_tag = ''; end
+            if nargin < 18, units = { '-', 'mV', 'mV' }; end
+            if nargin < 17, variables_symbol_string = { 'c1', 'U1', 'E' }; end
+            if nargin < 16, variables_text_string = { 'Input 1', 'Input 2', 'Error Percentage' }; end
+            if nargin < 15, encoded_string = 'Encoded'; end
+            if nargin < 14, subnetwork_name = 'Transmission'; end
+            if nargin < 13, viewing_angle = [ 145, 15 ]; end
+            if nargin < 12, scale = 1; end
+            
+            % Create the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error Percentage %s', subnetwork_name, encoded_string, title_tag );
+            
+            % Create the figure labels.
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to create a compact plot.
+            if compact_flag                 % If we want to create a compact plot...
+                
+                % Format the figure.
+                hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )            
+
+                % Plot the absolute theoretical and numerical steady state errors.
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 ) 
+
+                % Plot the relative theoretical and numerical steady state errors.
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 ) 
+
+                % Add a legend to the figure.
+                legend( { 'Absolute Theoretical', 'Absolute Numerical', 'Relative Theoretical', 'Relative Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+            else                            % Otherwise...
+            
+                % Create the subplot titles.
+                subplot_title1 = sprintf( 'Absolute %s: %s Steady State Error Percentage %s', subnetwork_name, encoded_string, title_tag );
+                subplot_title2 = sprintf( 'Relative %s: %s Steady State Error Percentage %s', subnetwork_name, encoded_string, title_tag );
+
+                % Create the first subplot.
+                subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title1 )            
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*Es_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
+                legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+                % Create the second subplot.
+                subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title2 )            
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*Es_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
+                legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+            end
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_ssep_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
         % Implement a function to plot the steady state error difference of a subnetwork for a specific gain.
         function fig = plot_steady_state_error_percentage_difference( ~, xs_theoretical, error_percentages_difference_theoretical, error_percentages_difference_numerical, scale, subnetwork_name, encoded_string, variables_string, units_string, save_flag, save_directory )
             
@@ -3176,6 +3257,85 @@ classdef plotting_utilities_class
                     
                 % Define the file name.
                 file_name = sprintf( '%s_%s_sse_percentage_difference.png', lower( subnetwork_name ), lower( encoded_string ) );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
+        
+        % Implement a function to create a surface plot of the steady state error percentage difference of a subnetwork for a specific gain.
+        function fig = surf_steady_state_error_percentage_difference( ~, Xs_absolute, Ys_absolute, dEs_theoretical_absolute, dEs_numerical_absolute, color_absolute, Xs_relative, Ys_relative, dEs_theoretical_relative, dEs_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, compact_flag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 23, save_tag = ''; end
+            if nargin < 22, save_directory = './'; end
+            if nargin < 21, save_flag = true; end
+            if nargin < 20, compact_flag = true; end
+            if nargin < 19, title_tag = ''; end
+            if nargin < 18, units = { '-', 'mV', 'mV' }; end
+            if nargin < 17, variables_symbol_string = { 'u1', 'u2', 'dE' }; end
+            if nargin < 16, variables_text_string = { 'Input 1', 'Input 2', 'Error Percentage Difference' }; end
+            if nargin < 15, encoded_string = 'Encoded'; end
+            if nargin < 14, subnetwork_name = 'Transmission'; end
+            if nargin < 13, viewing_angle = [ 145, 15 ]; end
+            if nargin < 12, scale = 1; end
+            
+            % Create the figure title.
+            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error Percentage Difference %s', subnetwork_name, encoded_string, title_tag );
+            
+            % Create the figure labels.
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string );
+            
+            % Determine whether to create a compact plot.
+            if compact_flag                 % If we want to create a compact plot...
+                
+                % Format the figure.
+                hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )            
+
+                % Plot the absolute theoretical and numerical steady state errors.
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 ) 
+
+                % Plot the relative theoretical and numerical steady state errors.
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 ) 
+
+                % Add a legend to the figure.
+                legend( { 'Absolute Theoretical', 'Absolute Numerical', 'Relative Theoretical', 'Relative Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
+                
+            else                            % Otherwise...
+            
+                % Create the subplot titles.
+                subplot_title1 = sprintf( 'Absolute %s: %s Steady State Error Percentage Difference %s', subnetwork_name, encoded_string, title_tag );
+                subplot_title2 = sprintf( 'Relative %s: %s Steady State Error Percentage Difference %s', subnetwork_name, encoded_string, title_tag );
+
+                % Create the first subplot.
+                subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title1 )            
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
+                legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+                % Create the second subplot.
+                subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title2 )            
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
+                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
+                legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+
+            end
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_ssepd_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
                 
                 % Save the figure.
                 saveas( fig, [ save_directory, '\', file_name ] ) 
