@@ -398,6 +398,7 @@ if adapt_step_size_flag                     % If we want to adapt the step sizes
 
 end
 
+% Convert the flat step sizes to 
 
 %% Simulate the Subnetwork.
 
@@ -613,32 +614,28 @@ fig_encoded_ssed = plotting_utilities.surf_steady_state_error_difference( Us_gri
 fig_decoded_ssed = plotting_utilities.surf_steady_state_error_difference( Xs_grid_theoretical_absolute( :, :, 1 ), Xs_grid_theoretical_absolute( :, :, 2 ), errors_diff_grid_theoretical_decoded, errors_diff_grid_numerical_decoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Error Difference' }, { 'x1', 'x2', 'dE' }, { '-', '-', '-' }, '', save_flag, save_directory, '' );
 
 % Plot the encoded and decoded steady state error percentage difference between the absolute and relative transmission formulations.
-fig_encoded_ssepd = plotting_utilities.plot_steady_state_error_percentage_difference( Us_theoretical_absolute( :, 1 ), errors_percent_diff_flat_theoretical_encoded, Us_numerical_absolute( :, 1 ), errors_percent_diff_flat_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ssepd = plotting_utilities.plot_steady_state_error_percentage_difference( xs_theoretical_absolute( :, 1 ), errors_percent_diff_flat_theoretical_decoded, xs_numerical_absolute( :, 1 ), errors_percent_diff_flat_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
-
-
-% SURF STEADY STATE ERROR PERCENTAGE DIFFERENCE IN PROGRESS.
-fig_encoded_ssepd = plotting_utilities.surf_steady_state_error_percentage_difference( Us_grid_theoretical_absolute( :, :, 1 ), Us_grid_theoretical_absolute( :, :, 2 ), errors_percent_diff_flat_theoretical_encoded, errors_percent_diff_flat_numerical_encoded, color_absolute, Us_grid_theoretical_relative( :, :, 1 ), Us_grid_theoretical_relative( :, :, 2 ), dEs_theoretical_relative, dEs_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, compact_flag, save_flag, save_directory, save_tag )
+fig_encoded_ssepd = plotting_utilities.surf_steady_state_error_percentage_difference( Us_grid_theoretical_absolute( :, :, 1 ),  Us_grid_theoretical_absolute( :, :, 2 ), errors_percent_diff_grid_theoretical_encoded, errors_percent_diff_grid_numerical_encoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Encoded', { 'Input 1', 'Input 2', 'Error Difference Percentage' }, { 'u1', 'u2', 'dE' }, { 'mV', 'mV', '%' }, save_flag, save_directory );
+fig_decoded_ssepd = plotting_utilities.surf_steady_state_error_percentage_difference( Xs_grid_theoretical_absolute( :, :, 1 ),  Xs_grid_theoretical_absolute( :, :, 2 ), errors_percent_diff_grid_theoretical_decoded, errors_percent_diff_grid_numerical_decoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Error Difference Percentage' }, { 'x1', 'x2', 'dE' }, { '-', '-', '%' }, save_flag, save_directory );
 
 
 %% Plot the Subnetwork Steady State Error Improvement.
 
 % Plot the encoded and encoded steady state error improvement between the absolute and relative transmission formulations.
-fig_encoded_ssei = plotting_utilities.plot_steady_state_error_improvement( Us_theoretical_absolute( :, 1 ), errors_improv_flat_theoretical_encoded, Us_numerical_absolute( :, 1 ), errors_improv_flat_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ssei = plotting_utilities.plot_steady_state_error_improvement( xs_theoretical_absolute( :, 1 ), errors_improv_flat_theoretical_decoded, xs_numerical_absolute( :, 1 ), errors_improv_flat_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+fig_encoded_ssei = plotting_utilities.surf_steady_state_error_improvement( Us_grid_theoretical_absolute( :, :, 1 ), Us_grid_theoretical_absolute( :, :, 2 ), errors_improv_grid_theoretical_encoded, errors_improv_grid_numerical_encoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Encoded', { 'Input 1', 'Input 2', 'Error Improvement' }, { 'u1', 'u2', 'dE' }, { 'mV', 'mV', 'mV' }, '', save_flag, save_directory, '' );
+fig_decoded_ssei = plotting_utilities.surf_steady_state_error_improvement( Xs_grid_theoretical_absolute( :, :, 1 ), Xs_grid_theoretical_absolute( :, :, 2 ), errors_improv_grid_theoretical_decoded, errors_improv_grid_numerical_decoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Error Improvement' }, { 'x1', 'x2', 'dE' }, { '-', '-', '-' }, '', save_flag, save_directory, '' );
 
 % Plot the encoded and decoded steady state error percentage improvement between the absolute and relative transmission formulations.
-fig_encoded_ssepi = plotting_utilities.plot_steady_state_error_percentage_improvement( Us_theoretical_absolute( :, 1 ), errors_percent_improv_flat_theoretical_encoded, Us_numerical_absolute( :, 1 ), errors_percent_improv_flat_numerical_encoded, scale, subnetwork_name, 'Encoded', 'U1', 'dU', 'mV', save_flag, save_directory );
-fig_decoded_ssepi = plotting_utilities.plot_steady_state_error_percentage_improvement( xs_theoretical_absolute( :, 1 ), errors_percent_improv_flat_theoretical_decoded, xs_numerical_absolute( :, 1 ), errors_percent_improv_flat_numerical_decoded, scale, subnetwork_name, 'Decoded', 'x1', 'dE', '-', save_flag, save_directory );
+fig_encoded_ssepi = plotting_utilities.surf_steady_state_error_percentage_improvement( Us_grid_theoretical_absolute( :, :, 1 ), Us_grid_theoretical_absolute( :, :, 2 ), errors_percent_improv_grid_theoretical_encoded, errors_percent_improv_grid_numerical_encoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Encoded', { 'Input 1', 'Input 2', 'Error Percent Improvement' }, { 'u1', 'u2', 'dE' }, { 'mV', 'mV', '%' }, '', save_flag, save_directory, '' );
+fig_decoded_ssepi = plotting_utilities.surf_steady_state_error_percentage_improvement( Xs_grid_theoretical_absolute( :, :, 1 ), Xs_grid_theoretical_absolute( :, :, 2 ), errors_percent_improv_grid_theoretical_decoded, errors_percent_improv_grid_numerical_decoded, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Error Percent Improvement' }, { 'x1', 'x2', 'dE' }, { '-', '-', '%' }, '', save_flag, save_directory, '' );
 
 
 %% Plot the Numerical Stability Information.
 
-% Plot the RK4 maximum timestep vs the encoded and decoded input.
-fig_rk4_maximum_timestep_encoded = plotting_utilities.plot_rk4_maximum_timestep( Us_desired_absolute( :, 1 ), dts_absolute, color_absolute, Us_desired_relative( :, 1 ), dts_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
-fig_rk4_maximum_timestep_decoded = plotting_utilities.plot_rk4_maximum_timestep( xs_desired_absolute( :, 1 ), dts_absolute, color_absolute, xs_desired_relative( :, 1 ), dts_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
+% Plot the RK4 maximum timestep vs the input signal.
+fig_rk4_maximum_timestep_absolute = plotting_utilities.surf_max_rk4_step_size( Xs_grid_theoretical_absolute( :, :, 1 ), Xs_grid_theoretical_absolute( :, :, 2 ), dts_grid_absolute, color_absolute, [ scale, scale, scale ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Max RK4 Step Size' }, { 'x1', 'x2', 'dT' }, { '-', '-', 'ms' }, '', save_flag, save_directory, '' );
+fig_rk4_maximum_timestep_relative = plotting_utilities.surf_max_rk4_step_size( Xs_grid_theoretical_relative( :, :, 1 ), Xs_grid_theoretical_relative( :, :, 2 ), dts_grid_relative, color_relative, [ scale, scale, scale ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Max RK4 Step Size' }, { 'x1', 'x2', 'dT' }, { '-', '-', 'ms' }, '', save_flag, save_directory, '' );
 
 % Plot the linearized system condition numbers vs the encoded and decoded input.
-fig_condition_numbers_encoded = plotting_utilities.plot_condition_numbers( Us_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, Us_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Encoded', 'U1', 'mV', save_flag, save_directory );
-fig_condition_numbers_decoded = plotting_utilities.plot_condition_numbers( xs_desired_absolute( :, 1 ), condition_numbers_absolute, color_absolute, xs_desired_relative( :, 1 ), condition_numbers_relative, color_relative, scale, subnetwork_name, 'Decoded', 'x1', '-', save_flag, save_directory );
+fig_condition_numbers_absolute = plotting_utilities.surf_max_condition_number( Xs_grid_theoretical_absolute( :, :, 1 ), Xs_grid_theoretical_absolute( :, :, 2 ), condition_numbers_grid_absolute, color_absolute, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Max Condition Number' }, { 'x1', 'x2', 'dK' }, { '-', '-', '-' }, '', save_flag, save_directory, '' );
+fig_condition_numbers_relative = plotting_utilities.surf_max_condition_number( Xs_grid_theoretical_relative( :, :, 1 ), Xs_grid_theoretical_relative( :, :, 2 ), condition_numbers_grid_relative, color_relative, [ scale, scale, 1 ], viewing_angle, subnetwork_name, 'Decoded', { 'Input 1', 'Input 2', 'Max Condition Number' }, { 'x1', 'x2', 'dK' }, { '-', '-', '-' }, '', save_flag, save_directory, '' );
 

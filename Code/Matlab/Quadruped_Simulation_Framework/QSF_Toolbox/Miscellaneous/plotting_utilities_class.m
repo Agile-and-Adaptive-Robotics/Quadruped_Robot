@@ -2691,15 +2691,16 @@ classdef plotting_utilities_class
         
         
         % Implement a function to create a surface plot of the steady state response of a subnetwork for a specific encoding scheme and gain.
-        function fig = surf_steady_state_error_improvement( ~, Xs, Ys, Es_theoretical, Es_numerical, scale, viewing_angle, subnetwork_name, encoded_string, variables_string, units, title_tag, save_flag, save_directory, save_tag )
+        function fig = surf_steady_state_error_improvement( ~, Xs, Ys, Es_theoretical, Es_numerical, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 15, save_tag = ''; end
-            if nargin < 14, save_directory = './'; end
-            if nargin < 13, save_flag = true; end
-            if nargin < 12, title_tag = ''; end
-            if nargin < 11, units = { '-', 'mV', 'mV' }; end
-            if nargin < 10, variables_string = { 'c1', 'U1', 'E' }; end
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, title_tag = ''; end
+            if nargin < 12, units = { 'mV', 'mV', 'mV' }; end
+            if nargin < 11, variables_symbol_string = { 'u1', 'u2', 'dE' }; end
+            if nargin < 10, variables_text_string = { 'Input 1', 'Input 2', 'Error Improvement' }; end
             if nargin < 9, encoded_string = 'Encoded'; end
             if nargin < 8, subnetwork_name = 'Transmission'; end
             if nargin < 7, viewing_angle = [ 145, 15 ]; end
@@ -2709,16 +2710,16 @@ classdef plotting_utilities_class
             title_string = sprintf( '%s: %s Steady State Error Improvement %s', subnetwork_name, encoded_string, title_tag );
             
             % Compute the figure labels.
-            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units{ 1 } );
-            ylabel_string = sprintf( '%s Input, %s [%s]', encoded_string, variables_string{ 2 }, units{ 2 } );
-            zlabel_string = sprintf( '%s Error Improvement, %s [%s]', encoded_string, variables_string{ 3 }, units{ 3 } );
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
             
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
             
             % Plot the theoretical and numerical errors.
-            surf( Xs, scale*Ys, scale*Es_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
-            surf( Xs, scale*Ys, scale*Es_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*Es_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*Es_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
             
             % Add a legend to the figure.
             legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
@@ -3266,76 +3267,41 @@ classdef plotting_utilities_class
         end
         
         
-        % Implement a function to create a surface plot of the steady state error percentage difference of a subnetwork for a specific gain.
-        function fig = surf_steady_state_error_percentage_difference( ~, Xs_absolute, Ys_absolute, dEs_theoretical_absolute, dEs_numerical_absolute, color_absolute, Xs_relative, Ys_relative, dEs_theoretical_relative, dEs_numerical_relative, color_relative, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, compact_flag, save_flag, save_directory, save_tag )
+        % Implement a function to create a surface plot of the steady state error difference of a subnetwork for a specific gain.
+        function fig = surf_steady_state_error_percentage_difference( ~, Xs_theoretical, Ys_theoretical, errors_percent_diff_theoretical, errors_percent_diff_numerical, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units_string, save_flag, save_directory )
             
             % Set the default input arguments.
-            if nargin < 23, save_tag = ''; end
-            if nargin < 22, save_directory = './'; end
-            if nargin < 21, save_flag = true; end
-            if nargin < 20, compact_flag = true; end
-            if nargin < 19, title_tag = ''; end
-            if nargin < 18, units = { '-', 'mV', 'mV' }; end
-            if nargin < 17, variables_symbol_string = { 'u1', 'u2', 'dE' }; end
-            if nargin < 16, variables_text_string = { 'Input 1', 'Input 2', 'Error Percentage Difference' }; end
-            if nargin < 15, encoded_string = 'Encoded'; end
-            if nargin < 14, subnetwork_name = 'Transmission'; end
-            if nargin < 13, viewing_angle = [ 145, 15 ]; end
-            if nargin < 12, scale = 1; end
+            if nargin < 14, save_directory = './'; end
+            if nargin < 13, save_flag = true; end
+            if nargin < 12, units_string = { 'mV', '%%' }; end
+            if nargin < 11, variables_symbol_string = { 'u1', 'u2', 'dE' }; end
+            if nargin < 10, variables_text_string = { 'Input 1', 'Input 2', 'Error Difference Percentage' }; end
+            if nargin < 9, encoded_string = 'Encoded'; end
+            if nargin < 8, subnetwork_name = 'Transmission'; end
+            if nargin < 7, viewing_angle = [ 135, 30 ]; end
+            if nargin < 6, scale = 1; end
             
-            % Create the figure title.
-            title_string = sprintf( 'Absolute vs Relative %s: %s Steady State Error Percentage Difference %s', subnetwork_name, encoded_string, title_tag );
-            
-            % Create the figure labels.
-            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
-            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
-            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
-            
+            % Compute the figure labels.
+            title_string = sprintf( '%s: %s Steady State Error Percentage Difference', subnetwork_name, encoded_string );
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units_string{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units_string{ 3 } );
+
             % Create the figure.
-            fig = figure( 'Color', 'w', 'Name', title_string );
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
             
-            % Determine whether to create a compact plot.
-            if compact_flag                 % If we want to create a compact plot...
-                
-                % Format the figure.
-                hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )            
-
-                % Plot the absolute theoretical and numerical steady state errors.
-                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
-                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 ) 
-
-                % Plot the relative theoretical and numerical steady state errors.
-                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
-                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 ) 
-
-                % Add a legend to the figure.
-                legend( { 'Absolute Theoretical', 'Absolute Numerical', 'Relative Theoretical', 'Relative Numerical' }, 'Location', 'Bestoutside', 'Orientation', 'Horizontal' )
-                
-            else                            % Otherwise...
+            % Plot the absolute and relative theoretical and numerical errors.
+            surf( scale( 1 )*Xs_theoretical, scale( 2 )*Ys_theoretical, scale( 3 )*errors_percent_diff_theoretical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.7 )
+            surf( scale( 1 )*Xs_theoretical, scale( 2 )*Ys_theoretical, scale( 3 )*errors_percent_diff_numerical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.7 )
             
-                % Create the subplot titles.
-                subplot_title1 = sprintf( 'Absolute %s: %s Steady State Error Percentage Difference %s', subnetwork_name, encoded_string, title_tag );
-                subplot_title2 = sprintf( 'Relative %s: %s Steady State Error Percentage Difference %s', subnetwork_name, encoded_string, title_tag );
-
-                % Create the first subplot.
-                subplot( 2, 1, 1 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title1 )            
-                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_theoretical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 2/3 )
-                surf( scale( 1 )*Xs_absolute, scale( 2 )*Ys_absolute, scale( 3 )*dEs_numerical_absolute, 'Edgecolor', 'None', 'Facecolor', color_absolute, 'Facealpha', 1 )            
-                legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-                % Create the second subplot.
-                subplot( 2, 1, 2 ), hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( subplot_title2 )            
-                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_theoretical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 2/3 )
-                surf( scale( 1 )*Xs_relative, scale( 2 )*Ys_relative, scale( 3 )*dEs_numerical_relative, 'Edgecolor', 'None', 'Facecolor', color_relative, 'Facealpha', 1 )            
-                legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
-
-            end
+            % Add a legend to the figure.
+            legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical')
             
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
                     
                 % Define the file name.
-                file_name = sprintf( '%s_%s_ssepd_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                file_name = sprintf( '%s_%s_ssepd.png', lower( subnetwork_name ), lower( encoded_string ) );
                 
                 % Save the figure.
                 saveas( fig, [ save_directory, '\', file_name ] ) 
@@ -3385,6 +3351,54 @@ classdef plotting_utilities_class
             
         end
      
+        
+        % Implement a function to create a surface plot of the steady state error percentage improvement of a subnetwork for a specific encoding scheme and gain.
+        function fig = surf_steady_state_error_percentage_improvement( ~, Xs, Ys, Es_theoretical, Es_numerical, scale, viewing_angle, subnetwork_name, encoded_string, variables_text_string, variables_symbol_string, units, title_tag, save_flag, save_directory, save_tag )
+            
+            % Set the default input arguments.
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, title_tag = ''; end
+            if nargin < 12, units = { 'mV', 'mV', '%' }; end
+            if nargin < 11, variables_symbol_string = { 'u1', 'u2', 'dE' }; end
+            if nargin < 10, variables_text_string = { 'Input 1', 'Input 2', 'Error Percent Improvement' }; end
+            if nargin < 9, encoded_string = 'Encoded'; end
+            if nargin < 8, subnetwork_name = 'Transmission'; end
+            if nargin < 7, viewing_angle = [ 145, 15 ]; end
+            if nargin < 6, scale = 1; end
+            
+            % Generate the figure title.
+            title_string = sprintf( '%s: %s Steady State Error Percent Improvement %s', subnetwork_name, encoded_string, title_tag );
+            
+            % Compute the figure labels.
+            xlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 1 }, variables_symbol_string{ 1 }, units{ 1 } );
+            ylabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 2 }, variables_symbol_string{ 2 }, units{ 2 } );
+            zlabel_string = sprintf( '%s %s, %s [%s]', encoded_string, variables_text_string{ 3 }, variables_symbol_string{ 3 }, units{ 3 } );
+            
+            % Create the figure.
+            fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle ), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string ), title( title_string )
+            
+            % Plot the theoretical and numerical errors.
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*Es_theoretical, 'Edgecolor', 'None', 'Facecolor', 'g', 'Facealpha', 0.5 )
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*Es_numerical, 'Edgecolor', 'None', 'Facecolor', 'r', 'Facealpha', 0.5 )
+            
+            % Add a legend to the figure.
+            legend( { 'Theoretical', 'Numerical' }, 'Location', 'Best', 'Orientation', 'Vertical' )
+            
+            % Determine whether to save the figure.
+            if save_flag                            % If we want to save the figure...
+                    
+                % Define the file name.
+                file_name = sprintf( '%s_%s_ssepi_%s.png', lower( subnetwork_name ), lower( encoded_string ), save_tag );
+                
+                % Save the figure.
+                saveas( fig, [ save_directory, '\', file_name ] ) 
+            
+            end
+            
+        end
+        
         
         %% Maximum RK4 Step Size Plotting Functions.
         
@@ -3502,15 +3516,16 @@ classdef plotting_utilities_class
         
         
         % Implement a function to create a surface plot of the maximum RK4 step size over the gain parameters.
-        function fig = surf_max_rk4_step_size( ~, Xs, Ys, dTs, color, scale, viewing_angle, subnetwork_name, encoding_scheme, variables_string, units_string, title_tag, save_flag, save_directory, save_tag )
+        function fig = surf_max_rk4_step_size( ~, Xs, Ys, dTs, color, scale, viewing_angle, subnetwork_name, encoding_scheme, variables_text_string, variables_symbol_string, units_string, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 15, save_tag = ''; end
-            if nargin < 14, save_directory = './'; end
-            if nargin < 13, save_flag = true; end
-            if nargin < 12, title_tag = ''; end
-            if nargin < 11, units_string = { '-', '-', 'ms' }; end
-            if nargin < 10, variables_string = { 'c1', 'c2', 'dT' }; end
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, title_tag = ''; end
+            if nargin < 12, units_string = { '-', '-', 'ms' }; end
+            if nargin < 11, variables_symbol_string = { 'c1', 'c2', 'dT' }; end
+            if nargin < 10, variables_text_string = { 'Input 1', 'Input 2', 'Maximum RK4 Step Size' }; end
             if nargin < 9, encoding_scheme = 'Absolute'; end
             if nargin < 8, subnetwork_name = 'Transmission'; end
             if nargin < 7, viewing_angle = [ 145, 15 ]; end
@@ -3521,15 +3536,15 @@ classdef plotting_utilities_class
             title_string = sprintf( '%s: %s Maximum RK4 Step Size %s', subnetwork_name, encoding_scheme, title_tag );
 
             % Create the figure labels.
-            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
-            ylabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
-            zlabel_string = sprintf( 'Maximum RK4 Step Size, %s [%s]', variables_string{ 3 }, units_string{ 3 } );
+            xlabel_string = sprintf( '%s, %s [%s]', variables_text_string{ 1 }, variables_symbol_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s, %s [%s]', variables_text_string{ 2 }, variables_symbol_string{ 2 }, units_string{ 2 } );
+            zlabel_string = sprintf( '%s, %s [%s]', variables_text_string{ 3 }, variables_symbol_string{ 3 }, units_string{ 3 } );
             
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string), title( title_string )
             
             % Plot the surface.
-            surf( Xs, Ys, scale*dTs, 'Edgecolor', 'None', 'Facecolor', color, 'Facealpha', 0.90 );
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*dTs, 'Edgecolor', 'None', 'Facecolor', color, 'Facealpha', 0.90 );
             
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
@@ -3926,15 +3941,16 @@ classdef plotting_utilities_class
         
         
         % Implement a function to create a surface plot of the maximum condition number over the gain parameters.
-        function fig = surf_max_condition_number( ~, Xs, Ys, dKs, color, scale, viewing_angle, subnetwork_name, encoding_scheme, variables_string, units_string, title_tag, save_flag, save_directory, save_tag )
+        function fig = surf_max_condition_number( ~, Xs, Ys, dKs, color, scale, viewing_angle, subnetwork_name, encoding_scheme, variables_text_string, variables_symbol_string, units_string, title_tag, save_flag, save_directory, save_tag )
             
             % Set the default input arguments.
-            if nargin < 15, save_tag = ''; end
-            if nargin < 14, save_directory = './'; end
-            if nargin < 13, save_flag = true; end
-            if nargin < 12, title_tag = ''; end
-            if nargin < 11, units_string = { '-', '-', '-' }; end
-            if nargin < 10, variables_string = { 'c1', 'c2', 'dK' }; end
+            if nargin < 16, save_tag = ''; end
+            if nargin < 15, save_directory = './'; end
+            if nargin < 14, save_flag = true; end
+            if nargin < 13, title_tag = ''; end
+            if nargin < 12, units_string = { '-', '-', '-' }; end
+            if nargin < 11, variables_symbol_string = { 'x1', 'x2', 'dK' }; end
+            if nargin < 10, variables_text_string = { 'Input 1', 'Input 2', 'Max Condition Number' }; end
             if nargin < 9, encoding_scheme = 'Absolute'; end
             if nargin < 8, subnetwork_name = 'Transmission'; end
             if nargin < 7, viewing_angle = [ 145, 15 ]; end
@@ -3945,15 +3961,15 @@ classdef plotting_utilities_class
             title_string = sprintf( '%s: %s Maximum Condition Number %s', subnetwork_name, encoding_scheme, title_tag );
 
             % Create the figure labels.
-            xlabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 1 }, units_string{ 1 } );
-            ylabel_string = sprintf( 'Parameter, %s [%s]', variables_string{ 2 }, units_string{ 2 } );
-            zlabel_string = sprintf( 'Maximum Condition Number, %s [%s]', variables_string{ 3 }, units_string{ 3 } );
+            xlabel_string = sprintf( '%s, %s [%s]', variables_text_string{ 1 }, variables_symbol_string{ 1 }, units_string{ 1 } );
+            ylabel_string = sprintf( '%s, %s [%s]', variables_text_string{ 2 }, variables_symbol_string{ 2 }, units_string{ 2 } );
+            zlabel_string = sprintf( '%s, %s [%s]', variables_text_string{ 3 }, variables_symbol_string{ 3 }, units_string{ 3 } );
             
             % Create the figure.
             fig = figure( 'Color', 'w', 'Name', title_string ); hold on, grid on, rotate3d on, view( viewing_angle), xlabel( xlabel_string ), ylabel( ylabel_string ), zlabel( zlabel_string), title( title_string )
             
             % Plot the surface.
-            surf( Xs, Ys, scale*dKs, 'Edgecolor', 'None', 'Facecolor', color, 'Facealpha', 0.90 );
+            surf( scale( 1 )*Xs, scale( 2 )*Ys, scale( 3 )*dKs, 'Edgecolor', 'None', 'Facecolor', color, 'Facealpha', 0.90 );
             
             % Determine whether to save the figure.
             if save_flag                            % If we want to save the figure...
