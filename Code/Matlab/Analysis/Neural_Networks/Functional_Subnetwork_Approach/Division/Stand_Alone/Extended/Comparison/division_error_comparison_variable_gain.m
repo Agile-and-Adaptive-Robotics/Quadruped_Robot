@@ -1,4 +1,4 @@
-%% Inversion Subnetwork Encoding Comparison.
+%% Division Subnetwork Encoding Comparison.
 
 % Clear Everything.
 clear, close( 'all' ), clc
@@ -28,13 +28,21 @@ epsilon = 0.80;                                     % [0-1] Adapted Step Size Th
 ts = ( 0:network_dt:network_tf )';                 	% [s] Simulation Times.
 
 % Compute the number of simulation step_sizes.
-num_timesteps = length( ts );                         % [#] Number of Simulation Timesteps.
+num_timesteps = length( ts );                      	% [#] Number of Simulation Timesteps.
 
 % Define the integration method.
 integration_method = 'RK4';                         % [str] Integration Method (Either FE for Forward Euler or RK4 for Fourth Order Runge-Kutta).
 
 % Define the number of input signals.
-n_input_signals = 20;                               % [#] Number of Input Signals.
+num_input_signals1 = 20;                           	% [#] Number of Input Signals.
+num_input_signals2 = 20;                           	% [#] Number of Input Signals.
+
+% Define the number of neurons.
+num_neurons = 3;
+
+% Define the grid and flat size.
+grid_size = [ num_input_signals2, num_input_signals1, num_neurons ];
+flat_size = [ num_input_signals1*num_input_signals2, num_neurons ];
 
 % Define whether to save simulation data.
 simulate_flag = false;                             	% [T/F] Simulation Flag. (Determines whether to create a new simulation of the steady state error or to load a previous simulation.)
@@ -44,9 +52,9 @@ verbose_flag = true;                            	% [T/F] Printing Flag. (Determi
 adapt_step_size_flag = true;                        % [T/F] Adapt Step Size Flag.
 
 % Set additional simulation properties.
-filter_disabled_flag = true;                % [T/F] Filter Disabled Flag.
-process_option = 'None';                    % [str] Process Option.
-undetected_option = 'Ignore';                        % [str] Undetected Option.
+filter_disabled_flag = true;                        % [T/F] Filter Disabled Flag.
+process_option = 'None';                            % [str] Process Option.
+undetected_option = 'Ignore';                    	% [str] Undetected Option.
 
 % Create an instance of the network utilities class.
 network_utilities = network_utilities_class( );
@@ -77,20 +85,20 @@ deltas = linspace( delta_min, delta_max, num_deltas );                          
 % Define the subnetwork formulation params (shared by both encoding schemes).
 x1_max = 20e-3;
 
-% Define the inversion subnetwork design params.
+% Define the division subnetwork design params.
 Gm1_absolute = 1e-6;                                        % [S] Membrane Conductance (Neuron 1).
 Gm2_absolute = 1e-6;                                      	% [S] Membrane Conductance (Neuron 2).
 Cm1_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 1).
 Cm2_absolute = 5e-9;                                        % [F] Membrane Capacitance (Neuron 2).
 
-% Store the inversion subnetwork design params.
-absolute_inversion_input_params.x1_max = x1_max;
-absolute_inversion_input_params.Gm1 = Gm1_absolute;
-absolute_inversion_input_params.Gm2 = Gm2_absolute;
-absolute_inversion_input_params.Cm1 = Cm1_absolute;
-absolute_inversion_input_params.Cm2 = Cm2_absolute;
+% Store the division subnetwork design params.
+absolute_division_input_params.x1_max = x1_max;
+absolute_division_input_params.Gm1 = Gm1_absolute;
+absolute_division_input_params.Gm2 = Gm2_absolute;
+absolute_division_input_params.Cm1 = Cm1_absolute;
+absolute_division_input_params.Cm2 = Cm2_absolute;
 
-% Define the inversion subnetwork design params.
+% Define the division subnetwork design params.
 R1_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 1).
 R2_relative = 20e-3;                                         % [V] Maximum Membrane Voltage (Neuron 2).
 Gm1_relative = 1e-6;                                         % [S] Membrane Conductance (Neuron 1).
@@ -98,36 +106,36 @@ Gm2_relative = 1e-6;                                         % [S] Membrane Cond
 Cm1_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 1).
 Cm2_relative = 5e-9;                                         % [F] Membrane Capacitance (Neuron 2).
 
-% Store the inversion subnetwork design params.
-relative_inversion_input_params.x1_max = x1_max;
-relative_inversion_input_params.R1 = R1_relative;
-relative_inversion_input_params.R2 = R2_relative;
-relative_inversion_input_params.Gm1 = Gm1_relative;
-relative_inversion_input_params.Gm2 = Gm2_relative;
-relative_inversion_input_params.Cm1 = Cm1_relative;
-relative_inversion_input_params.Cm2 = Cm2_relative;
+% Store the division subnetwork design params.
+relative_division_input_params.x1_max = x1_max;
+relative_division_input_params.R1 = R1_relative;
+relative_division_input_params.R2 = R2_relative;
+relative_division_input_params.Gm1 = Gm1_relative;
+relative_division_input_params.Gm2 = Gm2_relative;
+relative_division_input_params.Cm1 = Cm1_relative;
+relative_division_input_params.Cm2 = Cm2_relative;
 
 
 %% Define the Encoding & Decoding Operations.
 
 % Define the absolute encoding maps.
-f_encode1_absolute = @( x1 ) network_utilities.encode_absolute_inversion_input( x1 );
-f_encode2_absolute = @( x2 ) network_utilities.encode_absolute_inversion_output( x2 );
+f_encode1_absolute = @( x1 ) network_utilities.encode_absolute_division_input( x1 );
+f_encode2_absolute = @( x2 ) network_utilities.encode_absolute_division_output( x2 );
 f_encode_absolute = @( Xs ) [ f_encode1_absolute( Xs( :, 1 ) ), f_encode2_absolute( Xs( :, 2 ) ) ];
 
 % Define the absolute decoding maps.
-f_decode1_absolute = @( U1 ) network_utilities.decode_absolute_inversion_input( U1 );
-f_decode2_absolute = @( U2 ) network_utilities.decode_absolute_inversion_output( U2 );
+f_decode1_absolute = @( U1 ) network_utilities.decode_absolute_division_input( U1 );
+f_decode2_absolute = @( U2 ) network_utilities.decode_absolute_division_output( U2 );
 f_decode_absolute = @( Us ) [ f_decode1_absolute( Us( :, 1 ) ), f_decode2_absolute( Us( :, 2 ) ) ];
 
 % Define the relative encoding maps.
-f_encode1_relative = @( x1 ) network_utilities.encode_relative_inversion_input( x1, x1_max, R1_relative );
-f_encode2_relative = @( x2, c1, c3 ) network_utilities.encode_relative_inversion_output( x2, c1, c3, R2_relative );
+f_encode1_relative = @( x1 ) network_utilities.encode_relative_division_input( x1, x1_max, R1_relative );
+f_encode2_relative = @( x2, c1, c3 ) network_utilities.encode_relative_division_output( x2, c1, c3, R2_relative );
 f_encode_relative = @( Xs, c1, c3 ) [ f_encode1_relative( Xs( :, 1 ) ), f_encode2_relative( Xs( :, 2 ), c1, c3 ) ];
 
 % Define the relative decoding maps.
-f_decode1_relative = @( U1 ) network_utilities.decode_relative_inversion_input( U1, x1_max, R1_relative );
-f_decode2_relative = @( U2, c1, c3 ) network_utilities.decode_relative_inversion_output( U2, c1, c3, R2_relative );
+f_decode1_relative = @( U1 ) network_utilities.decode_relative_division_input( U1, x1_max, R1_relative );
+f_decode2_relative = @( U2, c1, c3 ) network_utilities.decode_relative_division_output( U2, c1, c3, R2_relative );
 f_decode_relative = @( Us, c1, c3 ) [ f_decode1_relative( Us( :, 1 ) ), f_decode2_relative( Us( :, 2 ), c1, c3 ) ];
 
 
@@ -411,13 +419,13 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             delta = deltas( k3 );
             
             % Store the variable subnetwork formulation params.
-            absolute_inversion_input_params.c1 = c1;
-            absolute_inversion_input_params.c3 = c3;
-            absolute_inversion_input_params.delta = delta;
+            absolute_division_input_params.c1 = c1;
+            absolute_division_input_params.c3 = c3;
+            absolute_division_input_params.delta = delta;
             
-            relative_inversion_input_params.c1 = c1;
-            relative_inversion_input_params.c3 = c3;
-            relative_inversion_input_params.delta = delta;
+            relative_division_input_params.c1 = c1;
+            relative_division_input_params.c3 = c3;
+            relative_division_input_params.delta = delta;
             
             % Determine whether to print additional information.
             if verbose_flag, local_duration = network_utilities.print_ending_status_message( '\tDefining formulation parameters... Done!', local_start_time ); end
@@ -451,13 +459,13 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             network_absolute = network_class( network_dt, network_tf );
             network_relative = network_class( network_dt, network_tf );
 
-            % Create an inversion subnetwork.
-            [ absolute_inversion_output_params, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_inversion_subnetwork( absolute_inversion_input_params, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
-            [ relative_inversion_output_params, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_inversion_subnetwork( relative_inversion_input_params, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
+            % Create an division subnetwork.
+            [ absolute_division_output_params, neurons_absolute, synapses_absolute, applied_currents_absolute, neuron_manager_absolute, synapse_manager_absolute, applied_current_manager_absolute, network_absolute ] = network_absolute.create_division_subnetwork( absolute_division_input_params, 'absolute', network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, true, true, false, undetected_option );
+            [ relative_division_output_params, neurons_relative, synapses_relative, applied_currents_relative, neuron_manager_relative, synapse_manager_relative, applied_current_manager_relative, network_relative ] = network_relative.create_division_subnetwork( relative_division_input_params, 'relative', network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, true, true, false, undetected_option );
 
             % Unpack the subnetwork output params.
-            [ c2s_absolute( k1, k2, k3 ), x2maxs_absolute( k1, k2, k3 ), R1s_absolute( k1, k2, k3 ), R2s_absolute( k1, k2, k3 ), Gna1s_absolute( k1, k2, k3 ), Gna2s_absolute( k1, k2, k3 ), dEs21s_absolute( k1, k2, k3 ), gs21s_absolute( k1, k2, k3 ), Ia2s_absolute( k1, k2, k3 ) ] = network_absolute.unpack_absolute_inversion_output_params( absolute_inversion_output_params, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
-            [ c2s_relative( k1, k2, k3 ), x2maxs_relative( k1, k2, k3 ), Gna1s_relative( k1, k2, k3 ), Gna2s_relative( k1, k2, k3 ), dEs21s_relative( k1, k2, k3 ), gs21s_relative( k1, k2, k3 ), Ia2s_relative( k1, k2, k3 ) ] = network_relative.unpack_relative_inversion_output_params( relative_inversion_output_params, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
+            [ c2s_absolute( k1, k2, k3 ), x2maxs_absolute( k1, k2, k3 ), R1s_absolute( k1, k2, k3 ), R2s_absolute( k1, k2, k3 ), Gna1s_absolute( k1, k2, k3 ), Gna2s_absolute( k1, k2, k3 ), dEs21s_absolute( k1, k2, k3 ), gs21s_absolute( k1, k2, k3 ), Ia2s_absolute( k1, k2, k3 ) ] = network_absolute.unpack_absolute_division_output_params( absolute_division_output_params, network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option );
+            [ c2s_relative( k1, k2, k3 ), x2maxs_relative( k1, k2, k3 ), Gna1s_relative( k1, k2, k3 ), Gna2s_relative( k1, k2, k3 ), dEs21s_relative( k1, k2, k3 ), gs21s_relative( k1, k2, k3 ), Ia2s_relative( k1, k2, k3 ) ] = network_relative.unpack_relative_division_output_params( relative_division_output_params, network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option );
 
             % Update the input current ID and name.
             [ ~, network_absolute.applied_current_manager ] = network_absolute.applied_current_manager.set_applied_current_property( network_absolute.applied_current_manager.applied_currents( 1 ).ID, 2, 'ID', network_absolute.applied_current_manager.applied_currents, true );
@@ -507,13 +515,13 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             % Define the stability analysis step_size seed.
             dt0 = 1e-6;                                                                                                                                                             % [s] Numerical Stability Time Step.
 
-            % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative inversion subnetwork.
+            % Retrieve the properties necessary to compute the numerical stability params for an absolute and relative division subnetwork.
             [ Cms_absolute, Gms_absolute, Rs_absolute, gs_absolute, dEs_absolute, Ias_absolute ] = network_absolute.get_numerical_stability_params( network_absolute.neuron_manager, network_absolute.synapse_manager, true, undetected_option );
             [ Cms_relative, Gms_relative, Rs_relative, gs_relative, dEs_relative, Ias_relative ] = network_relative.get_numerical_stability_params( network_relative.neuron_manager, network_relative.synapse_manager, true, undetected_option );
 
-            % Compute the absolute & relative inversion steady state output.
-            [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
-            [ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_inversion_RK4_stability_analysis_decoded( xs_numerical_input, Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, f_encode1_relative, @( xs ) f_decode2_relative( xs, c1, c3 ), network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
+            % Compute the absolute & relative division steady state output.
+            [ ~, As_absolute, dts_absolute, condition_numbers_absolute ] = network_absolute.achieved_division_RK4_stability_analysis_decoded( xs_numerical_input, Cms_absolute, Gms_absolute, Rs_absolute, Ias_absolute, gs_absolute, dEs_absolute, dt0, f_encode1_absolute, f_decode2_absolute, network_absolute.neuron_manager, network_absolute.synapse_manager, undetected_option, network_absolute.network_utilities );
+            [ ~, As_relative, dts_relative, condition_numbers_relative ] = network_relative.achieved_division_RK4_stability_analysis_decoded( xs_numerical_input, Cms_relative, Gms_relative, Rs_relative, Ias_relative, gs_relative, dEs_relative, dt0, f_encode1_relative, @( xs ) f_decode2_relative( xs, c1, c3 ), network_relative.neuron_manager, network_relative.synapse_manager, undetected_option, network_relative.network_utilities );
 
             % Retrieve the maximum RK4 step size.
             [ dts_max_absolute( k1, k2, k3 ), indexes_dt_absolute ] = min( dts_absolute );
@@ -588,8 +596,8 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
                     data_relative.xs_numerical = xs_numerical_relative;
                     
                     % Define the save file names.
-                    file_name_absolute = sprintf( 'absolute_inversion_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
-                    file_name_relative = sprintf( 'relative_inversion_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
+                    file_name_absolute = sprintf( 'absolute_division_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
+                    file_name_relative = sprintf( 'relative_division_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
                     
                     % Save the simulation results.
                     save( [ save_directory, '\', file_name_absolute ], 'data_absolute' )
@@ -606,8 +614,8 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
                 if verbose_flag, local_start_time = network_utilities.print_starting_status_message( '\tLoading simulation data...\n' ); end
 
                 % Define the load file names.
-                file_name_absolute = sprintf( 'absolute_inversion_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
-                file_name_relative = sprintf( 'relative_inversion_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
+                file_name_absolute = sprintf( 'absolute_division_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
+                file_name_relative = sprintf( 'relative_division_subnetwork_error_gain_%0.0f%0.0f%0.0f', k1, k2, k3 );
                 
                 % Load the simulation results.
                 data_absolute = load( [ load_directory, '\', file_name_absolute ] );
@@ -645,12 +653,12 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             Us_theoretical_relative = [ Us_numerical_relative( :, 1 ), zeros( size( Us_numerical_relative, 1 ), 1 ) ];
             
             % Compute the absolute and relative desired subnetwork output.
-            Us_desired_absolute( :, 2 ) = network_absolute.compute_encoded_desired_absolute_inversion_sso( Us_desired_absolute( :, 1 ), c1, c3, delta, x1_max, network_absolute.network_utilities );
-            Us_desired_relative( :, 2 ) = network_relative.compute_encoded_desired_relative_inversion_sso( Us_desired_relative( :, 1 ), c1, c3, delta, R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
+            Us_desired_absolute( :, 2 ) = network_absolute.compute_encoded_desired_absolute_division_sso( Us_desired_absolute( :, 1 ), c1, c3, delta, x1_max, network_absolute.network_utilities );
+            Us_desired_relative( :, 2 ) = network_relative.compute_encoded_desired_relative_division_sso( Us_desired_relative( :, 1 ), c1, c3, delta, R1_relative, R2_relative, network_relative.neuron_manager, undetected_option, network_relative.network_utilities );
             
             % Compute the absolute and relative achieved theoretical subnetwork output.
-            Us_theoretical_absolute( :, 2 ) = network_absolute.compute_encoded_achieved_inversion_sso( Us_theoretical_absolute( :, 1 ), R1s_absolute( k1, k2, k3 ), Gm2_absolute, gs21s_absolute( k1, k2, k3 ), dEs21s_absolute( k1, k2, k3 ), Ia2s_absolute( k1, k2, k3 ), network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
-            Us_theoretical_relative( :, 2 ) = network_relative.compute_encoded_achieved_inversion_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, gs21s_relative( k1, k2, k3 ), dEs21s_relative( k1, k2, k3 ), Ia2s_relative( k1, k2, k3 ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
+            Us_theoretical_absolute( :, 2 ) = network_absolute.compute_encoded_achieved_division_sso( Us_theoretical_absolute( :, 1 ), R1s_absolute( k1, k2, k3 ), Gm2_absolute, gs21s_absolute( k1, k2, k3 ), dEs21s_absolute( k1, k2, k3 ), Ia2s_absolute( k1, k2, k3 ), network_absolute.neuron_manager, network_absolute.synapse_manager, network_absolute.applied_current_manager, undetected_option, network_absolute.network_utilities );
+            Us_theoretical_relative( :, 2 ) = network_relative.compute_encoded_achieved_division_sso( Us_theoretical_relative( :, 1 ), R1_relative, Gm2_relative, gs21s_relative( k1, k2, k3 ), dEs21s_relative( k1, k2, k3 ), Ia2s_relative( k1, k2, k3 ), network_relative.neuron_manager, network_relative.synapse_manager, network_relative.applied_current_manager, undetected_option, network_relative.network_utilities );
             
             % Compute the decoded desired absolute and relative network outputs.
             xs_desired_absolute( :, 2 ) = f_decode2_absolute( Us_desired_absolute( :, 2 ) );
@@ -704,12 +712,12 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             %% Print the Absolute & Relative Subnetwork Summary Statistics.
             
             % Define the absolute header strings.
-            header_str_absolute_encoded = 'Absolute Inversion Encoded Error Statistics';
-            header_str_absolute_decoded = 'Absolute Inversion Decoded Error Statistics';
+            header_str_absolute_encoded = 'Absolute Division Encoded Error Statistics';
+            header_str_absolute_decoded = 'Absolute Division Decoded Error Statistics';
             
             % Define the relative header strings.
-            header_str_relative_encoded = 'Relative Inversion Encoded Error Statistics';
-            header_str_relative_decoded = 'Relative Inversion Decoded Error Statistics';
+            header_str_relative_encoded = 'Relative Division Encoded Error Statistics';
+            header_str_relative_decoded = 'Relative Division Decoded Error Statistics';
             
             % Define the unit strings.
             unit_str_encoded = 'mV';
@@ -739,11 +747,11 @@ for k1 = 1:num_c1s                          % Iterate through each of the c1s...
             xs_critmax_theoretical_relative = f_decode_relative( Us_critmax_theoretical_relative, c1, c3 );
             xs_critmax_numerical_relative = f_decode_relative( Us_critmax_numerical_relative, c1, c3 );
             
-            %     % Print the absolute inversion summary statistics.
+            %     % Print the absolute division summary statistics.
             %     network_absolute.numerical_method_utilities.print_error_statistics( header_str_absolute_encoded, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_absolute_encoded, error_rmse_percentage_theoretical_absolute_encoded, error_rmse_numerical_absolute_encoded, error_rmse_percentage_numerical_absolute_encoded, error_std_theoretical_absolute_encoded, error_std_percentage_theoretical_absolute_encoded, error_std_numerical_absolute_encoded, error_std_percentage_numerical_absolute_encoded, error_min_theoretical_absolute_encoded, error_min_percentage_theoretical_absolute_encoded, Us_critmin_theoretical_absolute, error_min_numerical_absolute_encoded, error_min_percentage_numerical_absolute_encoded, Us_critmin_numerical_absolute, error_max_theoretical_absolute_encoded, error_max_percentage_theoretical_absolute_encoded, Us_critmax_theoretical_absolute, error_max_numerical_absolute_encoded, error_max_percentage_numerical_absolute_encoded, Us_critmax_numerical_absolute, error_range_theoretical_absolute_encoded, error_range_percentage_theoretical_absolute_encoded, error_range_numerical_absolute_encoded, error_range_percentage_numerical_absolute_encoded )
             %     network_absolute.numerical_method_utilities.print_error_statistics( header_str_absolute_decoded, unit_str_decoded, 1, error_rmse_theoretical_absolute_decoded, error_rmse_percentage_theoretical_absolute_decoded, error_rmse_numerical_absolute_decoded, error_rmse_percentage_numerical_absolute_decoded, error_std_theoretical_absolute_decoded, error_std_percentage_theoretical_absolute_decoded, error_std_numerical_absolute_decoded, error_std_percentage_numerical_absolute_decoded, error_min_theoretical_absolute_decoded, error_min_percentage_theoretical_absolute_decoded, xs_critmin_theoretical_absolute, error_min_numerical_absolute_decoded, error_min_percentage_numerical_absolute_decoded, xs_critmin_numerical_absolute, error_max_theoretical_absolute_decoded, error_max_percentage_theoretical_absolute_decoded, xs_critmax_theoretical_absolute, error_max_numerical_absolute_decoded, error_max_percentage_numerical_absolute_decoded, xs_critmax_numerical_absolute, error_range_theoretical_absolute_decoded, error_range_percentage_theoretical_absolute_decoded, error_range_numerical_absolute_decoded, error_range_percentage_numerical_absolute_decoded )
             %
-            %     % Print the relative inversion summary statistics.
+            %     % Print the relative division summary statistics.
             %     network_relative.numerical_method_utilities.print_error_statistics( header_str_relative_encoded, unit_str_encoded, 10^( -3 ), error_rmse_theoretical_relative_encoded, error_rmse_percentage_theoretical_relative_encoded, error_rmse_numerical_relative_encoded, error_rmse_percentage_numerical_relative_encoded, error_std_theoretical_relative_encoded, error_std_percentage_theoretical_relative_encoded, error_std_numerical_relative_encoded, error_std_percentage_numerical_relative_encoded, error_min_theoretical_relative_encoded, error_min_percentage_theoretical_relative_encoded, Us_critmin_theoretical_relative, error_min_numerical_relative_encoded, error_min_percentage_numerical_relative_encoded, Us_critmin_numerical_relative, error_max_theoretical_relative_encoded, error_max_percentage_theoretical_relative_encoded, Us_critmax_theoretical_relative, error_max_numerical_relative_encoded, error_max_percentage_numerical_relative_encoded, Us_critmax_numerical_relative, error_range_theoretical_relative_encoded, error_range_percentage_theoretical_relative_encoded, error_range_numerical_relative_encoded, error_range_percentage_numerical_relative_encoded )
             %     network_relative.numerical_method_utilities.print_error_statistics( header_str_relative_decoded, unit_str_decoded, 1, error_rmse_theoretical_relative_decoded, error_rmse_percentage_theoretical_relative_decoded, error_rmse_numerical_relative_decoded, error_rmse_percentage_numerical_relative_decoded, error_std_theoretical_relative_decoded, error_std_percentage_theoretical_relative_decoded, error_std_numerical_relative_decoded, error_std_percentage_numerical_relative_decoded, error_min_theoretical_relative_decoded, error_min_percentage_theoretical_relative_decoded, xs_critmin_theoretical_relative, error_min_numerical_relative_decoded, error_min_percentage_numerical_relative_decoded, xs_critmin_numerical_relative, error_max_theoretical_relative_decoded, error_max_percentage_theoretical_relative_decoded, xs_critmax_theoretical_relative, error_max_numerical_relative_decoded, error_max_percentage_numerical_relative_decoded, xs_critmax_numerical_relative, error_range_theoretical_relative_decoded, error_range_percentage_theoretical_relative_decoded, error_range_numerical_relative_decoded, error_range_percentage_numerical_relative_decoded )
             
@@ -805,7 +813,7 @@ color1 = [ 0.0000, 0.4470, 0.7410 ];
 color2 = [ 0.8500, 0.3250, 0.0980 ];
 
 % Define the subnetwork name.
-subnetwork_name = 'Inversion';
+subnetwork_name = 'Division';
 
 % Define the viewing angle.
 viewing_angle = [ 145, 15 ];
